@@ -1,0 +1,322 @@
+package ctmn.petals.playstage
+
+import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.EventListener
+import com.badlogic.gdx.scenes.scene2d.Group
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.ArrayMap
+import com.badlogic.gdx.utils.viewport.ExtendViewport
+import ctmn.petals.assets
+import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.playscreen.events.ActionCompletedEvent
+import ctmn.petals.playscreen.events.CommandExecutedEvent
+import ctmn.petals.playscreen.events.PlayStageListener
+import ctmn.petals.playscreen.events.UnitAddedEvent
+import ctmn.petals.tile.TileActor
+import ctmn.petals.unit.*
+import ctmn.petals.unit.UnitActor
+import ctmn.petals.utils.TintShader
+import ctmn.petals.utils.tiledX
+import ctmn.petals.utils.tiledY
+
+/** The stage of the game.
+ * Do not use clear() for removing tiles and units. It's removing all layer groups as well as actors for drawing gui.
+ * Use clearGameActors() for that. */
+class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
+
+    var initView = true
+
+    val tileLayers = ArrayMap<Int, Group>()
+    val tilesLayer1 = PlayStageGroup().also {
+        tileLayers.put(0, PlayStageGroup())
+        tileLayers.put(1, it)
+    }
+    val unitsLayer = PlayStageGroup()
+
+    private val nightTint = Vector3(0.2f, 0.3f, 0.5f)
+    private val eveningTint = Vector3(1.0f, 0.5f, 0.0f)
+    private val tintShader = TintShader(eveningTint, 0.5f)
+
+    private var shaderApplied = false
+
+    var idCounter = 0
+    private val newId get() = "%06d".format(idCounter++)
+
+    var tiledWidth = 0
+    var tiledHeight = 0
+
+    var timeOfDay = DayTime.DAY
+        set(value) {
+            field = value
+
+            when (value) {
+                DayTime.NIGHT -> tintShader.intensity = .7f
+                DayTime.EVENING -> tintShader.intensity = .3f
+                else -> {}
+            }
+        }
+
+    enum class DayTime {
+        DAY,
+        EVENING,
+        NIGHT
+    }
+
+    private val actorIdsMap = HashMap<String, Actor>()
+    private val unitPositionsMap = Array(64) { Array<UnitActor?>(64) { null } }
+    val border = Border(this)
+
+    init {
+        addActor(Background())
+
+        for (layer in tileLayers)
+            addActor(layer.value)
+
+        addActor(unitsLayer)
+
+        addListener {
+            if (it is CommandExecutedEvent || it is ActionCompletedEvent) {
+                updateCaches()
+            }
+
+            false
+        }
+    }
+
+    override fun draw() {
+        camera.update()
+
+        if (!root.isVisible) return
+
+        val batch = batch
+        batch.projectionMatrix = camera.combined
+        batch.begin()
+
+        for (actor in actors) {
+            if (actor is Group) {
+                shaderBegin()
+
+                actor.draw(batch, 1f)
+
+                shaderEnd()
+
+                continue
+            }
+
+            if (actor.isVisible)
+                actor.draw(batch, actor.color.a)
+        }
+
+        border.draw(batch)
+
+        batch.end()
+    }
+
+    private fun shaderBegin() {
+        when (timeOfDay) {
+            DayTime.DAY -> return
+            DayTime.EVENING -> tintShader.tint = eveningTint
+            DayTime.NIGHT -> tintShader.tint = nightTint
+        }
+
+        batch.shader = tintShader.shader
+        tintShader.setUniformfs()
+
+        shaderApplied = true
+    }
+
+    private fun shaderEnd() {
+        if (shaderApplied) {
+            batch.shader = null
+
+            shaderApplied = false
+        }
+    }
+
+    fun updateCaches() {
+        unitPositionsMap.forEach { it.forEachIndexed { i, _ -> it[i] = null } }
+        for (unit in getUnits()) {
+            if (unit.tiledX >= 0 && unit.tiledY >= 0 && unit.tiledX < unitPositionsMap.size && unit.tiledY < unitPositionsMap[0].size)
+                unitPositionsMap[unit.tiledX][unit.tiledY] = unit
+        }
+    }
+
+    fun addActorBeforeTiles(actor: Actor) {
+        root.addActorBefore(tileLayers.firstValue(), actor)
+    }
+
+    fun addActorAfterTiles(actor: Actor) {
+        root.addActorAfter(tileLayers.last().value, actor)
+    }
+
+    private fun addTile(tile: TileActor) {
+        if (tileLayers.containsKey(tile.layer))
+            tileLayers[tile.layer].addActor(tile)
+        else
+            tileLayers.put(tile.layer, Group().apply {
+                addActor(tile)
+                this@PlayStage.root.addActorAfter(tileLayers.get(tile.layer - 1), this)
+            })
+    }
+
+    override fun addActor(actor: Actor) {
+        if (initView && actor is UnitActor && !actor.isViewInitialized) {
+            actor.initView(assets)
+
+            actor.updateView()
+        }
+
+        // trigger Actor.positionChanged()
+        if (actor is UnitActor) {
+            val x = actor.tiledX
+            val y = actor.tiledY
+            actor.setPosition(0, 0)
+            actor.setPosition(x, y)
+        }
+
+        if (actor is UnitActor && actor.cLevel != null) {
+            //actor.levelUp() // todo: this causes problem when loading from game state snapshot, fix it
+        }
+
+        when (actor) {
+            is TileActor -> {
+                if (actor.name == null) actor.name = actor.tileName + "@" + newId
+
+                if (tiledWidth < actor.tiledX + 1) tiledWidth = actor.tiledX + 1
+                if (tiledHeight < actor.tiledY + 1) tiledHeight = actor.tiledY + 1
+
+                if (initView && actor.tileViewComponent == null)
+                    actor.initView()
+
+                getTile(actor.tiledX, actor.tiledY, actor.layer)?.remove()
+
+                addTile(actor)
+
+                actor.setPosition(actor.tiledX, actor.tiledY)
+            }
+            is UnitActor -> {
+                if (actor.name == null) actor.name = actor.cUnit.name + "@" + newId
+
+                unitsLayer.addActor(actor)
+
+                if (initView)
+                    root.fire(UnitAddedEvent(actor))
+            }
+            else -> super.addActor(actor)
+        }
+    }
+
+    fun clearUnits() {
+        for (unit in unitsLayer.children) {
+            unit.remove()
+        }
+        unitsLayer.clear()
+    }
+
+    private fun clearTiles() {
+        for (layer in tileLayers) {
+            for (tile in layer.value.children) {
+                tile.remove()
+            }
+            layer.value.clear()
+        }
+    }
+
+    private fun clearLabels() {
+        for (actor in actors) {
+            if (actor is LabelActor)
+                actor.remove()
+        }
+    }
+
+    private fun clearMinorGameActors() {
+        actors.forEach {
+            if (it is GameActor)
+                it.remove()
+        }
+    }
+
+    fun clearGameActors() {
+        clearTiles()
+
+        clearUnits()
+
+        clearLabels()
+
+        clearMinorGameActors()
+    }
+
+    fun findUnit(name: String) : UnitActor? {
+        if (actorIdsMap.containsKey(name))
+            return actorIdsMap[name] as UnitActor
+
+        return null
+    }
+
+    fun getUnit(x: Int, y: Int) : UnitActor? {
+        return if (x >= 0 && y >= 0 && x < unitPositionsMap.size && y < unitPositionsMap[0].size) unitPositionsMap[x][y] else null
+    }
+
+    fun getTile(x: Int, y: Int) : TileActor? {
+        for (tile in getTiles()) {
+            if (tile.tiledX == x && tile.tiledY == y) {
+                return tile
+            }
+        }
+        return null
+    }
+
+    fun getTile(x: Int, y: Int, layer: Int) : TileActor? {
+        for (tile in (tileLayers.get(layer) ?: return null).children) {
+            tile as TileActor
+            if (tile.tiledX == x && tile.tiledY == y) {
+                return tile
+            }
+        }
+        return null
+    }
+
+    override fun addListener(listener: EventListener): Boolean {
+        if (listener is PlayStageListener) {
+            listener.playStage = this
+            listener.onPlayStage()
+        }
+
+        return super.addListener(listener)
+    }
+
+    private inner class Background : Group() {
+
+        private val backTile = TileActor("grass", "grass").apply { initView() }
+
+        override fun draw(batch: Batch, parentAlpha: Float) {
+            for (tile in tilesLayer1.children) {
+                backTile.setPosition(tile.tiledX, tile.tiledY)
+                backTile.draw(batch, parentAlpha)
+            }
+        }
+    }
+
+    inner class PlayStageGroup : Group() {
+
+        override fun addActor(actor: Actor) {
+            if (actor.name != null)
+                actorIdsMap[actor.name] = actor
+
+            updateCaches()
+
+            super.addActor(actor)
+        }
+
+        override fun removeActor(actor: Actor): Boolean {
+            if (actor.name != null)
+                actorIdsMap.remove(actor.name)
+
+            updateCaches()
+
+            return super.removeActor(actor)
+        }
+    }
+}

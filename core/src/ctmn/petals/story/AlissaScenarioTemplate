@@ -1,0 +1,41 @@
+import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.player.Player
+import ctmn.petals.player.Team
+import ctmn.petals.playscreen.NoEnd
+import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playstage.getLabels
+import ctmn.petals.story.alissa.AlissaScenario
+import ctmn.petals.story.playScreen
+import ctmn.petals.utils.addUnit
+
+class TemplateScenario : AlissaScenario(name = "Template", levelFileName = "template.map") {
+
+    private val enemyPlayer = Player("Enemy", Player.RED, Team.RED)
+
+    init {
+        player = alicePlayer
+        gameEndCondition = NoEnd()
+
+        players.add(player, enemyPlayer)
+    }
+
+    override fun makeScenario(playScreen: PlayScreen) {
+
+        // ai
+        playScreen.aiManager.add(EasyAiDuelPlayer(enemyPlayer, playScreen))
+
+        //labels
+        for (label in playStage.getLabels()) {
+            when (label.labelName) {
+                "alice" -> {
+                    label.addUnit(alice)
+                }
+            }
+        }
+
+        //sequence
+        playScreen {
+
+        }
+    }
+}

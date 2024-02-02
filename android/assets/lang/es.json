@@ -1,0 +1,17 @@
+{
+  "menu": {
+    "story": "Historia",
+    "match": "Partida",
+    "editor": "Editor",
+    "settings": "Configuración",
+    "exit": "Salir"
+  },
+  "play": {
+    "your_turn": "TU TURNO",
+    "enemy_turn": "TURNO DEL ENEMIGO",
+    "ally_turn": "TURNO DEL ALIADO"
+  },
+  "units": {
+    "alissa": "Alissa"
+  }
+}

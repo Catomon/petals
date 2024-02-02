@@ -1,0 +1,17 @@
+{
+  "menu": {
+    "story": "Story",
+    "match": "Match",
+    "editor": "Editor",
+    "settings": "Settings",
+    "exit": "Exit"
+  },
+  "play": {
+    "your_turn": "YOUR TURN",
+    "enemy_turn": "ENEMY TURN",
+    "ally_turn": "ALLY TURN"
+  },
+  "units": {
+    "alissa": "Alissa"
+  }
+}
