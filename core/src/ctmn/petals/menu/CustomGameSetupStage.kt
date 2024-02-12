@@ -168,7 +168,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val clientConnectionListener by lazy {
         GenericFutureListener<ChannelFuture> { future ->
             if (!future.isSuccess) {
-                menuScreen.stage = menuScreen.matchSelectionStage
+                menuScreen.stage = menuScreen.lobbyTypesStage
 
                 val e = Exception() //future.exceptionNow()
                 when (e) {
@@ -412,13 +412,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         startJmDNSAsServer { result ->
             if (!result) {
                 Gdx.app.log("CustomGameSetupStage", "Unable to start JmDNS.")
-//                menuScreen.matchSelectionStage.addActor(
+//                menuScreen.lobbyTypesStage.addActor(
 //                    newNotifyWindow(
 //                        "Unable to start JmDNS.\nCheck your network connection.",
 //                        "Host"
 //                    )
 //                )
-//                menuScreen.stage = menuScreen.matchSelectionStage
+//                menuScreen.stage = menuScreen.lobbyTypesStage
 
                 roomStatusImage.drawable = roomFailDrawable
             } else {

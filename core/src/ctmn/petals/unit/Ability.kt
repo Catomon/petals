@@ -79,6 +79,10 @@ abstract class Ability(
                         Target.UNIT_FOLLOWER -> if (actor is UnitActor && actor.playerId == unitCaster.playerId && actor.leaderID == unitCaster.leaderID) targetActorsArray.add(actor)
                         Target.UNIT_MONSTER -> TODO()
                         Target.OBJECTIVE -> TODO()
+                        Target.ALL_MY_LEADER_FOLLOWERS -> TODO()
+                        Target.ALL_MY_TEAM_LEADER_FOLLOWERS -> TODO()
+                        Target.ALL_TEAMMATE_LEADER_FOLLOWERS -> TODO()
+                        Target.ALL_ENEMY_LEADER_FOLLOWERS -> TODO()
                     }
             }
         }

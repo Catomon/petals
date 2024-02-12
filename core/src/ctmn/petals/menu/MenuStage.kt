@@ -48,7 +48,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             }
         })
         matchButton.addChangeListener {
-            menuScreen.stage = menuScreen.matchSelectionStage
+            menuScreen.stage = menuScreen.lobbyTypesStage
         }
         editorButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {

@@ -6,6 +6,17 @@ import java.util.*
 
 val gameSettings = Gdx.app.getPreferences("ctmn.petals.settings")
 
+fun GamePref.overridePrefs() {
+    drawUnitAttackRange = true
+}
+
+fun GamePref.setEmptyToDefaultPrefs() {
+    if (locale == null) locale = "en"
+    if (drawUnitAttackRange == null) drawUnitAttackRange = true
+
+    save()
+}
+
 object GamePref {
 
     private const val LOCALE = "locale"
@@ -23,7 +34,7 @@ object GamePref {
             else
                 UUID.randomUUID().toString().also { gameSettings.putString("client_id", it).flush() }
 
-    var locale: String
+    var locale: String?
         get() = prefs.getString(LOCALE)
         set(value) { prefs.putString(LOCALE, value) }
 

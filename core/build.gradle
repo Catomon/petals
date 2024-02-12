@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.22'
 }
 
 sourceCompatibility = 1.7
@@ -13,8 +13,6 @@ repositories {
 }
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.10"
-    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.126'
 }
 compileKotlin {
     kotlinOptions {

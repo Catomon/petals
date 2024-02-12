@@ -12,6 +12,9 @@ BitmapFont: {
 	quaver: {
 		file: BadComic24.fnt
 	}
+	default-font: {
+		file: BadComic24.fnt
+	}
 }
 Color: {
 	black: {
@@ -236,7 +239,7 @@ TextFieldStyle: {
 	default: {
 		font: font
 		fontColor: white
-		focusedFontColor: green
+		focusedFontColor: white
 		background: textfield
 		focusedBackground: textfield-pressed
 		cursor: caret
@@ -287,10 +290,10 @@ com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle: {
 	default: {
 		font: font
 		fontColor: white
-		selection: white
+		selection: green
 		background: textfield
-		cursor: black
-		focusedFontColor: green
+		cursor: caret
+		focusedFontColor: white
 		focusedBackground: textfield-pressed
 	}
 }

@@ -178,6 +178,10 @@ class InputManager(val guiStage: PlayGUIStage) {
             return false
         }
 
+        override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            return false
+        }
+
         override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
             if (isStopped) return false
 
@@ -234,10 +238,10 @@ class InputManager(val guiStage: PlayGUIStage) {
             return false
         }
 
-        override fun scrolled(amount: Int): Boolean {
+        override fun scrolled(amountX: Float, amountY: Float): Boolean {
             if (isStopped) return false
 
-            playScreen.playStageCameraController.zoomUp(amount * 0.05f)
+            playScreen.playStageCameraController.zoomUp(amountY * 0.05f)
 
             return false
         }

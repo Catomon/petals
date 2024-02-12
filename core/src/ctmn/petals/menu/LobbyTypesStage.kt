@@ -18,7 +18,7 @@ import ctmn.petals.utils.closeJmDNS
 import ctmn.petals.utils.startJmDNSAsClient
 import ctmn.petals.widgets.*
 
-class MatchSelectionStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
+class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val labelVsAi = newLabel("Vs AI", "font_5")
     private val customGameButton = newTextButton("Custom game")
@@ -149,7 +149,7 @@ class MatchSelectionStage(private val menuScreen: MenuScreen) : Stage(menuScreen
             if (searchHost) {
                 startJmDNSAsClient { result ->
                     if (result) {
-                        this@MatchSelectionStage.addAction(OneAction {
+                        this@LobbyTypesStage.addAction(OneAction {
                             clientLobbyButton.actions.clear()
                             clientLobbyButton.isDisabled = false
 

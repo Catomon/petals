@@ -18,6 +18,8 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
     private var minAttackRangeBorder = BorderDrawer(Color.RED, guiStage)
     private var attackRangeBorder = BorderDrawer(Color.RED, guiStage)
 
+    var drawAttackRangeForRangedOnly = true
+
     init {
         addActor(moveRangeBorder)
         addActor(minAttackRangeBorder)
@@ -55,16 +57,31 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
         val unit = unit
         if (unit != null) {
             moveRangeBorder.makeForMatrix(guiStage.playStage.getMovementGrid(unit, true), guiStage.playStage)
-            attackRangeBorder.makeForMatrix(guiStage.playStage.getMovementGrid(unit.attackRange, unit.tiledX, unit.tiledY, TerrainCosts.clear), guiStage.playStage)
+            attackRangeBorder.makeForMatrix(
+                guiStage.playStage.getMovementGrid(
+                    unit.attackRange,
+                    unit.tiledX,
+                    unit.tiledY,
+                    TerrainCosts.clear
+                ), guiStage.playStage
+            )
             if (unit.cAttack!!.attackRangeBlocked > 0)
-                minAttackRangeBorder.makeForMatrix(guiStage.playStage.getMovementGrid(unit.attackRange - unit.cAttack!!.attackRangeBlocked, unit.tiledX, unit.tiledY, TerrainCosts.clear), guiStage.playStage)
+                minAttackRangeBorder.makeForMatrix(
+                    guiStage.playStage.getMovementGrid(
+                        unit.attackRange - unit.cAttack!!.attackRangeBlocked,
+                        unit.tiledX,
+                        unit.tiledY,
+                        TerrainCosts.clear
+                    ), guiStage.playStage
+                )
         }
     }
 
     override fun act(delta: Float) {
         super.act(delta)
 
-        isVisible = unit?.playerId == guiStage.player.id && guiStage.clickStrategy == guiStage.unitSelectedCs && !guiStage.playScreen.actionManager.hasActions
+        isVisible =
+            unit?.playerId == guiStage.player.id && guiStage.clickStrategy == guiStage.unitSelectedCs && !guiStage.playScreen.actionManager.hasActions
     }
 
     override fun setVisible(visible: Boolean) {
@@ -77,10 +94,13 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
 
         if (GamePref.drawUnitAttackRange == true) {
             attackRangeBorder.show(isVisible)
-            if (unit == null)
+            if (unit == null) {
                 minAttackRangeBorder.show(isVisible)
-            else
-                minAttackRangeBorder.show(isVisible && unit!!.cAttack!!.attackRangeBlocked > 0)
+            } else {
+                if (if (drawAttackRangeForRangedOnly) unit!!.attackRange > 1 else true) {
+                    minAttackRangeBorder.show(isVisible && unit!!.cAttack!!.attackRangeBlocked > 0)
+                }
+            }
         }
     }
 }

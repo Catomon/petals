@@ -30,7 +30,7 @@ class MenuScreen(val game: TTPGame) : Screen {
 
     val storySelectStage = StorySelectStage(this)
     val menuStage = MenuStage(this)
-    val matchSelectionStage = MatchSelectionStage(this)
+    val lobbyTypesStage = LobbyTypesStage(this)
     val customGameSetupStage = CustomGameSetupStage(this)
     val mapSelectionStage = MapSelectionStage(this) {}
     val languageSelectStage = LanguageSelectStage(this)

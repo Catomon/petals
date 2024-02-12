@@ -18,6 +18,9 @@ class TTPGame : Game() {
     override fun create() {
         if (!GameConst.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
 
+        GamePref.setEmptyToDefaultPrefs()
+        GamePref.overridePrefs()
+
         ShaderProgram.pedantic = false;
 
         ctmn.petals.assets = assets

@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.strongjoshua.console.CommandExecutor
 import ctmn.petals.GameConst
 import ctmn.petals.MenuScreen
 import ctmn.petals.TTPGame
@@ -44,6 +45,8 @@ import ctmn.petals.playscreen.tasks.TaskManager
 import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
 import ctmn.petals.pvp.newPvPAlice
+import ctmn.petals.story.gameOverFailure
+import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.TileData
 import ctmn.petals.tile.cCapturing
 import ctmn.petals.tile.cPlayerId
@@ -117,6 +120,14 @@ open class PlayScreen(
     var debug = false
 
     init {
+        playStageSetup()
+
+        commandManager.onCommand = onCommand@{ CommandManagerOnCommandHandler().onCommand(it) }
+
+        GameConsole.commandExecutor = PlayCslCommandExc()
+    }
+
+    private fun playStageSetup() {
         playStage.camera.position.x = Gdx.graphics.width / 2f
         playStage.camera.position.y = Gdx.graphics.height / 2f
 
@@ -133,13 +144,9 @@ open class PlayScreen(
         // less important game logic
         playStage.addListener(TileLifeTimeListener(playStage))
         playStage.addListener(PinkSlimeLingHealing())
-
-        commandManager.onCommand = onCommand@{ CommandManagerOnCommandHandler().onCommand(it) }
     }
 
     fun update(delta: Float) {
-        processDebugInput()
-
         playStageCameraController.update(delta)
 
         actionManager.update(delta)
@@ -238,6 +245,11 @@ open class PlayScreen(
 
         inputMultiplexer.addProcessor(guiStage)
         inputMultiplexer.addProcessor(playStage)
+        inputMultiplexer.addProcessor(DebugKeysProcessor())
+        inputMultiplexer.addProcessor(GameConsole.displayKeyInputProcessor)
+
+        GameConsole.inputProcessorReturnTo = inputMultiplexer
+
         Gdx.input.inputProcessor = inputMultiplexer
     }
 
@@ -267,6 +279,8 @@ open class PlayScreen(
         RectRenderer.isDrawing = debug
         RectRenderer.shapeRenderer.projectionMatrix = playStage.camera.combined
         RectRenderer.render()
+
+        GameConsole.console.draw()
     }
 
     fun returnToMenuScreen() {
@@ -370,9 +384,13 @@ open class PlayScreen(
     override fun resize(width: Int, height: Int) {
         playStage.viewport.update(width, height, false)
         guiStage.onScreenResize(width, height)
+
+        GameConsole.onWindowResize()
     }
 
     override fun dispose() {
+        GameConsole.inputProcessorReturnTo = null
+
         guiStage.dispose()
         playStage.dispose()
 
@@ -380,77 +398,6 @@ open class PlayScreen(
     }
 
     private var gameState: GameStateSnapshot? = null
-
-    private fun processDebugInput() {
-        // debug hotkeys v
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            for (unit in playStage.getUnits()) {
-                unit.cAttack!!.maxDamage -= 5
-                unit.cAttack!!.minDamage -= 5
-            }
-        }
-        // command manager
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            for (unit in playStage.getUnitsOfPlayer(localPlayer)) {
-                val abilities = unit.cAbilities?.abilities ?: continue
-                unit.mana = 99
-                unit.actionPoints = 99
-                for (ability in abilities) {
-                    ability.currentCooldown = 0
-                }
-            }
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-            if (!commandManager.isQueueEmpty) {
-                guiStage.addActor(FloatingUpLabel("set actionQueue.first().isDone = true"))
-            } else guiStage.addActor(FloatingUpLabel("actionQueue is empty"))
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {
-            guiStage.addActor(FloatingUpLabel("set stompQueue = ${!commandManager.stop}"))
-            commandManager.stop = !commandManager.stop
-        }
-        // action manager
-        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            if (!actionManager.isQueueEmpty) {
-                actionManager.getNextInQueue()!!.isDone = true
-                guiStage.addActor(FloatingUpLabel("set actionQueue.first().isDone = true"))
-            } else guiStage.addActor(FloatingUpLabel("actionQueue is empty"))
-        }
-        // game state snapshot
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)) {
-            gameState = createSnapshot()
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)) {
-            if (gameState != null) { // && gameType == GameType.MULTIPLAYER
-                val newPS = applyGameStateToPlayScreen(gameState!!)
-                newPS.localPlayer = newPS.turnManager.getPlayerById(this.localPlayer.id) ?: throw IllegalStateException(
-                    "Player not found"
-                )
-                newPS.levelName = this.levelName
-                newPS.ready()
-                game.screen = newPS
-            }
-        }
-        // end game
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-            gameEndCondition.result = GameEndCondition.Result.WIN
-            onGameOver()
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-            gameEndCondition.result = GameEndCondition.Result.LOSE
-            onGameOver()
-        }
-        // tasks
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-            taskManager.completeTasks()
-        }
-        // add dummy
-        if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
-            val pos = playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
-            Dummy().addToStage(playStage).position(pos.x.tiled(), pos.y.tiled())
-        }
-        // debug hotkeys ^
-    }
 
     private inner class PlayTurnCycleListener : EventListener {
         override fun handle(event: Event): Boolean {
@@ -588,6 +535,130 @@ open class PlayScreen(
             }
 
             checkGameEndCondition()
+        }
+    }
+
+    inner class PlayCslCommandExc : CommandExecutor() {
+        fun win() {
+            gameOverSuccess()
+        }
+
+        fun lose() {
+            gameOverFailure()
+        }
+    }
+
+    inner class DebugKeysProcessor : InputProcessor {
+        override fun keyDown(keycode: Int): Boolean {
+            when (keycode) {
+                Input.Keys.NUM_2 -> {
+                    for (unit in playStage.getUnits()) {
+                        unit.cAttack!!.maxDamage -= 5
+                        unit.cAttack!!.minDamage -= 5
+                    }
+                }
+
+                Input.Keys.R -> {
+                    for (unit in playStage.getUnitsOfPlayer(localPlayer)) {
+                        val abilities = unit.cAbilities?.abilities ?: continue
+                        unit.mana = 99
+                        unit.actionPoints = 99
+                        for (ability in abilities) {
+                            ability.currentCooldown = 0
+                        }
+                    }
+                }
+
+                Input.Keys.C -> {
+                    if (!commandManager.isQueueEmpty) {
+                        guiStage.addActor(FloatingUpLabel("set actionQueue.first().isDone = true"))
+                    } else {
+                        guiStage.addActor(FloatingUpLabel("actionQueue is empty"))
+                    }
+                }
+
+                Input.Keys.V -> {
+                    guiStage.addActor(FloatingUpLabel("set stompQueue = ${!commandManager.stop}"))
+                    commandManager.stop = !commandManager.stop
+                }
+
+                Input.Keys.E -> {
+                    if (!actionManager.isQueueEmpty) {
+                        actionManager.getNextInQueue()!!.isDone = true
+                        guiStage.addActor(FloatingUpLabel("set actionQueue.first().isDone = true"))
+                    } else {
+                        guiStage.addActor(FloatingUpLabel("actionQueue is empty"))
+                    }
+                }
+
+                Input.Keys.NUM_7 -> {
+                    gameState = createSnapshot()
+                }
+
+                Input.Keys.NUM_8 -> {
+                    if (gameState != null) {
+                        val newPS = applyGameStateToPlayScreen(gameState!!)
+                        newPS.localPlayer = newPS.turnManager.getPlayerById(this@PlayScreen.localPlayer.id)
+                            ?: throw IllegalStateException("Player not found")
+                        newPS.levelName = this@PlayScreen.levelName
+                        newPS.ready()
+                        game.screen = newPS
+                    }
+                }
+
+                Input.Keys.P -> {
+                    gameEndCondition.result = GameEndCondition.Result.WIN
+                    onGameOver()
+                }
+
+                Input.Keys.L -> {
+                    gameEndCondition.result = GameEndCondition.Result.LOSE
+                    onGameOver()
+                }
+
+                Input.Keys.Z -> {
+                    taskManager.completeTasks()
+                }
+
+                Input.Keys.T -> {
+                    val pos = playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+                    Dummy().addToStage(playStage).position(pos.x.tiled(), pos.y.tiled())
+                }
+            }
+
+            return false
+        }
+
+        override fun keyUp(keycode: Int): Boolean {
+            return false
+        }
+
+        override fun keyTyped(character: Char): Boolean {
+            return false
+        }
+
+        override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            return false
+        }
+
+        override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            return false
+        }
+
+        override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            return false
+        }
+
+        override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+            return false
+        }
+
+        override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+            return false
+        }
+
+        override fun scrolled(amountX: Float, amountY: Float): Boolean {
+            return false
         }
     }
 }
