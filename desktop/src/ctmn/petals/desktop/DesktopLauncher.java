@@ -4,7 +4,7 @@ import ctmn.petals.GameConst;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import ctmn.petals.TTPGame;
+import ctmn.petals.PetalsGame;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -29,6 +29,6 @@ public class DesktopLauncher {
 		config.addIcon("libgdx32.png", Files.FileType.Internal);
 		//config.addIcon("libgdx16.png", Files.FileType.Internal);
 
-		new LwjglApplication(new TTPGame(), config);
+		new LwjglApplication(new PetalsGame(), config);
 	}
 }

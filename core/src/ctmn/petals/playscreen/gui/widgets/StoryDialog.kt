@@ -57,7 +57,7 @@ class StoryDialog(
     init {
         quoteTail.setOrigin(12f, 12f)
 
-        label.wrap = true
+        //label.wrap = true
         label.setAlignment(Align.center)
 
         add(label)

@@ -17,7 +17,7 @@ import ctmn.petals.widgets.MovingBackground
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newTextButton
 
-class LevelSelectScreen(val game: TTPGame, story: Story) : Stage(ExtendViewport(32f, 240f)), Screen {
+class LevelSelectScreen(val game: PetalsGame, story: Story) : Stage(ExtendViewport(32f, 240f)), Screen {
 
     private val background = MovingBackground(assets.getTexture("sky.png"), 5f)
 

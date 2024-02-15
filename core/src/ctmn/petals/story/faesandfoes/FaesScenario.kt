@@ -51,7 +51,6 @@ class FaesScenario : Scenario("Fae", "") {
     override fun makeScenario(playScreen: PlayScreen) {
         super.makeScenario(playScreen)
 
-        //playScreen.aiManager.add(EasyAiDuelBot(players[0], playScreen))
         playScreen.aiManager.add(EasyAiDuelBot(players[1], playScreen))
         playScreen.aiManager.add(SimpleAIBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true

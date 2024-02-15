@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.viewport.FillViewport
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 
-class LoadingScreen(private val game: TTPGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
+class LoadingScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
 
     val assets = game.assets
 

@@ -1,7 +1,7 @@
 package ctmn.petals.story
 
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.TTPGame
+import ctmn.petals.PetalsGame
 import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.utils.fadeOut
@@ -11,7 +11,7 @@ import ctmn.petals.playscreen.listeners.CreditsForKillingSlimes
 import ctmn.petals.story.faesandfoes.FaesScenario
 
 class FaePlayScreen(
-    game: TTPGame,
+    game: PetalsGame,
 ) : PlayScreen(game) {
 
     private var progress = 0

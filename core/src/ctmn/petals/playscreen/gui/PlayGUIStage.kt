@@ -413,7 +413,7 @@ class PlayGUIStage(
             labelPlayerReady.addAction(object : Action() {
                 override fun act(delta: Float): Boolean {
                     // see also InputManager
-                    if (Gdx.input.isKeyPressed(Input.Keys.SPACE)
+                    if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
                         || Gdx.input.justTouched()) {
 
                         labelPlayerReady.remove()
@@ -615,43 +615,6 @@ class PlayGUIStage(
         super.act(delta)
 
         holdStateTimer.update(delta)
-
-        // debug hot keys v
-        val focusedUnit = playStage.getUnit(tileSelectionDrawer.hoveringSprite.centerX().tiled(),
-            tileSelectionDrawer.hoveringSprite.centerY().tiled())
-        if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
-            val tile = playStage.getTile(tileSelectionDrawer.hoveringSprite.centerX().tiled(),
-                tileSelectionDrawer.hoveringSprite.centerY().tiled())
-            if (tile?.terrain == Terrain.base)
-                playStage.getUnitsOfPlayer(player).random().captureBase(tile)
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-            if (focusedUnit != null && focusedUnit.cLevel != null) {
-                if (playScreen.commandManager.queueCommand(GrantXpCommand(focusedUnit, 250)))
-                    addActor(FloatingUpLabel("Grant ${focusedUnit.name} 250 xp"))
-                else addActor(FloatingUpLabel("Unable to give xp to ${focusedUnit.name}"))
-            }
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
-            if (focusedUnit != null) {
-                addActor(FloatingUpLabel("Kill ${focusedUnit.name}."))
-                focusedUnit.killedBy(focusedUnit, playScreen)
-            }
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-            if (selectedUnit != null) {
-                addActor(FloatingUpLabel("Move ${selectedUnit!!.name}."))
-                selectedUnit!!.setPositionOrNear(tileSelectionDrawer.hoveringSprite.centerX().tiled(),
-                    tileSelectionDrawer.hoveringSprite.centerY().tiled())
-            }
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-            unitMiniMenu.unit = focusedUnit
-        }
-        // debug hks ^
 
         fpsLabel.setText("FPS:${Gdx.graphics.framesPerSecond}")
     }

@@ -17,7 +17,7 @@ import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newTextButton
 import kotlin.random.Random
 
-class DevScreen(val game: TTPGame) : Stage(ExtendViewport(32f, 720f)), Screen {
+class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen {
 
     private val background = MovingBackground(assets.getTexture("sky.png"), 5f)
 

@@ -11,6 +11,8 @@ object GameConst {
     const val APP_VER_NAME = "\nDemo"
     const val IS_RELEASE = false
 
+    var DEBUG_MODE = !IS_RELEASE
+
     // Multiplayer
     const val SERVICE_TYPE = "_alissagame._upd.local."
     const val SERVICE_NAME = "AlissaGameService"

@@ -9,7 +9,7 @@ import ctmn.petals.playscreen.*
 
 object PlayScreenTemplate {
 
-    fun test2Players(game: TTPGame, level: Level): PlayScreen {
+    fun test2Players(game: PetalsGame, level: Level): PlayScreen {
         return pvp(
             game,
             level,
@@ -23,7 +23,7 @@ object PlayScreenTemplate {
     }
 
     fun pvp(
-        game: TTPGame,
+        game: PetalsGame,
         level: Level,
         players: Array<Player>,
         gameType: GameType,

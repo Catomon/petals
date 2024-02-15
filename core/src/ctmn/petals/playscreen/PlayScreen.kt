@@ -15,10 +15,13 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.strongjoshua.console.CommandExecutor
+import com.strongjoshua.console.LogLevel
+import com.strongjoshua.console.annotation.ConsoleDoc
 import ctmn.petals.GameConst
 import ctmn.petals.MenuScreen
-import ctmn.petals.TTPGame
+import ctmn.petals.PetalsGame
 import ctmn.petals.ai.AIManager
+import ctmn.petals.ai.EasyAiDuelBot
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.level.JsonLevel
 import ctmn.petals.level.Level
@@ -30,6 +33,8 @@ import ctmn.petals.multiplayer.createSnapshot
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.commands.CommandManager
+import ctmn.petals.playscreen.commands.EndTurnCommand
+import ctmn.petals.playscreen.commands.GrantXpCommand
 import ctmn.petals.playscreen.events.BaseCapturedEvent
 import ctmn.petals.playscreen.events.GameOverEvent
 import ctmn.petals.playscreen.events.NextTurnEvent
@@ -47,11 +52,8 @@ import ctmn.petals.playstage.*
 import ctmn.petals.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
-import ctmn.petals.tile.TileData
-import ctmn.petals.tile.cCapturing
-import ctmn.petals.tile.cPlayerId
+import ctmn.petals.tile.*
 import ctmn.petals.tile.components.CapturingComponent
-import ctmn.petals.tile.isCapturable
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.utils.*
@@ -59,7 +61,7 @@ import ctmn.petals.widgets.newLabel
 import kotlin.random.Random
 
 open class PlayScreen(
-    val game: TTPGame = ctmn.petals.game,
+    val game: PetalsGame = ctmn.petals.game,
 ) : Screen {
 
     /** Just telling if we ever gonna init [guiStage] */
@@ -119,12 +121,12 @@ open class PlayScreen(
     private val eventLogger = EventLogger(this)
     var debug = false
 
+    private val debugKeysProcessor by lazy { DebugKeysProcessor() }
+
     init {
         playStageSetup()
 
         commandManager.onCommand = onCommand@{ CommandManagerOnCommandHandler().onCommand(it) }
-
-        GameConsole.commandExecutor = PlayCslCommandExc()
     }
 
     private fun playStageSetup() {
@@ -245,10 +247,7 @@ open class PlayScreen(
 
         inputMultiplexer.addProcessor(guiStage)
         inputMultiplexer.addProcessor(playStage)
-        inputMultiplexer.addProcessor(DebugKeysProcessor())
-        inputMultiplexer.addProcessor(GameConsole.displayKeyInputProcessor)
-
-        GameConsole.inputProcessorReturnTo = inputMultiplexer
+        inputMultiplexer.addProcessor(debugKeysProcessor)
 
         Gdx.input.inputProcessor = inputMultiplexer
     }
@@ -279,8 +278,6 @@ open class PlayScreen(
         RectRenderer.isDrawing = debug
         RectRenderer.shapeRenderer.projectionMatrix = playStage.camera.combined
         RectRenderer.render()
-
-        GameConsole.console.draw()
     }
 
     fun returnToMenuScreen() {
@@ -384,13 +381,9 @@ open class PlayScreen(
     override fun resize(width: Int, height: Int) {
         playStage.viewport.update(width, height, false)
         guiStage.onScreenResize(width, height)
-
-        GameConsole.onWindowResize()
     }
 
     override fun dispose() {
-        GameConsole.inputProcessorReturnTo = null
-
         guiStage.dispose()
         playStage.dispose()
 
@@ -546,119 +539,189 @@ open class PlayScreen(
         fun lose() {
             gameOverFailure()
         }
+
+        fun addAI() {
+            addAI(1)
+        }
+
+        fun addAI(playerId: Int) {
+            val player = turnManager.getPlayerById(playerId)
+
+            if (player == null) {
+                console.log("No player with such Id.", LogLevel.ERROR)
+
+                return
+            }
+
+            if (aiManager.isAIPlayer(player)) {
+                console.log("Player is already AI.")
+            }
+
+            aiManager.add(EasyAiDuelBot(player, this@PlayScreen))
+
+            GameConsole.console.log("Added AI for player $player")
+        }
+
+        fun endTurn() {
+            queueCommand(EndTurnCommand(turnManager.currentPlayer))
+        }
+
+        fun fow() {
+            fogOfWarManager.drawFog = !fogOfWarManager.drawFog
+        }
+
+        fun empower() {
+            for (unit in playStage.getUnitsOfPlayer(localPlayer)) {
+                val abilities = unit.cAbilities?.abilities ?: continue
+                unit.mana = 99
+                unit.actionPoints = 99
+                for (ability in abilities) {
+                    ability.currentCooldown = 0
+                }
+            }
+        }
+
+        fun endAction() {
+            if (!actionManager.isQueueEmpty) {
+                actionManager.getNextInQueue()!!.isDone = true
+                GameConsole.console.log("set actionQueue.first().isDone = true")
+            } else {
+                GameConsole.console.log("actionQueue is empty")
+            }
+        }
+
+        fun stompQueue() {
+            GameConsole.console.log("set stompQueue = ${!commandManager.stop}")
+            commandManager.stop = !commandManager.stop
+        }
+
+        fun saveState() {
+            gameState = createSnapshot()
+        }
+
+        fun loadState() {
+            if (gameState != null) {
+                val newPS = applyGameStateToPlayScreen(gameState!!)
+                newPS.localPlayer = newPS.turnManager.getPlayerById(this@PlayScreen.localPlayer.id)
+                    ?: let {
+                        GameConsole.console.log("Local Player not found", LogLevel.ERROR)
+                        return
+                    }
+
+                newPS.levelName = this@PlayScreen.levelName
+                newPS.ready()
+                game.screen = newPS
+            } else {
+                GameConsole.console.log("Save state first!", LogLevel.ERROR)
+            }
+        }
+
+        fun reduceAllDamage() {
+            for (unit in playStage.getUnits()) {
+                unit.cAttack!!.maxDamage -= 5
+                unit.cAttack!!.minDamage -= 5
+            }
+        }
+
+        fun completeTasks() {
+            taskManager.completeTasks()
+        }
+
+        @ConsoleDoc(description = "Sets the amount of dummies you then can place by pressing 'T' key.")
+        fun placeDummies(amount: Int) {
+            debugKeysProcessor.dummiesLeft = amount
+
+            GameConsole.console.log("Press 'T' to place a dummy! $amount left.")
+        }
+
+        fun debugMode() {
+            GameConst.DEBUG_MODE = !GameConst.DEBUG_MODE
+
+            GameConsole.console.log(
+                if (GameConst.DEBUG_MODE)
+                    "Debug mode on."
+                else
+                    "Debug mode off."
+            )
+
+        }
     }
 
-    inner class DebugKeysProcessor : InputProcessor {
+    private inner class DebugKeysProcessor : InputAdapter() {
+
+        var dummiesLeft = 0
+
+        val playStageCursor get() = playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+        val cursorTiled get() = TilePosition(playStageCursor.x.tiled(), playStageCursor.y.tiled())
+        val unitWithinCursor get() = playStage.getUnit(cursorTiled.x, cursorTiled.y)
+
+
         override fun keyDown(keycode: Int): Boolean {
+            if (!GameConst.DEBUG_MODE) return false
+
             when (keycode) {
-                Input.Keys.NUM_2 -> {
-                    for (unit in playStage.getUnits()) {
-                        unit.cAttack!!.maxDamage -= 5
-                        unit.cAttack!!.minDamage -= 5
+                Input.Keys.T -> {
+                    if (dummiesLeft > 0) {
+                        val pos = playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+                        Dummy().addToStage(playStage).position(pos.x.tiled(), pos.y.tiled())
+
+                        dummiesLeft--
                     }
                 }
-
-                Input.Keys.R -> {
-                    for (unit in playStage.getUnitsOfPlayer(localPlayer)) {
-                        val abilities = unit.cAbilities?.abilities ?: continue
-                        unit.mana = 99
-                        unit.actionPoints = 99
-                        for (ability in abilities) {
-                            ability.currentCooldown = 0
+                else -> {
+                    if (this@PlayScreen::guiStage.isInitialized) {
+                        when (keycode) {
+                            Input.Keys.H -> {
+                                captureBase()
+                            }
+                            Input.Keys.X -> {
+                                grantXp()
+                            }
+                            Input.Keys.K -> {
+                                kill()
+                            }
+                            Input.Keys.O -> {
+                                move()
+                            }
                         }
                     }
-                }
-
-                Input.Keys.C -> {
-                    if (!commandManager.isQueueEmpty) {
-                        guiStage.addActor(FloatingUpLabel("set actionQueue.first().isDone = true"))
-                    } else {
-                        guiStage.addActor(FloatingUpLabel("actionQueue is empty"))
-                    }
-                }
-
-                Input.Keys.V -> {
-                    guiStage.addActor(FloatingUpLabel("set stompQueue = ${!commandManager.stop}"))
-                    commandManager.stop = !commandManager.stop
-                }
-
-                Input.Keys.E -> {
-                    if (!actionManager.isQueueEmpty) {
-                        actionManager.getNextInQueue()!!.isDone = true
-                        guiStage.addActor(FloatingUpLabel("set actionQueue.first().isDone = true"))
-                    } else {
-                        guiStage.addActor(FloatingUpLabel("actionQueue is empty"))
-                    }
-                }
-
-                Input.Keys.NUM_7 -> {
-                    gameState = createSnapshot()
-                }
-
-                Input.Keys.NUM_8 -> {
-                    if (gameState != null) {
-                        val newPS = applyGameStateToPlayScreen(gameState!!)
-                        newPS.localPlayer = newPS.turnManager.getPlayerById(this@PlayScreen.localPlayer.id)
-                            ?: throw IllegalStateException("Player not found")
-                        newPS.levelName = this@PlayScreen.levelName
-                        newPS.ready()
-                        game.screen = newPS
-                    }
-                }
-
-                Input.Keys.P -> {
-                    gameEndCondition.result = GameEndCondition.Result.WIN
-                    onGameOver()
-                }
-
-                Input.Keys.L -> {
-                    gameEndCondition.result = GameEndCondition.Result.LOSE
-                    onGameOver()
-                }
-
-                Input.Keys.Z -> {
-                    taskManager.completeTasks()
-                }
-
-                Input.Keys.T -> {
-                    val pos = playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
-                    Dummy().addToStage(playStage).position(pos.x.tiled(), pos.y.tiled())
                 }
             }
 
             return false
         }
 
-        override fun keyUp(keycode: Int): Boolean {
-            return false
+        fun captureBase() {
+            val tile = playStage.getTile(cursorTiled.x,
+                cursorTiled.y)
+            if (tile?.terrain == Terrain.base)
+                playStage.getUnitsOfPlayer(localPlayer).random().captureBase(tile)
         }
 
-        override fun keyTyped(character: Char): Boolean {
-            return false
+        fun grantXp() {
+            val focusedUnit = unitWithinCursor
+            if (focusedUnit?.cLevel != null) {
+                if (commandManager.queueCommand(GrantXpCommand(focusedUnit, 250)))
+                    guiStage.addActor(FloatingUpLabel("Grant ${focusedUnit.name} 250 xp"))
+                else guiStage.addActor(FloatingUpLabel("Unable to give xp to ${focusedUnit.name}"))
+            }
         }
 
-        override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            return false
+        fun kill() {
+            val focusedUnit = unitWithinCursor
+            if (focusedUnit != null) {
+                guiStage.addActor(FloatingUpLabel("Kill ${focusedUnit.name}."))
+                focusedUnit.killedBy(focusedUnit, this@PlayScreen)
+            }
         }
 
-        override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            return false
-        }
-
-        override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            return false
-        }
-
-        override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-            return false
-        }
-
-        override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-            return false
-        }
-
-        override fun scrolled(amountX: Float, amountY: Float): Boolean {
-            return false
+        fun move() {
+            val selectedUnit = guiStage.selectedUnit
+            if (selectedUnit != null) {
+                guiStage.addActor(FloatingUpLabel("Move ${selectedUnit.name}."))
+                selectedUnit.setPositionOrNear(cursorTiled.x,
+                    cursorTiled.y)
+            }
         }
     }
 }

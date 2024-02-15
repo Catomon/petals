@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ctmn.petals.menu.*
 import ctmn.petals.widgets.ParallaxBackground
 
-class MenuScreen(val game: TTPGame) : Screen {
+class MenuScreen(val game: PetalsGame) : Screen {
 
     val viewport = ExtendViewport(32f, 720f)
 

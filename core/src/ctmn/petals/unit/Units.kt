@@ -44,6 +44,7 @@ object Units {
         add(Goblin())
         add(GoblinBoar())
         add(GoblinBow())
+        add(GoblinCatapult())
         add(GoblinLeader())
         add(GoblinPike())
         add(GoblinSword())

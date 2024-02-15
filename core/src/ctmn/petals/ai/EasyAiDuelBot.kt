@@ -9,6 +9,8 @@ import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.SlimeHuge
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.player.cost
+import ctmn.petals.player.getSpeciesUnits
 import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
@@ -22,15 +24,28 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
     val unitsAwaitingOrders = Array<UnitActor>()
     val enemyUnits = Array<UnitActor>()
 
+    private val speciesUnits = getSpeciesUnits(player.species)
+
     private val buyPriority = Array<Pair<String, Int>>().apply {
-        add(UnitIds.CATAPULT to 1)
-        add(UnitIds.CROSSBOWMAN to 1)
-        add(UnitIds.KNIGHT to 1)
-        add(UnitIds.AXEMAN to 1)
-        add(UnitIds.HORSEMAN to 1)
-        add(UnitIds.BOWMAN to 1)
-        add(UnitIds.SW0RDMAN to 2)
-        add(UnitIds.SPEARMAN to 2)
+
+        speciesUnits.reversed().forEach { unit ->
+            val amount = when (unit.cShop!!.price) {
+                100 -> 2
+                150 -> 2
+                else -> 1
+            }
+
+            add(unit.selfName to amount)
+        }
+
+//        add(UnitIds.CATAPULT to 1)
+//        add(UnitIds.CROSSBOWMAN to 1)
+//        add(UnitIds.KNIGHT to 1)
+//        add(UnitIds.AXEMAN to 1)
+//        add(UnitIds.HORSEMAN to 1)
+//        add(UnitIds.BOWMAN to 1)
+//        add(UnitIds.SW0RDMAN to 2)
+//        add(UnitIds.SPEARMAN to 2)
     }
 
     private val idleTime = 0.5f
@@ -173,7 +188,7 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         var unitToBuy = ""
 
         for ((name, count) in buyPriority) {
-            if (player.gold < (playScreen.unitsData.get(name).cShop?.price ?: continue)) continue
+            if (player.gold < (speciesUnits.find { it.selfName == name }?.cShop?.price ?: continue)) continue
 
             if (howMuchOfUnits(name, playScreen.playStage.getUnitsOfPlayer(player)) < count) {
                 unitToBuy = name
@@ -200,7 +215,7 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         }
 
         //get price
-        val unitPrice = playScreen.unitsData.get(unitToBuy).cShop?.price ?: -1 // yeah, kinda weird way
+        val unitPrice = speciesUnits.find { it.selfName == unitToBuy }?.cShop?.price ?: -1 // yeah, kinda weird way
 
         //check cash
         if (player.gold < unitPrice)

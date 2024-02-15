@@ -44,6 +44,7 @@ val goblinUnits = object : SpeciesUnits {
         add(GoblinPike().cost(150))
         add(GoblinBow().cost(250))
         add(GoblinBoar().cost(400))
+        add(GoblinCatapult().cost(1000))
     }
 }
 

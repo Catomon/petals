@@ -2,6 +2,7 @@ package ctmn.petals.utils
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
@@ -14,10 +15,17 @@ object GameConsole {
     var visibilitySwitchKey = Input.Keys.APOSTROPHE
 
     var commandExecutor: CommandExecutor? = CslCommandEx()
+        set(value) {
+            field = value
+
+            mConsole?.setCommandExecutor(value)
+        }
 
     var inputProcessorReturnTo: InputProcessor? = null
 
     val console get() = if (mConsole == null) createConsole() else mConsole!!
+
+    val isVisible get() = mConsole?.isVisible == true
 
     @Suppress("GDXKotlinStaticResource")
     private var mConsole: GUIConsole? = null
@@ -30,12 +38,10 @@ object GameConsole {
 
         mConsole = GUIConsole(VisUI.getSkin(), true).apply {
             isDisabled = true
-
-
-
             //displayKeyID = Input.Keys.TAB // is taken by console autocomplete
-
             setCommandExecutor(commandExecutor)
+            window.background = null
+            window.titleLabel.setText("")
         }
 
         return mConsole!!
@@ -46,7 +52,10 @@ object GameConsole {
     }
 
     private fun borrowInput() {
-        //Gdx.input.inputProcessor = console.inputProcessor
+        if (Gdx.input.inputProcessor is InputMultiplexer
+            && !(Gdx.input.inputProcessor as InputMultiplexer).processors.contains(console.inputProcessor)
+        )
+            console.resetInputProcessing()
     }
 
     private fun giveBackInput() {
@@ -62,7 +71,9 @@ object GameConsole {
         mConsole?.dispose()
     }
 
-    private fun switchVisibility() {
+    fun switchVisibility(): Boolean {
+        if (mConsole == null) return false
+
         console.isVisible = !console.isVisible
         console.isDisabled = !console.isDisabled
 
@@ -74,6 +85,8 @@ object GameConsole {
         } else {
             giveBackInput()
         }
+
+        return console.isVisible
     }
 
     val displayKeyInputProcessor by lazy {

@@ -27,7 +27,7 @@ import com.kotcrab.vis.ui.widget.VisList
 import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.playstage.getLabels
 
-class TestRoomScreen(private val game: TTPGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
+class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
 
     val assets = game.assets
 
