@@ -80,16 +80,19 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
     override fun act(delta: Float) {
         super.act(delta)
 
-        isVisible =
-            unit?.playerId == guiStage.player.id && guiStage.clickStrategy == guiStage.unitSelectedCs && !guiStage.playScreen.actionManager.hasActions
+        val unit = unit
+        isVisible = unit != null
+                && guiStage.playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)
+                && guiStage.clickStrategy == guiStage.seeInfoCs || guiStage.clickStrategy == guiStage.unitSelectedCs
+                && !guiStage.playScreen.actionManager.hasActions
     }
 
     override fun setVisible(visible: Boolean) {
         super.setVisible(visible)
 
-        moveRangeBorder.show(isVisible && unit?.canMove() == true)
+        moveRangeBorder.show(isVisible && unit?.canMove() == true && unit!!.isPlayerUnit(guiStage.player))
 
-        if (unit != null && !unit!!.canMove())
+        if (unit != null && !unit!!.canMove() && !unit!!.isPlayerUnit(guiStage.player))
             moveRangeBorder.isVisible = false
 
         if (GamePref.drawUnitAttackRange == true) {

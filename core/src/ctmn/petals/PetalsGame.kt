@@ -39,10 +39,13 @@ class PetalsGame : Game() {
 
     override fun render() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            if (GameConst.IS_RELEASE)
-                setScreen(MenuScreen(this))
-            else
-                setScreen(DevScreen(this))
+            when {
+                GameConsole.isVisible -> {
+                    showHideConsole()
+                }
+                GameConst.IS_RELEASE -> setScreen(MenuScreen(this))
+                else -> setScreen(DevScreen(this))
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
@@ -51,10 +54,6 @@ class PetalsGame : Game() {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
             showHideConsole()
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            if (GameConsole.isVisible) showHideConsole()
         }
 
         super.render()

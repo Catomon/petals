@@ -72,7 +72,7 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
     }
 
     //up to 50% damage and 25% defense reducing depending on health
-    val modifierHealth: Float = unit.health / 100f
+    val modifierHealth: Float = unit.health.toFloat() / unit.unitComponent.baseHealth.toFloat()
 
     val damageMod = modifierHealth / 2 + 0.5
     val defenseMod = modifierHealth / 4 + 0.75

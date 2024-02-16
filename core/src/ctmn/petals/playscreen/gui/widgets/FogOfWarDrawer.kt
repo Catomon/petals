@@ -15,6 +15,7 @@ import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.Tiles
 import ctmn.petals.tile.cPlayerId
+import ctmn.petals.tile.isBase
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.InvisibilityComponent
 import kotlin.Array as KArray
@@ -50,16 +51,6 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
     init {
         fogOfWarSprite.setSize(GameConst.TILE_SIZE.toFloat(), GameConst.TILE_SIZE.toFloat())
         fogOfWarSprite.setAlpha(0.5f)
-
-        playStage.addListener(object : InputListener() {
-            override fun keyUp(event: InputEvent?, keycode: Int): Boolean {
-                if (keycode == Input.Keys.F) {
-                    drawFog = !drawFog
-                }
-
-                return false
-            }
-        })
 
         playStage.addListener {
             when (it) {
@@ -124,7 +115,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
                 break
 
             //temp lambda fix
-            if (tile.tileName.contains("base") && playScreen.turnManager.players.find { it.id == tile.cPlayerId?.playerId }?.teamId == playScreen.localPlayer.teamId) {
+            if (tile.isBase && playScreen.turnManager.players.find { it.id == tile.cPlayerId?.playerId }?.teamId == playScreen.localPlayer.teamId) {
                 val castle = tile
                 val castleViewRangeMatrix = playStage.getMovementGrid(
                     BASE_RANGE_OF_VIEW, castle.tiledX, castle.tiledY, TerrainCosts.view)

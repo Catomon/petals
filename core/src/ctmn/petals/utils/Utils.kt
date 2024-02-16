@@ -19,3 +19,7 @@ fun calculateMoveDirection(x: Float, y: Float, endX: Float, endY: Float): Float 
     val angleDeg = MathUtils.radiansToDegrees * angleRad
     return angleDeg
 }
+
+fun String.print() {
+    println(this)
+}

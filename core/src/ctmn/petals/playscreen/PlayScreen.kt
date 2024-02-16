@@ -531,6 +531,7 @@ open class PlayScreen(
         }
     }
 
+    @Suppress("unused")
     inner class PlayCslCommandExc : CommandExecutor() {
         fun win() {
             gameOverSuccess()
@@ -555,6 +556,8 @@ open class PlayScreen(
 
             if (aiManager.isAIPlayer(player)) {
                 console.log("Player is already AI.")
+
+                return
             }
 
             aiManager.add(EasyAiDuelBot(player, this@PlayScreen))
@@ -568,6 +571,11 @@ open class PlayScreen(
 
         fun fow() {
             fogOfWarManager.drawFog = !fogOfWarManager.drawFog
+
+            if (fogOfWarManager.drawFog)
+                GameConsole.log("Fog is ON.")
+            else
+                GameConsole.log("Fog is OFF.")
         }
 
         fun empower() {
@@ -645,13 +653,36 @@ open class PlayScreen(
             )
 
         }
+
+        @ConsoleDoc(description = "Sets time of day for PlayStage. Params: day, night, evening.")
+        fun time(tod: String) {
+            when (tod) {
+                "day" -> {
+                    playStage.timeOfDay = PlayStage.DayTime.DAY
+                }
+
+                "night" -> {
+                    playStage.timeOfDay = PlayStage.DayTime.NIGHT
+                }
+
+                "evening" -> {
+                    playStage.timeOfDay = PlayStage.DayTime.EVENING
+                }
+            }
+        }
     }
 
     private inner class DebugKeysProcessor : InputAdapter() {
 
         var dummiesLeft = 0
 
-        val playStageCursor get() = playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+        val playStageCursor
+            get() = playStage.screenToStageCoordinates(
+                Vector2(
+                    Gdx.input.x.toFloat(),
+                    Gdx.input.y.toFloat()
+                )
+            )
         val cursorTiled get() = TilePosition(playStageCursor.x.tiled(), playStageCursor.y.tiled())
         val unitWithinCursor get() = playStage.getUnit(cursorTiled.x, cursorTiled.y)
 
@@ -662,24 +693,29 @@ open class PlayScreen(
             when (keycode) {
                 Input.Keys.T -> {
                     if (dummiesLeft > 0) {
-                        val pos = playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+                        val pos =
+                            playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
                         Dummy().addToStage(playStage).position(pos.x.tiled(), pos.y.tiled())
 
                         dummiesLeft--
                     }
                 }
+
                 else -> {
                     if (this@PlayScreen::guiStage.isInitialized) {
                         when (keycode) {
                             Input.Keys.H -> {
                                 captureBase()
                             }
+
                             Input.Keys.X -> {
                                 grantXp()
                             }
+
                             Input.Keys.K -> {
                                 kill()
                             }
+
                             Input.Keys.O -> {
                                 move()
                             }
@@ -692,8 +728,10 @@ open class PlayScreen(
         }
 
         fun captureBase() {
-            val tile = playStage.getTile(cursorTiled.x,
-                cursorTiled.y)
+            val tile = playStage.getTile(
+                cursorTiled.x,
+                cursorTiled.y
+            )
             if (tile?.terrain == Terrain.base)
                 playStage.getUnitsOfPlayer(localPlayer).random().captureBase(tile)
         }
@@ -719,8 +757,10 @@ open class PlayScreen(
             val selectedUnit = guiStage.selectedUnit
             if (selectedUnit != null) {
                 guiStage.addActor(FloatingUpLabel("Move ${selectedUnit.name}."))
-                selectedUnit.setPositionOrNear(cursorTiled.x,
-                    cursorTiled.y)
+                selectedUnit.setPositionOrNear(
+                    cursorTiled.x,
+                    cursorTiled.y
+                )
             }
         }
     }

@@ -1,5 +1,6 @@
 package ctmn.petals.playscreen.commands
 
+import com.badlogic.gdx.Gdx
 import ctmn.petals.GameConst
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.*
@@ -13,8 +14,14 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
     constructor(attacker: UnitActor, target: UnitActor) : this(attacker.stageName, target.stageName)
 
     override fun canExecute(playScreen: PlayScreen): Boolean {
-        val attackerUnit: UnitActor = playScreen.playStage.root.findActor(attackerUnitId)
-        val targetUnit: UnitActor = playScreen.playStage.root.findActor(targetUnitId)
+        val attackerUnit: UnitActor = playScreen.playStage.root.findActor(attackerUnitId) ?: let {
+            Gdx.app.error(this::class.simpleName, "attackerUnit with id:$targetUnitId is not found")
+            return false
+        }
+        val targetUnit: UnitActor = playScreen.playStage.root.findActor(targetUnitId) ?: let {
+            Gdx.app.error(this::class.simpleName, "targetUnit with id:$targetUnitId is not found")
+            return false
+        }
 
         if (!attackerUnit.isInAttackArea(targetUnit.tiledX, targetUnit.tiledY)) return false
 

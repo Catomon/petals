@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.kotcrab.vis.ui.VisUI
 import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.GUIConsole
+import com.strongjoshua.console.LogLevel
 
 object GameConsole {
 
@@ -45,6 +46,10 @@ object GameConsole {
         }
 
         return mConsole!!
+    }
+
+    fun log(msg: String, logLevel: LogLevel = LogLevel.DEFAULT) {
+        mConsole?.log(msg, logLevel)
     }
 
     fun onWindowResize() {
