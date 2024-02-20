@@ -13,6 +13,8 @@ class SeqActionManager(val playScreen: PlayScreen) {
 
     private var currentSeqAction: SeqAction? = null
 
+    val currentAction get() = currentSeqAction
+
     val hasActions get() = !actionList.isEmpty || !actionQueue.isEmpty
     val isQueueEmpty get() = actionQueue.isEmpty
 

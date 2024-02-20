@@ -37,7 +37,8 @@ import ctmn.petals.widgets.newLabel
 
 class PlayGUIStage(
     val playScreen: PlayScreen,
-) : Stage(ExtendViewport(PLAY_GUI_VIEWPORT_WIDTH, PLAY_GUI_VIEWPORT_HEIGHT), playScreen.batch) { /** see [onScreenResize] */
+) : Stage(ExtendViewport(PLAY_GUI_VIEWPORT_WIDTH, PLAY_GUI_VIEWPORT_HEIGHT), playScreen.batch) {
+    /** see [onScreenResize] */
 
     val assets = playScreen.assets
 
@@ -62,7 +63,8 @@ class PlayGUIStage(
     private val turnIcon = TurnIcon()
 
     //labels
-    val creditsLabel = newLabel("Credits: ${player.gold}", "font_5").apply { isVisible = playScreen.gameMode == GameMode.CASTLES }
+    val creditsLabel =
+        newLabel("Credits: ${player.gold}", "font_5").apply { isVisible = playScreen.gameMode == GameMode.CASTLES }
     private val fpsLabel = VisLabel()
 
     //buttons
@@ -71,7 +73,8 @@ class PlayGUIStage(
     private val pauseButton = newImageButton("pause")
     val endTurnButton = newImageButton("end_turn")
     private val backButtonStyle = VisUI.getSkin().get("back", VisImageButton.VisImageButtonStyle::class.java)
-    private val cancelButtonStyle = VisUI.getSkin().get("cancel_in-game", VisImageButton.VisImageButtonStyle::class.java)
+    private val cancelButtonStyle =
+        VisUI.getSkin().get("cancel_in-game", VisImageButton.VisImageButtonStyle::class.java)
     private val cancelButton: VisImageButton = newImageButton("back").apply { isVisible = false }
     private val refreshButton = newImageButton("refresh")
     val abilitiesPanel = AbilitiesPanel(this)
@@ -106,11 +109,11 @@ class PlayGUIStage(
     private val loseState = State()
     private val winState = State()
     var currentState: State = State()
-    set(value) {
-        field.onExit?.invoke()
-        value.onEnter?.invoke()
-        field = value
-    }
+        set(value) {
+            field.onExit?.invoke()
+            value.onEnter?.invoke()
+            field = value
+        }
 
     private val holdStateTimer = Timer(0f)
 
@@ -121,6 +124,7 @@ class PlayGUIStage(
     val unitSelectedCs = UnitSelectedCs()
     val useAbilityCs = UseAbilityCs()
     val confirmAbilityCs = ConfirmAbilityCs()
+
     //val summonDollCs = SummonDollCs()
     var clickStrategy: ClickStrategy = selectUnitCs
         set(value) {
@@ -130,12 +134,14 @@ class PlayGUIStage(
                 field is UnitSelectedCs && value !is UnitSelectedCs -> {
                     // fire event
                 }
+
                 field is UseAbilityCs && value !is UseAbilityCs -> {
                     abilityRangeBorder.isVisible = false
 
                     tileHighlighter.clearHighlights()
                     (abilitiesPanel.cells.firstOrNull { it.actor is SummonAbilityButton }?.actor as SummonAbilityButton?)?.hidePane()
                 }
+
                 field is ConfirmAbilityCs && value !is ConfirmAbilityCs -> {
                     abilityActivationRangeBorder.isVisible = false
                 }
@@ -145,6 +151,7 @@ class PlayGUIStage(
                 is UnitSelectedCs -> {
 
                 }
+
                 is UseAbilityCs -> {
                     if (selectedUnit == null) throw IllegalStateException("While clickStrategy is UseAbilityCs, selectedUnit shouldn't be null.")
 
@@ -158,6 +165,7 @@ class PlayGUIStage(
                         abilityRangeBorder.isVisible = false
                     }
                 }
+
                 is ConfirmAbilityCs -> {
                     abilityActivationRangeBorder.isVisible = true
                 }
@@ -227,7 +235,10 @@ class PlayGUIStage(
                     playStageCamera.zoom == 0.9f -> 1f
                     playStageCamera.zoom == 1f -> 1.25f
                     playStageCamera.zoom == 1.25f -> 1.5f
-                    playStageCamera.zoom == 1.5f -> { playStage.zoomCameraByDefault(); playStageCamera.zoom }
+                    playStageCamera.zoom == 1.5f -> {
+                        playStage.zoomCameraByDefault(); playStageCamera.zoom
+                    }
+
                     playStageCamera.zoom != 0.5f -> 0.5f
                     else -> {
                         playStage.zoomCameraByDefault(); playStageCamera.zoom
@@ -291,6 +302,7 @@ class PlayGUIStage(
             //captureButton.isDisabled = true
             captureButton.isVisible = false
         }
+
         addListener {
             val unit: UnitActor? = when (it) {
                 is UnitSelectedEvent -> it.unit
@@ -335,9 +347,9 @@ class PlayGUIStage(
             selectUnit(null)
 
             // Move camera to the localPlayer's unit leader/first unit on the start of the turn
-            val unit = playScreen.aliceOrNull() ?:
-            playStage.getUnitsOfPlayer(playScreen.localPlayer).firstOrNull { unit -> unit.isLeader } ?:
-            playStage.getUnitsOfPlayer(playScreen.localPlayer).firstOrNull()
+            val unit = playScreen.aliceOrNull() ?: playStage.getUnitsOfPlayer(playScreen.localPlayer)
+                .firstOrNull { unit -> unit.isLeader } ?: playStage.getUnitsOfPlayer(playScreen.localPlayer)
+                .firstOrNull()
             if (unit != null) playScreen.actionManager.addAction(CameraMoveAction(unit.centerX, unit.centerY))
         }
 
@@ -414,7 +426,8 @@ class PlayGUIStage(
                 override fun act(delta: Float): Boolean {
                     // see also InputManager
                     if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                        || Gdx.input.justTouched()) {
+                        || Gdx.input.justTouched()
+                    ) {
 
                         labelPlayerReady.remove()
 
@@ -447,10 +460,12 @@ class PlayGUIStage(
                 is ActionStartedEvent -> {
                     endTurnButton.isDisabled = true
                 }
+
                 is ActionCompletedEvent -> {
                     if (!playScreen.actionManager.hasActions && playScreen.turnManager.currentPlayer == player)
                         endTurnButton.isDisabled = false
                 }
+
                 is TaskBeginEvent -> {
                     if (it.task.isForcePlayerToComplete || it.task is DialogTask) {
                         endTurnButton.isDisabled = true
@@ -467,7 +482,8 @@ class PlayGUIStage(
                 }
 
                 is NextTurnEvent -> {
-                    endTurnButton.isDisabled = playScreen.actionManager.hasActions || playScreen.turnManager.currentPlayer != player
+                    endTurnButton.isDisabled =
+                        playScreen.actionManager.hasActions || playScreen.turnManager.currentPlayer != player
                 }
             }
 
@@ -480,11 +496,13 @@ class PlayGUIStage(
                 is GameOverEvent -> {
                     currentState = gameOverState
                 }
+
                 is NextTurnEvent -> {
                     when (playScreen.gameType) {
                         GameType.PVP_SAME_SCREEN -> {
                             // see nextPlayerPrepare
                         }
+
                         else -> {
                             if (playScreen.turnManager.currentPlayer.id == player.id)
                                 currentState = startTurn
@@ -503,7 +521,8 @@ class PlayGUIStage(
                 if (tile.isBase) {
                     if (playScreen.turnManager.currentPlayer == player
                         && tile.cPlayerId?.playerId == player.id
-                        && currentState == myTurn)
+                        && currentState == myTurn
+                    )
                         buyMenuPanelTable.add(BuyMenuPanel(this, it.tile, player))
                 }
             }
@@ -557,14 +576,43 @@ class PlayGUIStage(
 
             return@addListener false
         }
+
+        //select AI unit in action
+        playStage.addListener { event ->
+            if (GamePref.showAiGui != true) return@addListener false
+
+            if (playScreen.aiManager.isAIPlayer(playScreen.turnManager.currentPlayer)) {
+                when (event) {
+                    is CommandAddedEvent -> {
+                        val unit = when (val command = event.command) {
+                            is MoveUnitCommand -> playStage.findUnit(command.unitId)
+                            is AttackCommand -> playStage.findUnit(command.attackerUnitId)
+                            is CaptureCommand -> playStage.findUnit(command.unitId)
+                            else -> null
+                        }
+                        if (unit != null && unit.isPlayerUnit(playScreen.turnManager.currentPlayer)) {
+                            selectUnit(unit)
+                        }
+                    }
+
+                    is UnitBoughtEvent -> {
+                        val unit = event.unit
+                        if (unit.isPlayerUnit(playScreen.turnManager.currentPlayer)) {
+                            selectUnit(unit)
+                        }
+                    }
+                }
+            }
+            false
+        }
     }
 
     private fun setupTable() {
         dialogTable.setFillParent(true)
         turnIconTable.setFillParent(true)
 
-        val topRightButtonsTable =  VisTable()
-        with (topRightButtonsTable) {
+        val topRightButtonsTable = VisTable()
+        with(topRightButtonsTable) {
             add(pauseButton).right().top()
             row()
             add(infoButton).right().top()
@@ -671,11 +719,12 @@ class PlayGUIStage(
 
         if (selectedUnit!!.isPlayerUnit(player)) {
             //if (selectedUnit!!.isLeader || selectedUnit!!.isFollower) {
-                val leader = if (selectedUnit!!.isFollower) playStage.getLeadUnit(selectedUnit!!.followerID) else selectedUnit!!
-                //setup abilities panel for selected unit or it's leader
-                if (leader != null && selectedUnit!!.cAbilities == null)
-                    abilitiesPanel.setUpForUnit(leader)
-                else abilitiesPanel.setUpForUnit(selectedUnit!!)
+            val leader =
+                if (selectedUnit!!.isFollower) playStage.getLeadUnit(selectedUnit!!.followerID) else selectedUnit!!
+            //setup abilities panel for selected unit or it's leader
+            if (leader != null && selectedUnit!!.cAbilities == null)
+                abilitiesPanel.setUpForUnit(leader)
+            else abilitiesPanel.setUpForUnit(selectedUnit!!)
             //}
             //unitMiniMenu.unit = selectedUnit
         }
@@ -726,10 +775,12 @@ class PlayGUIStage(
 
         dialogTable.setPosition(
             viewport.camera.position.x - viewport.camera.viewportWidth / 2,
-            viewport.camera.position.y - viewport.camera.viewportHeight / 2)
+            viewport.camera.position.y - viewport.camera.viewportHeight / 2
+        )
         turnIconTable.setPosition(
             viewport.camera.position.x - viewport.camera.viewportWidth / 2,
-            viewport.camera.position.y - viewport.camera.viewportHeight / 2)
+            viewport.camera.position.y - viewport.camera.viewportHeight / 2
+        )
     }
 
     /** What da click doin */
@@ -792,9 +843,10 @@ class PlayGUIStage(
                     && selectedUnit!!.isPlayerUnit(player)
                     && !unit.isPlayerTeamUnit(player)
                     && selectedUnit!!.inAttackRange(unit.tiledX, unit.tiledY)
-                    && !selectedUnit!!.isAlly(unit)) {
+                    && !selectedUnit!!.isAlly(unit)
+                ) {
 
-                        val command = AttackCommand(selectedUnit!!, unit)
+                    val command = AttackCommand(selectedUnit!!, unit)
                     if (command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)) {
                         selectUnit(selectedUnit)
                         return true
@@ -822,9 +874,20 @@ class PlayGUIStage(
 
                 return isExecuted
             } else {
-                if (tiledDst(tiledX, tiledY, selectedUnit!!.tiledX, selectedUnit!!.tiledY) <= abilitiesPanel.selectedAbility!!.range) {
+                if (tiledDst(
+                        tiledX,
+                        tiledY,
+                        selectedUnit!!.tiledX,
+                        selectedUnit!!.tiledY
+                    ) <= abilitiesPanel.selectedAbility!!.range
+                ) {
                     clickStrategy = confirmAbilityCs
-                    abilityActivationRangeBorder.makeForRange(abilitiesPanel.selectedAbility!!.activationRange, tiledX, tiledY, playStage)
+                    abilityActivationRangeBorder.makeForRange(
+                        abilitiesPanel.selectedAbility!!.activationRange,
+                        tiledX,
+                        tiledY,
+                        playStage
+                    )
                     abilityActivationRangeBorder.show(true)
                     return true
                 } else {

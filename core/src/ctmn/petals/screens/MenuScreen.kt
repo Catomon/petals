@@ -1,4 +1,4 @@
-package ctmn.petals
+package ctmn.petals.screens
 
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.MovingBackground
@@ -12,6 +12,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import ctmn.petals.GameConst
+import ctmn.petals.PetalsGame
+import ctmn.petals.assets
 import ctmn.petals.menu.*
 import ctmn.petals.widgets.ParallaxBackground
 

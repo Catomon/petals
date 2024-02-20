@@ -38,6 +38,8 @@ import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.NoEnd
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.screens.MenuScreen
+import ctmn.petals.screens.PlayScreenTemplate
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.*
 import io.netty.channel.ChannelFuture

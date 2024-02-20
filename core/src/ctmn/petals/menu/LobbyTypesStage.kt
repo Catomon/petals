@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.VisWindow
-import ctmn.petals.MenuScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.multiplayer.client.GameClient

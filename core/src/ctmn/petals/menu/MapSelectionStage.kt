@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.MenuScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.level.JsonLevel
 import ctmn.petals.level.Level
 import ctmn.petals.playscreen.GameMode

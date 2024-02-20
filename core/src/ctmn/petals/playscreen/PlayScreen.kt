@@ -18,7 +18,7 @@ import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.LogLevel
 import com.strongjoshua.console.annotation.ConsoleDoc
 import ctmn.petals.GameConst
-import ctmn.petals.MenuScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.PetalsGame
 import ctmn.petals.ai.AIManager
 import ctmn.petals.ai.EasyAiDuelBot
@@ -388,6 +388,8 @@ open class PlayScreen(
         playStage.dispose()
 
         backImage.sprite.texture.dispose()
+
+        batch.dispose()
     }
 
     private var gameState: GameStateSnapshot? = null
@@ -565,6 +567,20 @@ open class PlayScreen(
             GameConsole.console.log("Added AI for player $player")
         }
 
+        @ConsoleDoc(description = "Removes AI for given player Id")
+        fun removeAI(playerId: Int) {
+            if (!aiManager.isAIPlayer(turnManager.getPlayerById(playerId) ?: let {
+                    console.log("Player is not found", LogLevel.ERROR)
+                    return
+                })) {
+
+                console.log("Player is not AI.")
+                return
+            }
+
+            aiManager.aiPlayers.removeAll { it.playerID == playerId }
+        }
+
         fun endTurn() {
             queueCommand(EndTurnCommand(turnManager.currentPlayer))
         }
@@ -669,6 +685,26 @@ open class PlayScreen(
                     playStage.timeOfDay = PlayStage.DayTime.EVENING
                 }
             }
+        }
+
+        @ConsoleDoc(description = "Gives gold to local player.")
+        fun gold(amount: Int) {
+            localPlayer.gold += amount
+        }
+
+        @ConsoleDoc(description = "Gives 9999 gold to local player.")
+        fun gold() {
+            localPlayer.gold += 9999
+        }
+
+        @ConsoleDoc(description = "Gives gold to player with given Id.")
+        fun gold(playerId: Int, amount: Int) {
+            val player = turnManager.getPlayerById(playerId) ?: let {
+                GameConsole.console.log("No player with such Id.", LogLevel.ERROR)
+                return
+            }
+
+            player.gold += amount
         }
     }
 

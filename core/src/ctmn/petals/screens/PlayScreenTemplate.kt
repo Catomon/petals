@@ -1,8 +1,9 @@
-package ctmn.petals
+package ctmn.petals.screens
 
 import ctmn.petals.level.Level
 import ctmn.petals.player.Player
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.PetalsGame
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*

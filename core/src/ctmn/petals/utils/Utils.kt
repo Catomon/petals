@@ -5,13 +5,18 @@ import com.badlogic.gdx.graphics.Cursor
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.math.MathUtils
 
-fun createCursor() {
-    val pixmap = Pixmap(Gdx.files.internal("cursor.png"))
+
+fun setMouseCursor(cursorFileName: String = "cursor.png") {
+    Gdx.graphics.setCursor(createCursor(cursorFileName))
+}
+
+fun createCursor(cursorFileName: String = "cursor.png"): Cursor {
+    val pixmap = Pixmap(Gdx.files.internal(cursorFileName))
     val xHotspot = 0
     val yHotspot = 0
     val cursor: Cursor = Gdx.graphics.newCursor(pixmap, xHotspot, yHotspot)
-    Gdx.graphics.setCursor(cursor)
     pixmap.dispose()
+    return cursor
 }
 
 fun calculateMoveDirection(x: Float, y: Float, endX: Float, endY: Float): Float {

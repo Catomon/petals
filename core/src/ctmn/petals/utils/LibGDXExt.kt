@@ -166,7 +166,7 @@ inline fun <reified E: Event> Stage.addOneTimeListener(crossinline func: E.() ->
     addListener(listener)
 }
 
-fun Actor.addClickListener(function: (InputEvent) -> Unit) : Actor {
+fun <T: Actor> T.addClickListener(function: (InputEvent) -> Unit) : T {
     addListener(object : ClickListener() {
         override fun clicked(event: InputEvent, x: Float, y: Float) {
             super.clicked(event, x, y)
@@ -175,7 +175,7 @@ fun Actor.addClickListener(function: (InputEvent) -> Unit) : Actor {
         }
     })
 
-    return this
+    return this as T
 }
 
 /** Sets actor position so its center x == [x] and center y == [y] */

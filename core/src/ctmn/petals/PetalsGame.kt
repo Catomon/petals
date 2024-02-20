@@ -4,13 +4,14 @@ import com.badlogic.gdx.Application
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.Cursor
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.utils.Logger
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.screens.DevScreen
+import ctmn.petals.screens.LoadingScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.GameConsole
-import ctmn.petals.utils.createCursor
+import ctmn.petals.utils.setMouseCursor
 
 val game: PetalsGame get() = Gdx.app.applicationListener as PetalsGame
 
@@ -21,6 +22,8 @@ class PetalsGame : Game() {
     override fun create() {
         if (!GameConst.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
 
+        startDiscordRich()
+
         GamePref.setEmptyToDefaultPrefs()
         GamePref.overridePrefs()
 
@@ -29,7 +32,7 @@ class PetalsGame : Game() {
         ctmn.petals.assets = assets
 
         if (Gdx.app.type == Application.ApplicationType.Desktop) {
-            createCursor()
+            setMouseCursor()
         }
 
         assets.loadUI()
@@ -81,5 +84,11 @@ class PetalsGame : Game() {
         super.resize(width, height)
 
         GameConsole.onWindowResize()
+    }
+
+    override fun dispose() {
+        stopDiscordRich()
+
+        super.dispose()
     }
 }

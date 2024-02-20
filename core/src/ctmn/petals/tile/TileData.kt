@@ -6,7 +6,7 @@ import kotlin.collections.HashMap
 
 object TileData {
 
-    private val tiles = HashMap<String, Tile>()
+    val tiles = HashMap<String, Tile>()
 
     init {
         for (region in assets.tilesAtlas.regions) {

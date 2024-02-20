@@ -2,7 +2,7 @@ package ctmn.petals.menu
 
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.MenuScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newTextButton
 

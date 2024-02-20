@@ -1,4 +1,4 @@
-package ctmn.petals
+package ctmn.petals.screens
 
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
@@ -10,6 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
+import ctmn.petals.GameConst
+import ctmn.petals.PetalsGame
+import ctmn.petals.assets
 import ctmn.petals.story.Story
 import ctmn.petals.story.StoryPlayScreen
 import ctmn.petals.utils.*

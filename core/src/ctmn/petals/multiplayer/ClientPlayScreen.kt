@@ -3,7 +3,7 @@ package ctmn.petals.multiplayer
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
-import ctmn.petals.MenuScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.RepeatAction
 import ctmn.petals.multiplayer.client.ClientManager.Companion.MESSAGE_ID_EVERYTHING

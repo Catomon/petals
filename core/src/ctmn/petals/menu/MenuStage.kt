@@ -10,6 +10,8 @@ import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.menu.StorySelectStage.Companion.startStory
+import ctmn.petals.screens.LevelSelectScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.StoriesManager
 import ctmn.petals.widgets.*
 

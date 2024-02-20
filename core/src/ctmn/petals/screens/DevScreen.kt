@@ -1,4 +1,4 @@
-package ctmn.petals
+package ctmn.petals.screens
 
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
@@ -10,6 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisTable
+import ctmn.petals.GameConst
+import ctmn.petals.PetalsGame
+import ctmn.petals.assets
+import ctmn.petals.editor.EditorScreen
 import ctmn.petals.story.FaePlayScreen
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.MovingBackground
@@ -50,7 +54,7 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
                     game.screen = LoadingScreen(game)
                 })
                 group.addActor(newTextButton("Editor").addChangeListener {
-
+                    game.screen = EditorScreen()
                 })
             })
         })

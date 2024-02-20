@@ -1,4 +1,4 @@
-package ctmn.petals
+package ctmn.petals.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FillViewport
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
+import ctmn.petals.GameConst
+import ctmn.petals.PetalsGame
 
 class LoadingScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
 

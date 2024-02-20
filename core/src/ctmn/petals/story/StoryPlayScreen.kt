@@ -2,7 +2,7 @@ package ctmn.petals.story
 
 import ctmn.petals.GameConst
 import ctmn.petals.GameConst.PLAY_CAMERA_ZOOM_OUT_MAX_STORY
-import ctmn.petals.MenuScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.PetalsGame
 import ctmn.petals.playscreen.GameEndCondition

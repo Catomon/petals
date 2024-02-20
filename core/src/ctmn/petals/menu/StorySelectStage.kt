@@ -1,6 +1,6 @@
 package ctmn.petals.menu
 
-import ctmn.petals.MenuScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.SavesManager
 import ctmn.petals.story.StoriesManager
 import ctmn.petals.story.Story

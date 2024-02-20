@@ -204,7 +204,7 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
 
         if (unitToBuy.isEmpty()) {
             if (unitsToBuy.isEmpty) {
-                unitToBuy = UnitIds.SW0RDMAN
+                unitToBuy = speciesUnits.first().selfName
                 val unitsToBuy = Array<String>()
                 for ((name, count) in buyPriority) {
                     if (howMuchOfUnits(name, playScreen.playStage.getUnitsOfPlayer(player)) < count * 2)

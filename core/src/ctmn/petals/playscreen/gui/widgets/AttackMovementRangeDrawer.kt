@@ -3,10 +3,15 @@ package ctmn.petals.playscreen.gui.widgets
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Group
 import ctmn.petals.GamePref
+import ctmn.petals.playscreen.commands.AttackCommand
+import ctmn.petals.playscreen.commands.BuyUnitCommand
+import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.UnitMovedEvent
 import ctmn.petals.playscreen.events.UnitSelectedEvent
 import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.playscreen.gui.PlayGUIStage
+import ctmn.petals.playscreen.playStage
+import ctmn.petals.playscreen.seqactions.AttackAction
 import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitActor
 
@@ -47,6 +52,27 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
 
                     updateBorders()
                 }
+
+                is CommandAddedEvent -> {
+                    when (it.command) {
+                        is AttackCommand -> {
+                            unit = playStage.root.findActor(it.command.attackerUnitId) ?: return@addListener false
+
+                            isVisible = false
+
+                            updateBorders()
+                        }
+
+//                        is BuyUnitCommand -> {
+//
+//                        }
+
+                        else -> {
+                            unit = null
+                            isVisible = false
+                        }
+                    }
+                }
             }
 
             false
@@ -54,6 +80,12 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
     }
 
     private fun updateBorders() {
+        if (unit?.isPlayerUnit(guiStage.player) == false && GamePref.showAiGui != true
+            && guiStage.playScreen.aiManager.isAIPlayer(guiStage.playScreen.turnManager.currentPlayer)) {
+            this.unit = null
+            isVisible = false
+        }
+
         val unit = unit
         if (unit != null) {
             moveRangeBorder.makeForMatrix(guiStage.playStage.getMovementGrid(unit, true), guiStage.playStage)
@@ -68,12 +100,14 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
             if (unit.cAttack!!.attackRangeBlocked > 0)
                 minAttackRangeBorder.makeForMatrix(
                     guiStage.playStage.getMovementGrid(
-                        unit.attackRange - unit.cAttack!!.attackRangeBlocked,
+                        unit.cAttack!!.attackRangeBlocked,
                         unit.tiledX,
                         unit.tiledY,
                         TerrainCosts.clear
                     ), guiStage.playStage
                 )
+            else
+                minAttackRangeBorder.isVisible = false
         }
     }
 
@@ -83,8 +117,8 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
         val unit = unit
         isVisible = unit != null
                 && guiStage.playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)
-                && guiStage.clickStrategy == guiStage.seeInfoCs || guiStage.clickStrategy == guiStage.unitSelectedCs
-                && !guiStage.playScreen.actionManager.hasActions
+                //&& guiStage.clickStrategy == guiStage.seeInfoCs || guiStage.clickStrategy == guiStage.unitSelectedCs
+                && !guiStage.playScreen.actionManager.hasActions || guiStage.playScreen.actionManager.currentAction is AttackAction
     }
 
     override fun setVisible(visible: Boolean) {
