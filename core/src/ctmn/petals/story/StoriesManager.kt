@@ -1,7 +1,7 @@
 package ctmn.petals.story
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.GameConst.TREASURED_PETALS_STORY_ID
+import ctmn.petals.Const.TREASURED_PETALS_STORY_ID
 import kotlin.reflect.KClass
 
 object StoriesManager : HashMap<Int, KClass<out Story>>() {

@@ -1,7 +1,7 @@
 package ctmn.petals.unit.abilities
 
 import com.badlogic.gdx.Gdx
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.effects.CreateEffect
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playstage.getUnitsForLeader
@@ -66,7 +66,7 @@ class SummonAbility : Ability(
             summonUnit.setPosition(tileX, tileY)
 
             //if round is first, and unitCaster didn't use AP, give summoned unit AP
-//        if (playScreen.turnManager.currentRound == 0 && unitCaster.actionPoints == GameConst.ACTION_POINTS)
+//        if (playScreen.turnManager.currentRound == 0 && unitCaster.actionPoints == Const.ACTION_POINTS)
 //            giveAP = true
 
             if (unitCaster.actionPoints >= 2) {
@@ -74,8 +74,8 @@ class SummonAbility : Ability(
             }
 
             if (giveAP && isFirstMove) {
-                summonUnit.actionPoints = GameConst.ACTION_POINTS
-                unitCaster.actionPoints = GameConst.ACTION_POINTS
+                summonUnit.actionPoints = Const.ACTION_POINTS
+                unitCaster.actionPoints = Const.ACTION_POINTS
             }
 
             if (castAmountsLeft == 1) {
@@ -89,8 +89,8 @@ class SummonAbility : Ability(
             //create effect
             val effect = CreateEffect.summon
             effect.setPosition(
-                tileX.unTiled() + GameConst.TILE_SIZE / 2,
-                tileY.unTiled() + GameConst.TILE_SIZE / 2
+                tileX.unTiled() + Const.TILE_SIZE / 2,
+                tileY.unTiled() + Const.TILE_SIZE / 2
             )
             playStage.addActor(effect)
 

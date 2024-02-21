@@ -12,9 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import ctmn.petals.GameConst
-import ctmn.petals.PetalsGame
-import ctmn.petals.assets
+import ctmn.petals.*
 import ctmn.petals.menu.*
 import ctmn.petals.widgets.ParallaxBackground
 
@@ -50,6 +48,8 @@ class MenuScreen(val game: PetalsGame) : Screen {
         }
 
     init {
+        discordRich(Rich.DEFAULT)
+
         Gdx.input.inputProcessor = stage
 
         batch.projectionMatrix = viewport.camera.combined
@@ -91,14 +91,14 @@ class MenuScreen(val game: PetalsGame) : Screen {
 
     override fun resize(width: Int, height: Int) {
         if (Gdx.app.type == Application.ApplicationType.Android)
-            if (GameConst.IS_PORTRAIT)
+            if (Const.IS_PORTRAIT)
                 viewport.minWorldHeight = 240f
             else viewport.minWorldHeight = 180f // 180f is too small for custom match stage
 
         //code above is overwritten by code below btw
 
-        (viewport as ExtendViewport).minWorldWidth = width / GameConst.GUI_SCALE
-        (viewport as ExtendViewport).minWorldHeight = height / GameConst.GUI_SCALE
+        (viewport as ExtendViewport).minWorldWidth = width / Const.GUI_SCALE
+        (viewport as ExtendViewport).minWorldHeight = height / Const.GUI_SCALE
 
         viewport.update(width, height)
 

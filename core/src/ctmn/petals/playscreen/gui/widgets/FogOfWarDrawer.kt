@@ -1,16 +1,13 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.events.NextTurnEvent
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
-import ctmn.petals.GameConst.BASE_RANGE_OF_VIEW
+import ctmn.petals.Const.BASE_RANGE_OF_VIEW
 import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.Tiles
@@ -49,7 +46,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
     private var updateFog = true
 
     init {
-        fogOfWarSprite.setSize(GameConst.TILE_SIZE.toFloat(), GameConst.TILE_SIZE.toFloat())
+        fogOfWarSprite.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
         fogOfWarSprite.setAlpha(0.5f)
 
         playStage.addListener {
@@ -175,7 +172,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
         for ((i, _) in maxOfView.withIndex()) {
             for ((j, _) in maxOfView[i].withIndex()) {
                 if (maxOfView[i][j] <= 0) {
-                    fogOfWarSprite.setPosition(i * GameConst.TILE_SIZE.toFloat(), j * GameConst.TILE_SIZE.toFloat())
+                    fogOfWarSprite.setPosition(i * Const.TILE_SIZE.toFloat(), j * Const.TILE_SIZE.toFloat())
                     fogOfWarSprite.draw(batch)
 
                     //todo getUnit(x, y) (map array)
@@ -195,7 +192,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
             for (y in fogDiscoverMap[x].indices) {
                 if (fogDiscoverMap[x][y] == 1) continue
 
-                fogOfWarSprite.setPosition(x * GameConst.TILE_SIZE.toFloat(), y * GameConst.TILE_SIZE.toFloat())
+                fogOfWarSprite.setPosition(x * Const.TILE_SIZE.toFloat(), y * Const.TILE_SIZE.toFloat())
                 fogOfWarSprite.draw(batch)
             }
         }

@@ -3,7 +3,7 @@ package ctmn.petals.effects
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.actors.actions.UpdateAction
 import ctmn.petals.assets
 import ctmn.petals.newPlaySprite
@@ -53,7 +53,7 @@ class FireballEffect(startX: Float, startY: Float, endX: Float, endY: Float) : E
                     val explosion = FlameAbilityEffect(0, endX.tiled(), endY.tiled(), assets)
                     stage.addActor(explosion)
                     val particles = ExplosionParticles()
-                    particles.setPosition(endX, endY - GameConst.TILE_SIZE / 2)
+                    particles.setPosition(endX, endY - Const.TILE_SIZE / 2)
                     stage.addActor(particles)
 
                     lifeTime = 0f

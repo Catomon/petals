@@ -1,7 +1,7 @@
 package ctmn.petals.multiplayer.server
 
 import com.badlogic.gdx.utils.Logger
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.multiplayer.JsonMessageDecoder
 import ctmn.petals.multiplayer.JsonMessageEncoder
 import io.netty.bootstrap.ServerBootstrap
@@ -15,7 +15,7 @@ val logger = Logger(GameServer::class.java.simpleName, Logger.DEBUG)
 class GameServer(private val port: Int = ConnectionData.port) {
 
     object ConnectionData {
-        var port: Int = GameConst.SERVER_PORT
+        var port: Int = Const.SERVER_PORT
     }
 
     val clientRequestsQueue = ClientRequestsQueue()

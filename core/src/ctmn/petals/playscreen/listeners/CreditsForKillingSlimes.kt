@@ -2,8 +2,8 @@ package ctmn.petals.playscreen.listeners
 
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
-import ctmn.petals.GameConst.KILL_CREDITS_SLIME_HUGE
-import ctmn.petals.GameConst.KILL_CREDITS_SLIME_LING
+import ctmn.petals.Const.KILL_CREDITS_SLIME_HUGE
+import ctmn.petals.Const.KILL_CREDITS_SLIME_LING
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.UnitDiedEvent
 import ctmn.petals.playscreen.gui.floatingLabel

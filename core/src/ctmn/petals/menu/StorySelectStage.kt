@@ -14,8 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
-import ctmn.petals.GameConst.IS_RELEASE
-import ctmn.petals.GameConst.TREASURED_PETALS_STORY_ID
+import ctmn.petals.Const.IS_RELEASE
+import ctmn.petals.Const.TREASURED_PETALS_STORY_ID
 
 class StorySelectStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 

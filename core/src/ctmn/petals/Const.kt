@@ -4,25 +4,26 @@ import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import kotlin.math.round
 
-object GameConst {
+object Const {
 
-    // App
+    // App:
     const val APP_NAME = "serascout.itch.io/petals"
     const val APP_VER_NAME = "\nDemo"
     const val IS_RELEASE = false
 
-    var DEBUG_MODE = !IS_RELEASE
+    const val CONSOLE_ENABLED = !IS_RELEASE
+    const val DEBUG_MODE = !IS_RELEASE
 
-    // Multiplayer
+    /** discord */
+    const val DISABLE_RICH = !IS_RELEASE
+
+    // Multiplayer:
     const val SERVICE_TYPE = "_alissagame._upd.local."
     const val SERVICE_NAME = "AlissaGameService"
     const val SERVICE_DESCRIPTION = "Alissa Game Service"
     const val SERVER_PORT = 7396
 
-    // Game
-    const val TILE_SIZE: Int = 16
-
-    // GUI
+    // GUI:
     val IS_MOBILE get() = Gdx.app.type == Application.ApplicationType.Android
     val IS_DESKTOP get() = Gdx.app.type == Application.ApplicationType.Desktop
     val IS_PORTRAIT get() = Gdx.graphics.width < Gdx.graphics.height
@@ -53,7 +54,9 @@ object GameConst {
     val PLAY_CAMERA_ZOOM_STORY get() = if (Gdx.app.type == Application.ApplicationType.Android) 0.6f else 0.9f
     const val PLAY_CAMERA_ZOOM_OUT_MAX_STORY = 320f
 
-    // GAMEPLAY
+    // Gameplay:
+    const val TILE_SIZE: Int = 16
+
     // Alice
     const val ALICE_LEADER_ID = 13404
     const val TREASURED_PETALS_STORY_ID: Int = 182730192
@@ -89,5 +92,3 @@ object GameConst {
     const val KILL_CREDITS_SLIME_HUGE = 1000
     const val KILL_CREDITS_SLIME_LING = 200
 }
-
-fun xpToLevelUp(curLvl: Int) = GameConst.EXP_MOD_LEVEL_UP * curLvl

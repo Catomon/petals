@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.effects.CreateEffect
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.unit.Ability
@@ -27,8 +27,8 @@ class UnsummonAbility : Ability(
         //create effect
         val effect = CreateEffect.summon
         effect.setPosition(
-            tileX.unTiled() + GameConst.TILE_SIZE / 2,
-            tileY.unTiled() + GameConst.TILE_SIZE / 2
+            tileX.unTiled() + Const.TILE_SIZE / 2,
+            tileY.unTiled() + Const.TILE_SIZE / 2
         )
         playStage.addActor(effect)
 

@@ -308,6 +308,12 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 		pressedOffsetY: -1
 		checkedOffsetY: -1
 	}
+	layers: {
+		up: layers
+		down: layers
+		pressedOffsetY: -1
+		font: font
+	}
 	button_b: {
 		down: button_b_pressed
 		up: button_b
@@ -352,6 +358,21 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 	default: {
 		down: panel_b
 		up: panel_b
+	}
+	tool_drag_canvas: {
+		down: tool_drag_canvas
+		up: tool_drag_canvas_pressed
+		focusBorder: tool_drag_canvas_border
+	}
+	tool_eraser: {
+		down: tool_eraser
+		up: tool_eraser_pressed
+		focusBorder: tool_eraser_border
+	}
+	tool_pencil: {
+		down: tool_pencil
+		up: tool_pencil_pressed
+		focusBorder: tool_pencil_border
 	}
 	next_dialog: {
 		down: next_dialog_button_pressed

@@ -13,6 +13,8 @@ import com.strongjoshua.console.LogLevel
 
 object GameConsole {
 
+    var consoleDisabled = false
+
     var visibilitySwitchKey = Input.Keys.APOSTROPHE
 
     var commandExecutor: CommandExecutor? = CslCommandEx()
@@ -77,7 +79,7 @@ object GameConsole {
     }
 
     fun switchVisibility(): Boolean {
-        if (mConsole == null) return false
+        if (mConsole == null || consoleDisabled) return false
 
         console.isVisible = !console.isVisible
         console.isDisabled = !console.isDisabled

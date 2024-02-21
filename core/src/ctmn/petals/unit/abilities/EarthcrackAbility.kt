@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.Ability
@@ -49,8 +49,8 @@ class EarthcrackAbility : Ability(
         //create effect
         val effect = ctmn.petals.effects.CreateEffect.earthcrack
         effect.setPosByCenter(
-            tileX.unTiled() + GameConst.TILE_SIZE / 2,
-            tileY.unTiled() + GameConst.TILE_SIZE / 2
+            tileX.unTiled() + Const.TILE_SIZE / 2,
+            tileY.unTiled() + Const.TILE_SIZE / 2
         )
         playStage.addActor(effect)
 

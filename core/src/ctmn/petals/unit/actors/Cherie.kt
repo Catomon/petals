@@ -1,7 +1,7 @@
 package ctmn.petals.unit.actors
 
 import ctmn.petals.Assets
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.unit.TerrainBuffs
 import ctmn.petals.unit.TerrainCosts
 import ctmn.petals.unit.UnitActor
@@ -21,7 +21,7 @@ class Cherie : UnitActor(
     init {
         add(
             LeaderComponent(
-                GameConst.ALICE_LEADER_ID,
+                Const.ALICE_LEADER_ID,
                 2,
                 5,
                 0

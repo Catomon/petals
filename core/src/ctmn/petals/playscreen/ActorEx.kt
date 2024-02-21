@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.actors.actions.OneAction
@@ -31,8 +31,8 @@ val Actor.playStage get() = stage as PlayStage
 val Actor.playStageOrNull get() = if (stage is PlayStage) stage as PlayStage else null
 
 fun TileActor.setTilePosition(x: Int, y: Int) {
-    this.x = (x * GameConst.TILE_SIZE).toFloat()
-    this.y = (y * GameConst.TILE_SIZE).toFloat()
+    this.x = (x * Const.TILE_SIZE).toFloat()
+    this.y = (y * Const.TILE_SIZE).toFloat()
     tiledX = x
     tiledY = y
 }

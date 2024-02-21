@@ -1,7 +1,7 @@
 package ctmn.petals.effects
 
 import ctmn.petals.Assets
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.setPositionByCenter
 import com.badlogic.gdx.graphics.g2d.Batch
@@ -22,7 +22,7 @@ class HealingEffect(private val vectors: Array<Vector2>, val assets: Assets) : c
         super.draw(batch, parentAlpha)
 
         for (vector in vectors) {
-            sprite.setPositionByCenter(vector.x + GameConst.TILE_SIZE / 2, vector.y + GameConst.TILE_SIZE / 2)
+            sprite.setPositionByCenter(vector.x + Const.TILE_SIZE / 2, vector.y + Const.TILE_SIZE / 2)
             sprite.draw(batch)
         }
     }

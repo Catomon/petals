@@ -1,6 +1,6 @@
 package ctmn.petals.utils
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 
 class WaveAnimation(
     var frameDuration: Float = 1f,
@@ -8,8 +8,8 @@ class WaveAnimation(
     var stepY: Float = 1f,
 ) {
 
-    var frameSize = GameConst.TILE_SIZE.toFloat()
-    var size = GameConst.TILE_SIZE * 2f
+    var frameSize = Const.TILE_SIZE.toFloat()
+    var size = Const.TILE_SIZE * 2f
 
     var timeState = 0f
 

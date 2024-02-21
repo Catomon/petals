@@ -25,7 +25,7 @@ import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisList
 import com.kotcrab.vis.ui.widget.VisTextButton
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.PetalsGame
 import ctmn.petals.playstage.getLabels
 
@@ -35,7 +35,7 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
 
     private val background = VisImage(Texture("back.png"))
     private val bunnyImage = VisImage(Texture("bunny.png"))
-    private val label = VisLabel(GameConst.APP_NAME + " " + GameConst.APP_VER_NAME)
+    private val label = VisLabel(Const.APP_NAME + " " + Const.APP_VER_NAME)
     private val mapsList = VisList<String>()
     private val loadButton = VisTextButton(">")
     private val backButton = VisTextButton("<")

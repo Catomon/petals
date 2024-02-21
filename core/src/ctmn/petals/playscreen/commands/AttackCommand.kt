@@ -1,7 +1,7 @@
 package ctmn.petals.playscreen.commands
 
 import com.badlogic.gdx.Gdx
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.*
 import ctmn.petals.unit.*
@@ -27,14 +27,14 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
         if (attackerUnit.isAlly(targetUnit)) return false
 
-        return attackerUnit.actionPoints >= GameConst.ACTION_POINTS_ATTACK_MIN
+        return attackerUnit.actionPoints >= Const.ACTION_POINTS_ATTACK_MIN
     }
 
     override fun execute(playScreen: PlayScreen): Boolean {
         val attackerUnit: UnitActor = playScreen.playStage.root.findActor(attackerUnitId)
         val targetUnit: UnitActor = playScreen.playStage.root.findActor(targetUnitId)
 
-        attackerUnit.actionPoints -= GameConst.ACTION_POINTS_ATTACK
+        attackerUnit.actionPoints -= Const.ACTION_POINTS_ATTACK
 
         attackerUnit.del(InvisibilityComponent::class.java)
         targetUnit.del(InvisibilityComponent::class.java)

@@ -1,7 +1,7 @@
 package ctmn.petals.unit.actors
 
 import ctmn.petals.Assets
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.unit.*
@@ -30,7 +30,7 @@ class Alice : UnitActor(
 
         add(
             LeaderComponent(
-                GameConst.ALICE_LEADER_ID,
+                Const.ALICE_LEADER_ID,
             2,
             5,
             0

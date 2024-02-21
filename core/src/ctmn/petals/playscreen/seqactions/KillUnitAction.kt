@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.seqactions
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.effects.UnitDeathExplosionEffect
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.unit.UnitActor
@@ -21,8 +21,8 @@ class KillUnitAction(val unit: UnitActor) : SeqAction() {
 
         deathEffect = UnitDeathExplosionEffect(playScreen.assets)
 
-        deathEffect.x = unit.x + GameConst.TILE_SIZE / 2
-        deathEffect.y = unit.y + GameConst.TILE_SIZE / 2
+        deathEffect.x = unit.x + Const.TILE_SIZE / 2
+        deathEffect.y = unit.y + Const.TILE_SIZE / 2
         playScreen.playStage.addActor(deathEffect)
 
         deadUnitBodyEffect.remove()

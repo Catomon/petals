@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.playStage
@@ -48,8 +48,8 @@ class FlameAbility : Ability(
         val effect =
             ctmn.petals.effects.FlameAbilityEffect(activationRange, tileX, tileY, playScreen.assets)
         effect.setPosByCenter(
-            tileX.unTiled() + GameConst.TILE_SIZE / 2,
-            tileY.unTiled() + GameConst.TILE_SIZE / 2)
+            tileX.unTiled() + Const.TILE_SIZE / 2,
+            tileY.unTiled() + Const.TILE_SIZE / 2)
         playScreen.playStage.addActor(effect)
 
         castTime = effect.lifeTime

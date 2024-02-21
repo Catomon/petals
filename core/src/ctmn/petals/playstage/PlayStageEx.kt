@@ -1,6 +1,6 @@
 package ctmn.petals.playstage
 
-import ctmn.petals.GameConst.TILE_SIZE
+import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.player.Player
 import ctmn.petals.gameactors.label.LabelActor
 import ctmn.petals.tile.TileActor
@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.GameConst.PLAY_CAMERA_ZOOM
+import ctmn.petals.Const.PLAY_CAMERA_ZOOM
 import ctmn.petals.tile.Terrain
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isCapturable

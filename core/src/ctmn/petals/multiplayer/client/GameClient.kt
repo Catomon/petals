@@ -1,7 +1,7 @@
 package ctmn.petals.multiplayer.client
 
 import com.badlogic.gdx.utils.Logger
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.multiplayer.JsonMessageDecoder
 import ctmn.petals.multiplayer.JsonMessageEncoder
 import ctmn.petals.multiplayer.json.serverres.Disconnected
@@ -21,7 +21,7 @@ class GameClient(val host: String = ConnectionData.host, val port: Int = Connect
 
     object ConnectionData {
         var host: String = "localhost"
-        var port: Int = GameConst.SERVER_PORT
+        var port: Int = Const.SERVER_PORT
     }
 
     val clientManager = ClientManager(this)

@@ -3,7 +3,7 @@ package ctmn.petals.unit
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.effects.HealthChangeEffect
 import ctmn.petals.gameactors.label.LabelActor
@@ -30,7 +30,6 @@ import ctmn.petals.tile.setTileCrystalPlayer
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
-import ctmn.petals.xpToLevelUp
 
 val cUnitMapper: ComponentMapper<UnitComponent> = ComponentMapper.getFor(UnitComponent::class.java)
 val cBarrierMapper: ComponentMapper<BarrierComponent> = ComponentMapper.getFor(BarrierComponent::class.java)
@@ -99,7 +98,7 @@ val UnitActor.sprite: Sprite? get() =
 
 /*** UnitActor extensions */
 //fun UnitActor.setPosition(x: Int, y: Int) {
-//    setPosition((x * GameConst.TILE_SIZE).toFloat(), (y * GameConst.TILE_SIZE).toFloat())
+//    setPosition((x * Const.TILE_SIZE).toFloat(), (y * Const.TILE_SIZE).toFloat())
 //    tiledX = x
 //    tiledY = y
 //}
@@ -158,8 +157,8 @@ fun UnitActor.setPositionOrNear(x: Int, y: Int, playStageOrNull: PlayStage? = nu
         val xOff = x + offset.first
         val yOff = y + offset.second
         if (playStage.getTile(xOff, yOff)?.isOccupied == false ) {
-            this.x = (xOff * GameConst.TILE_SIZE).toFloat()
-            this.y = (yOff * GameConst.TILE_SIZE).toFloat()
+            this.x = (xOff * Const.TILE_SIZE).toFloat()
+            this.y = (yOff * Const.TILE_SIZE).toFloat()
             tiledX = xOff
             tiledY = yOff
 
@@ -198,7 +197,7 @@ fun UnitActor.canAttack(unit: UnitActor) : Boolean {
 
 /** @return true if player has enough AP to move and has no Debuffs that are blocking it */
 fun UnitActor.canMove() : Boolean {
-    return actionPoints >= GameConst.ACTION_POINTS_MOVE_MIN && !buffs.any { it.name == "freeze" }
+    return actionPoints >= Const.ACTION_POINTS_MOVE_MIN && !buffs.any { it.name == "freeze" }
 }
 
 fun UnitActor.canMove(tile: TileActor) : Boolean {
@@ -373,7 +372,7 @@ fun UnitActor.killedBy(killer: UnitActor, playScreen: PlayScreen) {
     val thisUnit = this
     val leader = if (killer.isLeader) killer else playScreen.playStage.getLeadUnit(killer.followerID)
     if (!thisUnit.isAlly(killer) && leader != null) {
-        val exp = (if (thisUnit.isLeader) GameConst.EXP_GAIN_LEADER else GameConst.EXP_GAIN) * (thisUnit.cLevel?.lvl ?: 1)
+        val exp = (if (thisUnit.isLeader) Const.EXP_GAIN_LEADER else Const.EXP_GAIN) * (thisUnit.cLevel?.lvl ?: 1)
         leader.grantExp(exp, playScreen)
     } //else  playStage.commandManager.execute(GrantXpCommand(unitAttacker, unitDefender))
 
@@ -382,7 +381,7 @@ fun UnitActor.killedBy(killer: UnitActor, playScreen: PlayScreen) {
     if (thisUnit.isLeader && thisUnit.cLeader?.killUnitsOnDeath == true)
         for (unit in playScreen.playStage.getUnitsForLeader(thisUnit.leaderID, true)) {
             if (!unit.isAlly(killer) && leader != null) {
-                val exp = (if (unit.isLeader) GameConst.EXP_GAIN_LEADER else GameConst.EXP_GAIN) * (unit.cLevel?.lvl ?: 1)
+                val exp = (if (unit.isLeader) Const.EXP_GAIN_LEADER else Const.EXP_GAIN) * (unit.cLevel?.lvl ?: 1)
                 leader.grantExp(exp, playScreen)
             }
 
@@ -404,12 +403,12 @@ fun UnitActor.grantExp(amount: Int, playScreen: PlayScreen) {
     val oldLvl = cLevel.lvl
 
     //if enough exp to level up
-    while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < GameConst.MAX_LVL) {
+    while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < Const.MAX_LVL) {
         cLevel.exp -= xpToLevelUp(cLevel.lvl)
         cLevel.lvl++
 
-        if (cLevel.lvl >= GameConst.MAX_LVL)
-            cLevel.exp = xpToLevelUp(GameConst.MAX_LVL - 1)
+        if (cLevel.lvl >= Const.MAX_LVL)
+            cLevel.exp = xpToLevelUp(Const.MAX_LVL - 1)
 
         val label = FloatingLabelAnimation("LEVEL UP!", "font_5")
         label.color = Color.YELLOW
@@ -480,7 +479,7 @@ fun UnitActor.throwAction(sourceUnit: UnitActor, throwX: Int, throwY: Int, damag
 
 val UnitActor.teamColorName get() = if (playerId == 1) "blue" else if (playerId == 2) "red" else ""
 
-fun UnitActor.createAnimation(regionName: String, frameDuration: Float = GameConst.UNIT_ANIMATION_FRAME_DURATION) : RegionAnimation {
+fun UnitActor.createAnimation(regionName: String, frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION) : RegionAnimation {
     assets.textureAtlas.findRegions("units/$teamColorName/$regionName").also { teamFrames ->
         if (teamFrames.isEmpty) {
             assets.textureAtlas.findRegions("units/$regionName").also { defFrames ->
@@ -495,3 +494,5 @@ fun UnitActor.createAnimation(regionName: String, frameDuration: Float = GameCon
         }
     }
 }
+
+fun xpToLevelUp(curLvl: Int) = Const.EXP_MOD_LEVEL_UP * curLvl

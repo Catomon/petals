@@ -19,7 +19,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
 
     private val bunnyImage = VisImage(assets.getTexture("bunny.png"))
 
-    private val label = newLabel(GameConst.APP_NAME + " " + GameConst.APP_VER_NAME, "font_5")
+    private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "font_5")
 
     private val storyButton = newTextButton(strings.menu.story)
     private val matchButton = newTextButton(strings.menu.match)
@@ -41,7 +41,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
                 if (StoriesManager.size == 1) {
                     val story = StoriesManager.getStories().first()
 
-                    if (GameConst.IS_RELEASE)
+                    if (Const.IS_RELEASE)
                         menuScreen.startStory(story)
                     else
                         menuScreen.game.screen = LevelSelectScreen(game, story)

@@ -3,9 +3,13 @@ package ctmn.petals.editor
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Group
+import com.badlogic.gdx.scenes.scene2d.Stage
 import ctmn.petals.utils.setPositionByCenter
 
 class CanvasActor(name: String, val sprite: Sprite = Sprite()) : Actor() {
+
+    var layer = 1
 
     init {
         this.name = name
@@ -14,12 +18,10 @@ class CanvasActor(name: String, val sprite: Sprite = Sprite()) : Actor() {
 
         if (sprite.height < tileSize && sprite.width < tileSize)
             sprite.setSize(tileSize, tileSize)
-
-        debug = true
     }
 
-    override fun draw(batch: Batch?, parentAlpha: Float) {
-        super.draw(batch, parentAlpha)
+    override fun draw(batch: Batch, parentAlpha: Float) {
+        if (!isVisible) return
 
         sprite.setPositionByCenter(x + tileSize / 2, y + tileSize / 2)
         sprite.draw(batch)
@@ -40,5 +42,14 @@ class CanvasActor(name: String, val sprite: Sprite = Sprite()) : Actor() {
         copy.color.set(color)
         copy.isVisible = isVisible
         return copy
+    }
+
+    /** See [CanvasStage.findGroup]*/
+    override fun setParent(parent: Group?) {
+        super.setParent(parent)
+
+        if (parent != null) {
+            layer = parent.name.toIntOrNull() ?: 1
+        }
     }
 }

@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.effects.CreateEffect
 import ctmn.petals.effects.FireballEffect
 import ctmn.petals.playscreen.PlayScreen
@@ -48,7 +48,7 @@ class FireboltAbility : Ability(
         }
 
         //effect
-        val effect = FireballEffect(unitCaster.centerX, unitCaster.centerY, tileX.unTiled() + GameConst.TILE_SIZE / 2, tileY.unTiled() + GameConst.TILE_SIZE / 2)
+        val effect = FireballEffect(unitCaster.centerX, unitCaster.centerY, tileX.unTiled() + Const.TILE_SIZE / 2, tileY.unTiled() + Const.TILE_SIZE / 2)
         playStage.addActor(effect)
 
         playScreen.queueAction(UpdateAction {

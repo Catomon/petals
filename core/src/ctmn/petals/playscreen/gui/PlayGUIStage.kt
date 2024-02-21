@@ -1,10 +1,9 @@
 package ctmn.petals.playscreen.gui
 
 import ctmn.petals.*
-import ctmn.petals.GameConst.PLAY_GUI_VIEWPORT_HEIGHT
-import ctmn.petals.GameConst.PLAY_GUI_VIEWPORT_WIDTH
-import ctmn.petals.GameConst.TILE_SIZE
-import ctmn.petals.effects.FloatingUpLabel
+import ctmn.petals.Const.PLAY_GUI_VIEWPORT_HEIGHT
+import ctmn.petals.Const.PLAY_GUI_VIEWPORT_WIDTH
+import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
@@ -766,8 +765,8 @@ class PlayGUIStage(
     }
 
     fun onScreenResize(width: Int, height: Int) {
-        (viewport as ExtendViewport).minWorldWidth = width / GameConst.GUI_SCALE
-        (viewport as ExtendViewport).minWorldHeight = height / GameConst.GUI_SCALE
+        (viewport as ExtendViewport).minWorldWidth = width / Const.GUI_SCALE
+        (viewport as ExtendViewport).minWorldHeight = height / Const.GUI_SCALE
 
         viewport.update(width, height)
 

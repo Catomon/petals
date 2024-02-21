@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.*
 import ctmn.petals.unit.Ability
@@ -92,7 +92,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
         //ap
         if (ability.castAmounts == ability.castAmountsLeft)
-            unitCaster.actionPoints -= GameConst.ACTION_POINTS_ABILITY
+            unitCaster.actionPoints -= Const.ACTION_POINTS_ABILITY
 
         //reveal if invisible
         unitCaster.del(InvisibilityComponent::class.java)

@@ -17,11 +17,13 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.LogLevel
 import com.strongjoshua.console.annotation.ConsoleDoc
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.PetalsGame
+import ctmn.petals.Rich
 import ctmn.petals.ai.AIManager
 import ctmn.petals.ai.EasyAiDuelBot
+import ctmn.petals.discordRich
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.level.JsonLevel
 import ctmn.petals.level.Level
@@ -124,6 +126,8 @@ open class PlayScreen(
     private val debugKeysProcessor by lazy { DebugKeysProcessor() }
 
     init {
+        discordRich(Rich.PLAYING)
+
         playStageSetup()
 
         commandManager.onCommand = onCommand@{ CommandManagerOnCommandHandler().onCommand(it) }
@@ -233,7 +237,7 @@ open class PlayScreen(
         // give first turn player gold for all bases
         val currentPlayer = turnManager.currentPlayer
         for (base in playStage.getCapturablesOf(currentPlayer))
-            currentPlayer.gold += GameConst.GOLD_PER_BASE
+            currentPlayer.gold += Const.GOLD_PER_BASE
 
 
         fireEvent(NextTurnEvent(turnManager.currentPlayer, turnManager.currentPlayer))
@@ -403,7 +407,7 @@ open class PlayScreen(
                     val nextPlayer = turnCycleEvent.nextPlayer
                     if (!nextPlayer.isOutOfGame) {
                         for (base in playStage.getCapturablesOf(nextPlayer))
-                            nextPlayer.gold += GameConst.GOLD_PER_BASE
+                            nextPlayer.gold += Const.GOLD_PER_BASE
                     }
 
                     //put ability on cooldown if it was partially cast
@@ -433,7 +437,7 @@ open class PlayScreen(
                         if (unit.playerId == turnCycleEvent.nextPlayer.id) {
                             //reset units ap
                             if (unit.buffs.find { buff -> buff.name == "freeze" } == null)
-                                unit.actionPoints = GameConst.ACTION_POINTS
+                                unit.actionPoints = Const.ACTION_POINTS
 
                             //update abilities cooldowns
                             if (unit.cAbilities != null)
@@ -484,7 +488,7 @@ open class PlayScreen(
                     for (unit in playStage.getUnitsOfPlayer(turnCycleEvent.nextPlayer)) {
                         if (unit.isUnitNear(playStage.getLeadUnit(unit.followerID) ?: continue, 1))
                             if (unit.health < unit.unitComponent.baseHealth)
-                                unit.heal(GameConst.HEALING_AMOUNT_NEAR_LEADER)
+                                unit.heal(Const.HEALING_AMOUNT_NEAR_LEADER)
                     }
                 }
             }
@@ -659,10 +663,10 @@ open class PlayScreen(
         }
 
         fun debugMode() {
-            GameConst.DEBUG_MODE = !GameConst.DEBUG_MODE
+            game.debugMode = !game.debugMode
 
             GameConsole.console.log(
-                if (GameConst.DEBUG_MODE)
+                if (game.debugMode)
                     "Debug mode on."
                 else
                     "Debug mode off."
@@ -724,7 +728,7 @@ open class PlayScreen(
 
 
         override fun keyDown(keycode: Int): Boolean {
-            if (!GameConst.DEBUG_MODE) return false
+            if (!game.debugMode) return false
 
             when (keycode) {
                 Input.Keys.T -> {

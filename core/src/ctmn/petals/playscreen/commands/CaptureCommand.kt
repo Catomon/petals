@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.GameConst.ACTION_POINTS_ATTACK
+import ctmn.petals.Const.ACTION_POINTS_ATTACK
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.tile.*

@@ -1,6 +1,6 @@
 package ctmn.petals.unit
 
-import ctmn.petals.GameConst.MAX_LVL
+import ctmn.petals.Const.MAX_LVL
 import ctmn.petals.story.alissa.CreateUnit
 import ctmn.petals.unit.UnitIds.DOLL_AXE
 import ctmn.petals.unit.UnitIds.DOLL_BOW

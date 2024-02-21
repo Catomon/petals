@@ -1,6 +1,6 @@
 package ctmn.petals.unit.component
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.utils.RegionAnimation
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -27,7 +27,7 @@ class AnimationViewComponent(var animation: RegionAnimation) : ViewComponent() {
                 isAnimate = false
         } else {
             sprite.setRegion(animation.keyFrames.first())
-            animation.stateTime = GameConst.UNIT_ANIMATION_FRAME_DURATION
+            animation.stateTime = Const.UNIT_ANIMATION_FRAME_DURATION
         }
 
         sprite.setFlip(flipX, flipY)

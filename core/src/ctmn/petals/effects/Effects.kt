@@ -1,7 +1,7 @@
 package ctmn.petals.effects
 
 import com.badlogic.gdx.graphics.Color
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.unit.UnitActor
 import com.badlogic.gdx.scenes.scene2d.Actor
@@ -74,8 +74,8 @@ object CreateEffect {
     fun damageUnit(unit: UnitActor, visual: Boolean = true, sound: Boolean = true) : UnitActor {
         unit.addAction(
             UnitShakeAction(
-                GameConst.UNIT_SHAKE_POWER,
-                GameConst.UNIT_SHAKE_DURATION
+                Const.UNIT_SHAKE_POWER,
+                Const.UNIT_SHAKE_DURATION
             )
         )
         assets.getSound("hit.ogg").play()

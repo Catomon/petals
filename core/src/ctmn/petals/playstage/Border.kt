@@ -3,7 +3,7 @@ package ctmn.petals.playstage
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.newPlaySprite
 
@@ -69,8 +69,8 @@ class Border(val playStage: PlayStage) {
             }
 
             for (border in borders) {
-                border.x *= GameConst.TILE_SIZE
-                border.y *= GameConst.TILE_SIZE
+                border.x *= Const.TILE_SIZE
+                border.y *= Const.TILE_SIZE
 
                 if (border.id != "") border.id = "_${border.id}"
 

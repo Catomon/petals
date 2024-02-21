@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.kotcrab.vis.ui.widget.VisLabel
-import ctmn.petals.GameConst.IS_ROUND_HEALTH_CHANGE_LABEL
+import ctmn.petals.Const.IS_ROUND_HEALTH_CHANGE_LABEL
 
 class HealthChangeEffect(unit: UnitActor, changeVal: Int)
     : VisLabel((if (IS_ROUND_HEALTH_CHANGE_LABEL) changeVal / 10 else changeVal).toString(), "font_5") {

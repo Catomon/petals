@@ -34,7 +34,7 @@ object GamePref {
 
     // always set random if it is not release build (for testing)
     val clientId: String =
-        if (!GameConst.IS_RELEASE)
+        if (!Const.IS_RELEASE)
             UUID.randomUUID().toString()
         else
             if (gameSettings.contains("client_id"))

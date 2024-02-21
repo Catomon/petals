@@ -1,6 +1,6 @@
 package ctmn.petals.story
 
-import ctmn.petals.GameConst.TREASURED_PETALS_STORY_ID
+import ctmn.petals.Const.TREASURED_PETALS_STORY_ID
 import ctmn.petals.story.alissa.AlissaStorySave
 import ctmn.petals.story.alissa.scenarios.*
 

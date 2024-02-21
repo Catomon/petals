@@ -1,7 +1,7 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst
-import ctmn.petals.GameConst.TILE_SIZE
+import ctmn.petals.Const
+import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.events.UnitSelectedEvent
 import ctmn.petals.unit.*
@@ -19,7 +19,7 @@ class AttackIconsDrawer(private val guiStage: PlayGUIStage) : Actor() {
     private val attackSprite: Sprite = newPlaySprite(guiStage.assets.textureAtlas.findRegion("gui/attack_icon"))
 
     init {
-        attackSprite.setSize(GameConst.TILE_SIZE.toFloat() / 2, GameConst.TILE_SIZE.toFloat() / 2)
+        attackSprite.setSize(Const.TILE_SIZE.toFloat() / 2, Const.TILE_SIZE.toFloat() / 2)
 
         guiStage.addListener {
             if (it is UnitSelectedEvent) {

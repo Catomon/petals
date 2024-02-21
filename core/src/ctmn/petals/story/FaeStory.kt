@@ -1,6 +1,6 @@
 package ctmn.petals.story
 
-import ctmn.petals.GameConst.FAE_STORY_ID
+import ctmn.petals.Const.FAE_STORY_ID
 import ctmn.petals.story.alissa.AlissaStorySave
 import ctmn.petals.story.alissa.scenarios.*
 

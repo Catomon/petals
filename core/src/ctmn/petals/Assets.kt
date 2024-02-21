@@ -98,7 +98,7 @@ class Assets : AssetManager() {
 //        VisUI.getSkin().getFont("font_8").data.setScale(0.5f)
 //        VisUI.getSkin().getFont("font_5").data.setScale(0.5f) //0.35
 
-        //VisUI.getSkin().setScale(GameConst.GUI_SCALE)
+        //VisUI.getSkin().setScale(Const.GUI_SCALE)
 //        VisUI.getSkin().setScale(0.5f)
     }
 

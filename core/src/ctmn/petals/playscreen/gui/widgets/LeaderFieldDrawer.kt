@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.events.UnitSelectedEvent
 import ctmn.petals.unit.*
@@ -23,7 +23,7 @@ class LeaderFieldDrawer(private val guiStage: PlayGUIStage) : Actor() {
     private val borders = Array<Pair<Int, Int>>()
 
     init {
-        sprite.setSize(GameConst.TILE_SIZE.toFloat(), GameConst.TILE_SIZE.toFloat())
+        sprite.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
 
         //create leader field border if an unit selected
         guiStage.addListener {
@@ -61,8 +61,8 @@ class LeaderFieldDrawer(private val guiStage: PlayGUIStage) : Actor() {
 
         if (guiStage.isUnitSelected) {
             for (border in borders) {
-                sprite.setPositionByCenter(border.first * GameConst.TILE_SIZE + GameConst.TILE_SIZE.toFloat() / 2,
-                        border.second * GameConst.TILE_SIZE + GameConst.TILE_SIZE.toFloat() / 2)
+                sprite.setPositionByCenter(border.first * Const.TILE_SIZE + Const.TILE_SIZE.toFloat() / 2,
+                        border.second * Const.TILE_SIZE + Const.TILE_SIZE.toFloat() / 2)
                 sprite.draw(batch, color.a)
             }
         }
@@ -110,6 +110,6 @@ class LeaderFieldDrawer(private val guiStage: PlayGUIStage) : Actor() {
             }
         }
         setSize(8f, 8f)
-        addAction(Actions.sizeTo(GameConst.TILE_SIZE.toFloat(), GameConst.TILE_SIZE.toFloat(), 0.15f))
+        addAction(Actions.sizeTo(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat(), 0.15f))
     }
 }

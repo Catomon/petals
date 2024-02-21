@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.unit.*
 import ctmn.petals.playscreen.queueAction
@@ -18,13 +18,13 @@ class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Comm
         if (!unit.canMove(tileX, tileY)) return false
 
         //calculate AP
-        return unit.actionPoints >= GameConst.ACTION_POINTS_MOVE_MIN
+        return unit.actionPoints >= Const.ACTION_POINTS_MOVE_MIN
     }
 
     override fun execute(playScreen: PlayScreen): Boolean {
         val unit = playScreen.playStage.findUnit(unitId) ?: return false
 
-        unit.actionPoints -= GameConst.ACTION_POINTS_MOVE
+        unit.actionPoints -= Const.ACTION_POINTS_MOVE
 
         //move action
         playScreen.queueAction(MoveUnitAction(unit, unit.tiledX, unit.tiledY, tileX, tileY))

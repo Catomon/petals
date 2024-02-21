@@ -16,7 +16,7 @@ import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisWindow
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.utils.addClickListener
 
 // widgets creation functions
@@ -57,7 +57,7 @@ private fun <T : BorderOwner> T.addFocusBorderP() : T {
     if (this !is Actor) throw IllegalArgumentException("This is not an Actor class")
     if (this !is Focusable) throw IllegalArgumentException("The actor class is not Focusable")
 
-    if (!GameConst.IS_MOBILE) {
+    if (!Const.IS_MOBILE) {
         addListener(object : ClickListener() {
             override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
                 focusGained()

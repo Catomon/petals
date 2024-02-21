@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.effects.FloatingLabelAnimation
 import ctmn.petals.playscreen.events.UnitLevelUpEvent
@@ -8,7 +8,7 @@ import ctmn.petals.playstage.getLeadUnit
 import ctmn.petals.unit.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
-import ctmn.petals.xpToLevelUp
+import ctmn.petals.unit.xpToLevelUp
 import com.badlogic.gdx.graphics.Color
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.unit.UnitActor
@@ -27,7 +27,7 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
 
         val cLevel = unit.cLevel ?: return false
 
-        if (cLevel.lvl == GameConst.MAX_LVL) return false
+        if (cLevel.lvl == Const.MAX_LVL) return false
 
         return true
     }
@@ -46,12 +46,12 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
         val oldLvl = cLevel.lvl
 
         //if enough exp to level up
-        while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < GameConst.MAX_LVL) {
+        while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < Const.MAX_LVL) {
             cLevel.exp -= xpToLevelUp(cLevel.lvl)
             cLevel.lvl++
 
-            if (cLevel.lvl >= GameConst.MAX_LVL)
-                cLevel.exp = xpToLevelUp(GameConst.MAX_LVL - 1)
+            if (cLevel.lvl >= Const.MAX_LVL)
+                cLevel.exp = xpToLevelUp(Const.MAX_LVL - 1)
 
             val label = FloatingLabelAnimation("LEVEL UP!", "font_5")
             label.color = Color.YELLOW

@@ -1,7 +1,7 @@
 package ctmn.petals.story
 
-import ctmn.petals.GameConst
-import ctmn.petals.GameConst.PLAY_CAMERA_ZOOM_OUT_MAX_STORY
+import ctmn.petals.Const
+import ctmn.petals.Const.PLAY_CAMERA_ZOOM_OUT_MAX_STORY
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.PetalsGame
@@ -9,7 +9,7 @@ import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.utils.fadeOut
 import ctmn.petals.widgets.StageCover
-import ctmn.petals.GameConst.PLAY_CAMERA_ZOOM_STORY
+import ctmn.petals.Const.PLAY_CAMERA_ZOOM_STORY
 
 class StoryPlayScreen(
     game: PetalsGame,
@@ -63,7 +63,7 @@ class StoryPlayScreen(
     }
 
     override fun onGameOver() {
-        if (GameConst.IS_RELEASE && story.storySave.progress == story.scenarios.size)
+        if (Const.IS_RELEASE && story.storySave.progress == story.scenarios.size)
             game.screen = MenuScreen(game)
 
         when (gameEndCondition.result) {

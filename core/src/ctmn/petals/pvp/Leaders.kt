@@ -1,6 +1,6 @@
 package ctmn.petals.pvp
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.unit.UnitIds
@@ -22,7 +22,7 @@ val newPvPAlice get() = Alice().apply {
     )
     add(
         LeaderComponent(
-            GameConst.ALICE_LEADER_ID,
+            Const.ALICE_LEADER_ID,
             2,
             10,
             5

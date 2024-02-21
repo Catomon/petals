@@ -8,17 +8,19 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.viewport.ScreenViewport
-import ctmn.petals.utils.TiledBackground
+import ctmn.petals.Rich
+import ctmn.petals.discordRich
 
 class EditorScreen : ScreenAdapter() {
 
     val actorsPackage = CanvasActorsPackage()
 
     val batch = SpriteBatch()
+    val shapeRenderer by lazy { ShapeRenderer() }
 
-    var canvas = Stage(ScreenViewport(), batch)
+    var canvas = CanvasStage(ScreenViewport(), batch, shapeRenderer)
     var gui = InterfaceStage(this, actorsPackage, batch)
 
     val prefs = Gdx.app.getPreferences("editor.petals.ctmn")
@@ -31,6 +33,8 @@ class EditorScreen : ScreenAdapter() {
         Gdx.input.inputProcessor = InputMultiplexer(gui, canvas)
 
         (canvas.viewport.camera as OrthographicCamera).zoom = 1.75f
+
+        discordRich(Rich.EDITOR)
     }
 
     override fun show() {

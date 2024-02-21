@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.strings
@@ -9,7 +9,7 @@ import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.tiled
 import ctmn.petals.widgets.newLabel
-import ctmn.petals.xpToLevelUp
+import ctmn.petals.unit.xpToLevelUp
 import com.badlogic.gdx.Gdx
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisImage
@@ -125,7 +125,7 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
         if (unitActor.cLevel != null) {
             val cLevel = unitActor.cLevel!!
             val lvl = cLevel.lvl
-            if (lvl < GameConst.MAX_LVL)
+            if (lvl < Const.MAX_LVL)
                 exp.setText("" + (cLevel.exp) + "/" + (xpToLevelUp((cLevel.lvl))))
             else exp.setText("" + (cLevel.exp) + "/" + (xpToLevelUp((cLevel.lvl - 1))))
         }

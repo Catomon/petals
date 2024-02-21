@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst.TILE_SIZE
+import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.playstage.getUnitOrTile
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playstage.isInRange

@@ -1,6 +1,6 @@
 package ctmn.petals.story
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import com.badlogic.gdx.math.MathUtils
 
 open class StorySaveGson(
@@ -8,7 +8,7 @@ open class StorySaveGson(
     var story_id: Int
 ) {
 
-    var game_version = GameConst.APP_VER_NAME
+    var game_version = Const.APP_VER_NAME
 
     var friendly_fire = false
 

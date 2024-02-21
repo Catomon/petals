@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.widgets.newImageButton
 import ctmn.petals.playscreen.commands.CaptureCommand
 import ctmn.petals.playscreen.gui.PlayGUIStage
@@ -137,7 +137,7 @@ class UnitMiniMenu(val guiStage: PlayGUIStage) : VerticalGroup() {
         val x = (unit.tiledX.unTiled() - playCamera.cornerX()) * difW
         val y = (unit.tiledY.unTiled() - playCamera.cornerY()) * difH
 
-        setPosition(x + itemWidth / 2 + (GameConst.TILE_SIZE * difW), y + (GameConst.TILE_SIZE * difW))
+        setPosition(x + itemWidth / 2 + (Const.TILE_SIZE * difW), y + (Const.TILE_SIZE * difW))
     }
 
     fun hide() {

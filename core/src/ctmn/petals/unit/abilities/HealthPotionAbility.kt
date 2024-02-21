@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.effects.HealingEffect
 import ctmn.petals.effects.HealthChangeEffect
 import ctmn.petals.playscreen.PlayScreen
@@ -39,8 +39,8 @@ class HealthPotionAbility : Ability(
 
         val effect = HealingEffect(getPositionsArray(actors), playScreen.assets)
         effect.setPosByCenter(
-            tileX.unTiled() + GameConst.TILE_SIZE / 2,
-            tileY.unTiled() + GameConst.TILE_SIZE / 2
+            tileX.unTiled() + Const.TILE_SIZE / 2,
+            tileY.unTiled() + Const.TILE_SIZE / 2
         )
         playScreen.playStage.addActor(effect)
 

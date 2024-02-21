@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Queue
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.GameConst.TALKING_ANIMATION_DURATION
+import ctmn.petals.Const.TALKING_ANIMATION_DURATION
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.widgets.*

@@ -19,10 +19,17 @@ class PetalsGame : Game() {
 
     val assets = Assets()
 
-    override fun create() {
-        if (!GameConst.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
+    // to change through console
+    var debugMode = Const.DEBUG_MODE
 
-        startDiscordRich()
+    override fun create() {
+        if (!Const.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
+
+        if (Const.IS_DESKTOP) {
+            startDiscordRich()
+        }
+
+        GameConsole.consoleDisabled = !Const.CONSOLE_ENABLED
 
         GamePref.setEmptyToDefaultPrefs()
         GamePref.overridePrefs()
@@ -46,7 +53,7 @@ class PetalsGame : Game() {
                 GameConsole.isVisible -> {
                     showHideConsole()
                 }
-                GameConst.IS_RELEASE -> setScreen(MenuScreen(this))
+                Const.IS_RELEASE -> setScreen(MenuScreen(this))
                 else -> setScreen(DevScreen(this))
             }
         }
@@ -87,7 +94,8 @@ class PetalsGame : Game() {
     }
 
     override fun dispose() {
-        stopDiscordRich()
+        if (Const.IS_DESKTOP)
+            stopDiscordRich()
 
         super.dispose()
     }

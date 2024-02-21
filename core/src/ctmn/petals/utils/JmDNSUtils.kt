@@ -1,7 +1,7 @@
 package ctmn.petals.utils
 
 import com.badlogic.gdx.Gdx
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.multiplayer.client.GameClient
 import java.net.SocketException
 import javax.jmdns.JmDNS
@@ -37,10 +37,10 @@ fun startJmDNSAsServer(resultListener: (Boolean) -> Unit) {
         }
 
         val serviceInfo = ServiceInfo.create(
-            GameConst.SERVICE_TYPE,
-            GameConst.SERVICE_NAME,
-            GameConst.SERVER_PORT,
-            GameConst.SERVICE_DESCRIPTION
+            Const.SERVICE_TYPE,
+            Const.SERVICE_NAME,
+            Const.SERVER_PORT,
+            Const.SERVICE_DESCRIPTION
         )
         jmdns!!.registerService(serviceInfo)
 
@@ -62,7 +62,7 @@ fun startJmDNSAsClient(resultListener: (Boolean) -> Unit) {
 
         val jmdns = ctmn.petals.utils.jmdns!!
 
-        jmdns.addServiceListener(GameConst.SERVICE_TYPE, object : ServiceListener {
+        jmdns.addServiceListener(Const.SERVICE_TYPE, object : ServiceListener {
             override fun serviceAdded(event: ServiceEvent?) {
                 jmdns.requestServiceInfo(event?.type, event?.name)
             }
@@ -70,7 +70,7 @@ fun startJmDNSAsClient(resultListener: (Boolean) -> Unit) {
             override fun serviceRemoved(event: ServiceEvent?) {}
 
             override fun serviceResolved(event: ServiceEvent) {
-                if (event.name == GameConst.SERVICE_NAME) {
+                if (event.name == Const.SERVICE_NAME) {
                     GameClient.ConnectionData.host =
                         event.info.inetAddresses.firstOrNull()?.hostAddress ?: return
 

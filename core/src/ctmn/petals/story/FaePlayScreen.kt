@@ -6,7 +6,7 @@ import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.utils.fadeOut
 import ctmn.petals.widgets.StageCover
-import ctmn.petals.GameConst.PLAY_CAMERA_ZOOM_STORY
+import ctmn.petals.Const.PLAY_CAMERA_ZOOM_STORY
 import ctmn.petals.playscreen.listeners.CreditsForKillingSlimes
 import ctmn.petals.story.faesandfoes.FaesScenario
 
@@ -64,7 +64,7 @@ class FaePlayScreen(
     }
 
     override fun onGameOver() {
-//        if (GameConst.IS_RELEASE && story.storySave.progress == story.scenarios.size) //like if endgame?
+//        if (Const.IS_RELEASE && story.storySave.progress == story.scenarios.size) //like if endgame?
 //            game.screen = MenuScreen(game)
 
         when (gameEndCondition.result) {

@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FillViewport
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.PetalsGame
 
 class LoadingScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
@@ -34,7 +34,7 @@ class LoadingScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 0
         super.act(delta)
 
         if (assets.update()) {
-            if (GameConst.IS_RELEASE)
+            if (Const.IS_RELEASE)
                 game.screen = MenuScreen(game)
             else
                 game.screen = DevScreen(game)

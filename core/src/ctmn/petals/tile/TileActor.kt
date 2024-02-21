@@ -2,7 +2,7 @@ package ctmn.petals.tile
 
 import com.badlogic.ashley.core.ComponentMapper
 import ctmn.petals.Assets
-import ctmn.petals.GameConst.TILE_SIZE
+import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.setPositionByCenter
 import ctmn.petals.utils.unTiled

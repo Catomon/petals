@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.setPositionByCenter
 import ctmn.petals.utils.unTiled
@@ -54,7 +54,7 @@ class MarkersDrawer : Actor() {
     }
 
     fun showMarker(x: Int, y: Int) {
-        setPosition(x.unTiled() + GameConst.TILE_SIZE / 2, y.unTiled() + GameConst.TILE_SIZE / 2)
+        setPosition(x.unTiled() + Const.TILE_SIZE / 2, y.unTiled() + Const.TILE_SIZE / 2)
         isVisible = true
     }
 

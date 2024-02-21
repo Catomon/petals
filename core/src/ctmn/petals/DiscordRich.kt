@@ -6,22 +6,48 @@ import net.arikia.dev.drpc.DiscordRichPresence
 import java.util.Scanner
 import kotlin.concurrent.thread
 
+var discordRichDisabled = !Const.IS_DESKTOP || Const.DISABLE_RICH
+
 fun startDiscordRich() {
+    if (discordRichDisabled) return
+
     DiscordRPC.discordInitialize("1209175690793066516", DiscordEventHandlers(), true)
-
-    val presence = DiscordRichPresence().apply {
-
-    }
-//        DiscordRichPresence.Builder("current state")
-//            .setBigImage("big_icon", GameConst.APP_NAME)
-//            .setStartTimestamps(System.currentTimeMillis() / 1000L)
-//            .build()
-
-    DiscordRPC.discordUpdatePresence(presence)
 }
 
 fun stopDiscordRich() {
+    if (discordRichDisabled) return
+
     DiscordRPC.discordShutdown()
+}
+
+enum class Rich {
+    DEFAULT,
+    EDITOR,
+    PLAYING,
+}
+
+fun discordRich(rich: Rich) {
+    if (discordRichDisabled) return
+
+    val presence = DiscordRichPresence().apply {
+        when (rich) {
+            Rich.DEFAULT -> {
+
+            }
+            Rich.EDITOR -> {
+                smallImageKey = "small_icon"
+                smallImageText = "Petals"
+                details = "In Map Editor"
+            }
+            Rich.PLAYING -> {
+                smallImageKey = "small_icon"
+                smallImageText = "Petals"
+                details = "Playing"
+            }
+        }
+    }
+
+    DiscordRPC.discordUpdatePresence(presence)
 }
 
 fun main() {

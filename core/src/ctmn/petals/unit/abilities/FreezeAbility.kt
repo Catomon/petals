@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitActor
@@ -34,8 +34,8 @@ class FreezeAbility : Ability(
 
         val effect = ctmn.petals.effects.CreateEffect.freeze
         effect.setPosByCenter(
-            tileX.unTiled() + GameConst.TILE_SIZE / 2,
-            tileY.unTiled() + GameConst.TILE_SIZE / 2)
+            tileX.unTiled() + Const.TILE_SIZE / 2,
+            tileY.unTiled() + Const.TILE_SIZE / 2)
         playStage.addActor(effect)
 
         castTime = effect.lifeTime

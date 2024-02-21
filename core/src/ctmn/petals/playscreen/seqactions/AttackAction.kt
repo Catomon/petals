@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.seqactions
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.effects.UnitAttackEffect
 import ctmn.petals.effects.UnitShakeAction
 import ctmn.petals.playscreen.PlayScreen
@@ -16,11 +16,11 @@ class AttackAction(val attackerUnit: UnitActor, val targetUnit: UnitActor) : Seq
 
     override fun onStart(playScreen: PlayScreen): Boolean {
         attackEffect = UnitAttackEffect(playScreen.assets)
-        attackEffect.x = targetUnit.x  + GameConst.TILE_SIZE / 2
-        attackEffect.y = targetUnit.y + GameConst.TILE_SIZE / 2
+        attackEffect.x = targetUnit.x  + Const.TILE_SIZE / 2
+        attackEffect.y = targetUnit.y + Const.TILE_SIZE / 2
         playScreen.playStage.addActor(attackEffect)
 
-        targetUnit.addAction(UnitShakeAction(GameConst.UNIT_SHAKE_POWER, GameConst.UNIT_SHAKE_DURATION))
+        targetUnit.addAction(UnitShakeAction(Const.UNIT_SHAKE_POWER, Const.UNIT_SHAKE_DURATION))
 
         return true
     }

@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.GameConst
+import ctmn.petals.Const
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.events.UnitSelectedEvent
 import ctmn.petals.unit.UnitActor
@@ -28,7 +28,7 @@ class MovementCostDrawer(val guiStage: PlayGUIStage) : Actor() {
     init {
         isVisible = false
 
-        sprite.setSize(GameConst.TILE_SIZE.toFloat(), GameConst.TILE_SIZE.toFloat())
+        sprite.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
 
         costLabel.isVisible = false
         costLabel.setFontScale(0.25f)
