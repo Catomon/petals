@@ -15,22 +15,23 @@ import ctmn.petals.discordRich
 
 class EditorScreen : ScreenAdapter() {
 
-    val actorsPackage = CanvasActorsPackage()
-
     val batch = SpriteBatch()
-    val shapeRenderer by lazy { ShapeRenderer() }
+    val shapeRenderer = ShapeRenderer()
+
+    val actorsPackage = CanvasActorsPackage()
+    val tools = Tools()
 
     var canvas = CanvasStage(ScreenViewport(), batch, shapeRenderer)
-    var gui = InterfaceStage(this, actorsPackage, batch)
+    var interfaceStage = InterfaceStage(this, actorsPackage, tools, batch)
 
     val prefs = Gdx.app.getPreferences("editor.petals.ctmn")
 
-    private val backImage = CanvasBackground(Sprite(Texture("background_tile.png")))
+    private val background = TiledBackgroundDrawer(Sprite(Texture("background_tile.png")))
 
     init {
-        Tool.setCanvas(canvas)
+        tools.setContext(canvas)
 
-        Gdx.input.inputProcessor = InputMultiplexer(gui, canvas)
+        Gdx.input.inputProcessor = InputMultiplexer(interfaceStage, canvas)
 
         (canvas.viewport.camera as OrthographicCamera).zoom = 1.75f
 
@@ -47,22 +48,24 @@ class EditorScreen : ScreenAdapter() {
 
         batch.projectionMatrix = canvas.camera.combined
         batch.begin()
-        backImage.draw(batch, canvas.camera as OrthographicCamera)
+        background.draw(batch, canvas.camera as OrthographicCamera)
         batch.end()
 
         canvas.act()
         canvas.draw()
 
-        gui.act()
-        gui.draw()
+        interfaceStage.act()
+        interfaceStage.draw()
     }
 
     override fun resize(width: Int, height: Int) {
-        gui.onScreenResize(width, height)
+        interfaceStage.onScreenResize(width, height)
         canvas.viewport.update(width, height)
     }
 
     override fun dispose() {
-
+        background.dispose()
+        batch.dispose()
+        shapeRenderer.dispose()
     }
 }

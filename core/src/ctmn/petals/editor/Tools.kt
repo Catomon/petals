@@ -2,195 +2,225 @@ package ctmn.petals.editor
 
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 
-sealed class Tool : InputListener() {
+class Tools {
 
-    @Suppress("GDXKotlinStaticResource")
-    companion object {
+    val pencil = Pencil()
+    val eraser = Eraser()
+    val dragCanvas = DragCanvas()
 
-        var current: Tool = Pencil
-            set(value) {
-                field = value
-                _canvas?.root?.listeners?.removeAll { it is Tool }
-                _canvas?.addListener(value)
-                value.toolChanged()
-            }
+    val toolList = listOf(
+        pencil,
+        eraser,
+        dragCanvas
+    )
 
-        private var _canvas: CanvasStage? = null
-        val canvas get() = _canvas ?: throw IllegalStateException("canvas is null")
-
-        fun setCanvas(canvas: CanvasStage) {
-            current = Pencil
-
-            _canvas = canvas
-            _canvas?.root?.listeners?.removeAll { it is Tool }
-            _canvas?.addListener(current)
-            current.toolChanged()
+    var current: Tool = pencil
+        set(value) {
+            field = value
+            val canvas = this.canvas ?: return
+            canvas.root?.listeners?.removeAll { it is Tool }
+            canvas.addListener(value)
+            toolChanged()
         }
 
-        private val pointer1 = Vector2()
-        private val pointer2 = Vector2()
+    var canvas: CanvasStage? = null
 
-        private fun setPointer(x: Float, y: Float, pointer: Int) {
-            if (pointer == 0)
-                pointer1.set(x, y)
-            else
-                pointer2.set(x, y)
-        }
-
-        private fun dragCanvas(x: Float, y: Float, pointer: Int = 1) {
-            val pointerVec = if (pointer == 0) pointer1 else pointer2
-            val deltaX = x - pointerVec.x
-            val deltaY = y - pointerVec.y
-            val camera = canvas.viewport.camera as OrthographicCamera
-            camera.position.x -= deltaX
-            camera.position.y -= deltaY
-            camera.update()
-        }
+    fun setContext(canvas: CanvasStage) {
+        current = pencil
+        this.canvas = canvas
+        toolChanged()
     }
 
-    open fun toolChanged() {
+    private fun toolChanged() {
+        val canvas = this.canvas!!
+        current.setToolContext(this, canvas)
+        canvas.root?.listeners?.removeAll { it is Tool }
+        canvas.addListener(current)
+    }
+}
 
+abstract class Tool(val name: String) : InputListener() {
+
+    private val contextNotGivenException = "Use setToolContext(tools: Tools, canvas: CanvasStage) to initialize"
+
+    private var _tools: Tools? = null
+    private var _canvas: CanvasStage? = null
+
+    protected val tools get() = _tools ?: throw IllegalStateException(contextNotGivenException)
+    protected val canvas get() = _canvas ?: throw IllegalStateException(contextNotGivenException)
+
+    protected val pointer1 = Vector2()
+    protected val pointer2 = Vector2()
+
+    fun setToolContext(tools: Tools, canvas: CanvasStage) {
+        _tools = tools
+        _canvas = canvas
     }
 
-    data object Pencil : Tool() {
 
-        var canvasActor: CanvasActor? = null
+    fun setPointer(x: Float, y: Float, pointer: Int) {
+        if (pointer == 0)
+            pointer1.set(x, y)
+        else
+            pointer2.set(x, y)
+    }
 
-        var overlappingEnabled: Boolean = false
-        var replacingEnabled: Boolean = false
+    fun dragCanvas(x: Float, y: Float, pointer: Int = 1) {
+        val pointerVec = if (pointer == 0) pointer1 else pointer2
+        val deltaX = x - pointerVec.x
+        val deltaY = y - pointerVec.y
+        val camera = canvas.viewport.camera as OrthographicCamera
+        camera.position.x -= deltaX
+        camera.position.y -= deltaY
+        camera.update()
+    }
 
-        var isDrawing: Boolean = false
+    override fun handle(e: Event?): Boolean {
+        if (_canvas == null || _tools == null)
+            throw IllegalStateException(contextNotGivenException)
 
-        var layer = 1
+        return super.handle(e)
+    }
+}
 
-        override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-            setPointer(x, y, button)
+class Pencil : Tool("pencil") {
 
-            if (button == 0) isDrawing = true
+    var canvasActor: CanvasActor? = null
 
-            return true
+    var overlappingEnabled: Boolean = false
+    var replacingEnabled: Boolean = false
+
+    var isDrawing: Boolean = false
+
+    var layer = 1
+
+    override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+        setPointer(x, y, button)
+
+        if (button == 0) isDrawing = true
+
+        return true
+    }
+
+    override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
+        if (button != 0) return
+        else isDrawing = false
+
+        draw(x, y)
+    }
+
+    override fun touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
+        super.touchDragged(event, x, y, pointer)
+
+        if (!isDrawing) {
+            dragCanvas(x, y)
+
+            return
         }
 
-        override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-            if (button != 0) return
-            else isDrawing = false
-
+        if (!overlappingEnabled)
             draw(x, y)
-        }
+    }
 
-        override fun touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
-            super.touchDragged(event, x, y, pointer)
+    fun draw(x: Float, y: Float) {
+        if (x < 0 || y < 0) return
 
-            if (!isDrawing) {
-                dragCanvas(x, y)
+        val hitActor = canvas.hit(x, y, false)
 
+        if (hitActor is CanvasActor) {
+            if (!overlappingEnabled && hitActor.layer == layer)
                 return
-            }
-
-            if (!overlappingEnabled)
-                draw(x, y)
+            else
+                if (replacingEnabled) hitActor.remove()
         }
 
-        fun draw(x: Float, y: Float) {
-            if (x < 0 || y < 0) return
-
-            val hitActor = canvas.hit(x, y, false)
-
-            if (hitActor is CanvasActor) {
-                if (!overlappingEnabled && hitActor.layer == layer)
-                    return
-                else
-                    if (replacingEnabled) hitActor.remove()
-            }
-
-            canvasActor?.let { canvasActor ->
-                canvas.addActor(
-                    canvasActor.copy().apply {
-                        setPosition(x - x % tileSize, y - y % tileSize)
-                    },
-                    layer
-                )
-            }
+        canvasActor?.let { canvasActor ->
+            canvas.addActor(
+                canvasActor.copy().apply {
+                    setPosition(x - x % tileSize, y - y % tileSize)
+                },
+                layer
+            )
         }
     }
+}
 
-    data object Eraser : Tool() {
+class Eraser : Tool("eraser") {
 
-        var isErasing = false
+    var isErasing = false
 
-        var ignoreLayer = false
+    var ignoreLayer = false
 
-        override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-            setPointer(x, y, button)
+    override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+        setPointer(x, y, button)
 
-            if (button == 0) isErasing = true
+        if (button == 0) isErasing = true
 
-            return true
+        return true
+    }
+
+    override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
+        if (button != 0) return
+        else isErasing = false
+
+        delete(x, y)
+    }
+
+    override fun touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
+        super.touchDragged(event, x, y, pointer)
+
+        if (!isErasing) {
+            dragCanvas(x, y)
+
+            return
         }
 
-        override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-            if (button != 0) return
-            else isErasing = false
+        delete(x, y)
+    }
 
-            delete(x, y)
-        }
+    fun delete(x: Float, y: Float) {
+        var actorHit: CanvasActor? = null
+        for (actor in canvas.getCanvasActors()) {
+            val localCoords = actor.stageToLocalCoordinates(Vector2(x, y))
+            val isHit = actor.hit(localCoords.x, localCoords.y, false) != null
+            val isSameLayer = actor.layer == tools.pencil.layer || ignoreLayer
 
-        override fun touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
-            super.touchDragged(event, x, y, pointer)
-
-            if (!isErasing) {
-                dragCanvas(x, y)
-
-                return
+            if (isHit && isSameLayer) {
+                actorHit = actor
+                break
             }
-
-            delete(x, y)
         }
 
-        fun delete(x: Float, y: Float) {
-            var actorHit: CanvasActor? = null
-            for (actor in canvas.getCanvasActors()) {
-                val localCoords = actor.stageToLocalCoordinates(Vector2(x, y))
-                val isHit = actor.hit(localCoords.x, localCoords.y, false) != null
-                val isSameLayer = actor.layer == Pencil.layer || ignoreLayer
+        if (actorHit == null) return
 
-                if (isHit && isSameLayer) {
-                    actorHit = actor
-                    break
-                }
-            }
+        canvas.removeActor(actorHit)
+    }
+}
 
-            if (actorHit == null) return
+class Fill : Tool("fill") {
 
-            canvas.removeActor(actorHit)
-        }
+
+}
+
+class Select : Tool("select") {
+
+}
+
+class DragCanvas : Tool("drag_canvas") {
+
+    override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+        setPointer(x, y, pointer)
+
+        return true
     }
 
-    data object Fill : Tool() {
+    override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
+        super.touchDragged(event, x, y, pointer)
 
-
-    }
-
-    data object Select : Tool() {
-
-    }
-
-    data object DragCanvas : Tool() {
-
-        override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-            setPointer(x, y, pointer)
-
-            return true
-        }
-
-        override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
-            super.touchDragged(event, x, y, pointer)
-
-            dragCanvas(x, y, pointer)
-        }
+        dragCanvas(x, y, pointer)
     }
 }

@@ -18,6 +18,7 @@ import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import ctmn.petals.Const
 import ctmn.petals.utils.addClickListener
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
@@ -25,73 +26,71 @@ import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.addClickSound
 import ctmn.petals.widgets.addFocusBorder
 
-class InterfaceStage(val editorScreen: EditorScreen, val actorsPackage: CanvasActorsPackage, batch: Batch) :
+class InterfaceStage(
+    private val editorScreen: EditorScreen,
+    private val actorsPackage: CanvasActorsPackage,
+    private val tools: Tools,
+    batch: Batch,
+) :
     Stage(ScreenViewport(), batch) {
 
     val table get() = root as VisTable
 
-    val scrollPane = CanvasActorsPicker()
-    val scrollPanePlaceholder = Actor().apply { name = "scrollPanePlaceholder" }
-    val srollPaneCloseButton = newTextButton(">").addClickListener {
-        if (scrollPane.stage != null) {
-            table.getCell(scrollPane).setActor(scrollPanePlaceholder)
-
+    val actorsPicker = CanvasActorsPicker()
+    private val scrollPanePlaceholder = Actor().apply { name = "scrollPanePlaceholder" }
+    private val srollPaneCloseButton = newTextButton(">").addClickListener {
+        if (actorsPicker.stage != null) {
+            table.getCell(actorsPicker).setActor(scrollPanePlaceholder)
             (it.listenerActor as VisTextButton).setText("<")
-//                (it.listenerActor as VisImageButton).style = VisUI.getSkin().get("open", VisImageButton.VisImageButtonStyle::class.java)
         } else {
-            table.getCell(scrollPanePlaceholder).setActor(scrollPane)
-
+            table.getCell(scrollPanePlaceholder).setActor(actorsPicker)
             (it.listenerActor as VisTextButton).setText(">")
-//                (it.listenerActor as VisImageButton).style = VisUI.getSkin().get("close", VisImageButton.VisImageButtonStyle::class.java)
         }
     }
 
-    val toolButtons = ButtonGroup<VisImageButton>()
+    private val toolButtons = ButtonGroup<VisImageButton>()
 
-    val layerButton: VisTextButton =
-        VisTextButton("${Tool.Pencil.layer} +", "layers").apply {
-            addClickListener { _ ->
-                Tool.Pencil.layer++
-                setText("${Tool.Pencil.layer} +")
-                layerButtonMin.setText("${Tool.Pencil.layer} -")
-
-                updateLayersVisibility(layerVisibilityButton.text.toString())
-            }
+    private val layerButton = newTextButton("${tools.pencil.layer} +", "layers")
+        .addClickListener { _ ->
+            changeCanvasLayer(tools.pencil.layer + 1)
         }
 
-    val layerButtonMin = VisTextButton("${Tool.Pencil.layer} -", "layers").apply {
-        addClickListener {
-            Tool.Pencil.layer--
-            setText("${Tool.Pencil.layer} -")
-            layerButton.setText("${Tool.Pencil.layer} +")
-
-            updateLayersVisibility(layerVisibilityButton.text.toString())
+    private val layerButtonMin = newTextButton("${tools.pencil.layer} -", "layers")
+        .addClickListener {
+            changeCanvasLayer(tools.pencil.layer - 1)
         }
-    }
 
-    val layerVisibilityButton: VisTextButton = VisTextButton("All", "layers").apply {
+    private val layerVisibilityAll = "All"
+    private val layerVisibilityCurrent = "Current"
+
+    private val layerVisibilityButton: VisTextButton = newTextButton(layerVisibilityAll, "layers").apply {
         addClickListener { _ ->
-            setText(if (text.contentEquals("All")) "Current" else "All")
-            updateLayersVisibility(text.toString())
+            setText(if (text.contentEquals(layerVisibilityAll)) layerVisibilityCurrent else layerVisibilityAll)
+            changeCanvasLayer(tools.pencil.layer)
         }
     }
 
-    private fun updateLayersVisibility(show: String) {
-        if (show == "All") {
+    private fun changeCanvasLayer(layer: Int) {
+        tools.pencil.layer = layer
+        layerButton.setText("${tools.pencil.layer} +")
+        layerButtonMin.setText("${tools.pencil.layer} -")
+
+        val show = layerVisibilityButton.text.toString()
+        if (show == layerVisibilityAll) {
             editorScreen.canvas.changeLayersVisible()
         } else {
-            editorScreen.canvas.changeLayersVisible(Tool.Pencil.layer)
+            editorScreen.canvas.changeLayersVisible(tools.pencil.layer)
         }
     }
 
-    fun newTextButton(text: String): VisTextButton {
-        return VisTextButton(text).addClickSound().addFocusBorder()
+    fun newTextButton(text: String, styleName: String = "default"): VisTextButton {
+        return VisTextButton(text, styleName).addClickSound().addFocusBorder()
     }
 
-    fun newToolButton(name: String, tool: Tool): VisImageButton {
-        return VisImageButton("tool_$name").apply {
+    fun newToolButton(tool: Tool): VisImageButton {
+        return VisImageButton("tool_${tool.name}").apply {
             addClickSound().addFocusBorder().addClickListener { _ ->
-                Tool.current = tool
+                tools.current = tool
 
                 toolButtons.buttons.forEach { it.color.a = 0.5f }
                 color.a = 1f
@@ -106,12 +105,12 @@ class InterfaceStage(val editorScreen: EditorScreen, val actorsPackage: CanvasAc
 
         setUpCanvasActorsScrollPane()
 
-        table.add(scrollPane).expandY()
+        table.add(actorsPicker).expandY()
         table.add(GridGroup(srollPaneCloseButton.width).apply {
             addActor(srollPaneCloseButton)
-            addActor(newToolButton("pencil", Tool.Pencil))
-            addActor(newToolButton("eraser", Tool.Eraser))
-            addActor(newToolButton("drag_canvas", Tool.DragCanvas))
+            for (tool in tools.toolList) {
+                addActor(newToolButton(tool))
+            }
             addActor(layerButton)
             addActor(layerButtonMin)
             addActor(layerVisibilityButton)
@@ -124,7 +123,7 @@ class InterfaceStage(val editorScreen: EditorScreen, val actorsPackage: CanvasAc
     }
 
     private fun setUpCanvasActorsScrollPane() {
-        scrollPane.addListener(object : InputListener() {
+        actorsPicker.addListener(object : InputListener() {
             override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
                 return super.mouseMoved(event, x, y)
             }
@@ -132,7 +131,7 @@ class InterfaceStage(val editorScreen: EditorScreen, val actorsPackage: CanvasAc
             override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
                 super.enter(event, x, y, pointer, fromActor)
 
-                scrollFocus = scrollPane
+                scrollFocus = actorsPicker
             }
 
             override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
@@ -155,9 +154,9 @@ class InterfaceStage(val editorScreen: EditorScreen, val actorsPackage: CanvasAc
 
     override fun keyDown(keyCode: Int): Boolean {
         when (keyCode) {
-            Keys.NUM_1 -> Tool.current = Tool.Pencil
-            Keys.NUM_2 -> Tool.current = Tool.Eraser
-            Keys.NUM_3 -> Tool.current = Tool.Select
+            Keys.NUM_1 -> tools.current = tools.pencil
+            Keys.NUM_2 -> tools.current = tools.eraser
+            Keys.NUM_3 -> tools.current = tools.dragCanvas
         }
 
         return false
@@ -176,24 +175,30 @@ class InterfaceStage(val editorScreen: EditorScreen, val actorsPackage: CanvasAc
                 field = value
 
                 if (value != null)
-                    Tool.Pencil.canvasActor = value.userObject as CanvasActor
+                    tools.pencil.canvasActor = value.userObject as CanvasActor
             }
 
-        private val selectedFrame = VisImage("selected_item_frame")
+        private val tableWidth = 160f
+        private val itemsInRow = if (Const.IS_MOBILE) 3 else 5
+        private val itemSize = tableWidth / itemsInRow //32f
+
+        private val selectedFrame = VisImage("selected_item_frame").apply {
+            setSize(48f / 32f * itemSize, 48f / 32f * itemSize)
+        }
 
         init {
             with(this.actor as VisTable) {
                 background("background")
-                width = 160f
+                width = tableWidth
 
-                val maxInRow = 5
+                val maxInRow = itemsInRow
                 var currentInRow = 0
                 for (canvasActor in actorsPackage.canvasActors) {
                     val item = Item(canvasActor)
                     item.name = canvasActor.name
                     item.userObject = canvasActor
 
-                    add(item).size(32f, 32f).pad(4f)
+                    add(item).size(itemSize).pad(4f)
                     currentInRow++
 
                     if (currentInRow >= maxInRow) {

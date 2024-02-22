@@ -8,9 +8,7 @@ class CanvasActorsPackage {
 
     val canvasActors = Array<CanvasActor>()
 
-    companion object {
-        var minTileSize = 16f
-    }
+    var minTileSize = 64f
 
     init {
         for (region in assets.tilesAtlas.regions) {
@@ -20,7 +18,11 @@ class CanvasActorsPackage {
                 else
                     region.name
 
-            val tile = CanvasActor(name, Sprite(region))
+            val sprite = Sprite(region).apply {
+                setSize(width / minTileSize * region.regionWidth, height / minTileSize * region.regionHeight)
+            }
+
+            val tile = CanvasActor(name, sprite)
             canvasActors.add(tile)
         }
     }

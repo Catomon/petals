@@ -13,11 +13,11 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 class CanvasStage(
     screenViewport: ScreenViewport,
     batch: SpriteBatch,
-    val shapeRenderer: ShapeRenderer,
+    private val shapeRenderer: ShapeRenderer,
 ) : Stage(screenViewport, batch) {
 
-    val boundingRectangle = Rectangle(0f, 0f, tileSize, tileSize)
-    val updateBoundingRect = true
+    private val boundingRectangle = Rectangle(0f, 0f, tileSize, tileSize)
+    private val updateBoundingRect = true
 
     override fun draw() {
         super.draw()
@@ -60,24 +60,20 @@ class CanvasStage(
         updateBoundingRectangleSize()
     }
 
-    /**
-     * Returns a Group with the specified layerId, creates a new one if it doesn't exist.
-     * @param layerId The ID of the layer to find or create.
-     * @return The Group with the specified layerId.
-     */
+    /** Returns a Group with the specified layerId, creates a new one if it doesn't exist. */
     fun findGroup(layerId: Int): Group {
-        // Find existing group
+        // try to find existing
         val existingGroup = actors.find { it is Group && it.name == layerId.toString() } as? Group
         if (existingGroup != null) {
             return existingGroup
         }
 
-        // Create new group
+        // crate new
         val newGroup = Group()
         newGroup.name = layerId.toString()
         root.addActor(newGroup)
 
-        // Sort all groups
+        // sort all
         val groups = actors.filterIsInstance<Group>()
         groups.sortedBy { it.name.toInt() }
             .forEachIndexed { index, group -> group.zIndex = index }
