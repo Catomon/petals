@@ -111,7 +111,8 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
 
         val folder = Gdx.files.internal("maps/custom")
         for (file in folder.list()) {
-            if (file.extension() == "map") {
+            if (file.extension() == "map"
+                || file.extension() == "ptmap") {
 
                 var alreadyAdded = false
                 val level = levels.firstOrNull { it.fileName == file.nameWithoutExtension() }?.also { alreadyAdded = true } ?: JsonLevel.fromFile(file.nameWithoutExtension())

@@ -24,8 +24,8 @@ class TiledBackgroundDrawer(
         val cornerXMod = camera.cornerX() % spriteWidth
         val cornerYMod = camera.cornerY() % spriteHeight
 
-        for (i in -1 until x) {
-            for (j in -1 until y) {
+        for (i in -1 until x + 2) {
+            for (j in -1 until y + 2) {
                 sprite.setPosition(
                     camera.cornerX() - cornerXMod + i * spriteWidth,
                     camera.cornerY() - cornerYMod + j * spriteHeight

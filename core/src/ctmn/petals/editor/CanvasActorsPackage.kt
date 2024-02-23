@@ -19,7 +19,7 @@ class CanvasActorsPackage {
                     region.name
 
             val sprite = Sprite(region).apply {
-                setSize(width / minTileSize * region.regionWidth, height / minTileSize * region.regionHeight)
+                setSize(tileSize / minTileSize * region.regionWidth, tileSize / minTileSize * region.regionHeight)
             }
 
             val tile = CanvasActor(name, sprite)

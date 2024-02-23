@@ -17,9 +17,12 @@ import com.badlogic.gdx.utils.JsonReader
 import com.badlogic.gdx.utils.JsonValue
 import ctmn.petals.tile.setTileCrystalPlayer
 import ctmn.petals.unit.UnitActor
+import java.io.FileNotFoundException
 
 /** Usage: JsonLevel.fromFile(name).initActors(assets) */
 open class JsonLevel private constructor() : Level {
+
+    var petalsEditor = false
 
     lateinit var name: String
 
@@ -43,19 +46,30 @@ open class JsonLevel private constructor() : Level {
         private set
 
     companion object {
-        fun fromFile(fileName: String) : JsonLevel {
+        fun fromFile(fileName: String): JsonLevel {
+            var petalsEditor = false
+
             val level =
                 if (Gdx.files.internal("maps/$fileName.map").exists())
                     fromJsonString(Gdx.files.internal("maps/$fileName.map").readString())
                 else
-                    fromJsonString(Gdx.files.internal("maps/custom/$fileName.map").readString())
+                    if (Gdx.files.internal("maps/custom/$fileName.map").exists())
+                        fromJsonString(Gdx.files.internal("maps/custom/$fileName.map").readString())
+                    else
+                        if (Gdx.files.internal("maps/$fileName.ptmap").exists()) {
+                            petalsEditor = true
+                            fromJsonString(Gdx.files.internal("maps/$fileName.ptmap").readString())
+                        } else {
+                            petalsEditor = true
+                            fromJsonString(Gdx.files.internal("maps/custom/$fileName.ptmap").readString())
+                        }
 
             level.fileName = fileName
 
-            return level
+            return level.apply { this.petalsEditor = petalsEditor }
         }
 
-        fun fromJsonString(jsonString: String) : JsonLevel {
+        fun fromJsonString(jsonString: String): JsonLevel {
             val jsonObject = JsonReader().parse(jsonString)
 
             val level = JsonLevel()
@@ -73,55 +87,72 @@ open class JsonLevel private constructor() : Level {
         }
     }
 
-    fun initActors(assets: Assets) : JsonLevel {
+    fun initActors(assets: Assets): JsonLevel {
         Gdx.app.log(JsonLevel::class.simpleName, "Reading $name... ")
         try {
             val jsonArray = jsonActors
             for (jsonActor in jsonArray) {
-                val name = jsonActor["name"].asString()
 
-                val positionX = jsonActor["x"].asFloat()
-                val positionY = jsonActor["y"].asFloat()
+                val name =
+                    if (jsonActor.has("name"))
+                        jsonActor["name"].asString()
+                    else
+                        jsonActor["id"].asString()
 
-                val layer = jsonActor["layer"].asInt()
+                val positionX = if (petalsEditor) jsonActor["x"].asFloat() * tileSize else jsonActor["x"].asFloat()
+                val positionY = if (petalsEditor) jsonActor["y"].asFloat() * tileSize else jsonActor["y"].asFloat()
+
+
+                val layer = if (jsonActor.has("layer")) jsonActor["layer"].asInt() else let {
+                    Gdx.app.error(this::class.simpleName, "jsonActor has no layer value, will set 1")
+                    1
+                }
                 val rotation = jsonActor["transform"]?.get("rotation")?.asFloat()
                 val flipX = jsonActor["transform"]?.get("flip_x")?.asBoolean()
                 val flipY = jsonActor["transform"]?.get("flip_y")?.asBoolean()
 
-                val jsonExtra = jsonActor["extra"]
-                when (jsonExtra?.get("type")?.asString()) {
+                val jsonExtra = if (jsonActor.has("extra")) jsonActor["extra"] else null
+                when (jsonExtra?.get("type")?.asString() ?: let {
+                    Gdx.app.error(
+                        this::class.simpleName,
+                        "jsonActor has no type value or has no extra value, guess its tile"
+                    )
+                    "tile"
+                }) {
                     "unit" -> {
-                        Gdx.app.error(JsonLevel::class.java.simpleName, "Skipping unit cos playerId is nullValue bug //fixme 523") //fixme 523
+                        if (jsonExtra == null) continue
 
-                        continue
-
-                        val playerId = jsonExtra["player_id"]?.asInt() ?: Player.NONE
-                        val teamId = jsonExtra["team_id"]?.asInt() ?: Team.NONE
-                        val leaderId = jsonExtra["leader_id"]?.asInt() ?: -1
-                        val followerId = jsonExtra["follower_id"]?.asInt() ?: -1
-                        val allies = jsonExtra["allies"]?.asString()
-
-                        val unit = unitsData.get(name)
-                        unit.teamId = teamId
-                        unit.playerId = playerId
-                        if (leaderId > 0) {
-                            unit.add(LeaderComponent(leaderId))
-                        } else if (followerId > 0) {
-                            unit.add(FollowerComponent(followerId))
-                        }
-
-                        if (allies != null) {
-                            for (allyTeamId in allies.split(", ")) {
-                                unit.allies.add(allyTeamId.toInt())
-                                println("ally added: $allyTeamId")
-                            }
-                        }
-
-                        unit.initView(assets)
-                        unit.setPosition((positionX / tileSize).toInt(), (positionY / tileSize).toInt())
-
-                        if (unitParsed(jsonActor, unit))
-                            units.add(unit)
+                        Gdx.app.error(
+                            JsonLevel::class.java.simpleName,
+                            "Skipping unit cos playerId is nullValue bug //fixme 523"
+                        ) //fixme 523
+//                        val playerId = jsonExtra["player_id"]?.asInt() ?: Player.NONE
+//                        val teamId = jsonExtra["team_id"]?.asInt() ?: Team.NONE
+//                        val leaderId = jsonExtra["leader_id"]?.asInt() ?: -1
+//                        val followerId = jsonExtra["follower_id"]?.asInt() ?: -1
+//                        val allies = jsonExtra["allies"]?.asString()
+//
+//                        val unit = unitsData.get(name)
+//                        unit.teamId = teamId
+//                        unit.playerId = playerId
+//                        if (leaderId > 0) {
+//                            unit.add(LeaderComponent(leaderId))
+//                        } else if (followerId > 0) {
+//                            unit.add(FollowerComponent(followerId))
+//                        }
+//
+//                        if (allies != null) {
+//                            for (allyTeamId in allies.split(", ")) {
+//                                unit.allies.add(allyTeamId.toInt())
+//                                println("ally added: $allyTeamId")
+//                            }
+//                        }
+//
+//                        unit.initView(assets)
+//                        unit.setPosition((positionX / tileSize).toInt(), (positionY / tileSize).toInt())
+//
+//                        if (unitParsed(jsonActor, unit))
+//                            units.add(unit)
                     }
 
                     "tile" -> {
@@ -137,10 +168,10 @@ open class JsonLevel private constructor() : Level {
                         tile.setPosition((positionX / tileSize).toInt(), (positionY / tileSize).toInt())
 
                         // todo: fix this
-                        if (tile.tileName == "blue_base")   setTileCrystalPlayer(tile, 1)
-                        else if (tile.tileName == "red_base")   setTileCrystalPlayer(tile, 2)
+                        if (tile.tileName == "blue_base") setTileCrystalPlayer(tile, 1)
+                        else if (tile.tileName == "red_base") setTileCrystalPlayer(tile, 2)
 
-                        jsonExtra["player_id"]?.let {
+                        jsonExtra?.get("player_id")?.let {
                             setTileCrystalPlayer(tile, it.asInt())
                         }
 
@@ -149,6 +180,8 @@ open class JsonLevel private constructor() : Level {
                     }
 
                     "label" -> {
+                        if (jsonExtra == null) continue
+
                         val labelData = ArrayMap<String, String>()
                         for (extra in jsonExtra) {
                             if (extra.name == "type") continue
@@ -181,15 +214,15 @@ open class JsonLevel private constructor() : Level {
     val JsonValue.extra get() = get("extra") ?: throw IllegalArgumentException("Json has no 'extra' value")
 
     /** if returns true, unit will be added to actors array */
-    open fun unitParsed(json: JsonValue, unit: UnitActor) : Boolean {
+    open fun unitParsed(json: JsonValue, unit: UnitActor): Boolean {
         return true
     }
 
-    open fun tileParsed(json: JsonValue, tile: TileActor) : Boolean {
+    open fun tileParsed(json: JsonValue, tile: TileActor): Boolean {
         return true
     }
 
-    open fun labelParsed(json: JsonValue, label: LabelActor) : Boolean {
+    open fun labelParsed(json: JsonValue, label: LabelActor): Boolean {
         return true
     }
 

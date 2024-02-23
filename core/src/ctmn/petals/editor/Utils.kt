@@ -1,6 +1,6 @@
 package ctmn.petals.editor
 
-
+// size of a CanvasActor
 var tileSize = 100f
 
 fun Float.toTilePos(): Int {

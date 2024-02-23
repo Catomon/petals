@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
+import ctmn.petals.editor.EditorScreen
 import ctmn.petals.menu.StorySelectStage.Companion.startStory
 import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
@@ -32,8 +33,6 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val windowTable = VisTable()
 
     init {
-        editorButton.isDisabled = true
-
         storyButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 super.clicked(event, x, y)
@@ -55,7 +54,8 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         editorButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 super.clicked(event, x, y)
-                //game.screen = EditorScreen()
+
+                game.screen = EditorScreen()
             }
         })
         settingsButton.addChangeListener {

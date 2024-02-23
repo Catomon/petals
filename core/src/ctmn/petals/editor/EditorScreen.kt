@@ -3,6 +3,7 @@ package ctmn.petals.editor
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ScreenAdapter
+import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import ctmn.petals.Rich
 import ctmn.petals.discordRich
+import kotlin.random.Random
 
 class EditorScreen : ScreenAdapter() {
 
@@ -22,7 +24,7 @@ class EditorScreen : ScreenAdapter() {
     val tools = Tools()
 
     var canvas = CanvasStage(ScreenViewport(), batch, shapeRenderer)
-    var interfaceStage = InterfaceStage(this, actorsPackage, tools, batch)
+    var interfaceStage = InterfaceStage(canvas, actorsPackage, tools, batch)
 
     val prefs = Gdx.app.getPreferences("editor.petals.ctmn")
 

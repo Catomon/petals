@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Group
-import com.badlogic.gdx.scenes.scene2d.Stage
 import ctmn.petals.utils.setPositionByCenter
 
 class CanvasActor(name: String, val sprite: Sprite = Sprite()) : Actor() {

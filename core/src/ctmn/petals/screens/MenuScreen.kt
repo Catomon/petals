@@ -16,7 +16,7 @@ import ctmn.petals.*
 import ctmn.petals.menu.*
 import ctmn.petals.widgets.ParallaxBackground
 
-class MenuScreen(val game: PetalsGame) : Screen {
+class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
     val viewport = ExtendViewport(32f, 720f)
 

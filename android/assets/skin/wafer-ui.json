@@ -313,6 +313,7 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 		down: layers
 		pressedOffsetY: -1
 		font: font
+		focusBorder: layers_border
 	}
 	button_b: {
 		down: button_b_pressed

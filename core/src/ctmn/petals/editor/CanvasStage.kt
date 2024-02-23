@@ -1,6 +1,8 @@
 package ctmn.petals.editor
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL32
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Rectangle
@@ -10,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 
+/** Contains Groups that represent layers; layerId can be obtained using <group>.name.toInt() */
 class CanvasStage(
     screenViewport: ScreenViewport,
     batch: SpriteBatch,
@@ -19,20 +22,51 @@ class CanvasStage(
     private val boundingRectangle = Rectangle(0f, 0f, tileSize, tileSize)
     private val updateBoundingRect = true
 
+    private var highlightLayer: Group? = null
+    var highlightLayerId: Int? = null
+        set(value) {
+            field = value
+            highlightLayer = if (value == null) null else getLayer(value)
+        }
+
+    private val outlineColor = Color.WHITE.cpy().apply { a = 0.5f }
+    private val outlineColorHighlighted = Color.GREEN.cpy().apply { a = 0.5f }
+
     override fun draw() {
         super.draw()
 
+        Gdx.gl.glEnable(GL32.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL32.GL_SRC_ALPHA, GL32.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.projectionMatrix = camera.combined
         shapeRenderer.setAutoShapeType(true)
+
         shapeRenderer.begin()
+        shapeRenderer.color = outlineColor
         shapeRenderer.rect(boundingRectangle.x, boundingRectangle.y, boundingRectangle.width, boundingRectangle.height)
 
-        for (canvasActor in getCanvasActors()) {
+        // if highlightLayerId was set before a group was created
+        if (highlightLayer == null && highlightLayerId != null) highlightLayer = getLayer(highlightLayerId!!)
+
+        val groups = if (highlightLayer != null) getLayers().filter { it.name != highlightLayer!!.name } else getLayers()
+        for (group in groups) {
+            drawShapes(group)
+        }
+
+        if (highlightLayer != null) {
+            shapeRenderer.color = outlineColorHighlighted
+            drawShapes(highlightLayer!!)
+        }
+
+        shapeRenderer.end()
+        Gdx.gl.glDisable(GL32.GL_BLEND);
+    }
+
+    private fun drawShapes(group: Group) {
+        for (canvasActor in group.children) {
             with(canvasActor) {
                 shapeRenderer.rect(x, y, originX, originY, width, height, scaleX, scaleY, rotation)
             }
         }
-        shapeRenderer.end()
     }
 
     fun getCanvasActors(): Array<CanvasActor> {
@@ -85,6 +119,10 @@ class CanvasStage(
         return actors.filterIsInstance<Group>()
     }
 
+    fun getLayer(layerId: Int): Group? {
+        return getLayers().firstOrNull { it.name.toInt() == layerId }
+    }
+
     override fun addActor(actor: Actor?) {
         Gdx.app.error(
             CanvasStage::class.simpleName,
@@ -92,7 +130,8 @@ class CanvasStage(
         )
     }
 
-    /** Changes layers visibility */
+    /** Changes layers visibility.
+     * @param layerId If == null, all visible */
     fun changeLayersVisible(layerId: Int? = null) {
         if (layerId != null) {
             getLayers().forEach { it.isVisible = false }
