@@ -32,23 +32,29 @@ class Saver(
     var fileName: String,
 ) {
 
-    var fileExtension = "ptmap"
-    val folder = "maps/custom"
+    var fileExtension = MAP_FILE_EXTENSION
+    val folder = MAPS_FOLDER_PATH
 
     val fileNameWithExtension get() = "$fileName.$fileExtension"
 
-    fun exists() = Gdx.files.local("$folder/$fileNameWithExtension").exists()
+    val fileHandle get() = Gdx.files.local("$folder/$fileNameWithExtension")
+
+    fun exists() = fileHandle.exists()
 
     fun saveMap(mapSave: MapSave) {
         if (mapSave.name.isEmpty()) mapSave.name = fileName
 
         val mapSaveJson = mapSave.toGson()
-        val mapFile: FileHandle = Gdx.files.local("$folder/$fileNameWithExtension")
+        val mapFile: FileHandle = fileHandle
         mapFile.writeString(mapSaveJson, false)
     }
 
     fun loadMap(): MapSave {
-        val mapFile: FileHandle = Gdx.files.local("$folder/$fileNameWithExtension")
+        val mapFile: FileHandle = fileHandle
         return fromGson(mapFile.readString(), MapSave::class.java)
+    }
+
+    fun deleteMap(): Boolean {
+        return fileHandle.delete()
     }
 }

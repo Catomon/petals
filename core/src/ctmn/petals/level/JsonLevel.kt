@@ -3,12 +3,9 @@ package ctmn.petals.level
 import ctmn.petals.Assets
 import ctmn.petals.gameactors.label.LabelActor
 import ctmn.petals.player.Player
-import ctmn.petals.player.Team
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
-import ctmn.petals.unit.component.FollowerComponent
-import ctmn.petals.unit.component.LeaderComponent
 import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
@@ -47,26 +44,26 @@ open class JsonLevel private constructor() : Level {
 
     companion object {
         fun fromFile(fileName: String): JsonLevel {
-            var petalsEditor = false
+            val paths = listOf(
+                Gdx.files.internal("maps/$fileName.map"),
+                Gdx.files.internal("maps/custom/$fileName.map"),
+                Gdx.files.internal("maps/$fileName.ptmap"),
+                Gdx.files.internal("maps/custom/$fileName.ptmap"),
 
-            val level =
-                if (Gdx.files.internal("maps/$fileName.map").exists())
-                    fromJsonString(Gdx.files.internal("maps/$fileName.map").readString())
-                else
-                    if (Gdx.files.internal("maps/custom/$fileName.map").exists())
-                        fromJsonString(Gdx.files.internal("maps/custom/$fileName.map").readString())
-                    else
-                        if (Gdx.files.internal("maps/$fileName.ptmap").exists()) {
-                            petalsEditor = true
-                            fromJsonString(Gdx.files.internal("maps/$fileName.ptmap").readString())
-                        } else {
-                            petalsEditor = true
-                            fromJsonString(Gdx.files.internal("maps/custom/$fileName.ptmap").readString())
-                        }
+                Gdx.files.local("maps/$fileName.map"),
+                Gdx.files.local("maps/custom/$fileName.map"),
+                Gdx.files.local("maps/$fileName.ptmap"),
+                Gdx.files.local("maps/custom/$fileName.ptmap"),
+            )
 
-            level.fileName = fileName
+            val existingPath = paths.firstOrNull { it.exists() } ?: throw FileNotFoundException("Level file with name $fileName not found")
 
-            return level.apply { this.petalsEditor = petalsEditor }
+            val level = fromJsonString(existingPath.readString())
+
+            return level.apply {
+                this.fileName = fileName
+                this.petalsEditor = existingPath.path().contains(".ptmap")
+            }
         }
 
         fun fromJsonString(jsonString: String): JsonLevel {

@@ -14,6 +14,8 @@ object Const {
     const val CONSOLE_ENABLED = !IS_RELEASE
     const val DEBUG_MODE = !IS_RELEASE
 
+    const val CUSTOM_MAPS_FOLDER = "maps/custom"
+
     /** discord */
     const val DISABLE_RICH = !IS_RELEASE
 

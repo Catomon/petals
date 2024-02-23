@@ -57,10 +57,9 @@ class StoryDialog(
     init {
         quoteTail.setOrigin(12f, 12f)
 
-        //label.wrap = true
         label.setAlignment(Align.center)
 
-        add(label)
+        add(label).expandX()
         row()
     }
 
@@ -105,12 +104,13 @@ class StoryDialog(
         }
 
         label.setText(quote.text)
+        label.wrap = false
         label.pack()
 
-        if (label.glyphLayout.width > guiStage.camera.viewportWidth - 50)
-            getCell(label).width(guiStage.camera.viewportWidth - 50)
-        else
-            getCell(label).width(label.glyphLayout.width)
+        if (getCell(label).prefWidth > guiStage.camera.viewportWidth - 50) {
+            label.wrap = true
+            getCell(label).prefWidth(guiStage.camera.viewportWidth - 50)
+        }
 
         pack()
 

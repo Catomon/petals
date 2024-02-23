@@ -29,6 +29,7 @@ import ctmn.petals.utils.centerY
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.addClickSound
 import ctmn.petals.widgets.addFocusBorder
+import ctmn.petals.widgets.addNotifyWindow
 import kotlin.random.Random
 
 class InterfaceStage(
@@ -45,10 +46,10 @@ class InterfaceStage(
     private val scrollPanePlaceholder = Actor().apply { name = "scrollPanePlaceholder" }
     private val srollPaneCloseButton = newTextButton(">").addClickListener {
         if (actorsPicker.stage != null) {
-            mainTable.getCell(actorsPicker).setActor(scrollPanePlaceholder)
+            mainTable.getCell(actorsPicker).setActor(scrollPanePlaceholder).minWidth(0f)
             (it.listenerActor as VisTextButton).setText("<")
         } else {
-            mainTable.getCell(scrollPanePlaceholder).setActor(actorsPicker)
+            mainTable.getCell(scrollPanePlaceholder).setActor(actorsPicker).minWidth(actorsPicker.prefWidth)
             (it.listenerActor as VisTextButton).setText(">")
         }
     }
@@ -75,45 +76,33 @@ class InterfaceStage(
         }
     }
 
+    private val mapFileNameTextFieldMaxWidth = 360f
+    private val mapFileNameTextFieldMinWidth = 200f
     private val mapFileNameTextField = VisTextField("new_map${Random.nextInt(1000, 9999)}").apply {
         maxLength = 32
-        width = 160f
+        width = 100f
+        setAlignment(Align.center)
+        /** See [touchDown] */
     }
 
     private val saveButton = newTextButton("Save").addClickListener {
-        val mapFileName = mapFileNameTextField.text
-        if (mapFileName.isEmpty()
-            || mapFileName.contains("/")
-            || mapFileName.contains("\\")
-        ) {
-            //todo
-            return@addClickListener
+        val saver = getSaver("Save") ?: return@addClickListener
+
+        val toSave = {
+            saver.saveMap(canvas.asMapSave())
+            addNotifyWindow("Successfully saved", "Save Map")
         }
 
-        val saver = Saver(mapFileName)
         if (saver.exists()) {
-            //todo
+            addNotifyWindow("File with such name already exists.\n" + "Rewrite?", "Save Map", toSave, true)
             return@addClickListener
         }
 
-        saver.saveMap(canvas.asMapSave())
+        toSave()
     }
 
     private val loadButton = newTextButton("Load").addClickListener {
-        val mapFileName = mapFileNameTextField.text
-        if (mapFileName.isEmpty()
-            || mapFileName.contains("/")
-            || mapFileName.contains("\\")
-        ) {
-            //todo
-            return@addClickListener
-        }
-
-        val saver = Saver(mapFileName)
-        if (!saver.exists()) {
-            //todo
-            return@addClickListener
-        }
+        val saver = getSaver("Load") ?: return@addClickListener
 
         val mapSave = saver.loadMap()
         canvas.getCanvasActors().forEach { it.remove() }
@@ -129,6 +118,36 @@ class InterfaceStage(
         }
     }
 
+    private val deleteButton = newTextButton("Delete").addClickListener {
+        val saver = getSaver("Delete") ?: return@addClickListener
+
+        addNotifyWindow("Are you sure?", "Delete Map", {
+            if (saver.deleteMap())
+                addNotifyWindow("Successfully deleted", "Delete Map")
+            else
+                addNotifyWindow("File was not deleted", "Delete Map")
+        }, true)
+    }
+
+    private fun getSaver(operationName: String): Saver? {
+        val mapFileName = mapFileNameTextField.text
+        if (mapFileName.isEmpty()
+            || mapFileName.contains("/")
+            || mapFileName.contains("\\")
+        ) {
+            addNotifyWindow("File name should not be empty or contain / \\", "$operationName Map")
+            return null
+        }
+
+        val saver = Saver(mapFileName)
+        if (operationName != "Save" && !saver.exists()) {
+            addNotifyWindow("File does not exist", "$operationName Map")
+            return null
+        }
+
+        return saver
+    }
+
     private val exitButton = newTextButton("X").addClickListener {
         game.screen = MenuScreen()
     }
@@ -139,7 +158,7 @@ class InterfaceStage(
         //table.debug = true
 
         //setup table
-        mainTable.add(actorsPicker).expandY()
+        mainTable.add(actorsPicker).expandY().minWidth(actorsPicker.prefWidth)
         mainTable.add(GridGroup(srollPaneCloseButton.width).apply {
             addActor(srollPaneCloseButton)
             for (tool in tools.toolList) {
@@ -148,12 +167,13 @@ class InterfaceStage(
             addActor(layerButton)
             addActor(layerButtonMin)
             addActor(layerVisibilityButton)
-        }).align(Align.top)
+        }).minWidth(srollPaneCloseButton.width).padRight(12f).align(Align.top)
         mainTable.add().expandX()
         mainTable.add(VisTable().apply {
-            add(mapFileNameTextField).minWidth(100f).prefWidth(300f)
+            add(mapFileNameTextField)
             add(saveButton)
             add(loadButton)
+            add(deleteButton)
             add(exitButton)
         }).align(Align.topRight)
 
@@ -162,11 +182,11 @@ class InterfaceStage(
         changeLayer(1)
     }
 
-    fun newTextButton(text: String, styleName: String = "default"): VisTextButton {
+    private fun newTextButton(text: String, styleName: String = "default"): VisTextButton {
         return VisTextButton(text, styleName).addClickSound().addFocusBorder()
     }
 
-    fun newToolButton(tool: Tool): VisImageButton {
+    private fun newToolButton(tool: Tool): VisImageButton {
         return VisImageButton("tool_${tool.name}").apply {
             addClickSound().addFocusBorder().addClickListener { changeTool(tool) }
             this.userObject = tool
@@ -213,6 +233,7 @@ class InterfaceStage(
             Keys.ENTER -> {
                 FocusManager.resetFocus(this)
             }
+
             Keys.ESCAPE -> {
                 FocusManager.resetFocus(this)
             }
@@ -225,7 +246,19 @@ class InterfaceStage(
         if (mapFileNameTextField.hasKeyboardFocus())
             FocusManager.resetFocus(this)
 
-        return super.touchDown(screenX, screenY, pointer, button)
+        return super.touchDown(screenX, screenY, pointer, button).also {
+            with (mapFileNameTextField) {
+                if (this.hasKeyboardFocus()) {
+                    (parent as VisTable).getCell(this).prefWidth(mapFileNameTextFieldMaxWidth)
+                    (parent as VisTable).invalidate()
+                    mainTable.invalidate()
+                } else {
+                    (parent as VisTable).getCell(this).prefWidth(mapFileNameTextFieldMinWidth)
+                    (parent as VisTable).invalidate()
+                    mainTable.invalidate()
+                }
+            }
+        }
     }
 
     fun onScreenResize(width: Int, height: Int) {
@@ -244,7 +277,7 @@ class InterfaceStage(
                     tools.pencil.canvasActor = value.userObject as CanvasActor
             }
 
-        private val tableWidth = 160f
+        val tableWidth = 160f
         private val itemsInRow = if (Const.IS_MOBILE) 3 else 5
         private val itemSize = tableWidth / itemsInRow //32f
 

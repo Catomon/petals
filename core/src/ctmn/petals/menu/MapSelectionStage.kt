@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
+import ctmn.petals.editor.MAPS_FOLDER_PATH
+import ctmn.petals.editor.MAP_FILE_EXTENSION
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.level.JsonLevel
 import ctmn.petals.level.Level
@@ -39,6 +41,7 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
     init {
         confirmButton.isDisabled = true
 
+        mapsList.setScrollingDisabled(true, false)
         mapsList.setSize(size, size)
 
         mapsList.onButtonClick = {
@@ -109,10 +112,11 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
         //levels.clear()
         mapsList.removeItems()
 
-        val folder = Gdx.files.internal("maps/custom")
-        for (file in folder.list()) {
+        val folderLocal = Gdx.files.local(MAPS_FOLDER_PATH)
+        val folderInternal = Gdx.files.internal(MAPS_FOLDER_PATH)
+        for (file in folderLocal.list() + folderInternal.list()) {
             if (file.extension() == "map"
-                || file.extension() == "ptmap") {
+                || file.extension() == MAP_FILE_EXTENSION) {
 
                 var alreadyAdded = false
                 val level = levels.firstOrNull { it.fileName == file.nameWithoutExtension() }?.also { alreadyAdded = true } ?: JsonLevel.fromFile(file.nameWithoutExtension())
