@@ -170,7 +170,7 @@ class InterfaceStage(
         }).minWidth(srollPaneCloseButton.width).padRight(12f).align(Align.top)
         mainTable.add().expandX()
         mainTable.add(VisTable().apply {
-            add(mapFileNameTextField)
+            add(mapFileNameTextField).prefWidth(mapFileNameTextFieldMinWidth)
             add(saveButton)
             add(loadButton)
             add(deleteButton)

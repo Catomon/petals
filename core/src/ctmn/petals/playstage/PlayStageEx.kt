@@ -156,10 +156,27 @@ fun PlayStage.getTileMovementCostMatrix(
             for (y in moveCostMap[x].indices) {
                 val unit = getUnit(x, y)
                 if (unit != null && !unit.isAlly(unitActor)) {
-                    if (moveCostMap[x][y + 1] >= 0) moveCostMap[x][y + 1] += 1
-                    if (moveCostMap[x][y - 1] >= 0) moveCostMap[x][y - 1] += 1
-                    if (moveCostMap[x + 1][y] >= 0) moveCostMap[x + 1][y] += 1
-                    if (moveCostMap[x - 1][y] >= 0) moveCostMap[x - 1][y] += 1
+                    //TODO fix this mess (its only a problem on non rectangular maps tho)
+                    try {
+                        if (moveCostMap[x][y + 1] >= 0) moveCostMap[x][y + 1] += 1
+                    } catch (e: IndexOutOfBoundsException) {
+                        e.printStackTrace()
+                    }
+                    try {
+                        if (moveCostMap[x][y - 1] >= 0) moveCostMap[x][y - 1] += 1
+                    } catch (e: IndexOutOfBoundsException) {
+                        e.printStackTrace()
+                    }
+                    try {
+                        if (moveCostMap[x + 1][y] >= 0) moveCostMap[x + 1][y] += 1
+                    } catch (e: IndexOutOfBoundsException) {
+                        e.printStackTrace()
+                    }
+                    try {
+                        if (moveCostMap[x - 1][y] >= 0) moveCostMap[x - 1][y] += 1
+                    } catch (e: IndexOutOfBoundsException) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }

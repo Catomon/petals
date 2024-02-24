@@ -28,7 +28,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
 
     var initView = true
 
-    val tileLayers = ArrayMap<Int, Group>()
+    val tileLayers = ArrayMap<Int, PlayStageGroup>()
     val tilesLayer1 = PlayStageGroup().also {
         tileLayers.put(0, PlayStageGroup())
         tileLayers.put(1, it)
@@ -68,8 +68,10 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
     private val unitPositionsMap = Array(64) { Array<UnitActor?>(64) { null } }
     val border = Border(this)
 
+    private val background = Background()
+
     init {
-        addActor(Background())
+        addActor(background)
 
         for (layer in tileLayers)
             addActor(layer.value)
@@ -94,8 +96,10 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         batch.projectionMatrix = camera.combined
         batch.begin()
 
+        /** [Background] is a PlayStageGroup btw */
+
         for (actor in actors) {
-            if (actor is Group) {
+            if (actor is PlayStageGroup) {
                 shaderBegin()
 
                 actor.draw(batch, 1f)
@@ -104,9 +108,14 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
 
                 continue
             }
+        }
 
-            if (actor.isVisible)
-                actor.draw(batch, actor.color.a)
+        //all other actors are drawn last
+        for (actor in actors) {
+            if (actor !is PlayStageGroup) {
+                if (actor.isVisible)
+                    actor.draw(batch, actor.color.a)
+            }
         }
 
         border.draw(batch)
@@ -154,11 +163,19 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
     private fun addTile(tile: TileActor) {
         if (tileLayers.containsKey(tile.layer))
             tileLayers[tile.layer].addActor(tile)
-        else
-            tileLayers.put(tile.layer, Group().apply {
+        else {
+            tileLayers.put(tile.layer, PlayStageGroup().apply {
                 addActor(tile)
                 this@PlayStage.root.addActorAfter(tileLayers.get(tile.layer - 1), this)
             })
+
+            tileLayers.keys.sortedByDescending { it }.forEach { key ->
+                if (key != null) {
+                    tileLayers[key].remove()
+                    root.addActorAfter(background, tileLayers[key])
+                }
+            }
+        }
     }
 
     override fun addActor(actor: Actor) {
@@ -215,7 +232,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         unitsLayer.clear()
     }
 
-    private fun clearTiles() {
+    fun clearTiles() {
         for (layer in tileLayers) {
             for (tile in layer.value.children) {
                 tile.remove()
@@ -287,7 +304,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         return super.addListener(listener)
     }
 
-    private inner class Background : Group() {
+    private inner class Background : PlayStageGroup() {
 
         private val backTile = TileActor("grass", "grass").apply { initView() }
 
@@ -299,7 +316,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         }
     }
 
-    inner class PlayStageGroup : Group() {
+    open inner class PlayStageGroup : Group() {
 
         override fun addActor(actor: Actor) {
             if (actor.name != null)
