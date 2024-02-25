@@ -3,7 +3,7 @@ package ctmn.petals
 //                    game.screen = PlayScreenTemplate.test2Players(game, JsonLevel.fromFile(testMapName).initActors(assets)).apply {
 //                        playStage.clearGameActors()
 //
-//                        LevelGenerator().generate(playStage)
+//                        MapGenerator().generate(playStage)
 //
 //                        queueAddUnitAction(FairySword().player(localPlayer).position(5, 5))
 //                        queueAddUnitAction(FairyPike().position(5, 5))

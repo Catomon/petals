@@ -129,6 +129,13 @@ fun PlayStage.getTileMovementCostMatrix(terrainCosts: HashMap<String, Int>) : KA
     return moveCostMap
 }
 
+private val directions = listOf(
+    Pair(0, 1), // right
+    Pair(0, -1), // left
+    Pair(1, 0), // down
+    Pair(-1, 0) // up
+)
+
 /** With impassable and unit presence cost */
 fun PlayStage.getTileMovementCostMatrix(
     unitActor: UnitActor,
@@ -156,26 +163,12 @@ fun PlayStage.getTileMovementCostMatrix(
             for (y in moveCostMap[x].indices) {
                 val unit = getUnit(x, y)
                 if (unit != null && !unit.isAlly(unitActor)) {
-                    //TODO fix this mess (its only a problem on non rectangular maps tho)
-                    try {
-                        if (moveCostMap[x][y + 1] >= 0) moveCostMap[x][y + 1] += 1
-                    } catch (e: IndexOutOfBoundsException) {
-                        e.printStackTrace()
-                    }
-                    try {
-                        if (moveCostMap[x][y - 1] >= 0) moveCostMap[x][y - 1] += 1
-                    } catch (e: IndexOutOfBoundsException) {
-                        e.printStackTrace()
-                    }
-                    try {
-                        if (moveCostMap[x + 1][y] >= 0) moveCostMap[x + 1][y] += 1
-                    } catch (e: IndexOutOfBoundsException) {
-                        e.printStackTrace()
-                    }
-                    try {
-                        if (moveCostMap[x - 1][y] >= 0) moveCostMap[x - 1][y] += 1
-                    } catch (e: IndexOutOfBoundsException) {
-                        e.printStackTrace()
+                    for ((dx, dy) in directions) {
+                        val newX = x + dx
+                        val newY = y + dy
+                        if (newX in moveCostMap.indices && newY in moveCostMap[0].indices && moveCostMap[newX][newY] >= 0) {
+                            moveCostMap[newX][newY] += 1
+                        }
                     }
                 }
             }
@@ -507,7 +500,7 @@ fun getPositionsArray(actors: Array<Actor>) : Array<Vector2> {
 }
 
 /** sorting tiles so tiles with sprite size more that TILE_SIZE and higher tiledY will be rendered first */
-fun sortTiles(tiles: Array<TileActor>) : Array<TileActor> {
+fun sortTiles(tiles: List<TileActor>) : Array<TileActor> {
     // collect trees and other tiles with sprite larger that TILE_SIZE and sort them
     val sortedHash = HashMap<Int, Array<TileActor>>()
     for (tile in tiles) {

@@ -16,8 +16,12 @@ import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.RepeatAction
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.ai.EasyAiDuelBot
+import ctmn.petals.editor.EDITOR_VERSION_UNSPECIFIED
+import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.gameactors.label.LabelActor
-import ctmn.petals.level.JsonLevel
+import ctmn.petals.map.MapConverted
+import ctmn.petals.map.labels
+import ctmn.petals.map.loadMap
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.multiplayer.HostPlayScreen
 import ctmn.petals.multiplayer.JsonMessage
@@ -339,9 +343,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         changeMapButton.addChangeListener {
             menuScreen.stage = menuScreen.mapSelectionStage.also {
-                it.onResult = { level ->
-                    if (level != null) {
-                        setLevel(level as JsonLevel)
+                it.onResult = { map ->
+                    if (map != null) {
+                        setLevel(map)
                     }
 
                     menuScreen.stage = this
@@ -464,8 +468,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
     private fun setLobbyState(state: LobbyState) {
         if (state.level != null) {
-            if (state.level != (mapPreview.level as JsonLevel?)?.fileName)
-                setLevel(JsonLevel.fromFile(state.level!!))
+            if (state.level != mapPreview.map?.fileName)
+                setLevel(loadMap(state.level!!))
         } else
             setLevel(null)
 
@@ -499,8 +503,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
     private fun getLobbyStateInstance(): LobbyState {
         return LobbyState().apply {
-            if (mapPreview.level != null)
-                level = (mapPreview.level as JsonLevel).fileName
+            if (mapPreview.map != null)
+                level = mapPreview.map?.fileName
 
             for ((i, slot) in playerSlots.withIndex())
                 if (slot.player != null) {
@@ -535,12 +539,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         state = LobbyState.State.PLAYING
         serverManager.sendLobbyState()
 
-        if (mapPreview.level == null) return
+        if (mapPreview.map == null) return
 
-        with(mapPreview.level as JsonLevel) {
-            if (!actorsInitialized)
-                initActors(assets)
-        }
+        mapPreview.map!!.actors
 
         val players = Array<Player>()
         playerSlots.forEach { slot ->
@@ -556,7 +557,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         val ps = PlayScreenTemplate.pvp(
             menuScreen.game,
-            mapPreview.level!!,
+            mapPreview.map!!,
             players,
             GameType.MULTIPLAYER,
             NoEnd(),
@@ -576,26 +577,33 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         menuScreen.game.screen = ps
     }
 
-    private fun setLevel(level: JsonLevel?) {
+    private fun setLevel(map: MapConverted?) {
         playerSlots.forEach {
             it.label = null
         }
 
-        if (level != null) {
-            if (!level.actorsInitialized)
-                level.initActors(assets)
+        if (map != null) {
+            map.actors
 
-            mapPreview.setPreview(level)
+            mapPreview.setPreview(map)
 
-            if (level.gameMode.isNotEmpty()) {
-                val gm = level.gameMode.toUpperCase(Locale.ROOT)
+            if (map.mapSave.isOutdatedVersion) {
+                addNotifyWindow("Outdated map, unplayable", "Custom Game")
+                confirmButton.isDisabled = true
+                return
+            } else {
+                confirmButton.isDisabled = false
+            }
+
+            if (map.gameMode.isNotEmpty()) {
+                val gm = map.gameMode.toUpperCase(Locale.ROOT)
                 if (GameMode.values().any { it.name == gm })
                     gameMode = GameMode.valueOf(gm)
                 else
                     Gdx.app.error("CustomGameSetupStage", "Unknown game mode: $gm")
             }
 
-            for (label in level.labels) {
+            for (label in map.labels) {
                 if (label.labelName == "player") {
                     val id = label.data["id"].toInt()
 
@@ -614,7 +622,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             }
         }
 
-        confirmButton.isDisabled = level == null || !isHost
+        confirmButton.isDisabled = map == null || !isHost
     }
 
     private fun addPlayer(player: Player) {
@@ -641,7 +649,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         addAiButton.isDisabled = !isHost
 
-        confirmButton.isDisabled = mapPreview.level == null || !isHost
+        confirmButton.isDisabled = mapPreview.map == null || !isHost
     }
 
     private fun removePlayer(player: Player) {

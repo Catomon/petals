@@ -6,19 +6,19 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
+import ctmn.petals.editor.EDITOR_VERSION_UNSPECIFIED
 import ctmn.petals.editor.MAPS_FOLDER_PATH
 import ctmn.petals.editor.MAP_FILE_EXTENSION
+import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.screens.MenuScreen
-import ctmn.petals.level.JsonLevel
-import ctmn.petals.level.Level
+import ctmn.petals.map.MapConverted
+import ctmn.petals.map.loadMap
 import ctmn.petals.playscreen.GameMode
-import ctmn.petals.widgets.ButtonsScrollPane
-import ctmn.petals.widgets.MapPreview
-import ctmn.petals.widgets.addChangeListener
-import ctmn.petals.widgets.newTextButton
+import ctmn.petals.widgets.*
 import java.util.*
 
-class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level: Level?) -> Unit) : Stage(menuScreen.viewport, menuScreen.batch) {
+class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: MapConverted?) -> Unit) :
+    Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val table = VisTable()
 
@@ -30,7 +30,7 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
     private val returnButton = newTextButton("Return")
     private val confirmButton = newTextButton("Confirm")
 
-    private val levels = Array<JsonLevel>()
+    private val maps = Array<MapConverted>()
 
     // private val gameModeButton = VisSelectBox<GameMode>().also {
     //        it.setItems(GameMode.ALL, GameMode.ALICE_VS_ALICE, GameMode.CASTLES)
@@ -45,13 +45,16 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
         mapsList.setSize(size, size)
 
         mapsList.onButtonClick = {
-            val level = it.userObject as JsonLevel
-            if (!level.actorsInitialized)
-                level.initActors(menuScreen.game.assets)
+            val mapConverted = (it.userObject as MapConverted)
 
-            mapPreview.setPreview(level)
+            if (mapConverted.mapSave.isOutdatedVersion) {
+                addNotifyWindow("Outdated map, unplayable", "Map Selection")
+                confirmButton.isDisabled = true
+            } else {
+                mapPreview.setPreview(mapConverted)
 
-            confirmButton.isDisabled = false
+                confirmButton.isDisabled = false
+            }
         }
 
         returnButton.addChangeListener {
@@ -61,12 +64,8 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
         }
 
         confirmButton.addChangeListener {
-            val level = mapPreview.level ?: return@addChangeListener
-            onResult(level)
-
-            //prepare and start screen
-            //if (selectedScenarioName != null)
-            //game.screen = StoryPlayScreen(game, ScenariosManager.byName(selectedScenarioName!!), ScenariosManager.storySave)
+            val mapConverted = mapPreview.map ?: return@addChangeListener
+            onResult(mapConverted)
         }
 
         gameModeSelectBox.addListener {
@@ -81,7 +80,7 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
         table.setFillParent(true)
         //table.debug = true
 
-        with (table) {
+        with(table) {
             add(mapPreview).size(size).padTop(6f)
             row()
             add(mapsList).width(size).expandY()
@@ -100,7 +99,7 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
 
         addListener {
             if (it is ResetStateEvent) {
-                levels.clear()
+                maps.clear()
                 updateList()
             }
 
@@ -116,19 +115,23 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (level
         val folderInternal = Gdx.files.internal(MAPS_FOLDER_PATH)
         for (file in folderLocal.list() + folderInternal.list()) {
             if (file.extension() == "map"
-                || file.extension() == MAP_FILE_EXTENSION) {
+                || file.extension() == MAP_FILE_EXTENSION
+            ) {
 
                 var alreadyAdded = false
-                val level = levels.firstOrNull { it.fileName == file.nameWithoutExtension() }?.also { alreadyAdded = true } ?: JsonLevel.fromFile(file.nameWithoutExtension())
+                val mapConverted =
+                    maps.firstOrNull { it.fileName == file.nameWithoutExtension() }?.also { alreadyAdded = true }
+                        ?: loadMap(file.nameWithoutExtension())
 
                 if (gameModeSelectBox.selected != GameMode.ALL
-                    && level.gameMode != gameModeSelectBox.selected.name.toLowerCase(Locale.ROOT))
+                    && mapConverted.gameMode != gameModeSelectBox.selected.name.toLowerCase(Locale.ROOT)
+                )
                     continue
 
                 if (!alreadyAdded)
-                    levels.add(level)
+                    maps.add(mapConverted)
 
-                mapsList.addButton(level.name, level)
+                mapsList.addButton(mapConverted.mapSave.name, mapConverted)
             }
         }
     }

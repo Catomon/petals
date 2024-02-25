@@ -119,7 +119,7 @@ open class TileActor(
 
         sprite.setOriginCenter()
 
-        sprite.setPositionByCenter(x + TILE_SIZE / 2, y + TILE_SIZE / 2)
+        setPosition(tiledX, tiledY)
     }
 
     override fun act(delta: Float) {

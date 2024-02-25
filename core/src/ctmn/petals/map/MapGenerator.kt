@@ -1,4 +1,4 @@
-package ctmn.petals.level
+package ctmn.petals.map
 
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.getTiles
@@ -10,7 +10,7 @@ import ctmn.petals.utils.getSurroundingTiles
 import ctmn.petals.utils.getTilesInRange
 import kotlin.random.Random
 
-class LevelGenerator {
+class MapGenerator {
 
     //20 15
     val width = 15

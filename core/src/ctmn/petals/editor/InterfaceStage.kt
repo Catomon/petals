@@ -89,7 +89,7 @@ class InterfaceStage(
         val saver = getSaver("Save") ?: return@addClickListener
 
         val toSave = {
-            saver.saveMap(canvas.asMapSave())
+            saver.saveMap(canvas.toMapSave())
             addNotifyWindow("Successfully saved", "Save Map")
         }
 
@@ -106,15 +106,17 @@ class InterfaceStage(
 
         val mapSave = saver.loadMap()
         canvas.getCanvasActors().forEach { it.remove() }
-        mapSave.actors.forEach {
-            canvas.addActor(
-                actorsPackage.get(it.id).copy().apply {
-                    layer = it.layer
-                    x = it.x * tileSize
-                    y = it.y * tileSize
-                },
-                it.layer
-            )
+        mapSave.layers.forEach { layerSave ->
+            layerSave.actors.forEach { tileSave ->
+                canvas.addActor(
+                    actorsPackage.get(tileSave.id).copy().apply {
+                        layer = layerSave.id
+                        x = tileSave.x * tileSize
+                        y = tileSave.y * tileSize
+                    },
+                    layerSave.id
+                )
+            }
         }
     }
 

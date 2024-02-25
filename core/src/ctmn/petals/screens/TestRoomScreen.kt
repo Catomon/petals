@@ -1,6 +1,5 @@
 package ctmn.petals.screens
 
-import ctmn.petals.level.JsonLevel
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.player.newBluePlayer
@@ -27,6 +26,7 @@ import com.kotcrab.vis.ui.widget.VisList
 import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.Const
 import ctmn.petals.PetalsGame
+import ctmn.petals.map.loadMap
 import ctmn.petals.playstage.getLabels
 
 class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
@@ -110,7 +110,7 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
 
                     game.screen = PlayScreenTemplate.pvp(
                         game,
-                        JsonLevel.fromFile(mapsList.selected).initActors(assets),
+                        loadMap(mapsList.selected),
                         Array<Player>().apply { add(bluePlayer, redPlayer) },
                         GameType.PVP_SAME_SCREEN,
                         NoEnd(), //AnyTeamBaseStand()

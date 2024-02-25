@@ -1,8 +1,7 @@
-package ctmn.petals.level
+package ctmn.petals.map
 
 import ctmn.petals.Assets
 import ctmn.petals.gameactors.label.LabelActor
-import ctmn.petals.player.Player
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
@@ -17,6 +16,7 @@ import ctmn.petals.unit.UnitActor
 import java.io.FileNotFoundException
 
 /** Usage: JsonLevel.fromFile(name).initActors(assets) */
+@Deprecated("silly")
 open class JsonLevel private constructor() : Level {
 
     var petalsEditor = false
@@ -29,7 +29,6 @@ open class JsonLevel private constructor() : Level {
 
     lateinit var jsonActors: JsonValue
 
-    override val players: Array<Player> = Array()
     override val tiles: Array<TileActor> = Array()
     override val units: Array<UnitActor> = Array()
     override val labels: Array<LabelActor> = Array()
@@ -58,15 +57,14 @@ open class JsonLevel private constructor() : Level {
 
             val existingPath = paths.firstOrNull { it.exists() } ?: throw FileNotFoundException("Level file with name $fileName not found")
 
-            val level = fromJsonString(existingPath.readString())
+            val level = fromJsonString(existingPath.readString(), existingPath.path().contains(".ptmap"))
 
             return level.apply {
                 this.fileName = fileName
-                this.petalsEditor = existingPath.path().contains(".ptmap")
             }
         }
 
-        fun fromJsonString(jsonString: String): JsonLevel {
+        fun fromJsonString(jsonString: String, petalsEditor: Boolean = false): JsonLevel {
             val jsonObject = JsonReader().parse(jsonString)
 
             val level = JsonLevel()
@@ -77,7 +75,11 @@ open class JsonLevel private constructor() : Level {
                     gameMode = it.asString()
                 }
 
-                jsonActors = jsonObject.get("actors")
+                if (petalsEditor) {
+                    this.petalsEditor = petalsEditor
+                } else {
+                    jsonActors = jsonObject.get("actors")
+                }
             }
 
             return level

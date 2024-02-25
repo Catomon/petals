@@ -25,8 +25,7 @@ import ctmn.petals.ai.AIManager
 import ctmn.petals.ai.EasyAiDuelBot
 import ctmn.petals.discordRich
 import ctmn.petals.effects.FloatingUpLabel
-import ctmn.petals.level.JsonLevel
-import ctmn.petals.level.Level
+import ctmn.petals.map.*
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.multiplayer.HostPlayScreen
 import ctmn.petals.multiplayer.json.GameStateSnapshot
@@ -162,49 +161,46 @@ open class PlayScreen(
         triggerManager.update(delta)
     }
 
-    fun setLevel(level: Level) {
-        val level = level as JsonLevel
-        this.levelName = arrayOf((level as JsonLevel).fileName, level.name, "levelName").first { it.isNotEmpty() }
+    fun setLevel(map: MapConverted) {
+        this.levelName = arrayOf(map.fileName, map.mapSave.name, "levelName").first { it.isNotEmpty() }
 
-        for (tile in sortTiles(level.tiles)) {
+        for (tile in sortTiles(map.tiles)) {
             playStage.addActor(tile)
         }
 
-        for (unit in level.units) {
+        for (unit in map.units) {
             playStage.addActor(unit)
         }
 
-        for (label in level.labels) {
+        for (label in map.labels) {
             playStage.addActor(label)
         }
 
         // if first tile on a tiled position has layer != 1, shift all tiles layer on the position to make it 1
         // like 0 1 2 -> -1 0 1
-        if (level.petalsEditor) {
-            val tiles = playStage.getAllTiles().toMutableList()
-            val tilesSamePos = mutableListOf<TileActor>()
-            for (x in 0 until playStage.tiledWidth) {
-                for (y in 0 until playStage.tiledHeight) {
-                    tilesSamePos.clear()
-                    tiles.forEach { if (it.tiledX == x && it.tiledY == y) tilesSamePos.add(it) }
-                    tilesSamePos.sortByDescending { it.layer }
-                    if (tilesSamePos.isEmpty()) continue
+        val tiles = playStage.getAllTiles().toMutableList()
+        val tilesSamePos = mutableListOf<TileActor>()
+        for (x in 0 until playStage.tiledWidth) {
+            for (y in 0 until playStage.tiledHeight) {
+                tilesSamePos.clear()
+                tiles.forEach { if (it.tiledX == x && it.tiledY == y) tilesSamePos.add(it) }
+                tilesSamePos.sortByDescending { it.layer }
+                if (tilesSamePos.isEmpty()) continue
 
-                    if (tilesSamePos.first().layer == 1) continue
+                if (tilesSamePos.first().layer == 1) continue
 
-                    if (tilesSamePos.size == 1) {
-                        tilesSamePos.first().layer = 1
-                        continue
-                    }
-
-                    val layerDownTo = 1 - tilesSamePos.first().layer
-                    tilesSamePos.forEach { it.layer += layerDownTo }
+                if (tilesSamePos.size == 1) {
+                    tilesSamePos.first().layer = 1
+                    continue
                 }
-            }
 
-            playStage.clearTiles()
-            tiles.forEach { playStage.addActor(it) }
+                val layerDownTo = 1 - tilesSamePos.first().layer
+                tilesSamePos.forEach { it.layer += layerDownTo }
+            }
         }
+
+        playStage.clearTiles()
+        tiles.forEach { playStage.addActor(it) }
 
         levelCreated()
     }
@@ -216,7 +212,7 @@ open class PlayScreen(
         playStage.border.make()
 
         // decorate
-        //Decorator(this, playStage).decorate()
+        Decorator(this, playStage).decorate()
 
         fogOfWarManager.updateGridMap()
     }

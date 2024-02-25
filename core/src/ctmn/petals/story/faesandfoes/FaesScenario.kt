@@ -2,7 +2,7 @@ package ctmn.petals.story.faesandfoes
 
 import ctmn.petals.ai.EasyAiDuelBot
 import ctmn.petals.ai.SimpleAIBot
-import ctmn.petals.level.LevelGenerator
+import ctmn.petals.map.MapGenerator
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
@@ -43,7 +43,7 @@ class FaesScenario : Scenario("Fae", "") {
             }
         }
 
-        LevelGenerator().generate(playStage)
+        MapGenerator().generate(playStage)
 
         playScreen.levelCreated()
     }

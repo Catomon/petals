@@ -1,19 +1,19 @@
 package ctmn.petals.screens
 
-import ctmn.petals.level.Level
 import ctmn.petals.player.Player
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.PetalsGame
+import ctmn.petals.map.MapConverted
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
 
 object PlayScreenTemplate {
 
-    fun test2Players(game: PetalsGame, level: Level): PlayScreen {
+    fun test2Players(game: PetalsGame, map: MapConverted): PlayScreen {
         return pvp(
             game,
-            level,
+            map,
             players = Array<Player>().apply { add(newBluePlayer, newRedPlayer) },
             GameType.PVP_SAME_SCREEN,
             NoEnd(),
@@ -25,7 +25,7 @@ object PlayScreenTemplate {
 
     fun pvp(
         game: PetalsGame,
-        level: Level,
+        map: MapConverted,
         players: Array<Player>,
         gameType: GameType,
         gameEndCondition: GameEndCondition,
@@ -35,7 +35,7 @@ object PlayScreenTemplate {
     ): PlayScreen {
         with (playScreen) {
             // Step 1: init map, add units and players, set up gameEndCondition
-            setLevel(level)
+            setLevel(map)
 
             this.gameType = gameType
             this.gameMode = gameMode

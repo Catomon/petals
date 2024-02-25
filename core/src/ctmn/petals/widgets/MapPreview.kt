@@ -12,23 +12,25 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisImageButton
 import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.assets
+import ctmn.petals.editor.EDITOR_VERSION_UNSPECIFIED
+import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.gameactors.label.LabelActor
-import ctmn.petals.level.Level
+import ctmn.petals.map.*
 import ctmn.petals.player.Player
 import ctmn.petals.tile.Terrain
 import ctmn.petals.tile.TileActor
 import ctmn.petals.utils.tiled
 
 
-class MapPreview(var level: Level? = null) : WidgetGroup() {
+class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
 
     var drawSimpleTexture = false
         set(value) { field = value; if (!drawSimpleTexture) sprite.color = Color.CLEAR }
 
-    val actors = Array<Actor>()
-    val texture = assets.findAtlasRegion("gui/white")
-    val sprite = Sprite(texture)
-    val bunny = assets.findAtlasRegion("gui/images/bunny")
+    private val actors = mutableListOf<Actor>()
+    private val texture = assets.findAtlasRegion("gui/white")
+    private val sprite = Sprite(texture)
+    private val bunny = assets.findAtlasRegion("gui/images/bunny")
 
     private var tileSize = 1f
         set(value) { field = value; sprite.setSize(tileSize, tileSize) }
@@ -46,7 +48,7 @@ class MapPreview(var level: Level? = null) : WidgetGroup() {
 
         sprite.setSize(tileSize, tileSize)
 
-        level?.let { setPreview(it) }
+        map?.let { setPreview(it) }
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
@@ -99,7 +101,7 @@ class MapPreview(var level: Level? = null) : WidgetGroup() {
         ScissorStack.pushScissors(scissors)
 
         //Draw the actor as usual
-        if (!actors.isEmpty)
+        if (actors.isNotEmpty())
             for (actor in actors) {
                 if (actor is TileActor) {
                     if (drawSimpleTexture)
@@ -126,19 +128,21 @@ class MapPreview(var level: Level? = null) : WidgetGroup() {
         ScissorStack.popScissors()
     }
 
-    fun setPreview(level: Level?) {
-        this.level = level
+    fun setPreview(map: MapConverted?) {
+        this.map = map
 
         actors.clear()
 
-        if (level == null) return
+        if (map == null) return
+
+        if (map.mapSave.isOutdatedVersion) return
 
         //render priority order
         val backTiles = Array<TileActor>()
         val tiles = Array<TileActor>()
         val afterTiles = Array<TileActor>()
 
-        for (tile in level.tiles) {
+        for (tile in map.tiles) {
             if (tile.layer == 1)
                 tiles.add(tile)
             else {
@@ -151,14 +155,14 @@ class MapPreview(var level: Level? = null) : WidgetGroup() {
         actors.addAll(backTiles)
         actors.addAll(tiles)
         actors.addAll(afterTiles)
-        actors.addAll(level.units)
-        actors.addAll(level.labels)
+        actors.addAll(map.units)
+        actors.addAll(map.labels)
         //
 
         //calc map size, tile size and offset in pixels to make it fit in bounds of widget
         //width
         var tilesWidth = 0
-        for (tile in level.tiles) {
+        for (tile in map.tiles) {
             if (tile.tiledX > tilesWidth)
                 tilesWidth = tile.tiledX
         }
@@ -166,7 +170,7 @@ class MapPreview(var level: Level? = null) : WidgetGroup() {
 
         //height
         var tilesHeight = 0
-        for (tile in level.tiles) {
+        for (tile in map.tiles) {
             if (tile.tiledY > tilesHeight)
                 tilesHeight = tile.tiledY
         }
