@@ -4,7 +4,7 @@ import ctmn.petals.player.Player
 
 class LobbyState {
 
-    var level: String? = null
+    var mapId: String? = null
 
     val players = ArrayList<PlayerSlotState?>(8)
 

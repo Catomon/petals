@@ -37,7 +37,8 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     val languageSelectStage = LanguageSelectStage(this)
     val settingsStage = SettingsStage(this)
 
-    private val blackThingy = Sprite(assets.findAtlasRegion("gui/white")).also { it.color = Color.BLACK; it.setAlpha(0.5f) }
+    private val blackThingy =
+        Sprite(assets.findAtlasRegion("gui/white")).also { it.color = Color.BLACK; it.setAlpha(0.5f) }
 
     var stage: Stage = menuStage
         set(value) {
@@ -74,7 +75,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     }
 
     override fun hide() {
-        
+
     }
 
     override fun show() {
@@ -82,23 +83,22 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     }
 
     override fun pause() {
-        
+
     }
 
     override fun resume() {
-        
+
     }
 
     override fun resize(width: Int, height: Int) {
         if (Gdx.app.type == Application.ApplicationType.Android)
-            if (Const.IS_PORTRAIT)
-                viewport.minWorldHeight = 240f
-            else viewport.minWorldHeight = 180f // 180f is too small for custom match stage
-
-        //code above is overwritten by code below btw
-
-        (viewport as ExtendViewport).minWorldWidth = width / Const.GUI_SCALE
-        (viewport as ExtendViewport).minWorldHeight = height / Const.GUI_SCALE
+            if (Const.IS_PORTRAIT) {
+                viewport.minWorldWidth = width / Const.GUI_SCALE / 1.25F
+                viewport.minWorldHeight = height / Const.GUI_SCALE / 1.25F
+            } else {
+                viewport.minWorldWidth = width / Const.GUI_SCALE
+                viewport.minWorldHeight = height / Const.GUI_SCALE
+            }
 
         viewport.update(width, height)
 
@@ -106,6 +106,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
         stage.root.fire(ScreenSizeChangedEvent(width, height))
 
+        background.height = viewport.worldHeight
         background.setPosByCenter(stage.worldCenterX, stage.worldCenterY)
     }
 

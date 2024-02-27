@@ -16,12 +16,9 @@ import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.RepeatAction
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.ai.EasyAiDuelBot
-import ctmn.petals.editor.EDITOR_VERSION_UNSPECIFIED
 import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.gameactors.label.LabelActor
-import ctmn.petals.map.MapConverted
-import ctmn.petals.map.labels
-import ctmn.petals.map.loadMap
+import ctmn.petals.map.*
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.multiplayer.HostPlayScreen
 import ctmn.petals.multiplayer.JsonMessage
@@ -30,12 +27,15 @@ import ctmn.petals.multiplayer.client.ResponseListener
 import ctmn.petals.multiplayer.client.ServerHandler
 import ctmn.petals.multiplayer.json.LobbyState
 import ctmn.petals.multiplayer.json.PlayerSlotState
+import ctmn.petals.multiplayer.json.clientreq.MapRequest
 import ctmn.petals.multiplayer.json.serverres.Disconnected
 import ctmn.petals.multiplayer.json.serverres.LobbyStateResponse
+import ctmn.petals.multiplayer.json.serverres.MapResponse
 import ctmn.petals.multiplayer.server.ClientHandler
 import ctmn.petals.multiplayer.server.ClientRequestsQueue
 import ctmn.petals.multiplayer.server.ClientsController
 import ctmn.petals.multiplayer.server.GameServer
+import ctmn.petals.multiplayer.toJsonMessage
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.playscreen.GameMode
@@ -119,6 +119,14 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                         // remove client's player from the slot
                         playerSlots.firstOrNull { it.player?.clientId == clientId }?.player = null
                     }
+
+                    "map_request" -> {
+                        val map = mapPreview.map
+                        if (map != null) server?.clientsController?.sendMessage(
+                            clientId,
+                            MapResponse(map.mapId, map.mapSave).toJsonMessage()
+                        )
+                    }
                 }
             }
         }
@@ -155,7 +163,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
             override fun onClientLostConnection(client: ClientHandler) {
                 // if we didn't get "disconnected" message we assume player is lost connection
-                // todo wait some time and then remove player
                 playerSlots.forEach {
                     if (client.clientId != "null" && it.player?.clientId == client.clientId) {
 
@@ -229,6 +236,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
                     "lobby_state_request" -> {
                         serverManager.sendLobbyState()
+                    }
+
+                    "map" -> {
+                        val mapResponse = fromGson(jsonMessage.message, MapResponse::class.java)
+                        setLevel(MapConverted(mapResponse.mapSave).apply {
+                            saveSharedMap(mapSave)
+                        })
                     }
                 }
             }
@@ -467,9 +481,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     }
 
     private fun setLobbyState(state: LobbyState) {
-        if (state.level != null) {
-            if (state.level != mapPreview.map?.fileName)
-                setLevel(loadMap(state.level!!))
+        if (state.mapId != null) {
+            if (state.mapId != mapPreview.map?.mapId)
+                setLevel(loadMapById(state.mapId!!) ?: let {
+                    client?.clientManager?.sendMessage(MapRequest().toJsonMessage())
+
+                    null
+                })
         } else
             setLevel(null)
 
@@ -504,7 +522,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private fun getLobbyStateInstance(): LobbyState {
         return LobbyState().apply {
             if (mapPreview.map != null)
-                level = mapPreview.map?.fileName
+                mapId = mapPreview.map?.mapId
 
             for ((i, slot) in playerSlots.withIndex())
                 if (slot.player != null) {
@@ -529,7 +547,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
             loadingCover.done()
             loadingCover.remove()
-            (game.screen as PlayScreen).guiStage.addActor(loadingCover)
+
+            if (game.screen is PlayScreen)
+                (game.screen as PlayScreen).guiStage.addActor(loadingCover)
 
             true
         })
@@ -583,10 +603,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         }
 
         if (map != null) {
-            map.actors
-
-            mapPreview.setPreview(map)
-
             if (map.mapSave.isOutdatedVersion) {
                 addNotifyWindow("Outdated map, unplayable", "Custom Game")
                 confirmButton.isDisabled = true
@@ -595,9 +611,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 confirmButton.isDisabled = false
             }
 
+            map.actors
+
+            mapPreview.setPreview(map)
+
             if (map.gameMode.isNotEmpty()) {
-                val gm = map.gameMode.toUpperCase(Locale.ROOT)
-                if (GameMode.values().any { it.name == gm })
+                val gm = map.gameMode.uppercase(Locale.ROOT)
+                if (GameMode.entries.any { it.name == gm })
                     gameMode = GameMode.valueOf(gm)
                 else
                     Gdx.app.error("CustomGameSetupStage", "Unknown game mode: $gm")

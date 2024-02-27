@@ -71,7 +71,7 @@ open class PlayScreen(
     val batch = SpriteBatch()
     val assets = game.assets
 
-    var levelName: String? = null
+    var levelId: String? = null
 
     val unitsData = Units
     val tilesData = TileData
@@ -96,6 +96,9 @@ open class PlayScreen(
     val playStageCameraController = PlayStageCameraController(playStage)
 
     var friendlyFire = false
+
+    var creditsPerBase = 100 //TODO GameState
+    var creditsPerCluster = 75
 
     var gameType = GameType.STORY
     var gameMode = GameMode.ALL
@@ -162,7 +165,7 @@ open class PlayScreen(
     }
 
     fun setLevel(map: MapConverted) {
-        this.levelName = arrayOf(map.fileName, map.mapSave.name, "levelName").first { it.isNotEmpty() }
+        this.levelId = map.mapId
 
         for (tile in sortTiles(map.tiles)) {
             playStage.addActor(tile)
@@ -206,8 +209,6 @@ open class PlayScreen(
     }
 
     fun levelCreated() {
-        this.levelName = "idk"
-
         // make border
         playStage.border.make()
 
@@ -220,7 +221,7 @@ open class PlayScreen(
     private var isReady = false
 
     open fun ready() {
-        if (levelName == null) throw IllegalStateException("Level is null")
+        if (levelId == null) throw IllegalStateException("Level is null")
 
         when (gameMode) {
             GameMode.CRYSTALS -> {
@@ -426,97 +427,100 @@ open class PlayScreen(
     private inner class PlayTurnCycleListener : EventListener {
         override fun handle(event: Event): Boolean {
             val turnCycleEvent = if (event is TurnsCycleListener.TurnCycleEvent) event else return false
-            when (turnCycleEvent) {
-                is TurnsCycleListener.TurnCycleEvent -> {
-                    // give next player gold for every base
-                    val nextPlayer = turnCycleEvent.nextPlayer
-                    if (!nextPlayer.isOutOfGame) {
-                        for (base in playStage.getCapturablesOf(nextPlayer))
-                            nextPlayer.gold += Const.GOLD_PER_BASE
-                    }
 
-                    //put ability on cooldown if it was partially cast
-                    for (unit in playStage.getUnits()) {
-                        val abilities = unit.cAbilities?.abilities
-                        if (abilities != null)
-                            for (ability in abilities)
-                                if (ability.castAmountsLeft < ability.castAmounts) {
-                                    ability.castAmountsLeft = ability.castAmounts
-                                    ability.currentCooldown = ability.cooldown
+            // give next player gold for every base
+            val nextPlayer = turnCycleEvent.nextPlayer
+            if (!nextPlayer.isOutOfGame) {
+                for (base in playStage.getCapturablesOf(nextPlayer)) {
+                    if (base.isBase)
+                        nextPlayer.gold += creditsPerBase
+                    else
+                        nextPlayer.gold += creditsPerCluster
+                }
+            }
+
+            //put ability on cooldown if it was partially cast
+            for (unit in playStage.getUnits()) {
+                val abilities = unit.cAbilities?.abilities
+                if (abilities != null)
+                    for (ability in abilities)
+                        if (ability.castAmountsLeft < ability.castAmounts) {
+                            ability.castAmountsLeft = ability.castAmounts
+                            ability.currentCooldown = ability.cooldown
+                        }
+            }
+
+            for (unit in playStage.getUnits()) {
+                //update buffs duration
+                val iterator = unit.buffs.iterator()
+                while (iterator.hasNext()) {
+                    val buff = iterator.next()
+                    buff.duration -= turnCycleEvent.turnCycleTime
+
+                    if (buff.duration <= 0) {
+                        iterator.remove()
+                        unit.updateView()
+                    }
+                }
+
+                if (unit.playerId == turnCycleEvent.nextPlayer.id) {
+                    //reset units ap
+                    if (unit.buffs.find { buff -> buff.name == "freeze" } == null)
+                        unit.actionPoints = Const.ACTION_POINTS
+
+                    //update abilities cooldowns
+                    if (unit.cAbilities != null)
+                        for (ability in unit.cAbilities!!.abilities) {
+                            if (ability.currentCooldown > 0)
+                                ability.currentCooldown -= 1
+                            else
+                                ability.castAmountsLeft = ability.castAmounts
+                        }
+
+                    //add mana for crystals
+                    if (gameMode == GameMode.CRYSTALS) {
+                        if (unit.isLeader && unit.cAbilities != null) {
+                            for (tile in playStage.getTiles()) {
+                                if (tile.terrain == "base"
+                                    && tile.name.contains("crystal")
+                                    && tile.cPlayerId?.playerId == unit.playerId
+                                ) {
+                                    unit.mana += 5
                                 }
-                    }
-
-                    for (unit in playStage.getUnits()) {
-                        //update buffs duration
-                        val iterator = unit.buffs.iterator()
-                        while (iterator.hasNext()) {
-                            val buff = iterator.next()
-                            buff.duration -= turnCycleEvent.turnCycleTime
-
-                            if (buff.duration <= 0) {
-                                iterator.remove()
-                                unit.updateView()
                             }
                         }
-
-                        if (unit.playerId == turnCycleEvent.nextPlayer.id) {
-                            //reset units ap
-                            if (unit.buffs.find { buff -> buff.name == "freeze" } == null)
-                                unit.actionPoints = Const.ACTION_POINTS
-
-                            //update abilities cooldowns
-                            if (unit.cAbilities != null)
-                                for (ability in unit.cAbilities!!.abilities) {
-                                    if (ability.currentCooldown > 0)
-                                        ability.currentCooldown -= 1
-                                    else
-                                        ability.castAmountsLeft = ability.castAmounts
-                                }
-
-                            //add mana for crystals
-                            if (gameMode == GameMode.CRYSTALS) {
-                                if (unit.isLeader && unit.cAbilities != null) {
-                                    for (tile in playStage.getTiles()) {
-                                        if (tile.terrain == "base"
-                                            && tile.name.contains("crystal")
-                                            && tile.cPlayerId?.playerId == unit.playerId
-                                        ) {
-                                            unit.mana += 5
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    //update bases capturing
-                    for (tile in playStage.getTiles()) {
-                        if (tile.isCapturable &&
-                            tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id
-                        ) {
-                            val unitCaptures = playStage.getUnit(tile.tiledX, tile.tiledY)
-                            (if (tile.cCapturing!!.playerId == unitCaptures?.playerId)
-                                unitCaptures
-                            else null
-                                    )?.captureBase(tile).also {
-                                    playStage.root.fire(BaseCapturedEvent(tile))
-                                } ?: tile.components.remove(CapturingComponent::class.java)
-                        }
-                    }
-
-                    //summoner component
-                    for (unit in playStage.getUnitsOfPlayer(turnCycleEvent.lastPlayer)) {
-                        unit.cSummoner?.giveAP = false
-                    }
-
-                    //heal units that are near their leader
-                    for (unit in playStage.getUnitsOfPlayer(turnCycleEvent.nextPlayer)) {
-                        if (unit.isUnitNear(playStage.getLeadUnit(unit.followerID) ?: continue, 1))
-                            if (unit.health < unit.unitComponent.baseHealth)
-                                unit.heal(Const.HEALING_AMOUNT_NEAR_LEADER)
                     }
                 }
             }
+
+            //update bases capturing
+            for (tile in playStage.getTiles()) {
+                if (tile.isCapturable &&
+                    tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id
+                ) {
+                    val unitCaptures = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    (if (tile.cCapturing!!.playerId == unitCaptures?.playerId)
+                        unitCaptures
+                    else null
+                            )?.captureBase(tile).also {
+                            playStage.root.fire(BaseCapturedEvent(tile))
+                        } ?: tile.components.remove(CapturingComponent::class.java)
+                }
+            }
+
+            //summoner component
+            for (unit in playStage.getUnitsOfPlayer(turnCycleEvent.lastPlayer)) {
+                unit.cSummoner?.giveAP = false
+            }
+
+            //heal units that are near their leader
+            for (unit in playStage.getUnitsOfPlayer(turnCycleEvent.nextPlayer)) {
+                if (unit.isUnitNear(playStage.getLeadUnit(unit.followerID) ?: continue, 1))
+                    if (unit.health < unit.unitComponent.baseHealth)
+                        unit.heal(Const.HEALING_AMOUNT_NEAR_LEADER)
+            }
+
+
 
             return false
         }
@@ -678,7 +682,7 @@ open class PlayScreen(
                         return
                     }
 
-                newPS.levelName = this@PlayScreen.levelName
+                newPS.levelId = this@PlayScreen.levelId
                 newPS.ready()
                 game.screen = newPS
             } else {

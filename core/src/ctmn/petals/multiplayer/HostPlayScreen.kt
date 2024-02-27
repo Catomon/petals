@@ -16,9 +16,11 @@ import ctmn.petals.playscreen.addAction
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.seqactions.SeqAction
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
 import ctmn.petals.widgets.LoadingCover
+import ctmn.petals.widgets.newNotifyWindow
 
 class HostPlayScreen(
     private val gameServer: GameServer,
@@ -126,6 +128,7 @@ class HostPlayScreen(
 
         // wait for all players to be ready
         while (playerStatuses.values.firstOrNull { it != PlayerStatus.READY } != null) {
+
             Thread.sleep(1000)
 
             broadcastMessage(StatusRequest())
@@ -133,6 +136,22 @@ class HostPlayScreen(
             val playersReady = playerStatuses.values.filter { it == PlayerStatus.READY }
 
             Gdx.app.log("HostPlayScreen", "Waiting for players to be ready ${playerStatuses.size}/${playersReady.size}")
+
+            var allDisconnected = true
+            for ((i, playerStatus) in playerStatuses.values.withIndex()) {
+                if (playerStatuses[localPlayer.clientId] != playerStatuses.values.elementAt(i)
+                    && playerStatus != PlayerStatus.LOST_CONNECTION && playerStatus != PlayerStatus.DISCONNECTED)
+                    allDisconnected = false
+            }
+
+            if (allDisconnected) {
+                break
+
+//                returnToMenuScreen()
+//                (game.screen as MenuScreen).stage.addActor(
+//                    newNotifyWindow("All players disconnected", "Custom game")
+//                )
+            }
         }
         Gdx.app.log("HostPlayScreen", "All players are ready")
 

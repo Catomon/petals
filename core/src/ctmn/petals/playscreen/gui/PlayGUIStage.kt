@@ -63,7 +63,9 @@ class PlayGUIStage(
 
     //labels
     val creditsLabel =
-        newLabel("Credits: ${player.gold}", "font_5").apply { isVisible = playScreen.gameMode == GameMode.CASTLES }
+        newLabel("Credits: ${player.gold}", "font_5").apply {
+            isVisible = playScreen.gameMode == GameMode.CASTLES || playScreen.gameMode == GameMode.CRYSTALS
+        }
     private val fpsLabel = VisLabel()
 
     //buttons

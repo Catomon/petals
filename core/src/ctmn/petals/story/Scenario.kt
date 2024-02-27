@@ -6,7 +6,7 @@ import ctmn.petals.player.Player
 import ctmn.petals.playscreen.*
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.map.loadMapFromJson
+import ctmn.petals.map.createMapFromJson
 import ctmn.petals.assets as staticAssets
 import ctmn.petals.playstage.PlayStage
 
@@ -56,7 +56,7 @@ abstract class Scenario(
         assets: Assets = staticAssets,
     ) {
 
-        val level = if (jsonString != null) loadMapFromJson("Story", jsonString) else null
+        val level = if (jsonString != null) createMapFromJson(jsonString) else null
 
 //        override fun unitParsed(json: JsonValue, unit: UnitActor): Boolean {
 //            val delayed = json.extra.delayed

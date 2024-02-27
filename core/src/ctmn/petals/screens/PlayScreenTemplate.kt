@@ -3,6 +3,8 @@ package ctmn.petals.screens
 import ctmn.petals.player.Player
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.PetalsGame
+import ctmn.petals.map.EXTRA_CREDITS_PER_BASE
+import ctmn.petals.map.EXTRA_CREDITS_PER_CLUSTER
 import ctmn.petals.map.MapConverted
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
@@ -36,6 +38,9 @@ object PlayScreenTemplate {
         with (playScreen) {
             // Step 1: init map, add units and players, set up gameEndCondition
             setLevel(map)
+
+            this.creditsPerBase = map.mapSave.extra?.get(EXTRA_CREDITS_PER_BASE) as Int? ?: this.creditsPerBase
+            this.creditsPerCluster = map.mapSave.extra?.get(EXTRA_CREDITS_PER_CLUSTER) as Int? ?: this.creditsPerCluster
 
             this.gameType = gameType
             this.gameMode = gameMode

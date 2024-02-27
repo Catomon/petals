@@ -1,5 +1,6 @@
 package ctmn.petals.unit.actors
 
+import ctmn.petals.tile.Terrain
 import ctmn.petals.unit.TerrainBuffs
 import ctmn.petals.unit.TerrainCosts
 import ctmn.petals.unit.UnitActor
@@ -29,7 +30,9 @@ class FairyHunter : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent(TerrainCosts.foot))
+        add(TerrainCostComponent((TerrainCosts.foot.clone() as HashMap<String, Int>).apply {
+            put(Terrain.water, 2)
+        }))
         add(TerrainBuffComponent(TerrainBuffs.foot))
         add(MatchUpBonusComponent().apply {
 

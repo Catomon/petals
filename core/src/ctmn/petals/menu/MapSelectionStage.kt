@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.editor.EDITOR_VERSION_UNSPECIFIED
 import ctmn.petals.editor.MAPS_FOLDER_PATH
 import ctmn.petals.editor.MAP_FILE_EXTENSION
 import ctmn.petals.editor.isOutdatedVersion
@@ -120,7 +119,7 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: 
 
                 var alreadyAdded = false
                 val mapConverted =
-                    maps.firstOrNull { it.fileName == file.nameWithoutExtension() }?.also { alreadyAdded = true }
+                    maps.firstOrNull { it.mapId == file.nameWithoutExtension() }?.also { alreadyAdded = true }
                         ?: loadMap(file.nameWithoutExtension())
 
                 if (gameModeSelectBox.selected != GameMode.ALL

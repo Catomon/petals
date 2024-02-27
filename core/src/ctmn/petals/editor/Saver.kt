@@ -5,13 +5,16 @@ import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.utils.GdxRuntimeException
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
+import java.util.UUID
 
 const val EDITOR_VERSION_UNSPECIFIED = "unspecified"
 
 data class MapSave(
     var name: String,
     var layers: List<LayerSave>,
-    val version: String = EDITOR_VERSION
+    val version: String = EDITOR_VERSION,
+    val extra: HashMap<String, Any> = hashMapOf(),
+    var id: String = UUID.randomUUID().toString(),
 )
 
 data class LayerSave(
@@ -32,7 +35,12 @@ fun CanvasStage.toMapSave(mapName: String? = null): MapSave {
         layers.add(layer.toLayerSave())
     }
 
-    return MapSave(mapName ?: "", layers, EDITOR_VERSION)
+    return MapSave(
+        mapName ?: "",
+        layers, EDITOR_VERSION,
+        hashMapOf(),
+        UUID.randomUUID().toString()
+    )
 }
 
 fun Group.toLayerSave(): LayerSave {

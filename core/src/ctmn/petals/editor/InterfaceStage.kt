@@ -89,7 +89,11 @@ class InterfaceStage(
         val saver = getSaver("Save") ?: return@addClickListener
 
         val toSave = {
-            saver.saveMap(canvas.toMapSave())
+            saver.saveMap(canvas.toMapSave().also {
+                it.extra["game_mode"] = "crystals" //TODO extras edit
+//                it.extra["credits_per_base"] = 100 //TODO extras edit
+//                it.extra["credits_per_cluster"] = 100 //TODO extras edit
+            })
             addNotifyWindow("Successfully saved", "Save Map")
         }
 
@@ -132,7 +136,7 @@ class InterfaceStage(
     }
 
     private fun getSaver(operationName: String): Saver? {
-        val mapFileName = mapFileNameTextField.text
+        val mapFileName = mapFileNameTextField.text //TODO replace spaces with _ and so on
         if (mapFileName.isEmpty()
             || mapFileName.contains("/")
             || mapFileName.contains("\\")

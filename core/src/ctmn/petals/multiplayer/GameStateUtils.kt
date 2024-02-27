@@ -28,6 +28,11 @@ fun applyGameStateToPlayScreen(
 
     if (!isMultiplayer)
         playScreen.localPlayer = snapshot.localPlayer
+    else {
+        snapshot.players.firstOrNull { it.id == playScreen.localPlayer.id }?.let {
+            playScreen.localPlayer = it
+        }
+    }
 
     playScreen.turnManager.players.addAll(snapshot.players)
     playScreen.turnManager.turn = snapshot.turn
