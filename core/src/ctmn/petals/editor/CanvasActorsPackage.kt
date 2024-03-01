@@ -1,5 +1,6 @@
 package ctmn.petals.editor
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.assets
@@ -28,6 +29,9 @@ class CanvasActorsPackage {
     }
 
     fun get(name: String): CanvasActor {
-        return canvasActors.firstOrNull { it.name == name } ?: throw IllegalStateException("Tile not found")
+        return canvasActors.firstOrNull { it.name == name } ?: let {
+            Gdx.app.log(this::class.simpleName, "Tile $name not found")
+            canvasActors.firstOrNull { it.name == "tile" } ?: throw IllegalStateException("Not even \"tile\" found")
+        }
     }
 }

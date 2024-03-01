@@ -2,7 +2,7 @@ package ctmn.petals.playstage
 
 import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.player.Player
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.*
 import com.badlogic.gdx.graphics.OrthographicCamera

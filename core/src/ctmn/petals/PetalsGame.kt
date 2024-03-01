@@ -6,6 +6,9 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.utils.Logger
+import ctmn.petals.GamePref.fullscreen
+import ctmn.petals.GamePref.targetFps
+import ctmn.petals.GamePref.vSync
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.screens.DevScreen
 import ctmn.petals.screens.LoadingScreen
@@ -15,6 +18,16 @@ import ctmn.petals.utils.setMouseCursor
 
 val game: PetalsGame get() = Gdx.app.applicationListener as PetalsGame
 
+fun updateAppConfig() {
+    strings = getLangStringsByPrefs()
+    Gdx.graphics.setForegroundFPS(targetFps)
+    Gdx.graphics.setVSync(vSync)
+    if (fullscreen)
+        Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+    else
+        Gdx.graphics.setWindowedMode(854, 480)
+}
+
 class PetalsGame : Game() {
 
     val assets = Assets()
@@ -23,6 +36,9 @@ class PetalsGame : Game() {
     var debugMode = Const.DEBUG_MODE
 
     override fun create() {
+        //Prefs
+        updateAppConfig()
+
         if (!Const.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
 
         if (Const.IS_DESKTOP) {

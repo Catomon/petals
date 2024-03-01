@@ -1,6 +1,6 @@
 package ctmn.petals.map
 
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.UnitActor
 import com.badlogic.gdx.utils.Array

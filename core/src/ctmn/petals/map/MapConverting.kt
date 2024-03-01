@@ -5,15 +5,12 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.GdxRuntimeException
 import ctmn.petals.editor.MAP_FILE_EXTENSION
 import ctmn.petals.editor.MapSave
-import ctmn.petals.gameactors.label.LabelActor
-import ctmn.petals.tile.TileActor
-import ctmn.petals.tile.TileData
-import ctmn.petals.tile.setTileCrystalPlayer
+import ctmn.petals.map.label.LabelActor
+import ctmn.petals.tile.*
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
 import java.io.FileNotFoundException
-import kotlin.random.Random
 
 const val EXTRA_CREDITS_PER_BASE = "credits_per_base"
 const val EXTRA_CREDITS_PER_CLUSTER = "credits_per_cluster"
@@ -24,8 +21,45 @@ class MapConverted(
     val mapId get() = mapSave.id ?: ""
     val gameMode get() = mapSave.extra?.get("game_mode") as String? ?: ""
 
-    val actors by lazy {
-        mapSave.convertActors()
+    val actors by lazy { convertActors() }
+
+    var maxPlayers: Int = 0
+    val playerBases = ArrayList<TileActor>(8)
+
+    private fun convertActors(): ArrayList<Actor> {
+        val converted = mapSave.convertActors()
+
+        val bases = converted.filterIsInstance<TileActor>().filter { it.isPlaceholderBaseTile() }
+            .onEach { setPlayerForCapturableTile(it, placeholderBaseNameToPlayerId(it.tileName)) }
+            .sortedBy { it.cPlayerId!!.playerId }
+        var labelId = 0
+        bases.groupBy { it.cPlayerId!!.playerId }.forEach { (_, group) ->
+            group.forEach { base ->
+                converted.add(LabelActor("player", base.tiledX, base.tiledY).apply {
+                    data.put("id", labelId.toString())
+                })
+            }
+            labelId++
+        }
+
+        playerBases.addAll(bases)
+
+        // 1 primary base per player
+//        primaryBases.addAll(converted.filterIsInstance<TileActor>().filter { it.isUnassignedPrimaryBaseTile() }
+//            .groupBy { it.tileComponent.name }.entries.map { it.value.first() })
+//
+//        // remove excess primary bases, so they don't trash the map
+//        converted.removeAll { it.isUnassignedPrimaryBaseTile() && !primaryBases.contains(it) }
+//
+//        for ((labels, primaryBase) in primaryBases.withIndex()) {
+//            converted.add(LabelActor("player", primaryBase.tiledX, primaryBase.tiledY).apply {
+//                data.put("id", labels.toString())
+//            })
+//        }
+
+        maxPlayers = playerBases.map { it.tileComponent.name }.toSet().size
+
+        return converted
     }
 }
 
@@ -33,28 +67,26 @@ val MapConverted.tiles get() = actors.filterIsInstance<TileActor>()
 val MapConverted.units get() = actors.filterIsInstance<UnitActor>()
 val MapConverted.labels get() = actors.filterIsInstance<LabelActor>()
 
-fun MapSave.convertActors(): Array<Actor> {
+fun MapSave.convertActors(): ArrayList<Actor> {
     val convertedActors = ArrayList<Actor>()
+
     for (layer in layers) {
         actorsLoop@ for (actor in layer.actors) {
             val tileData = TileData.get(actor.id)
             if (tileData == null) {
-                Gdx.app.error("MapSave.convert()", "Tile not found 💀 if its not a tile idc")
+                Gdx.app.error("MapSave.convertActors()", "Tile ${actor.id} not found 💀 if its not a tile idc")
                 continue
             }
 
             convertedActors.add(
                 TileActor(tileData.name, tileData.terrain, layer.id, actor.x, actor.y).also { tile ->
                     tile.initView()
-                    if (tile.tileName == "blue_base") setTileCrystalPlayer(tile, 1)
-                    else if (tile.tileName == "red_base") setTileCrystalPlayer(tile, 2)
-                    //TODO
                 }
             )
         }
     }
 
-    return convertedActors.toTypedArray()
+    return convertedActors
 }
 
 @Throws(GdxRuntimeException::class)
@@ -92,7 +124,8 @@ fun loadMap(fileName: String): MapConverted {
         Gdx.files.local("maps/custom/$fileName.ptmap"),
     )
 
-    val existingPath = paths.firstOrNull { it.exists() } ?: throw FileNotFoundException("Level file with name $fileName not found")
+    val existingPath =
+        paths.firstOrNull { it.exists() } ?: throw FileNotFoundException("Level file with name $fileName not found")
 
     return createMapFromJson(existingPath.readString())
 }

@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.ArrayMap
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ctmn.petals.assets
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.events.PlayStageListener

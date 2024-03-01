@@ -34,7 +34,6 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     val lobbyTypesStage = LobbyTypesStage(this)
     val customGameSetupStage = CustomGameSetupStage(this)
     val mapSelectionStage = MapSelectionStage(this) {}
-    val languageSelectStage = LanguageSelectStage(this)
     val settingsStage = SettingsStage(this)
 
     private val blackThingy =
@@ -44,6 +43,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
         set(value) {
             field = value
             field.root.fire(ResetStateEvent())
+            field.root.fire(ScreenSizeChangedEvent(Gdx.graphics.width, Gdx.graphics.height))
 
             Gdx.input.inputProcessor = field
         }

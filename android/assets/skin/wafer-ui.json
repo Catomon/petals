@@ -204,6 +204,7 @@ SelectBoxStyle: {
 		scrollStyle: select-box
 		listStyle: default
 		backgroundOpen: select-box-pressed
+		backgroundDisabled: select-box-disabled
 	}
 }
 SliderStyle: {

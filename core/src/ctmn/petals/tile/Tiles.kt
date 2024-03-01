@@ -6,13 +6,14 @@ package ctmn.petals.tile
  */
 
 object Tiles {
+    const val LEADER_SPAWN_POINT = "leader_spawn_point"
     const val SMOL = "smol"
     const val TILE = "tile"
-    const val BLUE_BASE = "blue_base"
     const val EMPTY_BASE = "empty_base"
+    const val GOBLIN_BASE = "goblin_base"
     const val GOBLIN_DEN = "goblin_den"
+    const val PIXIE_BASE = "pixie_base"
     const val PIXIE_NEST = "pixie_nest"
-    const val RED_BASE = "red_base"
     const val CASTLE = "castle"
     const val CASTLE_TOWER = "castle_tower"
     const val CRYSTAL = "crystal"
@@ -20,9 +21,6 @@ object Tiles {
     const val CRYSTAL_GOBLIN = "crystal_goblin"
     const val CRYSTAL_SLIME = "crystal_slime"
     const val LIFE_CRYSTAL = "life_crystal"
-    const val PRIMARY_CRYSTAL = "primary_crystal"
-    const val PRIMARY_CRYSTAL_BLUE = "primary_crystal_blue"
-    const val PRIMARY_CRYSTAL_RED = "primary_crystal_red"
     const val CRATER = "crater"
     const val EARTHCRACK = "earthcrack"
     const val FALLEN_FOREST = "fallen_forest"

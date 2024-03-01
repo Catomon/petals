@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import com.kotcrab.vis.ui.widget.VisLabel
 
 /** Contains Groups that represent layers; layerId can be obtained using <group>.name.toInt() */
 class CanvasStage(
@@ -31,6 +32,8 @@ class CanvasStage(
 
     private val outlineColor = Color.WHITE.cpy().apply { a = 0.5f }
     private val outlineColorHighlighted = Color.GREEN.cpy().apply { a = 0.5f }
+
+    private val sizeLabel = VisLabel("0")
 
     override fun draw() {
         super.draw()
@@ -59,6 +62,16 @@ class CanvasStage(
 
         shapeRenderer.end()
         Gdx.gl.glDisable(GL32.GL_BLEND);
+
+        batch.begin()
+        sizeLabel.setText((boundingRectangle.height / tileSize).toInt())
+        sizeLabel.setPosition(0f - tileSize / 2, 0f + tileSize / 2)
+        sizeLabel.draw(batch, root.color.a)
+
+        sizeLabel.setText((boundingRectangle.width / tileSize).toInt())
+        sizeLabel.setPosition(0f + tileSize / 2, 0f - tileSize / 2)
+        sizeLabel.draw(batch, root.color.a)
+        batch.end()
     }
 
     private fun drawShapes(group: Group) {

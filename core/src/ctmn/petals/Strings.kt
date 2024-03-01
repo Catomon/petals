@@ -5,12 +5,18 @@ import com.google.gson.Gson
 
 var strings: Strings = getLangStringsByPrefs()
 
+object GameLocale {
+    const val ENGLISH = "en";
+    const val SPANISH = "es"
+    const val RUSSIAN = "ru"
+}
+
 fun getLangStringsByPrefs() : Strings {
     val file = Gdx.files.internal("lang/${GamePref.locale}.json")
     if (!file.exists()) {
-        check(GamePref.locale != "en")
+        check(GamePref.locale != GameLocale.ENGLISH)
 
-        GamePref.locale = "en"
+        GamePref.locale = GameLocale.ENGLISH
         GamePref.save()
         return getLangStringsByPrefs()
     }

@@ -66,7 +66,9 @@ class PlayGUIStage(
         newLabel("Credits: ${player.gold}", "font_5").apply {
             isVisible = playScreen.gameMode == GameMode.CASTLES || playScreen.gameMode == GameMode.CRYSTALS
         }
-    private val fpsLabel = VisLabel()
+    private val fpsLabel = VisLabel().apply {
+        isVisible = !Const.IS_RELEASE
+    }
 
     //buttons
     private val zoomButton = newImageButton("zoom").apply { isVisible = false }

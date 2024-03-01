@@ -7,13 +7,11 @@ import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
 import java.util.UUID
 
-const val EDITOR_VERSION_UNSPECIFIED = "unspecified"
-
 data class MapSave(
     var name: String,
     var layers: List<LayerSave>,
-    val version: String = EDITOR_VERSION,
     val extra: HashMap<String, Any> = hashMapOf(),
+    val version: String = EDITOR_VERSION,
     var id: String = UUID.randomUUID().toString(),
 )
 
@@ -37,8 +35,9 @@ fun CanvasStage.toMapSave(mapName: String? = null): MapSave {
 
     return MapSave(
         mapName ?: "",
-        layers, EDITOR_VERSION,
+        layers,
         hashMapOf(),
+        EDITOR_VERSION,
         UUID.randomUUID().toString()
     )
 }
@@ -60,7 +59,7 @@ fun CanvasActor.toTileSave(): TileSave {
     return TileSave(name, (x / tileSize).toInt(), (y / tileSize).toInt())
 }
 
-val MapSave.isOutdatedVersion get() = version == EDITOR_VERSION_UNSPECIFIED || version == null
+val MapSave.isOutdatedVersion get() = version == null || version < MAP_MIN_VERSION
 
 class Saver(
     var fileName: String,

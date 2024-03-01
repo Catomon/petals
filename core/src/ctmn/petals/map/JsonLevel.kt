@@ -1,7 +1,7 @@
 package ctmn.petals.map
 
 import ctmn.petals.Assets
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
 import com.badlogic.gdx.utils.JsonReader
 import com.badlogic.gdx.utils.JsonValue
-import ctmn.petals.tile.setTileCrystalPlayer
+import ctmn.petals.tile.setPlayerForCapturableTile
 import ctmn.petals.unit.UnitActor
 import java.io.FileNotFoundException
 
@@ -167,11 +167,11 @@ open class JsonLevel private constructor() : Level {
                         tile.setPosition((positionX / tileSize).toInt(), (positionY / tileSize).toInt())
 
                         // todo: fix this
-                        if (tile.tileName == "blue_base") setTileCrystalPlayer(tile, 1)
-                        else if (tile.tileName == "red_base") setTileCrystalPlayer(tile, 2)
+                        if (tile.tileName == "blue_base") setPlayerForCapturableTile(tile, 1)
+                        else if (tile.tileName == "red_base") setPlayerForCapturableTile(tile, 2)
 
                         jsonExtra?.get("player_id")?.let {
-                            setTileCrystalPlayer(tile, it.asInt())
+                            setPlayerForCapturableTile(tile, it.asInt())
                         }
 
                         if (tileParsed(jsonActor, tile))

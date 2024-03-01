@@ -6,14 +6,12 @@ import ctmn.petals.utils.*
 import java.lang.Exception
 import java.util.*
 
-val gameSettings = Gdx.app.getPreferences(GamePref.PREF_FILE_NAME)
-
 fun GamePref.overridePrefs() {
     drawUnitAttackRange = true
 }
 
 fun GamePref.setEmptyToDefaultPrefs() {
-    if (locale == null) locale = "en"
+    //if (locale == null) locale = "en"
 //    if (drawUnitAttackRange == null) drawUnitAttackRange = true
 //    if (showAiGui == null) showAiGui = false
 
@@ -30,21 +28,39 @@ object GamePref {
     private const val DRAW_UNIT_ATK_RANGE = "draw_unit_attack_range"
     private const val SHOW_AI_GUI = "show_ai_gui"
 
-    val prefs: Preferences = Gdx.app.getPreferences(PREF_FILE_NAME)
+    var prefs: Preferences = Gdx.app.getPreferences(PREF_FILE_NAME)
 
     // always set random if it is not release build (for testing)
     val clientId: String =
         if (!Const.IS_RELEASE)
             UUID.randomUUID().toString()
         else
-            if (gameSettings.contains("client_id"))
-                gameSettings.getString("client_id")
+            if (prefs.contains("client_id"))
+                prefs.getString("client_id")
             else
-                UUID.randomUUID().toString().also { gameSettings.putString("client_id", it).flush() }
+                UUID.randomUUID().toString().also { prefs.putString("client_id", it).flush() }
 
-    var locale: String?
-        get() = prefs.getString(LOCALE)
+    var locale: String
+        get() = prefs.getString(LOCALE) ?: GameLocale.ENGLISH
         set(value) { prefs.putString(LOCALE, value) }
+
+    var targetFps: Int
+        get() = prefs.getInteger("target_fps") ?: 60
+        set(value) {
+            prefs.putInteger("target_fps", value)
+        }
+
+    var vSync: Boolean
+        get() = prefs.getBoolean("vSync") ?: true
+        set(value) {
+            prefs.putBoolean("vSync", value)
+        }
+
+    var fullscreen: Boolean
+        get() = prefs.getBoolean("fullscreen") ?: true
+        set(value) {
+            prefs.putBoolean("fullscreen", value)
+        }
 
     var drawUnitAttackRange: Boolean?
         get() = prefs.getBoolean(DRAW_UNIT_ATK_RANGE)

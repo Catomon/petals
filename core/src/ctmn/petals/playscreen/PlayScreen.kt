@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Event
@@ -50,7 +49,6 @@ import ctmn.petals.playscreen.seqactions.SeqActionManager
 import ctmn.petals.playscreen.tasks.TaskManager
 import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
-import ctmn.petals.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
@@ -71,6 +69,7 @@ open class PlayScreen(
     val batch = SpriteBatch()
     val assets = game.assets
 
+    var map: MapConverted? = null
     var levelId: String? = null
 
     val unitsData = Units
@@ -165,6 +164,7 @@ open class PlayScreen(
     }
 
     fun setLevel(map: MapConverted) {
+        this.map = map
         this.levelId = map.mapId
 
         for (tile in sortTiles(map.tiles)) {
@@ -209,12 +209,8 @@ open class PlayScreen(
     }
 
     fun levelCreated() {
-        // make border
         playStage.border.make()
-
-        // decorate
         Decorator(this, playStage).decorate()
-
         fogOfWarManager.updateGridMap()
     }
 
@@ -223,38 +219,7 @@ open class PlayScreen(
     open fun ready() {
         if (levelId == null) throw IllegalStateException("Level is null")
 
-        when (gameMode) {
-            GameMode.CRYSTALS -> {
-                for (label in playStage.getLabels()) {
-                    if (label.labelName == "player") {
-                        val playerId = label.data["player_id"] ?: continue
-                        val player = turnManager.players.firstOrNull { it.id == playerId.toInt() } ?: continue
-
-                        // label.data["leader_unit_name"]
-                        newPvPAlice.addToStage(playStage).player(player).position(label)
-                            .leader(MathUtils.random(0, 9999999))
-                    }
-                }
-            }
-
-            GameMode.CASTLES -> {
-                var playerCount = 0
-                for (base in playStage.getTiles().filter { it.name.contains("base") && it.cPlayerId != null }) {
-
-                    if (turnManager.players.size == playerCount) break
-
-                    base.cPlayerId!!.playerId = turnManager.players[playerCount].id
-
-                    playerCount++
-                }
-
-                for (i in playerCount until turnManager.players.size) {
-                    turnManager.players[i].isOutOfGame = true
-                }
-            }
-
-            else -> {}
-        }
+        assignPlayersToSpawnPoints()
 
         if (!::guiStage.isInitialized) initGui()
 
@@ -280,6 +245,63 @@ open class PlayScreen(
         inputMultiplexer.addProcessor(debugKeysProcessor)
 
         Gdx.input.inputProcessor = inputMultiplexer
+    }
+
+    private fun assignPlayersToSpawnPoints() {
+        val map = this.map ?: throw IllegalStateException("map == null")
+
+        // set empty bases to life crystals and assign player_id to other bases based on what label is on top of them
+        for (label in playStage.getLabels().filter { it.selfName == "player" }) {
+            val playerId = label.data["player_id"]?.toInt()
+
+            val base = map.playerBases.firstOrNull {
+                it.tiledX == label.tiledX && it.tiledY == label.tiledY
+            } ?: continue
+
+            if (playerId != null) {
+                setPlayerForCapturableTile(
+                    base,
+                    playerId,
+                    turnManager.getPlayerById(playerId)?.species ?: throw IllegalStateException("Player with playerId assigned to player label not found in turnManager")
+                )
+            } else {
+                setPlayerForCapturableTile(base, -1)
+            }
+        }
+
+        //        when (gameMode) {
+//            GameMode.CRYSTALS -> {
+//                for (label in playStage.getLabels()) {
+//                    if (label.labelName == "player") {
+//                        val playerId = label.data["player_id"] ?: continue
+//                        val player = turnManager.players.firstOrNull { it.id == playerId.toInt() } ?: continue
+//
+//                        // label.data["leader_unit_name"]
+//                        newPvPAlice.addToStage(playStage).player(player).position(label)
+//                            .leader(MathUtils.random(0, 9999999))
+//                    }
+//                }
+//            }
+//
+//            GameMode.CASTLES -> {
+//                var playerCount = 0
+//                for (base in playStage.getTiles().filter { it.name.contains("base") && it.cPlayerId != null }) {
+//
+//                    if (turnManager.players.size == playerCount) break
+//
+//                    base.cPlayerId!!.playerId = turnManager.players[playerCount].id
+//
+//                    playerCount++
+//                }
+//
+//                for (i in playerCount until turnManager.players.size) {
+//                    turnManager.players[i].isOutOfGame = true
+//                }
+//            }
+//
+//            else -> {}
+//        }
+
     }
 
     override fun render(delta: Float) {
@@ -495,16 +517,14 @@ open class PlayScreen(
 
             //update bases capturing
             for (tile in playStage.getTiles()) {
-                if (tile.isCapturable &&
-                    tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id
-                ) {
-                    val unitCaptures = playStage.getUnit(tile.tiledX, tile.tiledY)
-                    (if (tile.cCapturing!!.playerId == unitCaptures?.playerId)
-                        unitCaptures
-                    else null
-                            )?.captureBase(tile).also {
-                            playStage.root.fire(BaseCapturedEvent(tile))
-                        } ?: tile.components.remove(CapturingComponent::class.java)
+                if (tile.isCapturable && tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id) {
+                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
+                        unitOnTile.captureBase(tile, turnManager.players[unitOnTile.playerId])
+                        playStage.root.fire(BaseCapturedEvent(tile))
+                    } else {
+                        tile.components.remove(CapturingComponent::class.java)
+                    }
                 }
             }
 

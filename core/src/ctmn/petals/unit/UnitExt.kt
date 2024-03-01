@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Color
 import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.effects.HealthChangeEffect
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
@@ -26,7 +26,7 @@ import ctmn.petals.playscreen.seqactions.KillUnitAction
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.TileActor
-import ctmn.petals.tile.setTileCrystalPlayer
+import ctmn.petals.tile.setPlayerForCapturableTile
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
@@ -444,8 +444,8 @@ fun UnitActor.die(playScreen: PlayScreen, killer: UnitActor? = null) {
     playScreen.playStage.root.fire(UnitDiedEvent(this, killer))
 }
 
-fun UnitActor.captureBase(base: TileActor) {
-    setTileCrystalPlayer(base, playerId)
+fun UnitActor.captureBase(base: TileActor, player: Player? = null) {
+    setPlayerForCapturableTile(base, playerId, player?.species)
 }
 
 fun UnitActor.getClosestTileInMoveRange(destX: Int, destY: Int, pTiles: Array<TileActor>? = null, includeUnitPosTile: Boolean = false) : TileActor? {

@@ -124,8 +124,8 @@ class MapGenerator {
             val baseOne = TileActor(baseTileData.name, baseTileData.terrain, 1, x, y)
             val baseTwo = TileActor(baseTileData.name, baseTileData.terrain, 1, width - x - 1, height - y - 1)
 
-            setTileCrystalPlayer(baseOne, 1)
-            setTileCrystalPlayer(baseTwo, 2)
+            setPlayerForCapturableTile(baseOne, 1)
+            setPlayerForCapturableTile(baseTwo, 2)
 
             playStage.addActor(baseOne)
             playStage.addActor(baseTwo)

@@ -17,7 +17,7 @@ import ctmn.petals.actors.actions.RepeatAction
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.ai.EasyAiDuelBot
 import ctmn.petals.editor.isOutdatedVersion
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.map.*
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.multiplayer.HostPlayScreen
@@ -140,7 +140,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 if (hasFreeSlot) {
                     // if player is reconnecting
                     val slot = playerSlots.firstOrNull { it.player?.clientId == client.clientId }?.also { slot ->
-                        slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId)
+                        val playerId = slot.player?.id ?: (freePlayerId - 1)
+                        slot.player = Player("Player${"ABCDEFGH"[playerId - 1]}", playerId, playerId)
                         slot.player!!.clientId = client.clientId
 
                         slot.button.color.a = 1f    // lost connection
@@ -627,7 +628,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 if (label.labelName == "player") {
                     val id = label.data["id"].toInt()
 
-                    playerSlots.get(id - 1).label = label
+                    playerSlots.get(id).label = label
                 }
             }
         } else {
@@ -638,7 +639,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         playerSlots.forEachIndexed { index, slot ->
             slot.player?.let {
-                mapPreview.changePlayerMark(it, index + 1)
+                mapPreview.changePlayerMark(it, index)
             }
         }
 
@@ -694,7 +695,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 field = value
 
                 if (player != null)
-                    value?.data?.put("player_id", player!!.id.toString())
+                    mapPreview.map?.labels?.filter { it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(this).toString() }
+                        ?.forEach { it.data.put("player_id", player!!.id.toString()) }
             }
 
         val localPlayerMarkImage = VisUI.getSkin().getDrawable("portraits/local_player")
@@ -718,17 +720,21 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
                     removePlayerButton.isVisible = value != localPlayer && isHost
 
-                    mapPreview.changePlayerMark(value, playerSlots.indexOf(this, false) + 1)
+                    mapPreview.changePlayerMark(value, playerSlots.indexOf(this, false))
 
-                    label?.data?.put("player_id", value.id.toString())
+                    mapPreview.map?.labels?.filter { it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(this).toString() }
+                        ?.forEach { it.data.put("player_id", value.id.toString()) }
+                    //label?.data?.put("player_id", value.id.toString())
                 } else {
                     button.style.imageUp = null
 
                     removePlayerButton.isVisible = false
 
-                    mapPreview.changePlayerMark(null, playerSlots.indexOf(this, false) + 1)
+                    mapPreview.changePlayerMark(null, playerSlots.indexOf(this, false))
 
-                    label?.data?.removeKey("player_id")
+                    mapPreview.map?.labels?.filter { it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(this).toString() }
+                        ?.forEach { it.data.removeKey("player_id") }
+                    //label?.data?.removeKey("player_id")
                 }
 
                 isLocalPlayer = value == localPlayer

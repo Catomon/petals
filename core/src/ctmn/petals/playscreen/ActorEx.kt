@@ -7,6 +7,7 @@ import ctmn.petals.actors.actions.OneAction
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.unit.cUnit
 
@@ -19,6 +20,7 @@ val Actor.selfName: String get() {
     return when(this) {
         is UnitActor -> cUnit.name
         is TileActor -> tileName
+        is LabelActor -> labelName
         else -> name.split("@")[0]
     }
 }

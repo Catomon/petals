@@ -2,7 +2,7 @@ package ctmn.petals.utils
 
 import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.assets
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playscreen.playStage
 import ctmn.petals.tile.TileActor

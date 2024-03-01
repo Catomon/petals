@@ -12,9 +12,8 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisImageButton
 import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.assets
-import ctmn.petals.editor.EDITOR_VERSION_UNSPECIFIED
 import ctmn.petals.editor.isOutdatedVersion
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.map.*
 import ctmn.petals.player.Player
 import ctmn.petals.tile.Terrain

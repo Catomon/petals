@@ -1,7 +1,7 @@
 package ctmn.petals.story.alissa.scenarios
 
 import ctmn.petals.ai.SimpleAIBot
-import ctmn.petals.gameactors.label.LabelActor
+import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
