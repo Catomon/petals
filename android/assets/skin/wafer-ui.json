@@ -316,10 +316,15 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 		font: font
 		focusBorder: layers_border
 	}
-	button_b: {
-		down: button_b_pressed
-		up: button_b
-		disabled: button_b_disabled
+	normal: {
+		down: button_pressed
+		up: button
+		disabled: button_disabled
+		font: font_8
+		fontColor: white
+		downFontColor: light-gray
+		pressedOffsetY: -1
+		focusBorder: button_border
 	}
 	default: {
 		down: button_a_pressed
@@ -526,11 +531,13 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		down: remove_button_pressed
 		up: remove_button
 		focusBorder: image_button_border
+		disabled: remove_button_disabled
 	}
 	edit: {
 		down: edit_button_pressed
 		up: edit_button
 		focusBorder: image_button_border
+		disabled: edit_button_disabled
 	}
 	change: {
 		down: change_button_pressed

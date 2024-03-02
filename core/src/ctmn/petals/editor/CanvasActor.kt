@@ -4,9 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Group
+import com.badlogic.gdx.scenes.scene2d.Stage
 import ctmn.petals.utils.setPositionByCenter
 
 class CanvasActor(name: String, val sprite: Sprite = Sprite()) : Actor() {
+
+    val canvasStage: CanvasStage? get() = stage as CanvasStage?
 
     var layer = 1
 
@@ -50,5 +53,35 @@ class CanvasActor(name: String, val sprite: Sprite = Sprite()) : Actor() {
         if (parent != null) {
             layer = parent.name.toIntOrNull() ?: 1
         }
+    }
+
+    override fun setStage(stage: Stage?) {
+        super.setStage(stage)
+
+        canvasStage?.contentChanged = true
+    }
+
+    override fun positionChanged() {
+        super.positionChanged()
+
+        canvasStage?.contentChanged = true
+    }
+
+    override fun sizeChanged() {
+        super.sizeChanged()
+
+        canvasStage?.contentChanged = true
+    }
+
+    override fun scaleChanged() {
+        super.scaleChanged()
+
+        canvasStage?.contentChanged = true
+    }
+
+    override fun rotationChanged() {
+        super.rotationChanged()
+
+        canvasStage?.contentChanged = true
     }
 }

@@ -62,19 +62,41 @@ fun CanvasActor.toTileSave(): TileSave {
 val MapSave.isOutdatedVersion get() = version == null || version < MAP_MIN_VERSION
 
 class Saver(
-    var fileName: String,
+    fileName: String = "",
     var fileExtension: String = MAP_FILE_EXTENSION,
     var folder: String = MAPS_FOLDER_PATH,
 ) {
 
-    val fileNameWithExtension get() = "$fileName.$fileExtension"
+    var fileName: String = fileName
+        set(name) {
+            field = makeValidFileName(name)
+        }
+
+    private val fileNameWithExtension get() = "$fileName.$fileExtension"
     private val fileHandle get() = Gdx.files.local("$folder/$fileNameWithExtension")
 
     fun exists() = fileHandle.exists()
 
     @Throws(GdxRuntimeException::class)
     fun saveMap(mapSave: MapSave) {
-        if (mapSave.name.isEmpty()) mapSave.name = fileName
+        if (fileName.isEmpty()) {
+            if (mapSave.name.isNotEmpty())
+                fileName = mapSave.name
+            else
+                throw IllegalStateException("File/Map name should not be empty")
+        } else {
+            if (mapSave.name.isEmpty()) mapSave.name = fileName
+        }
+
+        var num = 1
+        while (exists()) {
+            num++
+            if (fileName[fileName.length - 1].isDigit() && fileName[fileName.length - 2] == '_')
+                fileName = fileName.substring(0, fileName.length - 2)
+
+            fileName += "_$num"
+        }
+
         val mapSaveJson = mapSave.toGson()
         fileHandle.writeString(mapSaveJson, false)
     }

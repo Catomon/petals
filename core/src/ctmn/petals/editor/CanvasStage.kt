@@ -35,6 +35,8 @@ class CanvasStage(
 
     private val sizeLabel = VisLabel("0")
 
+    var contentChanged = false
+
     override fun draw() {
         super.draw()
 
