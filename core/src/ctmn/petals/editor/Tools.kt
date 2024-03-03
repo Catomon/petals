@@ -56,6 +56,8 @@ abstract class Tool(val name: String) : InputListener() {
     protected val pointer1 = Vector2()
     protected val pointer2 = Vector2()
 
+    protected val tempVector = Vector2()
+
     fun setToolContext(tools: Tools, canvas: CanvasStage) {
         _tools = tools
         _canvas = canvas
@@ -129,7 +131,10 @@ class Pencil : Tool("pencil") {
     fun draw(x: Float, y: Float) {
         if (x < 0 || y < 0) return
 
-        val hitActor = canvas.hit(x, y, false)
+        val hitActor = canvas.getCanvasActors().firstOrNull {
+            it.stageToLocalCoordinates(tempVector.set(x, y))
+            it.hit(tempVector.x, tempVector.y, false) != null && it.layer == layer
+        }
 
         if (hitActor is CanvasActor) {
             if (!overlappingEnabled && hitActor.layer == layer)

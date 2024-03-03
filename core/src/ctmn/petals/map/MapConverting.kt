@@ -113,15 +113,13 @@ fun createMapFromJson(json: String) = MapConverted(fromGson(json, MapSave::class
 
 fun loadMap(fileName: String): MapConverted {
     val paths = listOf(
-        Gdx.files.internal("maps/$fileName.map"),
-        Gdx.files.internal("maps/custom/$fileName.map"),
         Gdx.files.internal("maps/$fileName.ptmap"),
-        Gdx.files.internal("maps/custom/$fileName.ptmap"),
+        Gdx.files.internal("maps/default/$fileName.ptmap"),
 
-        Gdx.files.local("maps/$fileName.map"),
-        Gdx.files.local("maps/custom/$fileName.map"),
         Gdx.files.local("maps/$fileName.ptmap"),
         Gdx.files.local("maps/custom/$fileName.ptmap"),
+        Gdx.files.local("maps/default/$fileName.ptmap"),
+        Gdx.files.local("maps/shared/$fileName.ptmap"),
     )
 
     val existingPath =

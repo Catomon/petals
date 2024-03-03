@@ -78,7 +78,7 @@ class Saver(
     fun exists() = fileHandle.exists()
 
     @Throws(GdxRuntimeException::class)
-    fun saveMap(mapSave: MapSave) {
+    fun saveMap(mapSave: MapSave, override: Boolean = false) {
         if (fileName.isEmpty()) {
             if (mapSave.name.isNotEmpty())
                 fileName = mapSave.name
@@ -88,13 +88,15 @@ class Saver(
             if (mapSave.name.isEmpty()) mapSave.name = fileName
         }
 
-        var num = 1
-        while (exists()) {
-            num++
-            if (fileName[fileName.length - 1].isDigit() && fileName[fileName.length - 2] == '_')
-                fileName = fileName.substring(0, fileName.length - 2)
+        if (!override) {
+            var num = 1
+            while (exists()) {
+                num++
+                if (fileName[fileName.length - 1].isDigit() && fileName[fileName.length - 2] == '_')
+                    fileName = fileName.substring(0, fileName.length - 2)
 
-            fileName += "_$num"
+                fileName += "_$num"
+            }
         }
 
         val mapSaveJson = mapSave.toGson()

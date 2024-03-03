@@ -520,7 +520,7 @@ open class PlayScreen(
                 if (tile.isCapturable && tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id) {
                     val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
                     if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
-                        unitOnTile.captureBase(tile, turnManager.players[unitOnTile.playerId])
+                        unitOnTile.captureBase(tile, turnManager.getPlayerById(unitOnTile.playerId))
                         playStage.root.fire(BaseCapturedEvent(tile))
                     } else {
                         tile.components.remove(CapturingComponent::class.java)

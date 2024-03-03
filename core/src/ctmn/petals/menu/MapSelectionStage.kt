@@ -110,9 +110,10 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: 
         //levels.clear()
         mapsList.removeItems()
 
-        val folderLocal = Gdx.files.local(MAPS_FOLDER_PATH)
-        val folderInternal = Gdx.files.internal(MAPS_FOLDER_PATH)
-        for (file in folderLocal.list() + folderInternal.list()) {
+        val defMaps = Gdx.files.internal("maps/default")
+        val customMaps = Gdx.files.local("maps/custom")
+        val sharedMaps = Gdx.files.local("maps/shared")
+        for (file in defMaps.list() + customMaps.list() + sharedMaps.list()) {
             if (file.extension() == "map"
                 || file.extension() == MAP_FILE_EXTENSION
             ) {

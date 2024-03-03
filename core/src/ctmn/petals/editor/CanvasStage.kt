@@ -145,6 +145,14 @@ class CanvasStage(
         )
     }
 
+    fun isEmpty() = getCanvasActors().isEmpty
+
+    fun clearCanvasActors() {
+        getCanvasActors().forEach { it.remove() }
+        updateBoundingRectangleSize()
+        contentChanged = true
+    }
+
     /** Changes layers visibility.
      * @param layerId If == null, all visible */
     fun changeLayersVisible(layerId: Int? = null) {

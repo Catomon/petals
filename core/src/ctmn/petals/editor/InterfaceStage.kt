@@ -82,12 +82,24 @@ class InterfaceStage(
 //    }
 
     private var mapName = ""
-    private val mapsButton = newTextButton("Map").addClickListener {
+    private val mapsButton = newTextButton("Maps").addClickListener {
         root.findActor<MapsWindow>(MapsWindow::class.simpleName)?.remove()
         addActor(MapsWindow().also {
             it.name = MapsWindow::class.simpleName
             it.centerWindow()
         })
+    }
+
+    private val clearButton = newTextButton("Clear").addClickListener {
+        if (canvas.isEmpty()) return@addClickListener
+
+        val clear = {
+            canvas.clearCanvasActors()
+        }
+        if (canvas.contentChanged)
+            addNotifyWindow("You have unsaved data, clear canvas anyway?", "Clear Canvas", clear, true)
+        else
+            clear()
     }
 
     private val exitButton = newTextButton("X").addClickListener {
@@ -120,6 +132,7 @@ class InterfaceStage(
         mainTable.add().expandX()
         mainTable.add(VisTable().apply {
             add(mapsButton)
+            add(clearButton)
             add(exitButton)
         }).align(Align.topRight)
         mainTable.row().expandY()
@@ -255,47 +268,27 @@ class InterfaceStage(
             with(this.actor as VisTable) {
                 clear()
 
-                when (arr) {
-                    horizontal -> {
-                        setScrollingDisabled(false, true)
-                        width = tableWidth
+                width = tableWidth
 
-                        val maxInRow = actorsPackage.canvasActors.size / itemsInRow + 1
-                        var currentInRow = 0
-                        for (canvasActor in actorsPackage.canvasActors) {
-                            val item = Item(canvasActor)
-                            item.name = canvasActor.name
-                            item.userObject = canvasActor
+                val maxInRow = if (arr == horizontal) {
+                    setScrollingDisabled(false, true)
+                    actorsPackage.canvasActors.size / itemsInRow + 1
+                } else {
+                    setScrollingDisabled(true, false)
+                    itemsInRow
+                }
+                var currentInRow = 0
+                for (canvasActor in actorsPackage.canvasActors) {
+                    val item = Item(canvasActor)
+                    item.name = canvasActor.name
+                    item.userObject = canvasActor
 
-                            add(item).size(itemSize).pad(4f)
-                            currentInRow++
+                    add(item).size(itemSize).pad(4f)
+                    currentInRow++
 
-                            if (currentInRow >= maxInRow) {
-                                row()
-                                currentInRow = 0
-                            }
-                        }
-                    }
-
-                    vertical -> {
-                        setScrollingDisabled(true, false)
-                        width = tableWidth
-
-                        val maxInRow = itemsInRow
-                        var currentInRow = 0
-                        for (canvasActor in actorsPackage.canvasActors) {
-                            val item = Item(canvasActor)
-                            item.name = canvasActor.name
-                            item.userObject = canvasActor
-
-                            add(item).size(itemSize).pad(4f)
-                            currentInRow++
-
-                            if (currentInRow >= maxInRow) {
-                                row()
-                                currentInRow = 0
-                            }
-                        }
+                    if (currentInRow >= maxInRow) {
+                        row()
+                        currentInRow = 0
                     }
                 }
             }
@@ -415,7 +408,7 @@ class InterfaceStage(
 //                it.extra["credits_per_base"] = 100 //TODO extras edit
 //                it.extra["credits_per_cluster"] = 100 //TODO extras edit
 
-                })
+                }, override = true)
 
                 mapName = mapNameField.text
                 canvas.contentChanged = false
@@ -442,7 +435,7 @@ class InterfaceStage(
             }
 
             val load = {
-                canvas.getCanvasActors().forEach { it.remove() }
+                canvas.clearCanvasActors()
                 mapSave.layers.forEach { layerSave ->
                     layerSave.actors.forEach { tileSave ->
                         canvas.addActor(
@@ -542,12 +535,16 @@ class InterfaceStage(
                     add(deleteButton(mapItem).also {
                         it.isDisabled = mapItem.type == DEFAULT
                     })
-                    add(newTextButton(mapItem.fileHandle.nameWithoutExtension(), "normal").apply {
-                        isDisabled = mapItem.mapSave.isOutdatedVersion
-                        addChangeListener {
-                            //mapPreview.setPreview(createMapFromJson(mapItem.fileHandle.readString()))
+                    add(
+                        newTextButton(
+                            if (mapItem.mapSave.name.isNotEmpty()) mapItem.mapSave.name else mapItem.fileHandle.nameWithoutExtension(),
+                            "normal"
+                        ).apply {
+                            isDisabled = mapItem.mapSave.isOutdatedVersion
+                            addChangeListener {
+                                //mapPreview.setPreview(createMapFromJson(mapItem.fileHandle.readString()))
+                            }
                         }
-                    }
                     ).width(260f)
                     add(loadButton(mapItem))
                 })
