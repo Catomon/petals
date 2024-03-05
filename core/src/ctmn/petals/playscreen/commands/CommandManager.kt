@@ -43,8 +43,10 @@ class CommandManager(val playScreen: PlayScreen) {
     }
 
     fun queueCommand(command: Command, playerId: Int? = null) : Boolean {
-//        if (!command.canExecute(playScreen))
-//            return false
+        if (!command.canExecute(playScreen)) {
+            Gdx.app.error("CommandManager.queueCommand", "Command cannot be executed: $command")
+            return false
+        }
 
         if (playerId != null)
             command.playerId = playerId
