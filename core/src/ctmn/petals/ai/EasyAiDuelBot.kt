@@ -9,11 +9,11 @@ import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.SlimeHuge
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.player.cost
 import ctmn.petals.player.getSpeciesUnits
 import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.components.PlayerIdComponent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.*
@@ -37,15 +37,20 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
 
             add(unit.selfName to amount)
         }
+    }
 
-//        add(UnitIds.CATAPULT to 1)
-//        add(UnitIds.CROSSBOWMAN to 1)
-//        add(UnitIds.KNIGHT to 1)
-//        add(UnitIds.AXEMAN to 1)
-//        add(UnitIds.HORSEMAN to 1)
-//        add(UnitIds.BOWMAN to 1)
-//        add(UnitIds.SW0RDMAN to 2)
-//        add(UnitIds.SPEARMAN to 2)
+    private val buyPriority2 = Array<Pair<String, Int>>().apply {
+        speciesUnits.forEach { unit ->
+            val amount = when (unit.cShop!!.price) {
+                100 -> 3
+                150 -> 3
+                1000 -> 2
+                1200 -> 99
+                else -> 2
+            }
+
+            add(unit.selfName to amount)
+        }
     }
 
     private val idleTime = 0.5f
@@ -161,7 +166,7 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         var baseX: Int = -999
         var baseY: Int = -999
         for (tile in playScreen.playStage.getTiles()) {
-            if (tile.terrain == Terrain.base) {
+            if (tile.terrain == TerrainNames.base) {
                 if (tile.cPlayerId?.playerId == playerID) {
                     if (tile.isOccupied)
                         continue
@@ -205,12 +210,12 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         if (unitToBuy.isEmpty()) {
             if (unitsToBuy.isEmpty) {
                 unitToBuy = speciesUnits.first().selfName
-                val unitsToBuy = Array<String>()
-                for ((name, count) in buyPriority) {
-                    if (howMuchOfUnits(name, playScreen.playStage.getUnitsOfPlayer(player)) < count * 2)
+                for ((name, count) in buyPriority2) {
+                    if (howMuchOfUnits(name, playScreen.playStage.getUnitsOfPlayer(player)) < count)
                         unitsToBuy.add(name)
                 }
-            } else
+            }
+            if (!unitsToBuy.isEmpty)
                 unitToBuy = unitsToBuy.last()
         }
 

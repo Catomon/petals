@@ -1,12 +1,12 @@
 package ctmn.petals.menu
 
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisSelectBox
+import com.kotcrab.vis.ui.widget.VisSlider
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.*
 import ctmn.petals.screens.MenuScreen
@@ -37,6 +37,9 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
     private val languageSelectBox = LanguageSelectBox()
     private var langLast = GamePref.locale
     private val langChanged get() = langLast != languageSelectBox.selected.second
+
+    private val musicSlider = VisSlider(0f, 1f, 0.1f, false)
+    private val soundSlider = VisSlider(0f, 1f, 0.1f, false)
 
     init {
         addEventListeners()
@@ -71,11 +74,24 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
                     add().expandX()
                     add(targetFpsSelectBox).right()
                 }).left().fillX()
-
+                row()
+                add(VisTable().apply {
+                    add(VisLabel("Music"))
+                    add().expandX()
+                    add(musicSlider)
+                }).left().fillX()
+                row()
+                add(VisTable().apply {
+                    add(VisLabel("Sound"))
+                    add().expandX()
+                    add(soundSlider)
+                }).left().fillX()
                 row()
                 add(showAttachRangeCB).left()
                 row()
-            })).expandY()
+            }).apply {
+                setScrollingDisabled(true, false)
+            }).expandY()
 
             row()
 
@@ -114,6 +130,9 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
                         if (it.second == GamePref.locale)
                             languageSelectBox.selected = it
                     }
+
+                    soundSlider.setValue(GamePref.soundVolume)
+                    musicSlider.setValue(GamePref.musicVolume)
                 }
 
                 is ScreenSizeChangedEvent -> {
@@ -133,6 +152,8 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
         GamePref.targetFps = targetFpsSelectBox.selected
         GamePref.drawUnitAttackRange = showAttachRangeCB.isChecked
         GamePref.locale = languageSelectBox.selected.second
+        GamePref.soundVolume = soundSlider.value
+        GamePref.musicVolume = musicSlider.value
         GamePref.save()
 
         updateAppConfig()

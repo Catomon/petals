@@ -6,7 +6,7 @@ import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.assets
 import ctmn.petals.playscreen.gui.PlayGUIStage
-import ctmn.petals.unit.cTerrainBuff
+import ctmn.petals.unit.cTerrainProps
 import ctmn.petals.utils.TilePosition
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.tiledY
@@ -58,10 +58,10 @@ class TilePanel(val guiStage: PlayGUIStage) : VisTable() {
             tileIconDrawable.region = tile.sprite
             tileIcon.drawable = tileIconDrawable
 
-            val terrainBuff = selectedUnit.cTerrainBuff?.get(tile.terrain) ?: return
+            val terrainBuff = selectedUnit.cTerrainProps?.get(tile.terrain) ?: return
 
-            atk.setText(terrainBuff.first)
-            def.setText(terrainBuff.second)
+            atk.setText(terrainBuff.attackBonus)
+            def.setText(terrainBuff.defenseBonus)
         }
     }
 }

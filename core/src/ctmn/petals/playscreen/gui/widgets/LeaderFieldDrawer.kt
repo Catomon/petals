@@ -98,7 +98,7 @@ class LeaderFieldDrawer(private val guiStage: PlayGUIStage) : Actor() {
     }
 
     private fun makeForRange(range: Int, x: Int, y: Int, engine: PlayStage) {
-        makeForMatrix(engine.getMovementGrid(range, x, y, TerrainCosts.ability), engine)
+        makeForMatrix(engine.getMovementGrid(range, x, y, TerrainPropsPack.ability), engine)
     }
 
     private fun makeForMatrix(matrix: kotlin.Array<IntArray>, engine: PlayStage) {

@@ -1,7 +1,6 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.unit.TerrainBuffs
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_SWORD
@@ -31,8 +30,7 @@ class FairySword : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent(TerrainCosts.foot))
-        add(TerrainBuffComponent(TerrainBuffs.foot))
+        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.SLIME] = Pair(10, 0)
             bonuses["slime_ling"] = Pair(10, 0)

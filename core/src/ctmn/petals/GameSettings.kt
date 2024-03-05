@@ -45,21 +45,33 @@ object GamePref {
         set(value) { prefs.putString(LOCALE, value) }
 
     var targetFps: Int
-        get() = prefs.getInteger("target_fps") ?: 60
+        get() = prefs.getInteger("target_fps", 60)
         set(value) {
             prefs.putInteger("target_fps", value)
         }
 
     var vSync: Boolean
-        get() = prefs.getBoolean("vSync") ?: true
+        get() = prefs.getBoolean("vSync", true)
         set(value) {
             prefs.putBoolean("vSync", value)
         }
 
     var fullscreen: Boolean
-        get() = prefs.getBoolean("fullscreen") ?: true
+        get() = prefs.getBoolean("fullscreen", true)
         set(value) {
             prefs.putBoolean("fullscreen", value)
+        }
+
+    var soundVolume: Float
+        get() = prefs.getFloat("sound_volume", 0.75f)
+        set(value) {
+            prefs.putFloat("sound_volume", value)
+        }
+
+    var musicVolume: Float
+        get() = prefs.getFloat("music_volume", 0.50f)
+        set(value) {
+            prefs.putFloat("music_volume", value)
         }
 
     var drawUnitAttackRange: Boolean?
@@ -69,24 +81,22 @@ object GamePref {
             prefs.putBoolean(DRAW_UNIT_ATK_RANGE, value)
         }
 
-    var showAiGui: Boolean?
+    var showAiGui: Boolean
         get() = prefs.getBoolean(SHOW_AI_GUI)
         set(value) {
-            if (value == null) throw IllegalArgumentException()
             prefs.putBoolean(SHOW_AI_GUI, value)
         }
 
-    var player: UserSave?
+    var player: UserSave
         get() {
             return try {
                 fromGson(decryptData(prefs.getString("player"), generateSecretKey("cringe")), UserSave::class.java)
             } catch (e: Exception) {
                 e.printStackTrace()
-                null
+                UserSave()
             }
         }
         set(value) {
-            if (value == null) throw IllegalArgumentException()
             prefs.putString("player", encryptData(value.toGson(), generateSecretKey("cringe")))
         }
 

@@ -16,15 +16,15 @@ data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: 
         const val PINK = 7
         const val BROWN = 8
 
-        fun colorById(id: Int) : Color {
+        fun colorById(id: Int) : Color? {
             return when (id) {
                 NONE -> Color.WHITE
-                BLUE -> Color.BLUE
+                BLUE -> Color.SKY
                 RED -> Color.RED
                 YELLOW -> Color.YELLOW
                 PURPLE -> Color.PURPLE
                 GREEN -> Color.GREEN
-                ORANGE -> Color.BLACK
+                ORANGE -> Color.ORANGE
                 PINK -> Color.PINK
                 BROWN -> Color.BROWN
                 else -> Color.WHITE

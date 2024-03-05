@@ -85,7 +85,7 @@ open class TileActor(
             val animation = RegionAnimation(0.4f, textures)
             add(TileViewComponent(Sprite(animation.currentFrame), animation))
         } else {
-            if (terrain != Terrain.roads) {
+            if (terrain != TerrainNames.roads) {
                 fun findRegAndAdd(suffix: String) {
                     assets.textureAtlas.findRegion("tiles/${terrain}/" + nameNoSuffix + suffix)?.let {
                         textures.add(it)
@@ -192,7 +192,7 @@ open class TileActor(
         if (tileViewComponent != null) {
             sprite.setPositionByCenter(x + TILE_SIZE / 2, y + TILE_SIZE / 2)
 
-            if (terrain == Terrain.forest) {
+            if (terrain == TerrainNames.forest) {
                 sprite.x += Random.nextInt(-2, 2)
                 sprite.y += Random.nextInt(-2, 2)
             }

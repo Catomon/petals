@@ -2,7 +2,7 @@ package ctmn.petals.playscreen.gui.widgets
 
 import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.playscreen.gui.PlayGUIStage
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.sprite
 import ctmn.petals.utils.*
 import com.badlogic.gdx.graphics.Color
@@ -104,7 +104,7 @@ class BorderDrawer(color: Color?  = null, val guiStage: PlayGUIStage) : Actor() 
     fun makeForRange(range: Int, x: Int, y: Int, stage: PlayStage) {
         setPosition(x.unTiled(), y.unTiled())
 
-        makeForMatrix(stage.getMovementGrid(range, x, y, TerrainCosts.ability), stage)
+        makeForMatrix(stage.getMovementGrid(range, x, y, TerrainPropsPack.ability), stage)
     }
 
     fun makeForMatrix(matrix: kotlin.Array<IntArray>, stage: PlayStage) {

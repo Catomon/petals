@@ -11,8 +11,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.google.gson.JsonObject
 import ctmn.petals.effects.Animations
+import ctmn.petals.newPlaySprite
+import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playstage.GameActor
 import ctmn.petals.playscreen.selfName
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.utils.*
 import ctmn.petals.utils.serialization.Jsonable
 import java.util.*
@@ -40,18 +43,19 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             this.add(LevelComponent())
 
         this.add(BuffsComponent())
-        this.add(TerrainCostComponent(TerrainCosts.foot))
-        this.add(TerrainBuffComponent(TerrainBuffs.foot))
+        this.add(TerrainPropComponent(TerrainPropsPack.foot))
+        this.add(TerrainPropComponent(TerrainPropsPack.foot))
         this.add(MatchUpBonusComponent())
     }
 
-    // I believe it should be called after setting up actor's playerID
+    // should be called after setting up actor's playerID
     open fun initView(assets: Assets) {
-        var regions = assets.textureAtlas.findRegions("units/$teamColorName/${selfName.toLowerCase(Locale.ROOT)}")
+        var regions =
+            assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/${selfName.toLowerCase(Locale.ROOT)}")
         if (regions.isEmpty) regions = assets.textureAtlas.findRegions("units/${selfName.toLowerCase(Locale.ROOT)}")
         if (regions.isEmpty) {
             regions.add(assets.textureAtlas.findRegion("units/unit"))
-            Gdx.app.log("UnitActor.initView", "Unit textures not found: units/$teamColorName/$selfName")
+            Gdx.app.log("UnitActor.initView", "Unit textures not found: units/${playerColorName(playerId)}/$selfName")
         }
         //  if (regions.isEmpty) throw RuntimeException("Unit textures not found: $name")
 
@@ -86,7 +90,10 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         return super.add(component)
     }
 
-    fun setAnimation(animation: RegionAnimation?, duration: Float = animation?.animationDuration ?: defaultAnimation.animationDuration) {
+    fun setAnimation(
+        animation: RegionAnimation?,
+        duration: Float = animation?.animationDuration ?: defaultAnimation.animationDuration,
+    ) {
         if (viewComponent !is AnimationViewComponent)
             return
         val viewComponent = viewComponent as AnimationViewComponent
@@ -102,7 +109,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             sprite?.color = Color.WHITE.cpy()
     }
 
-    override fun toJsonObject() : JsonObject {
+    override fun toJsonObject(): JsonObject {
         val unitJsonObject = JsonObject()
 
         unitJsonObject.addProperty("name", cUnit.name)
@@ -111,8 +118,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         for (component in components.components) {
             if (component is ViewComponent) continue
             if (component is MatchUpBonusComponent) continue
-            if (component is TerrainCostComponent) continue
-            if (component is TerrainBuffComponent) continue
+            if (component is TerrainPropComponent) continue
+            if (component is TerrainPropComponent) continue
             if (component is ShopComponent) continue
 
             val json = gson.toJsonTree(component)
@@ -156,17 +163,47 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         viewComponent.update(delta)
     }
 
+    private var isWater = false
+    private var waterSprite = newPlaySprite(Animations.waterWaves.currentFrame)
+
     override fun draw(batch: Batch, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
 
-        sprite?.setAlpha(color.a)
+        val sprite = sprite!!
+
+        sprite.setAlpha(color.a)
+
+        if (isWater) {
+            sprite.regionHeight -= 48
+            sprite.regionY -= 0
+
+            viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2 + 5)
+
+            waterSprite.setPosition(sprite.x, sprite.y - 7 - 4)
+        } else {
+            viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2)
+        }
+
+        sprite.setSize(sprite.width, (sprite.regionHeight / 4).toFloat())
+
         viewComponent.draw(batch as SpriteBatch)
+
+        if (isWater) {
+            waterSprite.setRegion(Animations.waterWaves.currentFrame)
+            waterSprite.draw(batch)
+        }
 
         val barrier = cBarrierMapper.get(components)
         if (barrier != null) {
             val barrierFrame = Animations.barrier.currentFrame
             val doubleTileSize = Const.TILE_SIZE * 2f
-            batch.draw(barrierFrame, centerX - doubleTileSize / 2, centerY - doubleTileSize / 2, doubleTileSize, doubleTileSize)
+            batch.draw(
+                barrierFrame,
+                centerX - doubleTileSize / 2,
+                centerY - doubleTileSize / 2,
+                doubleTileSize,
+                doubleTileSize
+            )
         }
     }
 
@@ -174,6 +211,12 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         setPosition((x * Const.TILE_SIZE).toFloat(), (y * Const.TILE_SIZE).toFloat())
         tiledX = x
         tiledY = y
+
+        if (!::viewComponent.isInitialized) return
+
+        playStageOrNull?.let { playStage ->
+            isWater = playStage.getTile(x, y)?.terrain == TerrainNames.water
+        }
     }
 
     override fun positionChanged() {
@@ -187,14 +230,16 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         return "UnitActor[nm: $name, x: ${cUnit.tiledX}, y: ${cUnit.tiledY}, pl: ${cUnit.playerID}, tm: ${cUnit.teamID}]"
     }
 
-    fun makeCopy() : UnitActor {
+    fun makeCopy(): UnitActor {
         val unitCopy = this::class.constructors.first().call()
         unitCopy.name = this.name
         for (component in components.components) {
-            unitCopy.add(when (component) {
-                is CopyableComponent -> component.makeCopy()
-                else -> continue
-            })
+            unitCopy.add(
+                when (component) {
+                    is CopyableComponent -> component.makeCopy()
+                    else -> continue
+                }
+            )
         }
 
         return unitCopy

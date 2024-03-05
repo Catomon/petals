@@ -1,7 +1,6 @@
 package ctmn.petals.widgets
 
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
@@ -20,7 +19,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.Const
-import ctmn.petals.assets
+import ctmn.petals.AudioManager
 import ctmn.petals.utils.addClickListener
 
 // widgets creation functions
@@ -143,6 +142,6 @@ fun <T : Actor> T.addChangeListener(listener: (actor: T) -> Unit): T {
     return this as T
 }
 
-fun <T : Actor> T.addClickSound(sound: Sound = assets.getSound("click.ogg")): T {
-    return addClickListener { sound.play() } as T
+fun <T : Actor> T.addClickSound(soundName: String = "click.ogg"): T {
+    return addClickListener { AudioManager.sound(soundName) } as T
 }

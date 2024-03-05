@@ -16,9 +16,6 @@ class AnimationViewComponent(var animation: RegionAnimation) : ViewComponent() {
 
     override fun update(delta: Float) {
         animation.update(delta)
-    }
-
-    override fun draw(batch: SpriteBatch) {
 
         if (isAnimate) {
             sprite.setRegion(animation.currentFrame)
@@ -31,6 +28,9 @@ class AnimationViewComponent(var animation: RegionAnimation) : ViewComponent() {
         }
 
         sprite.setFlip(flipX, flipY)
+    }
+
+    override fun draw(batch: SpriteBatch) {
         sprite.draw(batch)
     }
 

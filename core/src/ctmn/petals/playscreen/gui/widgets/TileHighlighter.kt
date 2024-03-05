@@ -3,9 +3,9 @@ package ctmn.petals.playscreen.gui.widgets
 import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.tile.isOccupied
-import ctmn.petals.tile.Terrain
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
@@ -41,7 +41,7 @@ class TileHighlighter(val gui: PlayGUIStage) : Actor() {
     fun highlightSummoning(unitActor: UnitActor, range: Int) {
         if (unitActor.stage == null) throw IllegalStateException("$unitActor is not on the stage.")
 
-        val matrix = gui.playStage.getMovementGrid(range, unitActor.tiledX, unitActor.tiledY, TerrainCosts.ability)
+        val matrix = gui.playStage.getMovementGrid(range, unitActor.tiledX, unitActor.tiledY, TerrainPropsPack.ability)
         for (x in matrix.indices) {
             for (y in matrix[x].indices) {
                 if (matrix[x][y] != 0)
@@ -53,7 +53,7 @@ class TileHighlighter(val gui: PlayGUIStage) : Actor() {
         for (tilePos in tilesPos) {
             val tile = gui.playStage.getTile(tilePos.first, tilePos.second) ?: break
 
-            if (tile.terrain == Terrain.impassable || tile.isOccupied ||
+            if (tile.terrain == TerrainNames.impassable || tile.isOccupied ||
                 (tile.tiledX == unitActor.tiledX && tile.tiledY == unitActor.tiledY))
                 tilePosToRemove.add(tilePos)
         }

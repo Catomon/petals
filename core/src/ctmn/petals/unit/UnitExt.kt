@@ -53,8 +53,7 @@ val UnitActor.cFollower get() = get(FollowerComponent::class.java)
 val UnitActor.cLeader get() = get(LeaderComponent::class.java)
 val UnitActor.cMatchUp get() = get(MatchUpBonusComponent::class.java)?.bonuses
 val UnitActor.cSpriteView get() = get(SpriteViewComponent::class.java)
-val UnitActor.cTerrainBuff get() = get(TerrainBuffComponent::class.java)?.buffs
-val UnitActor.cTerrainCost get() = get(TerrainCostComponent::class.java)?.costs
+val UnitActor.cTerrainProps get() = get(TerrainPropComponent::class.java)?.props
 val UnitActor.cShop get() = get(ShopComponent::class.java)
 //val UnitActor.cSummoner get() = get(SummonerComponent::class.java)
 val UnitActor.cLevel get() = get(LevelComponent::class.java)
@@ -82,11 +81,9 @@ var UnitActor.mana get() = cAbilities!!.mana; set(value) { cAbilities!!.mana = v
 val UnitActor.allies get() = cUnit.allies;
 
 @Deprecated("Returns cTerrainCost!!.", ReplaceWith("cTerrainCost?."), DeprecationLevel.WARNING)
-val UnitActor.terrainCost get() = cTerrainCost!!
+val UnitActor.terrainCost get() = cTerrainProps!!
 @Deprecated("Returns cMatchUp!!.", ReplaceWith("cMatchUp?."), DeprecationLevel.WARNING)
 val UnitActor.matchupBonus get() = cMatchUp!!
-@Deprecated("Returns cTerrainBuff!!.", ReplaceWith("cTerrainBuff?."), DeprecationLevel.WARNING)
-val UnitActor.terrainBuff get() = cTerrainBuff!!
 
 /** @return AnimationViewComponent.sprite or SpriteViewComponent,sprite or null */
 val UnitActor.sprite: Sprite? get() =
@@ -477,10 +474,21 @@ fun UnitActor.throwAction(sourceUnit: UnitActor, throwX: Int, throwY: Int, damag
     }
 }
 
-val UnitActor.teamColorName get() = if (playerId == 1) "blue" else if (playerId == 2) "red" else ""
+fun playerColorName(playerId: Int) =
+    when (playerId) {
+        1 -> "blue"
+        2 -> "red"
+        3 -> "green"
+        4 -> "purple"
+        5 -> "yellow"
+        6 -> "orange"
+        7 -> "pink"
+        8 -> "brown"
+        else -> ""
+    }
 
 fun UnitActor.createAnimation(regionName: String, frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION) : RegionAnimation {
-    assets.textureAtlas.findRegions("units/$teamColorName/$regionName").also { teamFrames ->
+    assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/$regionName").also { teamFrames ->
         if (teamFrames.isEmpty) {
             assets.textureAtlas.findRegions("units/$regionName").also { defFrames ->
                 if (defFrames.isEmpty) {

@@ -1,7 +1,6 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.unit.TerrainBuffs
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.component.*
@@ -25,8 +24,7 @@ class AngryOwl : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent(TerrainCosts.flier))
-        add(TerrainBuffComponent(TerrainBuffs.fly))
+        add(TerrainPropComponent(TerrainPropsPack.flier))
         add(MatchUpBonusComponent())
     }
 }

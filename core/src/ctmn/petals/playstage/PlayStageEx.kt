@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM
-import ctmn.petals.tile.Terrain
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isCapturable
 import ctmn.petals.unit.UnitActor
@@ -104,7 +104,7 @@ fun PlayStage.getMapSizedGridOfZero() : KArray<IntArray> {
 
 private var moveCostMap: KArray<IntArray>? = null
 
-fun PlayStage.getTileMovementCostMatrix(terrainCosts: HashMap<String, Int>) : KArray<IntArray> {
+fun PlayStage.getTileMovementCostMatrix(terrainProps: TerrainProps) : KArray<IntArray> {
     if (moveCostMap == null || moveCostMap!!.size != tiledWidth || moveCostMap!![0].size != tiledHeight) {
         moveCostMap = KArray(tiledWidth()) { IntArray(tiledHeight()) { 0 } }
     }
@@ -112,18 +112,18 @@ fun PlayStage.getTileMovementCostMatrix(terrainCosts: HashMap<String, Int>) : KA
     val moveCostMap = moveCostMap!!
 
     for (tile in getTiles()) {
-        val terrainProp = terrainCosts[tile.terrain]
-        val movingCost: Int = terrainProp ?: 0
+        val terrainProp = terrainProps[tile.terrain]
+        val movingCost: Int = terrainProp.movingCost
         moveCostMap[tile.tiledX][tile.tiledY] = movingCost
     }
 
     // for view cost
-    val fogLayer = tileLayers.get(10)
+    val fogLayer = tileLayers.get(10) //TODO fog layer free
     if (fogLayer != null)
         for (tile in fogLayer.children) {
             tile as TileActor
-            if (tile.terrain == Terrain.fog)
-                moveCostMap[tile.tiledX][tile.tiledY] = terrainCosts[Terrain.fog] ?: 0
+            if (tile.terrain == TerrainNames.fog)
+                moveCostMap[tile.tiledX][tile.tiledY] = terrainProps[TerrainNames.fog].movingCost
         }
 
     return moveCostMap
@@ -144,7 +144,7 @@ fun PlayStage.getTileMovementCostMatrix(
     exceptTeam: Int = unitActor.teamId,
     ) : KArray<IntArray> {
 
-    val moveCostMap = getTileMovementCostMatrix(unitActor.cTerrainCost ?: TerrainCosts.foot)
+    val moveCostMap = getTileMovementCostMatrix(unitActor.cTerrainProps ?: TerrainPropsPack.foot)
 
     //count units as Impassable (999 movement cost)
     if (unitsAsImpassable) {
@@ -196,15 +196,15 @@ fun PlayStage.getMovementGrid(unitActor: UnitActor, unitsAsImpassable: Boolean =
 /** @return Two-dimensional array of Ints representing tiles available to move on
  * if array[x][y] > 0 then you can move there */
 fun PlayStage.getMovementGrid(
-        distance: Int, x: Int, y: Int,
-        terrainPropPack: HashMap<String, Int>,
-        unitsAsImpassable: Boolean = false,
-        exceptTeam: Int = -1,
-        presenceCost: Boolean = false,
-        forUnit: UnitActor? = null
+    distance: Int, x: Int, y: Int,
+    terrainPropsPack: TerrainProps,
+    unitsAsImpassable: Boolean = false,
+    exceptTeam: Int = -1,
+    presenceCost: Boolean = false,
+    forUnit: UnitActor? = null
 ) : KArray<IntArray> {
 
-    val moveCostMap: kotlin.Array<IntArray> = getTileMovementCostMatrix(terrainPropPack)
+    val moveCostMap: kotlin.Array<IntArray> = getTileMovementCostMatrix(terrainPropsPack)
 
     //count units as Impassable (999 movement cost)
     if (unitsAsImpassable) {
@@ -307,7 +307,7 @@ fun printGrid(array: KArray<IntArray>) {
 /** returns a two-dim int array with the size of the map; if a cell value is 0 then it's not visible for the [unitActor] */
 fun PlayStage.getRangeOfView(unitActor: UnitActor) : KArray<IntArray> {
     return getMovementGrid(unitActor.viewRange, unitActor.tiledX, unitActor.tiledY,
-            TerrainCosts.view)
+            TerrainPropsPack.view)
 }
 
 fun PlayStage.getLabels() : Array<LabelActor> {

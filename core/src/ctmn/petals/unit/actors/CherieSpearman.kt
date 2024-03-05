@@ -1,7 +1,6 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.unit.TerrainBuffs
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.component.*
@@ -25,8 +24,7 @@ class CherieSpearman : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent(TerrainCosts.foot))
-        add(TerrainBuffComponent(TerrainBuffs.foot))
+        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.CAVALRY] = 15 to 15
             bonuses[UnitIds.HORSEMAN] = 15 to 15

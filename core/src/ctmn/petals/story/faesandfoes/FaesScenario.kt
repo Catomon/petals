@@ -45,6 +45,7 @@ class FaesScenario : Scenario("Fae", "") {
 
         MapGenerator().generate(playStage)
 
+        playScreen.levelId = "randomly generated level"
         playScreen.levelCreated()
     }
 

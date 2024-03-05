@@ -78,7 +78,7 @@ class MapGenerator {
 
         repeat(amountPerBase) {
             val bases =
-                playStage.getTiles().filter { it.terrain == Terrain.base && it.has(PlayerIdComponent::class.java) }
+                playStage.getTiles().filter { it.terrain == TerrainNames.base && it.has(PlayerIdComponent::class.java) }
             for (baseTile in arrayOf(bases.first())) {
                 val tile = playStage.getTilesInRange(baseTile.tiledX, baseTile.tiledY, crystalPlaceRangeMax)
                     .filter {

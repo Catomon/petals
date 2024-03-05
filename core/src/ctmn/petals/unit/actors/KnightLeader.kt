@@ -1,7 +1,6 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.unit.TerrainBuffs
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.abilities.FlameAbility
 import ctmn.petals.unit.component.*
@@ -38,8 +37,7 @@ class KnightLeader : UnitActor(
                 activationRange = 1
             }
         ))
-        add(TerrainCostComponent(TerrainCosts.foot))
-        add(TerrainBuffComponent(TerrainBuffs.foot))
+        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent())
     }
 }

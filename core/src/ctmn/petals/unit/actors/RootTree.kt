@@ -24,8 +24,7 @@ class RootTree : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent(TerrainCosts.foot))
-        add(TerrainBuffComponent(TerrainBuffs.foot))
+        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.DOLL_PIKE] = Pair(0, 15)
             bonuses[UnitIds.DOLL_BOW] = Pair(0, 25)

@@ -32,8 +32,8 @@ class SlimeHuge : UnitActor(
         add(AbilitiesComponent(
             SlimeJumpAbility()
         ))
-        add(TerrainCostComponent(TerrainCosts.slime))
-        add(TerrainBuffComponent(TerrainBuffs.slime))
+        add(TerrainPropComponent(TerrainPropsPack.slime))
+        add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 2f))
         add(LeaderComponent(Random.nextInt(100000, 999999), 2, 5, 5, 4, false))

@@ -2,7 +2,7 @@ package ctmn.petals.unit.abilities
 
 import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.tile.Terrain
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.Tiles
 import ctmn.petals.tile.components.LifeTimeComponent
@@ -27,9 +27,9 @@ class FogAbility : Ability(
         val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)
 
         for (actor in actors) {
-            if (actor is TileActor && actor.terrain != Terrain.impassable) {
+            if (actor is TileActor && actor.terrain != TerrainNames.impassable) {
                 playStage.addActor(
-                    TileActor(Tiles.FOG, Terrain.fog).apply {
+                    TileActor(Tiles.FOG, TerrainNames.fog).apply {
                         tileComponent.layer = 10; setPosition(actor.tiledX, actor.tiledY)
                         add(LifeTimeComponent(lifeTime))
                     })

@@ -22,6 +22,8 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
     val batch = SpriteBatch()
 
+    private val music = AudioManager.music("optomistic_day_masteredloopable.ogg").apply { isLooping = true }
+
     private val background = ParallaxBackground(Array<MovingBackground>().apply {
         add(MovingBackground(assets.getTexture("1.png"), 1f))
         add(MovingBackground(assets.getTexture("2.png"), 2f))
@@ -75,11 +77,12 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     }
 
     override fun hide() {
-
+        music.pause()
+        music.position = 0f
     }
 
     override fun show() {
-
+        music.play()
     }
 
     override fun pause() {
@@ -111,9 +114,9 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     }
 
     override fun dispose() {
-
         menuStage.dispose()
         storySelectStage.dispose()
         batch.dispose()
+        AudioManager.disposeMusic()
     }
 }

@@ -1,11 +1,8 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.tile.Terrain
-import ctmn.petals.unit.TerrainBuffs
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.tile.TerrainNames
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds.DOLL_AXE
-import ctmn.petals.unit.UnitIds.EVIL_TREE
 import ctmn.petals.unit.abilities.UnsummonAbility
 import ctmn.petals.unit.component.*
 
@@ -30,10 +27,10 @@ class FairyHunter : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent((TerrainCosts.foot.clone() as HashMap<String, Int>).apply {
-            put(Terrain.water, 2)
+        add(TerrainPropComponent(TerrainPropsPack.foot.copy().apply {
+            put(TerrainNames.water, 2)
         }))
-        add(TerrainBuffComponent(TerrainBuffs.foot))
+        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
 
         })

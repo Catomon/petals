@@ -2,7 +2,7 @@ package ctmn.petals.unit.abilities
 
 import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.tile.Terrain
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.UnitActor
@@ -34,11 +34,11 @@ class FortressAbility : Ability(
         val oldTile = playStage.getTile(tileX, tileY) ?: return false
         val replaceTile =
             when (oldTile.terrain) {
-                Terrain.forest -> TileActor("plant_tower", Terrain.tower)
-                Terrain.grass -> TileActor("plant_wall", Terrain.walls)
-                Terrain.fallenforest -> TileActor("plant_wall", Terrain.walls)
-                Terrain.mountains -> TileActor("plant_fortress", Terrain.fortress)
-                Terrain.earthcrack -> null
+                TerrainNames.forest -> TileActor("plant_tower", TerrainNames.tower)
+                TerrainNames.grass -> TileActor("plant_wall", TerrainNames.walls)
+                TerrainNames.fallenforest -> TileActor("plant_wall", TerrainNames.walls)
+                TerrainNames.mountains -> TileActor("plant_fortress", TerrainNames.fortress)
+                TerrainNames.earthcrack -> null
                 else -> return false
             }
 

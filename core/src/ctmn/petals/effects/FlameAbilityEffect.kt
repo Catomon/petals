@@ -4,7 +4,7 @@ import ctmn.petals.Assets
 import ctmn.petals.Const
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.getMovementGrid
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.setPositionByCenter
 import ctmn.petals.utils.unTiled
@@ -31,7 +31,7 @@ class FlameAbilityEffect(val range: Int, val tileX: Int, val tileY: Int, assets:
         super.setStage(stage)
 
         if (stage is PlayStage) {
-            val matrix = stage.getMovementGrid(range, tileX, tileY, TerrainCosts.ability)
+            val matrix = stage.getMovementGrid(range, tileX, tileY, TerrainPropsPack.ability)
             for (x in matrix.indices) {
                 for (y in matrix[x].indices) {
                     if (matrix[x][y] != 0)

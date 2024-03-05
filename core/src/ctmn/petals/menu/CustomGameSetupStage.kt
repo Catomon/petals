@@ -38,6 +38,7 @@ import ctmn.petals.multiplayer.server.GameServer
 import ctmn.petals.multiplayer.toJsonMessage
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
+import ctmn.petals.player.speciesList
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.NoEnd
@@ -390,7 +391,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             val slot = playerSlots.firstOrNull { it.player == null }
 
             if (slot != null) {
-                slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId)
+                slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId).also {
+                    it.species = speciesList.random()
+                }
                 slot.isAI = true
             }
 

@@ -15,7 +15,7 @@ import ctmn.petals.story.addAliceDiedGameOverTrigger
 import ctmn.petals.story.alissa.AlissaScenario
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
-import ctmn.petals.tile.Terrain
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.Tiles
 import ctmn.petals.unit.*
@@ -125,7 +125,7 @@ class Scenario9 : AlissaScenario("Swamp", "level_9.map") {
 
             //add tree root tile at layer 2 around goblin
             for (tile in playStage.getSurroundingTiles(allyGoblin.tiledX, allyGoblin.tiledY)) {
-                tile.tileComponent.terrain = Terrain.unwalkable
+                tile.tileComponent.terrain = TerrainNames.unwalkable
 
                 playStage.getTile(tile.tiledX, tile.tiledY, 2)?.remove()
 

@@ -1,18 +1,21 @@
 package ctmn.petals.tile
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ctmn.petals.player.Player
 import ctmn.petals.player.fairy
 import ctmn.petals.player.goblin
+import ctmn.petals.player.speciesList
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.tiledDst
 import ctmn.petals.tile.components.*
+import ctmn.petals.unit.playerColorName
 
 /** @returns true if tile is occupied by a unit */
 
-val TileActor.isCapturable get() = terrain == Terrain.base || terrain == Terrain.crystals
-val TileActor.isBase get() = terrain == Terrain.base
-val TileActor.isCrystal get() = terrain == Terrain.crystals
+val TileActor.isCapturable get() = terrain == TerrainNames.base || terrain == TerrainNames.crystals
+val TileActor.isBase get() = terrain == TerrainNames.base
+val TileActor.isCrystal get() = terrain == TerrainNames.crystals
 val TileActor.cPlayerId get() = get(PlayerIdComponent::class.java)
 val TileActor.cReplaceWith get() = get(ReplaceWithComponent::class.java)
 val TileActor.cLifeTime get() = get(LifeTimeComponent::class.java)
@@ -21,15 +24,15 @@ val TileActor.cCapturing get() = get(CapturingComponent::class.java)
 val TileActor.isOccupied get() = (stage as PlayStage).getUnit(tiledX, tiledY) != null
 
 fun TileActor.isPassableAndFree(): Boolean {
-    return !isOccupied && terrain != Terrain.impassable
+    return !isOccupied && terrain != TerrainNames.impassable
 }
 
 fun TileActor.isPassable(): Boolean {
-    return terrain != Terrain.impassable
+    return terrain != TerrainNames.impassable
 }
 
 fun TileActor.isImpassable(): Boolean {
-    return terrain == Terrain.impassable
+    return terrain == TerrainNames.impassable
 }
 
 fun TileActor.toSimpleString(): String {
@@ -73,52 +76,63 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
     else
         crystalTile.del(PlayerIdComponent::class.java)
 
+    val colorName = playerColorName(playerId)
+    val color = Player.colorById(playerId)
+
     val species = pSpecies ?: when (playerId) {
         1 -> fairy
         2 -> goblin
-        else -> goblin
+        else -> speciesList.random()
     }
 
     when (crystalTile.terrain) {
-        Terrain.base -> {
+        TerrainNames.base -> {
             if (playerId in 1..8) {
                 crystalTile.tileComponent.name = when (species) {
                     fairy -> Tiles.PIXIE_NEST
                     goblin -> Tiles.GOBLIN_DEN
-                    else -> goblin
+                    else -> speciesList.random()
                 }
             } else {
                 crystalTile.tileComponent.name = Tiles.LIFE_CRYSTAL
-                crystalTile.tileComponent.terrain = Terrain.crystals
+                crystalTile.tileComponent.terrain = TerrainNames.crystals
             }
         }
 
-        Terrain.crystals -> {
+        TerrainNames.crystals -> {
             when {
                 crystalTile.selfName.contains(Tiles.LIFE_CRYSTAL) -> {
                     crystalTile.tileComponent.name = when (species) {
                         fairy -> Tiles.PIXIE_NEST
                         goblin -> Tiles.GOBLIN_DEN
-                        else -> goblin
+                        else -> speciesList.random()
                     }
 
-                    crystalTile.tileComponent.terrain = Terrain.base
+                    crystalTile.tileComponent.terrain = TerrainNames.base
                 }
 
                 crystalTile.selfName.contains(Tiles.CRYSTAL) -> {
                     crystalTile.tileComponent.name = when (species) {
                         fairy -> Tiles.CRYSTAL_FAIRY
                         goblin -> Tiles.CRYSTAL_GOBLIN
-                        else -> goblin
+                        else -> speciesList.random()
                     }
                 }
             }
         }
     }
 
+    if (colorName.isNotEmpty()) {
+        if (crystalTile.isBase)
+            crystalTile.tileComponent.name += "_$colorName"
+    }
+
     crystalTile.initView()
 
-    if (species == fairy && playerId == 1 || species == goblin && playerId == 2) return
+    if (colorName.isNotEmpty()) {
+        if (!crystalTile.isBase)
+            crystalTile.sprite.setColor(color)
+    }
 
-    // todo player color bases
+//    if (species == fairy && playerId == 1 || species == goblin && playerId == 2) return
 }

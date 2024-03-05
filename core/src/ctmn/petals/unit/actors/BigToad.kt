@@ -22,8 +22,7 @@ class BigToad : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent(TerrainCosts.slime))
-        add(TerrainBuffComponent(TerrainBuffs.slime))
+        add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 1.5f))
     }

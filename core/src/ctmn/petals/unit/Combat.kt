@@ -24,8 +24,11 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
     var maxDMG = unit.maxDamage
 
     val tileActor = playStage?.getTile(unit.tiledX, unit.tiledY) ?: if (playStage != null) throw IllegalStateException("Tile not fount at ${unit.tiledX}:${unit.tiledY}") else null
-    val attackBuff = if (tileActor == null) 0 else unit.terrainBuff.get(tileActor.terrain)?.first ?: 0.also { Gdx.app.error(AttackCommand::class.simpleName, "A terrain buff not found for $unit at ${tileActor.terrain}") }
-    val defenseBuff = if (tileActor == null) 0 else unit.terrainBuff.get(tileActor.terrain)?.second ?: 0.also { Gdx.app.error(AttackCommand::class.simpleName, "A terrain buff not found for $unit at ${tileActor.terrain}") }
+
+    if (unit.cTerrainProps == null) Gdx.app.error(AttackCommand::class.simpleName, "Unit has not terrain props")
+
+    val attackBuff = if (tileActor == null) 0 else unit.cTerrainProps?.get(tileActor.terrain)?.attackBonus ?: 0
+    val defenseBuff = if (tileActor == null) 0 else unit.cTerrainProps?.get(tileActor.terrain)?.defenseBonus ?: 0
 
     minDMG += attackBuff
     maxDMG += attackBuff

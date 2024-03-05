@@ -2,6 +2,7 @@ package ctmn.petals
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
@@ -18,6 +19,7 @@ class Assets : AssetManager() {
 
     companion object {
         const val soundsFolderName = "sounds"
+        const val musicFolderName = "music"
 
         const val TEXTURE_ATLAS = "textures.atlas"
         const val UNITS_ATLAS = "units.atlas"
@@ -109,6 +111,8 @@ class Assets : AssetManager() {
 
     fun getSound(name: String) : Sound = get("$soundsFolderName/$name")
 
+    fun getMusic(name: String) : Music = get("$musicFolderName/$name")
+
     fun getDrawable(name: String): Drawable = VisUI.getSkin().getDrawable(name)
 
     fun generateFont(name: String = "Pixel.ttf", size: Int = 16, color: Color = Color.WHITE) : BitmapFont {
@@ -123,5 +127,45 @@ class Assets : AssetManager() {
         font.setUseIntegerPositions(false)
         generator.dispose()
         return font
+    }
+}
+
+object AudioManager {
+
+    var soundVolume = GamePref.soundVolume
+
+    var musicVolume = GamePref.musicVolume
+        set(value) {
+            field = value
+            currentMusic?.volume = value
+            currentMusic2?.volume = value
+        }
+
+    var currentMusic: Music? = null
+    var currentMusic2: Music? = null
+
+    fun music(name: String): Music {
+        if (currentMusic == null) {
+            currentMusic = Gdx.audio.newMusic(Gdx.files.internal("music/$name"))
+            currentMusic?.volume = musicVolume
+            return currentMusic!!
+        } else {
+            currentMusic2 = Gdx.audio.newMusic(Gdx.files.internal("music/$name"))
+            currentMusic2?.volume = musicVolume
+            return currentMusic2!!
+        }
+    }
+
+    fun disposeMusic() {
+        currentMusic?.dispose()
+        currentMusic2?.dispose()
+    }
+
+    fun sound(name: String): Long {
+        return sound(assets.getSound(name))
+    }
+
+    private fun sound(sound: Sound): Long {
+        return sound.play(soundVolume)
     }
 }

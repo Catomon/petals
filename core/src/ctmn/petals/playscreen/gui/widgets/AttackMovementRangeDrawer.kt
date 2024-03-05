@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Group
 import ctmn.petals.GamePref
 import ctmn.petals.playscreen.commands.AttackCommand
-import ctmn.petals.playscreen.commands.BuyUnitCommand
 import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.UnitMovedEvent
 import ctmn.petals.playscreen.events.UnitSelectedEvent
@@ -94,7 +93,7 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
                     unit.attackRange,
                     unit.tiledX,
                     unit.tiledY,
-                    TerrainCosts.clear
+                    TerrainPropsPack.clear
                 ), guiStage.playStage
             )
             if (unit.cAttack!!.attackRangeBlocked > 0)
@@ -103,7 +102,7 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
                         unit.cAttack!!.attackRangeBlocked,
                         unit.tiledX,
                         unit.tiledY,
-                        TerrainCosts.clear
+                        TerrainPropsPack.clear
                     ), guiStage.playStage
                 )
             else

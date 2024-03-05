@@ -70,8 +70,7 @@ class Alice : UnitActor(
             2,
         ))
 
-        add(TerrainCostComponent(TerrainCosts.foot))
-        add(TerrainBuffComponent(TerrainBuffs.foot))
+        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent())
     }
 

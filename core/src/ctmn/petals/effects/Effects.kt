@@ -5,6 +5,7 @@ import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.unit.UnitActor
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ctmn.petals.newPlaySprite
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
@@ -13,9 +14,11 @@ import ctmn.petals.utils.centerY
 object Animations {
 
     val barrier = RegionAnimation(0.35f, assets.textureAtlas.findRegions("effects/barrier"))
+    val waterWaves = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, assets.textureAtlas.findRegions("effects/unit_water"))
 
     fun update(delta: Float) {
         barrier.update(delta)
+        waterWaves.update(delta)
     }
 }
 

@@ -7,6 +7,7 @@ import ctmn.petals.unit.component.ShopComponent
 
 const val fairy = "fairy"
 const val goblin = "goblin"
+val speciesList = arrayOf(fairy, goblin)
 
 fun getSpeciesUnits(species: String): Array<UnitActor> {
     return when (species) {

@@ -115,7 +115,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
             if (tile.isBase && playScreen.turnManager.players.find { it.id == tile.cPlayerId?.playerId }?.teamId == playScreen.localPlayer.teamId) {
                 val castle = tile
                 val castleViewRangeMatrix = playStage.getMovementGrid(
-                    BASE_RANGE_OF_VIEW, castle.tiledX, castle.tiledY, TerrainCosts.view)
+                    BASE_RANGE_OF_VIEW, castle.tiledX, castle.tiledY, TerrainPropsPack.view)
                 for ((i, _) in maxOfView.withIndex()) {
                     for ((j, _) in maxOfView[i].withIndex()) {
                         if (castleViewRangeMatrix[i][j] > 0)

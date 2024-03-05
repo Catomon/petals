@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import ctmn.petals.newPlaySprite
-import ctmn.petals.tile.Terrain
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.UnitActor
 
 class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
@@ -195,8 +195,8 @@ class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
         }
 
         val tile = guiStage.playStage.getTile(hoveringSprite.tiledX, hoveringSprite.tiledY)
-        if (drawHoveringSprite || tile?.terrain == Terrain.base) {
-            if (tile?.terrain == Terrain.base)
+        if (drawHoveringSprite || tile?.terrain == TerrainNames.base) {
+            if (tile?.terrain == TerrainNames.base)
                 hoveringSprite.setRegion(selectTexture)
             hoveringSprite.draw(batch)
         }

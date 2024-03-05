@@ -16,7 +16,7 @@ import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.map.*
 import ctmn.petals.player.Player
-import ctmn.petals.tile.Terrain
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
 import ctmn.petals.utils.tiled
 
@@ -105,10 +105,10 @@ class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
                 if (actor is TileActor) {
                     if (drawSimpleTexture)
                         when (actor.terrain) {
-                            Terrain.grass -> sprite.color = Color.GREEN
-                            Terrain.forest -> sprite.color = Color.LIME
-                            Terrain.water -> sprite.color = Color.BLUE
-                            Terrain.mountains -> sprite.color = Color.BROWN
+                            TerrainNames.grass -> sprite.color = Color.GREEN
+                            TerrainNames.forest -> sprite.color = Color.LIME
+                            TerrainNames.water -> sprite.color = Color.BLUE
+                            TerrainNames.mountains -> sprite.color = Color.BROWN
                             else -> sprite.color = Color.GRAY
                         }
                     else sprite.setRegion(actor.sprite)

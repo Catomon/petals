@@ -1,7 +1,6 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.unit.TerrainBuffs
-import ctmn.petals.unit.TerrainCosts
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.*
 
@@ -23,8 +22,8 @@ class Slime : UnitActor(
                 1
             )
         )
-        add(TerrainCostComponent(TerrainCosts.slime))
-        add(TerrainBuffComponent(TerrainBuffs.slime))
+        add(TerrainPropComponent(TerrainPropsPack.slime))
+        add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
     }
 }

@@ -219,7 +219,8 @@ open class PlayScreen(
     open fun ready() {
         if (levelId == null) throw IllegalStateException("Level is null")
 
-        assignPlayersToSpawnPoints()
+        if (map != null)
+            assignPlayersToSpawnPoints()
 
         if (!::guiStage.isInitialized) initGui()
 
@@ -838,7 +839,7 @@ open class PlayScreen(
                 cursorTiled.x,
                 cursorTiled.y
             )
-            if (tile?.terrain == Terrain.base)
+            if (tile?.terrain == TerrainNames.base)
                 playStage.getUnitsOfPlayer(localPlayer).random().captureBase(tile)
         }
 
