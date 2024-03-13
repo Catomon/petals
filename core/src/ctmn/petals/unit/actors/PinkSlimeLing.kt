@@ -23,7 +23,6 @@ class PinkSlimeLing : UnitActor(
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.slime))
-        add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 1.5f))
     }

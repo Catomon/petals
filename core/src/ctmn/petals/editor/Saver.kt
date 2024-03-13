@@ -1,65 +1,43 @@
 package ctmn.petals.editor
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.scenes.scene2d.Group
+import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.GdxRuntimeException
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
-import java.util.UUID
 
-data class MapSave(
-    var name: String,
-    var layers: List<LayerSave>,
-    val extra: HashMap<String, Any> = hashMapOf(),
-    val version: String = EDITOR_VERSION,
-    var id: String = UUID.randomUUID().toString(),
-)
+class MapItem(
+    val fileHandle: FileHandle,
+    val type: Type,
+) {
+    val mapSave by lazy { fromGson(fileHandle.readString(), MapSave::class.java) }
 
-data class LayerSave(
-    var id: Int,
-    var actors: List<TileSave>,
-)
+    enum class Type {
+        DEFAULT, CUSTOM, SHARED
+    }
+}
 
-data class TileSave(
-    var id: String,
-    var x: Int,
-    var y: Int,
-)
+fun collectMaps(): ArrayList<MapItem> {
+    val defMaps = Gdx.files.internal("maps/default")
+    val customMaps = Gdx.files.local("maps/custom")
+    val sharedMaps = Gdx.files.local("maps/shared")
 
-fun CanvasStage.toMapSave(mapName: String? = null): MapSave {
-    val layers = mutableListOf<LayerSave>()
-
-    getLayers().forEach { layer ->
-        layers.add(layer.toLayerSave())
+    val maps = ArrayList<MapItem>()
+    for (path in defMaps.list()) {
+        if (path.isDirectory) continue
+        maps.add(MapItem(path, MapItem.Type.DEFAULT))
+    }
+    for (path in customMaps.list()) {
+        if (path.isDirectory) continue
+        maps.add(MapItem(path, MapItem.Type.CUSTOM))
+    }
+    for (path in sharedMaps.list()) {
+        if (path.isDirectory) continue
+        maps.add(MapItem(path, MapItem.Type.SHARED))
     }
 
-    return MapSave(
-        mapName ?: "",
-        layers,
-        hashMapOf(),
-        EDITOR_VERSION,
-        UUID.randomUUID().toString()
-    )
+    return maps
 }
-
-fun Group.toLayerSave(): LayerSave {
-    val layerId = name?.toInt() ?: throw IllegalStateException("Group representing layer has no name")
-    val tiles = mutableListOf<TileSave>()
-
-    tiles.addAll(children.map {
-        if (it is CanvasActor) {
-            it.toTileSave()
-        } else throw IllegalStateException("actor in layer Group is not CanvasActor")
-    })
-
-    return LayerSave(layerId, tiles)
-}
-
-fun CanvasActor.toTileSave(): TileSave {
-    return TileSave(name, (x / tileSize).toInt(), (y / tileSize).toInt())
-}
-
-val MapSave.isOutdatedVersion get() = version == null || version < MAP_MIN_VERSION
 
 class Saver(
     fileName: String = "",

@@ -30,8 +30,10 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
 
         speciesUnits.reversed().forEach { unit ->
             val amount = when (unit.cShop!!.price) {
-                100 -> 2
-                150 -> 2
+                100 -> 3
+                200 -> 2
+                300 -> 1
+                500 -> 1
                 else -> 1
             }
 
@@ -42,10 +44,12 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
     private val buyPriority2 = Array<Pair<String, Int>>().apply {
         speciesUnits.forEach { unit ->
             val amount = when (unit.cShop!!.price) {
-                100 -> 3
-                150 -> 3
-                1000 -> 2
-                1200 -> 99
+                100 -> 4
+                200 -> 3
+                300 -> 2
+                500 -> 2
+                1500 -> 2
+                2000 -> 4
                 else -> 2
             }
 

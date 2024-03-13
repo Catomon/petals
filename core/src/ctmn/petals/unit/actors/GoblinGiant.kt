@@ -26,7 +26,7 @@ class GoblinGiant : UnitActor(
                 1
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot))
+        add(TerrainPropComponent(TerrainPropsPack.giant))
         add(MatchUpBonusComponent().apply {
 
         })

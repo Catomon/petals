@@ -28,10 +28,9 @@ class FairyCucumber : UnitActor(
                 2
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().apply {
             get(TerrainNames.mountains).ad(10, 0)
-            get(TerrainNames.water).mv(2)
+            get(TerrainNames.water).mv(1)
         }))
         add(MatchUpBonusComponent())
     }

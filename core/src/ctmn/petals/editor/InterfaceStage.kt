@@ -373,11 +373,7 @@ class InterfaceStage(
 
     inner class MapsWindow : VisWindow("Maps") {
 
-        val DEFAULT = "DEFAULT"
-        val CUSTOM = "CUSTOM"
-        val SHARED = "SHARED"
-
-        var mapItems: Map<String, List<MapItem>> = emptyMap()
+        var mapItems: Map<MapItem.Type, List<MapItem>> = emptyMap()
 
         val mapNameField = VisTextField(mapName).apply {
             messageText = "Map Name"
@@ -391,7 +387,7 @@ class InterfaceStage(
         val mapsScrollingPane = VisScrollPane(mapsTable)
 
         private fun myMapNameExists(name: String): Boolean {
-            for (map in mapItems[CUSTOM] ?: emptyList()) {
+            for (map in mapItems[MapItem.Type.CUSTOM] ?: emptyList()) {
                 if (map.mapSave.name == name)
                     return true
             }
@@ -533,7 +529,7 @@ class InterfaceStage(
             fun VisTable.newMapButton(mapItem: MapItem) {
                 add(VisTable().apply {
                     add(deleteButton(mapItem).also {
-                        it.isDisabled = mapItem.type == DEFAULT
+                        it.isDisabled = mapItem.type == MapItem.Type.DEFAULT
                     })
                     add(
                         newTextButton(
@@ -551,52 +547,23 @@ class InterfaceStage(
                 row()
             }
 
-            mapItems = getMapItemsList().groupBy { it.type }
-            val maps = getMapItemsList().groupBy { it.type }
+            mapItems = collectMaps().groupBy { it.type }
+            val maps = collectMaps().groupBy { it.type }
 
             mapsTable.add(VisLabel("- My Maps -")).row()
-            for (map in maps[CUSTOM] ?: emptyList()) {
+            for (map in maps[MapItem.Type.CUSTOM] ?: emptyList()) {
                 mapsTable.newMapButton(map)
             }
 
             mapsTable.add(VisLabel("- Shared -")).row()
-            for (map in maps[SHARED] ?: emptyList()) {
+            for (map in maps[MapItem.Type.SHARED] ?: emptyList()) {
                 mapsTable.newMapButton(map)
             }
 
             mapsTable.add(VisLabel("- Default -")).row()
-            for (map in maps[DEFAULT] ?: emptyList()) {
+            for (map in maps[MapItem.Type.DEFAULT] ?: emptyList()) {
                 mapsTable.newMapButton(map)
             }
-        }
-
-        private fun getMapItemsList(): ArrayList<MapItem> {
-            val defMaps = Gdx.files.internal("maps/default")
-            val customMaps = Gdx.files.local("maps/custom")
-            val sharedMaps = Gdx.files.local("maps/shared")
-
-            val maps = ArrayList<MapItem>()
-            for (path in defMaps.list()) {
-                if (path.isDirectory) continue
-                maps.add(MapItem(path, DEFAULT))
-            }
-            for (path in customMaps.list()) {
-                if (path.isDirectory) continue
-                maps.add(MapItem(path, CUSTOM))
-            }
-            for (path in sharedMaps.list()) {
-                if (path.isDirectory) continue
-                maps.add(MapItem(path, SHARED))
-            }
-
-            return maps
-        }
-
-        inner class MapItem(
-            val fileHandle: FileHandle,
-            val type: String,
-        ) {
-            val mapSave = fromGson(fileHandle.readString(), MapSave::class.java)
         }
     }
 }

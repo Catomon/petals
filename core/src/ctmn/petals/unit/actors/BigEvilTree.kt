@@ -29,7 +29,6 @@ class BigEvilTree : UnitActor(
             )
         )
         add(AbilitiesComponent(SummonOwlsAbility()))
-
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.DOLL_PIKE] = Pair(0, 15)

@@ -26,7 +26,6 @@ class GoblinBow : UnitActor(
                 3
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(TerrainPropComponent(TerrainPropsPack.foot.also {
             it[TerrainNames.hills].ad(10, 0)
             it[TerrainNames.mountains].ad(10, 5)

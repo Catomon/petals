@@ -7,15 +7,7 @@ import java.lang.Exception
 import java.util.*
 
 fun GamePref.overridePrefs() {
-    drawUnitAttackRange = true
-}
-
-fun GamePref.setEmptyToDefaultPrefs() {
-    //if (locale == null) locale = "en"
-//    if (drawUnitAttackRange == null) drawUnitAttackRange = true
-//    if (showAiGui == null) showAiGui = false
-
-    save()
+    //
 }
 
 object GamePref {
@@ -41,7 +33,7 @@ object GamePref {
                 UUID.randomUUID().toString().also { prefs.putString("client_id", it).flush() }
 
     var locale: String
-        get() = prefs.getString(LOCALE) ?: GameLocale.ENGLISH
+        get() = prefs.getString(LOCALE, GameLocale.ENGLISH)
         set(value) { prefs.putString(LOCALE, value) }
 
     var targetFps: Int

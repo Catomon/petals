@@ -181,7 +181,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
             waterSprite.setPosition(sprite.x, sprite.y - 7 - 4)
         } else {
-            viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2)
+            if (actions.isEmpty)
+                viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2)
         }
 
         sprite.setSize(sprite.width, (sprite.regionHeight / 4).toFloat())

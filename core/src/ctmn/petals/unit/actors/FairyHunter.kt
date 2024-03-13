@@ -27,10 +27,9 @@ class FairyHunter : UnitActor(
                 1
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot.copy().apply {
-            put(TerrainNames.water, 2)
+        add(TerrainPropComponent(TerrainPropsPack.giant.copy().apply {
+
         }))
-        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
 
         })

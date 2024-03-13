@@ -1,19 +1,16 @@
 package ctmn.petals.menu
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.editor.MAPS_FOLDER_PATH
-import ctmn.petals.editor.MAP_FILE_EXTENSION
-import ctmn.petals.editor.isOutdatedVersion
+import ctmn.petals.editor.*
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.map.MapConverted
-import ctmn.petals.map.loadMap
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.widgets.*
+import ctmn.petals.widgets.newTextButton
 import java.util.*
 
 class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: MapConverted?) -> Unit) :
@@ -110,29 +107,23 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: 
         //levels.clear()
         mapsList.removeItems()
 
-        val defMaps = Gdx.files.internal("maps/default")
-        val customMaps = Gdx.files.local("maps/custom")
-        val sharedMaps = Gdx.files.local("maps/shared")
-        for (file in defMaps.list() + customMaps.list() + sharedMaps.list()) {
-            if (file.extension() == "map"
-                || file.extension() == MAP_FILE_EXTENSION
-            ) {
+        val mapItems = collectMaps()
+        for (mapItem in mapItems) {
+            val mapConverted = MapConverted(mapItem.mapSave)
 
-                var alreadyAdded = false
-                val mapConverted =
-                    maps.firstOrNull { it.mapId == file.nameWithoutExtension() }?.also { alreadyAdded = true }
-                        ?: loadMap(file.nameWithoutExtension())
+            if (gameModeSelectBox.selected != GameMode.ALL
+                && mapConverted.gameMode != gameModeSelectBox.selected.name.toLowerCase(Locale.ROOT)
+            ) continue
 
-                if (gameModeSelectBox.selected != GameMode.ALL
-                    && mapConverted.gameMode != gameModeSelectBox.selected.name.toLowerCase(Locale.ROOT)
-                )
-                    continue
-
-                if (!alreadyAdded)
-                    maps.add(mapConverted)
-
-                mapsList.addButton(mapConverted.mapSave.name, mapConverted)
+            val sameName = mapItems.firstOrNull {
+                it.mapSave.name == mapConverted.mapSave.name && it.mapSave.id != mapConverted.mapId
             }
+            val suffix = when {
+                sameName != null && sameName.type == MapItem.Type.DEFAULT && mapItem.type == MapItem.Type.CUSTOM -> " (2)"
+                else -> ""
+            }
+
+            mapsList.addButton(mapConverted.mapSave.name + suffix, mapConverted)
         }
     }
 }

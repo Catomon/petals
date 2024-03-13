@@ -25,7 +25,6 @@ class FishGuy : UnitActor(
         )
         add(AbilitiesComponent())
         add(TerrainPropComponent(TerrainPropsPack.slime))
-        add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 2f))
 

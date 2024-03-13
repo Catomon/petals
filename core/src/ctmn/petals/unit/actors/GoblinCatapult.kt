@@ -25,7 +25,6 @@ class GoblinCatapult : UnitActor(
                 2
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(TerrainPropComponent(TerrainPropsPack.foot.also {
             it[TerrainNames.mountains].ad(10, 0)
         }))

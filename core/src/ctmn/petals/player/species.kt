@@ -31,11 +31,11 @@ val fairyUnits = object : SpeciesUnits {
     override val species: String = fairy
     override val units: Array<UnitActor> = Array<UnitActor>().apply {
         add(FairySword().cost(100))
-        add(FairyPike().cost(150))
-        add(FairyBow().cost(250))
-        add(FairyAxe().cost(400))
-        add(FairyCucumber().cost(1000))
-        add(FairyHunter().cost(1200))
+        add(FairyPike().cost(200))
+        add(FairyBow().cost(300))
+        add(FairyAxe().cost(500))
+        add(FairyCucumber().cost(1500))
+        add(FairyHunter().cost(2000))
     }
 }
 
@@ -43,11 +43,11 @@ val goblinUnits = object : SpeciesUnits {
     override val species: String = goblin
     override val units: Array<UnitActor> = Array<UnitActor>().apply {
         add(GoblinSword().cost(100))
-        add(GoblinPike().cost(150))
-        add(GoblinBow().cost(250))
-        add(GoblinBoar().cost(400))
-        add(GoblinCatapult().cost(1000))
-        add(GoblinGiant().cost(1200))
+        add(GoblinPike().cost(200))
+        add(GoblinBow().cost(300))
+        add(GoblinBoar().cost(500))
+        add(GoblinCatapult().cost(1500))
+        add(GoblinGiant().cost(2000))
     }
 }
 

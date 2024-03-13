@@ -156,7 +156,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
         GamePref.musicVolume = musicSlider.value
         GamePref.save()
 
-        updateAppConfig()
+        updateAppConfigToPrefs()
     }
 
     private inner class LanguageSelectBox : VisSelectBox<Pair<String, String>>() {

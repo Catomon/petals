@@ -20,7 +20,7 @@ import ctmn.petals.utils.setMouseCursor
 
 val game: PetalsGame get() = Gdx.app.applicationListener as PetalsGame
 
-fun updateAppConfig() {
+fun updateAppConfigToPrefs() {
     AudioManager.soundVolume = soundVolume
     AudioManager.musicVolume = musicVolume
     strings = getLangStringsByPrefs()
@@ -41,8 +41,7 @@ class PetalsGame : Game() {
     var debugMode = Const.DEBUG_MODE
 
     override fun create() {
-        //Prefs
-        updateAppConfig()
+        updateAppConfigToPrefs()
 
         if (!Const.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
 
@@ -52,7 +51,6 @@ class PetalsGame : Game() {
 
         GameConsole.consoleDisabled = !Const.CONSOLE_ENABLED
 
-        GamePref.setEmptyToDefaultPrefs()
         GamePref.overridePrefs()
 
         ShaderProgram.pedantic = false;

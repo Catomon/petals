@@ -7,6 +7,6 @@ import ctmn.petals.utils.CopyableComponent
 data class TerrainPropComponent(val props: TerrainProps) : Component, CopyableComponent {
 
     override fun makeCopy(): Component {
-        return copy()
+        return TerrainPropComponent(props.copy())
     }
 }

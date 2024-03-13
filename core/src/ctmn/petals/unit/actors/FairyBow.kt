@@ -29,11 +29,10 @@ class FairyBow : UnitActor(
                 3
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot))
         add(TerrainPropComponent(TerrainPropsPack.foot.also {
-            it[TerrainNames.hills].ad(10, 0)
-            it[TerrainNames.mountains].ad(10, 5)
-            it[TerrainNames.tower].ad(10,10)
+            it[TerrainNames.hills].ad(15, 0)
+            it[TerrainNames.mountains].ad(15, 5)
+            it[TerrainNames.tower].ad(15,10)
         }))
         add(MatchUpBonusComponent().apply {
             bonuses["angry_owl"] = 25 to 0

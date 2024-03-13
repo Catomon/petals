@@ -23,7 +23,7 @@ data class Terrain(
     val name: String,
     var movingCost: Int = 0,
     var attackBonus: Int = 0,
-    var defenseBonus: Int = 0
+    var defenseBonus: Int = 0,
 ) {
 
     fun mv(mv: Int): Terrain {
@@ -40,7 +40,7 @@ data class Terrain(
 }
 
 class TerrainProps(
-    private val terrains: HashMap<String, Terrain> = HashMap()
+    private val terrains: HashMap<String, Terrain> = HashMap(),
 ) {
 
     constructor(vararg terrains: Terrain) : this() {
@@ -64,11 +64,11 @@ class TerrainProps(
 
     operator fun get(name: String): Terrain = terrains[name] ?: put(Terrain(name))
 
-    fun copy(): TerrainProps = TerrainProps(hashMapOf<String, Terrain>().apply {
-        terrains.values.forEach {
+    fun copy(): TerrainProps = TerrainProps().apply {
+        this@TerrainProps.terrains.values.forEach {
             put(Terrain(it.name, it.movingCost, it.attackBonus, it.defenseBonus))
         }
-    })
+    }
 }
 
 object TerrainPropsPack {
@@ -126,22 +126,22 @@ object TerrainPropsPack {
     }
 
     val horse = TerrainProps().apply {
-        put(grass, 0,0 , 0)
-        put(forest, 2, 0 , 5)
-        put(mountains, 3, 0 , 10)
-        put(water, 3,0 , -5)
-        put(roads, 0, 0 , 0)
-        put(walls, 999, 0 , 0)
-        put(impassable, 999, 0 , 0)
-        put(indoors, 0, 0 , 0)
-        put(highwall, 999, 0 , 0)
-        put(base, 1, 0 , 5)
-        put(unwalkable, 999,0 , 5)
-        put(earthcrack, 3, 0 , -5)
-        put(tower, 1, 0 , 10)
-        put(fortress, 1, 0 , 15)
-        put(fallenforest, 3, 0 , -5)
-        put(swamp, 3, -10 , -10)
+        put(grass, 0, 0, 0)
+        put(forest, 2, 0, 5)
+        put(mountains, 3, 0, 10)
+        put(water, 3, 0, -5)
+        put(roads, 0, 0, 0)
+        put(walls, 999, 0, 0)
+        put(impassable, 999, 0, 0)
+        put(indoors, 0, 0, 0)
+        put(highwall, 999, 0, 0)
+        put(base, 1, 0, 5)
+        put(unwalkable, 999, 0, 5)
+        put(earthcrack, 3, 0, -5)
+        put(tower, 1, 0, 10)
+        put(fortress, 1, 0, 15)
+        put(fallenforest, 3, 0, -5)
+        put(swamp, 3, -10, -10)
 
         put(hills, 1)
 
@@ -149,22 +149,22 @@ object TerrainPropsPack {
     }
 
     val foot = TerrainProps().apply {
-        put(grass, 0, 0 , 0)
+        put(grass, 0, 0, 0)
         put(forest, 1, 0, 5)
-        put(mountains, 2, 0, 1)
+        put(mountains, 2, 0, 10)
         put(water, 3, 0, -5)
         put(roads, 0, 0, 0)
-        put(walls, 2, 0, 0)
+        put(walls, 2, 5, 5)
         put(impassable, 999, 0, 0)
         put(indoors, 0, 0, 0)
         put(highwall, 999, 0, 0)
         put(base, 1, 0, 10)
         put(unwalkable, 999, 0, 0)
-        put(hills, 1, 5, 5)
+        put(hills, 1, 10, 0)
         put(earthcrack, 2, 0, -5)
-        put(tower, 1, 0, 10)
-        put(fortress, 1, 0, 15)
-        put(fallenforest, 1, 0, 0)
+        put(tower, 1, 5, 10)
+        put(fortress, 1, 5, 15)
+        put(fallenforest, 2, 0, 0)
         put(swamp, 2, -5, -5)
         put(crystals, 1, 0, 0)
     }
@@ -205,5 +205,26 @@ object TerrainPropsPack {
         put(fallenforest, 1)
         put(swamp, 1, 10, 0)
         put(crystals, 1)
+    }
+
+    val giant = TerrainProps().apply {
+        put(grass, 0, 0, 0)
+        put(forest, 2, 0, 5)
+        put(mountains, 2, 0, 10)
+        put(water, 2, 0, -10)
+        put(roads, -1, 0, 0)
+        put(walls, 3, 0, 10)
+        put(impassable, 999, 0, 0)
+        put(indoors, 0, 0, 0)
+        put(highwall, 999, 0, 0)
+        put(base, 3, 5, 5)
+        put(unwalkable, 999, 0, 0)
+        put(hills, 2, 10, 0)
+        put(earthcrack, 2, -10, -5)
+        put(tower, 3, -5, 5)
+        put(fortress, 3, -10, 10)
+        put(fallenforest, 2, 0, 0)
+        put(swamp, 2, -10, -10)
+        put(crystals, 1, 0, 0)
     }
 }

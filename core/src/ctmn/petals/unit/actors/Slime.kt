@@ -23,7 +23,6 @@ class Slime : UnitActor(
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.slime))
-        add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
     }
 }
