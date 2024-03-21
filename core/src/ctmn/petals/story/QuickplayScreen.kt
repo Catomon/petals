@@ -8,9 +8,9 @@ import ctmn.petals.utils.fadeOut
 import ctmn.petals.widgets.StageCover
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM_STORY
 import ctmn.petals.playscreen.listeners.CreditsForKillingSlimes
-import ctmn.petals.story.faesandfoes.FaesScenario
+import ctmn.petals.story.quickplay.QuickplayScenario
 
-class FaePlayScreen(
+class QuickplayScreen(
     game: PetalsGame,
 ) : PlayScreen(game) {
 
@@ -21,7 +21,7 @@ class FaePlayScreen(
         playStage.addListener(CreditsForKillingSlimes(this))
 
         //init scenario
-        currentScenario = FaesScenario()
+        currentScenario = QuickplayScenario()
 
         // Step 1: init map, add units and players, set up gameEndCondition
         currentScenario.createLevel(this)
@@ -81,7 +81,7 @@ class FaePlayScreen(
 
         // fade in and change screen
         guiStage.addActor(StageCover().fadeInAndThen(OneAction {
-            game.screen = FaePlayScreen(game)
+            game.screen = QuickplayScreen(game)
         }))
     }
 }

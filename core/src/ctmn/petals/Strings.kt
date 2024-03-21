@@ -32,6 +32,7 @@ class Strings {
 
     class Menu {
         val story = "Story"
+        val quickplay = "Quickplay"
         val match = "Match"
         val editor = "Editor"
         val settings = "Settings"

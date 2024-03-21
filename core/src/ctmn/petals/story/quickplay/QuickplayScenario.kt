@@ -1,4 +1,4 @@
-package ctmn.petals.story.faesandfoes
+package ctmn.petals.story.quickplay
 
 import ctmn.petals.ai.EasyAiDuelBot
 import ctmn.petals.ai.SimpleAIBot
@@ -18,7 +18,7 @@ import ctmn.petals.unit.actors.SlimeHuge
 import ctmn.petals.unit.player
 import ctmn.petals.unit.position
 
-class FaesScenario : Scenario("Fae", "") {
+class QuickplayScenario : Scenario("Fae", "") {
 
     val progress = 0
 
@@ -27,7 +27,7 @@ class FaesScenario : Scenario("Fae", "") {
 
     init {
         players.add(newBluePlayer)
-        players.add(newRedPlayer)
+        players.add(newRedPlayer.apply { gold = 1000 })
         players.add(Player("trash", 3, 3))
         player = players.first()
 

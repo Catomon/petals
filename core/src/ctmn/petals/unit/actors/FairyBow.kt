@@ -19,7 +19,7 @@ class FairyBow : UnitActor(
 
     init {
         add(ShopComponent(100))
-        add(AbilitiesComponent(UnsummonAbility()))
+        add(AbilitiesComponent())
         add(SummonableComponent(20))
         add(FollowerComponent())
         add(

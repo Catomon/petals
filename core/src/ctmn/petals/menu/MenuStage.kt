@@ -3,9 +3,7 @@ package ctmn.petals.menu
 import ctmn.petals.*
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
@@ -13,6 +11,7 @@ import ctmn.petals.editor.EditorScreen
 import ctmn.petals.menu.StorySelectStage.Companion.startStory
 import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
+import ctmn.petals.story.QuickplayScreen
 import ctmn.petals.story.StoriesManager
 import ctmn.petals.widgets.*
 
@@ -22,7 +21,8 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
 
     private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "font_5")
 
-    private val storyButton = newTextButton(strings.menu.story)
+    private val storyButton = newTextButton(strings.menu.story).apply { isDisabled = true }
+    private val quickPlayButton = newTextButton(strings.menu.quickplay)
     private val matchButton = newTextButton(strings.menu.match)
     private val editorButton = newTextButton(strings.menu.editor)
     private val settingsButton = newTextButton(strings.menu.settings)
@@ -33,41 +33,32 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val windowTable = VisTable()
 
     init {
-        storyButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                super.clicked(event, x, y)
+        storyButton.addChangeListener {
+            if (StoriesManager.size == 1) {
+                val story = StoriesManager.getStories().first()
 
-                if (StoriesManager.size == 1) {
-                    val story = StoriesManager.getStories().first()
-
-                    if (Const.IS_RELEASE)
-                        menuScreen.startStory(story)
-                    else
-                        menuScreen.game.screen = LevelSelectScreen(game, story)
-                } else
-                    menuScreen.stage = menuScreen.storySelectStage
-            }
-        })
+                if (Const.IS_RELEASE)
+                    menuScreen.startStory(story)
+                else
+                    menuScreen.game.screen = LevelSelectScreen(game, story)
+            } else
+                menuScreen.stage = menuScreen.storySelectStage
+        }
         matchButton.addChangeListener {
             menuScreen.stage = menuScreen.lobbyTypesStage
         }
-        editorButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent, x: Float, y: Float) {
-                super.clicked(event, x, y)
-
-                game.screen = EditorScreen()
-            }
-        })
+        editorButton.addChangeListener {
+            game.screen = EditorScreen()
+        }
         settingsButton.addChangeListener {
             menuScreen.stage = menuScreen.settingsStage
         }
-        exitButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent, x: Float, y: Float) {
-                super.clicked(event, x, y)
-                Gdx.app.exit()
-            }
-        })
-
+        exitButton.addChangeListener {
+            Gdx.app.exit()
+        }
+        quickPlayButton.addChangeListener {
+            game.screen = QuickplayScreen(game)
+        }
 
         bunnyImage.setSize(300f, 300f)
 
@@ -80,6 +71,8 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             add(label).bottom()
             row()
             add(storyButton).bottom()
+            row()
+            add(quickPlayButton)
             row()
             add(matchButton).bottom()
             row()

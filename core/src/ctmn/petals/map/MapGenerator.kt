@@ -18,7 +18,7 @@ class MapGenerator {
 
     val bases = 2
 
-    val blueCrystalsAmount = 2
+    val blueCrystalsAmount = 4
     val lifeCrystalsAmount = 1
 
     val trees = 60

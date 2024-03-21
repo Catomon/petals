@@ -43,23 +43,8 @@ class Alice : UnitActor(
                 1
             )
         )
-        add(AbilitiesComponent(
-            SummonAbility().apply {
-                cost = 0
-            }
-//            50,
-//            HealingAbility().apply {
-//                activationRange = 1
-//                value = 25 },
-//            FlameAbility().apply {
-//                activationRange = 1
-//                value = 25 }
-        ).apply {
-            mana = 50
-        })
-        add(SummonerComponent().apply {
-            units.add(DOLL_PIKE)
-        })
+        add(AbilitiesComponent().apply { mana = 50 })
+        add(SummonerComponent().apply { units.add(DOLL_PIKE) })
 
         add(LevelComponent(
             1,

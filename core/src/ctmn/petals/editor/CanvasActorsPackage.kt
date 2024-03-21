@@ -23,6 +23,8 @@ class CanvasActorsPackage {
                 setSize(tileSize / minTileSize * region.regionWidth, tileSize / minTileSize * region.regionHeight)
             }
 
+            if (name.contains("goblin_den") || name.contains("pixie_nest")) continue
+
             val tile = CanvasActor(name, sprite)
             canvasActors.add(tile)
         }

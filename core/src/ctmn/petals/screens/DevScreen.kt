@@ -14,7 +14,7 @@ import ctmn.petals.Const
 import ctmn.petals.PetalsGame
 import ctmn.petals.assets
 import ctmn.petals.editor.EditorScreen
-import ctmn.petals.story.FaePlayScreen
+import ctmn.petals.story.QuickplayScreen
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.MovingBackground
 import ctmn.petals.widgets.addChangeListener
@@ -42,7 +42,7 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
 
             add(VerticalGroup().also { group ->
                 group.addActor(newTextButton("Test Level").addChangeListener {
-                    game.screen = FaePlayScreen(game)
+                    game.screen = QuickplayScreen(game)
                 })
             })
             add(VerticalGroup().also {  group ->

@@ -4,7 +4,7 @@ import ctmn.petals.Const.TREASURED_PETALS_STORY_ID
 import ctmn.petals.story.alissa.AlissaStorySave
 import ctmn.petals.story.alissa.scenarios.*
 
-class petalsStory : Story(
+class AlissaStory : Story(
     "The Treasured Petals",
     TREASURED_PETALS_STORY_ID,
     AlissaStorySave().apply { save_name = "treasured_petals"; story_id = TREASURED_PETALS_STORY_ID }
@@ -14,7 +14,6 @@ class petalsStory : Story(
         super.initScenarios()
 
         check(storySave is AlissaStorySave)
-
 
         scenarios.add(Scenario1())
         scenarios.add(Scenario1dot5())

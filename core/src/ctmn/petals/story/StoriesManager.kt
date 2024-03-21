@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 object StoriesManager : HashMap<Int, KClass<out Story>>() {
 
     init {
-        put(TREASURED_PETALS_STORY_ID, petalsStory::class)
+        put(TREASURED_PETALS_STORY_ID, AlissaStory::class)
     }
 
     fun getStories() : Array<Story> {
