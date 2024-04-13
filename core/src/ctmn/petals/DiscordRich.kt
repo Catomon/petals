@@ -30,6 +30,8 @@ fun discordRich(rich: Rich) {
     if (discordRichDisabled) return
 
     val presence = DiscordRichPresence().apply {
+        largeImageKey = "big_icon"
+
         when (rich) {
             Rich.DEFAULT -> {
 

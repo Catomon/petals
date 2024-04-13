@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.Const
 import ctmn.petals.PetalsGame
 import ctmn.petals.assets
@@ -40,21 +41,13 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         addActor(VisTable().apply {
             setFillParent(true)
 
-            add(VerticalGroup().also { group ->
-                group.addActor(newTextButton("Test Level").addChangeListener {
-                    game.screen = QuickplayScreen(game)
-                })
-            })
             add(VerticalGroup().also {  group ->
                 group.addActor(newTextButton("Menu Screen").addChangeListener {
                     game.screen = MenuScreen(game)
                 })
-                group.addActor(newTextButton("Reload Assets").addChangeListener {
+                group.addActor(VisTextButton("Reload Assets").addChangeListener {
                     game.assets.clear()
                     game.screen = LoadingScreen(game)
-                })
-                group.addActor(newTextButton("Editor").addChangeListener {
-                    game.screen = EditorScreen()
                 })
             })
         })

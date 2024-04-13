@@ -3,13 +3,14 @@ package ctmn.petals.unit.actors
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds.GOBLIN_CATAPULT
 import ctmn.petals.unit.component.*
 
 class GoblinCatapult : UnitActor(
     UnitComponent(
-        "goblin_catapult",
+        GOBLIN_CATAPULT,
         100,
-        5,
+        0,
         3,
         5
     )

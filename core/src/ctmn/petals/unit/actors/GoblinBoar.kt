@@ -11,8 +11,8 @@ class GoblinBoar : UnitActor(
         "goblin_boar",
         100,
         10,
-        6,
-        7
+        5,
+        6
     )
 ) {
 

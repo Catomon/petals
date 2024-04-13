@@ -60,8 +60,8 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         /** health */
         targetUnit.dealDamage(attackerDamage, attackerUnit, playScreen, false)
 
-        //if dist > 1 attacker takes no damage
-        if (attackerUnit.isUnitNear(targetUnit, 1)) {
+        //take damage if in target attack range
+        if (attackerUnit.isUnitNear(targetUnit, 1) && targetUnit.cAttack!!.attackRangeBlocked <= 0) {
             attackerUnit.dealDamage(defenderDamage, targetUnit, playScreen, false)
         }
 

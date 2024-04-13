@@ -52,6 +52,8 @@ class QuickplayScenario : Scenario("Fae", "") {
     override fun makeScenario(playScreen: PlayScreen) {
         super.makeScenario(playScreen)
 
+        playScreen.fogOfWarManager.drawFog = true
+
         playScreen.aiManager.add(EasyAiDuelBot(players[1], playScreen))
         playScreen.aiManager.add(SimpleAIBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true

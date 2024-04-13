@@ -7,7 +7,7 @@ import java.lang.Exception
 import java.util.*
 
 fun GamePref.overridePrefs() {
-    //
+    musicVolume = 0f
 }
 
 object GamePref {

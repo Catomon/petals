@@ -19,6 +19,8 @@ import ctmn.petals.tile.TerrainNames.unwalkable
 import ctmn.petals.tile.TerrainNames.walls
 import ctmn.petals.tile.TerrainNames.water
 
+const val MOVING_COST_UNREACHABLE = 999
+
 data class Terrain(
     val name: String,
     var movingCost: Int = 0,

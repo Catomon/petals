@@ -70,7 +70,7 @@ class Scenario1 : AlissaScenario(name = "Slime 1", levelFileName = "level_1.map"
 
             addAliceDiedGameOverTrigger(alice)
 
-            val pixie = PixieUnit().player(alicePlayer)
+            val pixie = FairyPixie().player(alicePlayer)
 
             queueAddUnitAction(pixie, alice.tiledX - 4, alice.tiledY, true)
 

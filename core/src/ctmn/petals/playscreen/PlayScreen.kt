@@ -55,6 +55,7 @@ import ctmn.petals.tile.*
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
+import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.newLabel
 import kotlin.random.Random
@@ -263,7 +264,8 @@ open class PlayScreen(
                 setPlayerForCapturableTile(
                     base,
                     playerId,
-                    turnManager.getPlayerById(playerId)?.species ?: throw IllegalStateException("Player with playerId assigned to player label not found in turnManager")
+                    turnManager.getPlayerById(playerId)?.species
+                        ?: throw IllegalStateException("Player with playerId assigned to player label not found in turnManager")
                 )
             } else {
                 setPlayerForCapturableTile(base, -1)
@@ -541,7 +543,18 @@ open class PlayScreen(
                         unit.heal(Const.HEALING_AMOUNT_NEAR_LEADER)
             }
 
-
+            //apply healing from bonus fields
+            playStage.getUnitsForTeam(turnCycleEvent.nextPlayer.teamId)
+                .mapNotNull { it.get(BonusFieldComponent::class.java)?.to(it) }.forEach { pair ->
+                    val field = pair.first
+                    val fieldUnit = pair.second
+                    playStage.getUnitsOfPlayer(turnCycleEvent.nextPlayer).forEach { unit ->
+                        if (unit != fieldUnit && unit.isInRange(fieldUnit.tiledX, fieldUnit.tiledY, field.range)) {
+                            if (field.healing > 0)
+                                unit.heal(field.healing)
+                        }
+                    }
+                }
 
             return false
         }

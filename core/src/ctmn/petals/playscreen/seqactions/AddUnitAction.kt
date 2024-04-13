@@ -1,5 +1,6 @@
 package ctmn.petals.playscreen.seqactions
 
+import com.badlogic.gdx.Gdx
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.gui.floatingLabel
 import ctmn.petals.unit.UnitActor
@@ -24,7 +25,7 @@ class AddUnitAction(val unit: UnitActor, val x: Int = -1, val y: Int = -1) : Seq
             else
                 unit.setPositionOrNear(unit.tiledX, unit.tiledY)
 
-            playScreen.guiStage.floatingLabel("Unit: ${unit.name}")
+            Gdx.app.log(this::class.simpleName, unit.name)
 
             isDone = true
         }

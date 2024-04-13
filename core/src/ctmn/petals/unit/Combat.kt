@@ -6,6 +6,8 @@ import ctmn.petals.playscreen.commands.AttackCommand
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.getLeadUnit
+import ctmn.petals.playstage.getUnitsForTeam
+import ctmn.petals.unit.component.BonusFieldComponent
 import java.lang.IllegalStateException
 
 fun PlayScreen.randomDamage(min: Int, max: Int): Int {
@@ -23,7 +25,9 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
     var minDMG = unit.minDamage
     var maxDMG = unit.maxDamage
 
-    val tileActor = playStage?.getTile(unit.tiledX, unit.tiledY) ?: if (playStage != null) throw IllegalStateException("Tile not fount at ${unit.tiledX}:${unit.tiledY}") else null
+    //terrain
+    val tileActor = playStage?.getTile(unit.tiledX, unit.tiledY)
+        ?: if (playStage != null) throw IllegalStateException("Tile not fount at ${unit.tiledX}:${unit.tiledY}") else null
 
     if (unit.cTerrainProps == null) Gdx.app.error(AttackCommand::class.simpleName, "Unit has not terrain props")
 
@@ -34,14 +38,28 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
     maxDMG += attackBuff
     defense += defenseBuff
 
-    val matchupBonusPair = unit.matchupBonus.get(vsUnit.selfName)
-    matchupBonusPair?.apply {
+    //bonus fields
+    playStage?.getUnitsForTeam(unit.playerId)?.mapNotNull {
+        if (it == unit)
+            null
+        else
+            it.get(BonusFieldComponent::class.java)
+    }?.forEach {
+        minDMG += it.damage
+        maxDMG += it.damage
+        defense += it.defense
+    }
+
+    //matchup
+    val matchupBonusDmgDefPair = unit.cMatchUp?.get(vsUnit.selfName)
+    matchupBonusDmgDefPair?.apply {
         minDMG += first
         maxDMG += first
         defense += second
         Gdx.app.debug(
             AttackCommand::class.simpleName,
-            "${unit.name} matchup bonus: A${first}; D${second}")
+            "${unit.name} matchup bonus: A${first}; D${second}"
+        )
     }
 
     //leader buff
@@ -67,6 +85,7 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
                 minDMG = (minDMG * buff.coefficient).toInt()
                 maxDMG = (maxDMG * buff.coefficient).toInt()
             }
+
             "defense" -> {
                 defense += buff.value
                 defense = (defense * buff.coefficient).toInt()

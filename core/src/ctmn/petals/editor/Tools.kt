@@ -28,6 +28,7 @@ class Tools {
         }
 
     var canvas: CanvasStage? = null
+        private set
 
     fun setContext(canvas: CanvasStage) {
         current = pencil

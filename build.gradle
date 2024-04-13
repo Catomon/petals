@@ -1,5 +1,5 @@
 buildscript {
-    
+    ext.kotlin_version = '1.9.22'
 
     repositories {
         mavenLocal()
@@ -11,15 +11,16 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
+        // classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 allprojects {
     apply plugin: "eclipse"
 
-    version = '1.0'
+    version = '0.1.0'
     ext {
-        appName = "Alissa"
+        appName = "Petals F&GCC"
         gdxVersion = '1.12.1'
         roboVMVersion = '2.3.10'
         box2DLightsVersion = '1.4'
