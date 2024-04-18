@@ -27,8 +27,8 @@ class QuickplayScenario : Scenario("Fae", "") {
 
     init {
         players.add(newBluePlayer)
-        players.add(newRedPlayer.apply { gold = 1000 })
-        players.add(Player("trash", 3, 3))
+        players.add(newRedPlayer.apply { credits = 1000 })
+        players.add(Player("slime", 3, 3))
         player = players.first()
 
         gameEndCondition = TeamControlsBases()

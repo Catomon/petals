@@ -18,7 +18,7 @@ class BuyUnitCommand(val unitName: String, val player: Player, var cost: Int = -
             return false
 
         //check if player has not enough gold
-        if (player.gold < cost)
+        if (player.credits < cost)
             return false
 
         //get unit by name
@@ -34,7 +34,7 @@ class BuyUnitCommand(val unitName: String, val player: Player, var cost: Int = -
     override fun execute(playScreen: PlayScreen): Boolean {
         val unitActor = playScreen.unitsData.get(unitName, player)
 
-        player.gold -= cost
+        player.credits -= cost
 
         if (unitActor.isFollower && leaderId != -1)
             unitActor.followerID = leaderId

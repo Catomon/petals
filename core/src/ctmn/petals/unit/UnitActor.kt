@@ -50,14 +50,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     // should be called after setting up actor's playerID
     open fun initView(assets: Assets) {
-        var regions =
-            assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/${selfName.toLowerCase(Locale.ROOT)}")
-        if (regions.isEmpty) regions = assets.textureAtlas.findRegions("units/${selfName.toLowerCase(Locale.ROOT)}")
-        if (regions.isEmpty) {
-            regions.add(assets.textureAtlas.findRegion("units/unit"))
-            Gdx.app.log("UnitActor.initView", "Unit textures not found: units/${playerColorName(playerId)}/$selfName")
-        }
-        //  if (regions.isEmpty) throw RuntimeException("Unit textures not found: $name")
+        val regions = findUnitTextures(selfName, playerId)
 
         defaultAnimation = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, regions)
 
@@ -216,7 +209,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         if (!::viewComponent.isInitialized) return
 
         playStageOrNull?.let { playStage ->
-            isWater = playStage.getTile(x, y)?.terrain == TerrainNames.water
+            val terrain = playStage.getTile(x, y)?.terrain
+            isWater = terrain == TerrainNames.water || terrain == TerrainNames.deepwater
         }
     }
 

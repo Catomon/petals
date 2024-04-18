@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.Tiles
 
 class Decorator(val playScreen: PlayScreen, val playStage: PlayStage) {
 
@@ -27,19 +28,25 @@ class Decorator(val playScreen: PlayScreen, val playStage: PlayStage) {
 
         val nameNoSuff = nameNoSuffix()
 
-        with (playStage) {
+        with(playStage) {
             /* make suffix based on similar neighbour tiles */
 
             // returns true if there are similar neighbour tile or if there are null neighbour at same level
-            fun isSameTile(tiledX: Int, tiledY: Int) : Boolean {
-                val hasSameNeighbour = getAllTiles().firstOrNull { it.nameNoSuffix() == nameNoSuff && it.tiledX == tiledX && it.tiledY == tiledY }
+            fun isSimilarTile(tiledX: Int, tiledY: Int): Boolean {
+                val hasSameNeighbour = getAllTiles().firstOrNull {
+                    val itNameNoSuffix = it.nameNoSuffix()
+                    val bothNames = arrayOf(nameNoSuff, itNameNoSuffix)
+                    val isSameName = itNameNoSuffix == nameNoSuff
+                            || bothNames[0] == Tiles.WATER && bothNames[1] == Tiles.DEEPWATER
+                    isSameName && it.tiledX == tiledX && it.tiledY == tiledY
+                }
                 return hasSameNeighbour != null || getTile(tiledX, tiledY, layer) == null
             }
 
-            val left = if (isSameTile(tiledX - 1, tiledY)) "l" else ""
-            val right = if (isSameTile(tiledX + 1, tiledY)) "r" else ""
-            val top = if (isSameTile(tiledX, tiledY + 1)) "t" else ""
-            val bottom = if (isSameTile(tiledX, tiledY - 1)) "b" else ""
+            val left = if (isSimilarTile(tiledX - 1, tiledY)) "l" else ""
+            val right = if (isSimilarTile(tiledX + 1, tiledY)) "r" else ""
+            val top = if (isSimilarTile(tiledX, tiledY + 1)) "t" else ""
+            val bottom = if (isSimilarTile(tiledX, tiledY - 1)) "b" else ""
 
             val suff = "_$left$right$top$bottom"
 
@@ -76,7 +83,10 @@ class Decorator(val playScreen: PlayScreen, val playStage: PlayStage) {
                         }
 
                 if (assets.textureAtlas.findRegion("tiles/${terrain}/" + cheapCombinedName) == null) {
-                    Gdx.app.error(this@Decorator::class.simpleName, "Combining: Tile texture not found ${"tiles/${terrain}/" + cheapCombinedName}")
+                    Gdx.app.error(
+                        this@Decorator::class.simpleName,
+                        "Combining: Tile texture not found ${"tiles/${terrain}/" + cheapCombinedName}"
+                    )
                     return
                 }
 
@@ -127,7 +137,7 @@ class Decorator(val playScreen: PlayScreen, val playStage: PlayStage) {
         return nameNoSuffix
     }
 
-    private fun TileActor.isCombinable() : Boolean {
+    private fun TileActor.isCombinable(): Boolean {
         //var nameNoSuffix = selfName
         //"abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
 
@@ -143,7 +153,7 @@ class Decorator(val playScreen: PlayScreen, val playStage: PlayStage) {
     fun addMissingTiles() {
 
         for (x in 0 until playStage.tiledWidth()) {
-            for (y in 0 until  playStage.tiledHeight()) {
+            for (y in 0 until playStage.tiledHeight()) {
                 if (playStage.getTile(x, y) == null) {
                     val tileData = playScreen.tilesData.get("grass")!!
                     val tile = TileActor(tileData.name, tileData.terrain)

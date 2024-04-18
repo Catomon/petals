@@ -46,7 +46,7 @@ data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: 
 
     var allies: MutableSet<Int> = mutableSetOf()
 
-    var gold = 0
+    var credits = 0
 
     var isOutOfGame = false
 
@@ -56,7 +56,7 @@ data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: 
         name = player.name
         id = player.id
         teamId = player.teamId
-        gold = player.gold
+        credits = player.credits
         allies = player.allies
         isOutOfGame = player.isOutOfGame
 

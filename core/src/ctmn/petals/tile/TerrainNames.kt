@@ -21,4 +21,7 @@ object TerrainNames {
     const val fallenforest = "fallenforest"
     const val swamp = "swamp"
     const val crystals = "crystals"
+    const val deepwater = "deepwater"
+    const val skyscraper = "skyscraper"
+    const val chasm = "chasm"
 }

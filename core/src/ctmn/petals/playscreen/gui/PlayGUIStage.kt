@@ -63,7 +63,7 @@ class PlayGUIStage(
 
     //labels
     val creditsLabel =
-        newLabel("Credits: ${player.gold}", "font_5").apply {
+        newLabel("Credits: ${player.credits}", "font_5").apply {
             isVisible = playScreen.gameMode == GameMode.CASTLES || playScreen.gameMode == GameMode.CRYSTALS
         }
     private val fpsLabel = VisLabel().apply {
@@ -536,8 +536,8 @@ class PlayGUIStage(
         // Play stage listeners
         playStage.addListener {
             when (it) {
-                is UnitBoughtEvent -> creditsLabel.setText("Crystals: ${player.gold}")
-                is NextTurnEvent -> creditsLabel.setText("Crystals: ${player.gold}")
+                is UnitBoughtEvent -> creditsLabel.setText("Crystals: ${player.credits}")
+                is NextTurnEvent -> creditsLabel.setText("Crystals: ${player.credits}")
             }
 
             false

@@ -16,8 +16,6 @@ class GoblinScout : UnitActor(
         0,
         4,
         8,
-        Player.BLUE,
-        Team.BLUE,
     )
 ) {
 

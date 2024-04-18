@@ -13,9 +13,9 @@ import kotlin.random.Random
 class MapGenerator {
 
     //20 15
+    //15, 15
     val width = 15
     val height = 15
-
     val bases = 2
 
     val blueCrystalsAmount = 4
@@ -29,6 +29,23 @@ class MapGenerator {
 
     val crystalPlaceRangeMin = 2 //maxOf(width, height) / 2 - 5
     val crystalPlaceRangeMax = maxOf(width, height) / 2
+
+//    val width = 45
+//    val height = 45
+//
+//    val bases = 2
+//
+//    val blueCrystalsAmount = 16
+//    val lifeCrystalsAmount = 3
+//
+//    val trees = 180
+//    val mountains = 30
+//    val flowers = 90
+//
+//    val mountainTileRandomness = 2
+//
+//    val crystalPlaceRangeMin = 2 //maxOf(width, height) / 2 - 5
+//    val crystalPlaceRangeMax = maxOf(width, height) / 2
 
     val groundTileData = TileData.get("grass") ?: throw IllegalArgumentException("tile data not found")
     val treeTileData = TileData.get("tree") ?: throw IllegalArgumentException("tile data not found")

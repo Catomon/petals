@@ -163,7 +163,7 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
 
     private fun buyCommand(): Boolean {
         //check cash
-        if (player.gold <= 0)
+        if (player.credits <= 0)
             return false
 
         //find base
@@ -197,7 +197,7 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         var unitToBuy = ""
 
         for ((name, count) in buyPriority) {
-            if (player.gold < (speciesUnits.find { it.selfName == name }?.cShop?.price ?: continue)) continue
+            if (player.credits < (speciesUnits.find { it.selfName == name }?.cShop?.price ?: continue)) continue
 
             if (howMuchOfUnits(name, playScreen.playStage.getUnitsOfPlayer(player)) < count) {
                 unitToBuy = name
@@ -224,10 +224,10 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         }
 
         //get price
-        val unitPrice = speciesUnits.find { it.selfName == unitToBuy }?.cShop?.price ?: -1 // yeah, kinda weird way
+        val unitPrice = speciesUnits.find { it.selfName == unitToBuy }?.cShop?.price ?: -1
 
         //check cash
-        if (player.gold < unitPrice)
+        if (player.credits < unitPrice)
             return false
 
         //buy

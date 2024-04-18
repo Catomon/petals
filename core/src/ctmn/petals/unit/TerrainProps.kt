@@ -1,7 +1,9 @@
 package ctmn.petals.unit
 
 import ctmn.petals.tile.TerrainNames.base
+import ctmn.petals.tile.TerrainNames.chasm
 import ctmn.petals.tile.TerrainNames.crystals
+import ctmn.petals.tile.TerrainNames.deepwater
 import ctmn.petals.tile.TerrainNames.earthcrack
 import ctmn.petals.tile.TerrainNames.fallenforest
 import ctmn.petals.tile.TerrainNames.impassable
@@ -13,13 +15,14 @@ import ctmn.petals.tile.TerrainNames.roads
 import ctmn.petals.tile.TerrainNames.forest
 import ctmn.petals.tile.TerrainNames.fortress
 import ctmn.petals.tile.TerrainNames.hills
+import ctmn.petals.tile.TerrainNames.skyscraper
 import ctmn.petals.tile.TerrainNames.swamp
 import ctmn.petals.tile.TerrainNames.tower
 import ctmn.petals.tile.TerrainNames.unwalkable
 import ctmn.petals.tile.TerrainNames.walls
 import ctmn.petals.tile.TerrainNames.water
 
-const val MOVING_COST_UNREACHABLE = 999
+const val UNREACHABLE = 999
 
 data class Terrain(
     val name: String,
@@ -125,6 +128,7 @@ object TerrainPropsPack {
         put(fallenforest, 1)
         put(unwalkable, 0)
         put(crystals, 1)
+        put(skyscraper, 5)
     }
 
     val horse = TerrainProps().apply {
@@ -144,10 +148,11 @@ object TerrainPropsPack {
         put(fortress, 1, 0, 15)
         put(fallenforest, 3, 0, -5)
         put(swamp, 3, -10, -10)
-
         put(hills, 1)
-
         put(crystals, 1)
+        put(deepwater, UNREACHABLE, -30, -15)
+        put(skyscraper, UNREACHABLE, -15, 10)
+        put(chasm, UNREACHABLE)
     }
 
     val foot = TerrainProps().apply {
@@ -169,6 +174,9 @@ object TerrainPropsPack {
         put(fallenforest, 2, 0, 0)
         put(swamp, 2, -5, -5)
         put(crystals, 1, 0, 0)
+        put(deepwater, 3, -15, -10)
+        put(skyscraper, UNREACHABLE, -15, 10)
+        put(chasm, UNREACHABLE)
     }
 
     val flier = TerrainProps().apply {
@@ -186,6 +194,31 @@ object TerrainPropsPack {
         put(hills, 0)
         put(tower, 0, 0, 10)
         put(fortress, 0, 0, 15)
+        put(skyscraper, 1, 0, 15)
+        put(chasm, 0)
+    }
+
+    //todo swimmer
+
+    val waterOnly = TerrainProps().apply {
+        put(grass, UNREACHABLE)
+        put(forest, UNREACHABLE)
+        put(mountains, UNREACHABLE)
+        put(water, 0, 15, 5)
+        put(deepwater, 0, 15, 15)
+        put(roads, UNREACHABLE)
+        put(walls, UNREACHABLE)
+        put(impassable, UNREACHABLE)
+        put(indoors, UNREACHABLE)
+        put(highwall, UNREACHABLE)
+        put(base, 1) //TODO prevent moving on land bases
+        put(hills, UNREACHABLE)
+        put(earthcrack, UNREACHABLE)
+        put(tower, UNREACHABLE)
+        put(fortress, UNREACHABLE)
+        put(fallenforest, UNREACHABLE)
+        put(skyscraper, UNREACHABLE)
+        put(chasm, UNREACHABLE)
     }
 
     val slime = TerrainProps().apply {
@@ -207,6 +240,9 @@ object TerrainPropsPack {
         put(fallenforest, 1)
         put(swamp, 1, 10, 0)
         put(crystals, 1)
+        put(deepwater, 2, 0, 5)
+        put(skyscraper, UNREACHABLE, -15, 10)
+        put(chasm, UNREACHABLE)
     }
 
     val giant = TerrainProps().apply {
@@ -228,5 +264,8 @@ object TerrainPropsPack {
         put(fallenforest, 2, 0, 0)
         put(swamp, 2, -10, -10)
         put(crystals, 1, 0, 0)
+        put(deepwater, 2, -15, -15)
+        put(skyscraper, UNREACHABLE, -15, 10)
+        put(chasm, UNREACHABLE)
     }
 }

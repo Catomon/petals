@@ -8,6 +8,7 @@ import ctmn.petals.unit.*
 import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.VisScrollPane
@@ -15,7 +16,9 @@ import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.assets
 import ctmn.petals.player.Player
 import ctmn.petals.player.getSpeciesUnits
+import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.addChangeListener
@@ -24,7 +27,7 @@ import ctmn.petals.widgets.newLabel
 
 class BuyMenuPanel(
     private val guiStage: PlayGUIStage,
-    var selectedCastleTile: TileActor? = null,
+    var baseTile: TileActor,
     val player: Player? = null,
 ) : VisWindow("Buy Menu") {
 
@@ -66,10 +69,16 @@ class BuyMenuPanel(
         setSize(250f, 400f)
         setCenterOnAdd(true)
 
+        val playStage = baseTile.playStageOrNull ?: throw IllegalStateException("Base tile in not on the stage.")
+        val backTerrain = playStage.getTile(baseTile.tiledX, baseTile.tiledY, baseTile.layer - 1)?.terrain
+        val isWater = backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater
+
         //grid group
         val unitsData = guiStage.playScreen.unitsData
 
         fun addB(unitActor: UnitActor, cost: Int) {
+            if (isWater && !unitActor.isWater) return
+            if (!isWater && !unitActor.isLand) return
             gridGroup.addButton(UnitButton(unitActor, cost))
         }
 
@@ -103,7 +112,7 @@ class BuyMenuPanel(
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 super.clicked(event, x, y)
 
-                if (guiStage.currentState == guiStage.myTurn && selectedCastleTile != null) {
+                if (guiStage.currentState == guiStage.myTurn && baseTile != null) {
                     // give the unit to the first leader that comes to the unit if there are no leaders by default
                     var unitLeaderIdLoc = unitLeaderId
                     if (unitLeaderIdLoc == -1) {
@@ -117,8 +126,8 @@ class BuyMenuPanel(
                         unitButton.unit.selfName,
                         guiStage.player,
                         unitButton.cost,
-                        selectedCastleTile!!.tiledX,
-                        selectedCastleTile!!.tiledY,
+                        baseTile!!.tiledX,
+                        baseTile!!.tiledY,
                         unitLeaderIdLoc
                     )
 
@@ -148,10 +157,14 @@ class BuyMenuPanel(
         private val labelCost = newLabel(cost.toString())
 
         init {
-            if (assets.textureAtlas.findRegion("gui/icons/${unit.selfName}") != null)
-                button.style.imageUp = VisUI.getSkin().getDrawable("icons/${unit.selfName}")
-            else
-                button.style.imageUp = VisUI.getSkin().getDrawable("icons/no_icon")
+            val icon = assets.textureAtlas.findRegion("gui/icons/${unit.selfName}")
+            val region = findUnitTextures(unit.selfName, unit.playerId).firstOrNull()
+
+            button.style.imageUp =
+                if (icon != null)
+                    VisUI.getSkin().getDrawable("icons/${unit.selfName}")
+                else
+                    TextureRegionDrawable(region)
 
             labelCost.setPosByCenter(32f + labelCost.width / 2, 84f)
 

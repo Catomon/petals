@@ -17,6 +17,7 @@ import ctmn.petals.unit.actors.Alice
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.tiled
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.effects.CreateEffect
 import ctmn.petals.effects.FloatingLabelAnimation
@@ -30,6 +31,7 @@ import ctmn.petals.tile.setPlayerForCapturableTile
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
+import java.util.*
 
 val cUnitMapper: ComponentMapper<UnitComponent> = ComponentMapper.getFor(UnitComponent::class.java)
 val cBarrierMapper: ComponentMapper<BarrierComponent> = ComponentMapper.getFor(BarrierComponent::class.java)
@@ -79,6 +81,8 @@ val UnitActor.buffs get() = get(BuffsComponent::class.java)!!.buffs
 val UnitActor.abilities get() = cAbilities!!.abilities
 var UnitActor.mana get() = cAbilities!!.mana; set(value) { cAbilities!!.mana = value }
 val UnitActor.allies get() = cUnit.allies;
+val UnitActor.isLand get() = cUnit.type == UNIT_TYPE_LAND
+val UnitActor.isWater get() = cUnit.type == UNIT_TYPE_WATER
 
 @Deprecated("Returns cTerrainCost!!.", ReplaceWith("cTerrainCost?."), DeprecationLevel.WARNING)
 val UnitActor.terrainCost get() = cTerrainProps!!
@@ -504,3 +508,14 @@ fun UnitActor.createAnimation(regionName: String, frameDuration: Float = Const.U
 }
 
 fun xpToLevelUp(curLvl: Int) = Const.EXP_MOD_LEVEL_UP * curLvl
+
+fun findUnitTextures(unitName: String, playerId: Int): Array<TextureAtlas.AtlasRegion> {
+    var regions = assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/${unitName.lowercase(Locale.ROOT)}")
+    if (regions.isEmpty) regions = assets.textureAtlas.findRegions("units/${unitName.lowercase(Locale.ROOT)}")
+    if (regions.isEmpty) {
+        regions.add(assets.textureAtlas.findRegion("units/unit"))
+        Gdx.app.log("UnitActor.initView", "Unit textures not found: units/${playerColorName(playerId)}/$unitName")
+    }
+
+    return regions
+}

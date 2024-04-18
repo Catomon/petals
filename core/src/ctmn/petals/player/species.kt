@@ -38,6 +38,7 @@ val fairyUnits = object : SpeciesUnits {
         add(FairyHealer().cost(400))
         add(FairyAxe().cost(500))
         add(FairyScout().cost(500))
+        add(FairyWaterplant().cost(600))
         add(FairyCucumber().cost(1500))
         add(FairyHunter().cost(2000))
     }
@@ -54,6 +55,7 @@ val goblinUnits = object : SpeciesUnits {
         add(GoblinDuelist().cost(400))
         add(GoblinBoar().cost(500))
         add(GoblinWolf().cost(500))
+        add(GoblinShip().cost(600))
         add(GoblinCatapult().cost(1500))
         add(GoblinGiant().cost(2000))
     }

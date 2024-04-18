@@ -230,7 +230,7 @@ open class PlayScreen(
         // give first turn player gold for all bases
         val currentPlayer = turnManager.currentPlayer
         for (base in playStage.getCapturablesOf(currentPlayer))
-            currentPlayer.gold += Const.GOLD_PER_BASE
+            currentPlayer.credits += Const.GOLD_PER_BASE
 
 
         fireEvent(NextTurnEvent(turnManager.currentPlayer, turnManager.currentPlayer))
@@ -458,9 +458,9 @@ open class PlayScreen(
             if (!nextPlayer.isOutOfGame) {
                 for (base in playStage.getCapturablesOf(nextPlayer)) {
                     if (base.isBase)
-                        nextPlayer.gold += creditsPerBase
+                        nextPlayer.credits += creditsPerBase
                     else
-                        nextPlayer.gold += creditsPerCluster
+                        nextPlayer.credits += creditsPerCluster
                 }
             }
 
@@ -773,12 +773,12 @@ open class PlayScreen(
 
         @ConsoleDoc(description = "Gives gold to local player.")
         fun gold(amount: Int) {
-            localPlayer.gold += amount
+            localPlayer.credits += amount
         }
 
         @ConsoleDoc(description = "Gives 9999 gold to local player.")
         fun gold() {
-            localPlayer.gold += 9999
+            localPlayer.credits += 9999
         }
 
         @ConsoleDoc(description = "Gives gold to player with given Id.")
@@ -788,7 +788,7 @@ open class PlayScreen(
                 return
             }
 
-            player.gold += amount
+            player.credits += amount
         }
     }
 

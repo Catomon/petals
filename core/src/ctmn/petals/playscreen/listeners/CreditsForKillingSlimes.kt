@@ -19,7 +19,7 @@ class CreditsForKillingSlimes(val playScreen: PlayScreen) : EventListener {
                 val killer = event.killer ?: return false
                 val player = playScreen.turnManager.getPlayerById(killer.playerId) ?: return false
                 val gold = if (event.unit.selfName == UnitIds.SLIME_HUGE) KILL_CREDITS_SLIME_HUGE else KILL_CREDITS_SLIME_LING
-                player.gold += gold
+                player.credits += gold
 
                 playScreen.guiStage.floatingLabel("${player.name} got $gold for killing a ${event.unit.selfName}")
             }

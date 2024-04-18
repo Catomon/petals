@@ -17,8 +17,8 @@ class Alice : UnitActor(
         0,
         4,
         8,
-        Player.BLUE,
-        Team.BLUE,
+        playerID = Player.BLUE,
+        teamID = Team.BLUE
     )
 ) {
 
