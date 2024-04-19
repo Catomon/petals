@@ -3,29 +3,27 @@ package ctmn.petals.unit.actors
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.CUCUMBER
+import ctmn.petals.unit.UnitIds.GOBLIN_GALLEY
 import ctmn.petals.unit.component.*
 
-class FairyCucumber : UnitActor(
+class GoblinGalley : UnitActor(
     UnitComponent(
-        CUCUMBER,
+        GOBLIN_GALLEY,
         100,
-        0,
-        2,
         5,
+        4,
+        6,
         UNIT_TYPE_WATER
     )
 ) {
 
     init {
-        add(SummonableComponent(50))
         add(FollowerComponent())
         add(
             AttackComponent(
+                45,
                 60,
-                70,
-                5,
-                2
+                4
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.waterOnly))

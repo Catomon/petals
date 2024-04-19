@@ -22,18 +22,20 @@ class GoblinBow : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                25,
+                30,
                 40,
                 3
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot.also {
-            it[TerrainNames.hills].ad(10, 0)
-            it[TerrainNames.mountains].ad(10, 5)
-            it[TerrainNames.tower].ad(10, 10)
+            it[TerrainNames.hills].ad(15, 0)
+            it[TerrainNames.mountains].ad(15, 5)
+            it[TerrainNames.tower].ad(15,10)
         }))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.ANGRY_OWL] = 25 to 0
+            bonuses[UnitIds.DOLL_BOMBER] = 25 to 0
+            bonuses[UnitIds.GOBLIN_WYVERN] = 25 to 0
         })
     }
 }

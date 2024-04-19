@@ -78,7 +78,7 @@ class BuyMenuPanel(
 
         fun addB(unitActor: UnitActor, cost: Int) {
             if (isWater && !unitActor.isWater) return
-            if (!isWater && !unitActor.isLand) return
+            if (!isWater && !unitActor.isLand && !unitActor.isAir) return
             gridGroup.addButton(UnitButton(unitActor, cost))
         }
 

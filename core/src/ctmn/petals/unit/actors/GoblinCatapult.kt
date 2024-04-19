@@ -3,6 +3,7 @@ package ctmn.petals.unit.actors
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.GOBLIN_CATAPULT
 import ctmn.petals.unit.component.*
 
@@ -29,6 +30,10 @@ class GoblinCatapult : UnitActor(
         add(TerrainPropComponent(TerrainPropsPack.foot.also {
             it[TerrainNames.mountains].ad(10, 0)
         }))
-        add(MatchUpBonusComponent())
+        add(MatchUpBonusComponent().apply {
+            bonuses[UnitIds.ANGRY_OWL] = 15 to 0
+            bonuses[UnitIds.DOLL_BOMBER] = 15 to 0
+            bonuses[UnitIds.GOBLIN_WYVERN] = 15 to 0
+        })
     }
 }

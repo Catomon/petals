@@ -8,6 +8,7 @@ import ctmn.petals.utils.CopyableComponent
 
 const val UNIT_TYPE_LAND = "land"
 const val UNIT_TYPE_WATER = "water"
+const val UNIT_TYPE_AIR = "air"
 
 data class UnitComponent(
     var name: String,

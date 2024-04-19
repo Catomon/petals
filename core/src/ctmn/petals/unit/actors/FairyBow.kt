@@ -3,8 +3,8 @@ package ctmn.petals.unit.actors
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_BOW
-import ctmn.petals.unit.abilities.UnsummonAbility
 import ctmn.petals.unit.component.*
 
 class FairyBow : UnitActor(
@@ -35,7 +35,9 @@ class FairyBow : UnitActor(
             it[TerrainNames.tower].ad(15,10)
         }))
         add(MatchUpBonusComponent().apply {
-            bonuses["angry_owl"] = 25 to 0
+            bonuses[UnitIds.ANGRY_OWL] = 25 to 0
+            bonuses[UnitIds.DOLL_BOMBER] = 25 to 0
+            bonuses[UnitIds.GOBLIN_WYVERN] = 25 to 0
         })
     }
 }

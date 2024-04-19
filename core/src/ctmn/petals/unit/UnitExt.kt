@@ -83,6 +83,7 @@ var UnitActor.mana get() = cAbilities!!.mana; set(value) { cAbilities!!.mana = v
 val UnitActor.allies get() = cUnit.allies;
 val UnitActor.isLand get() = cUnit.type == UNIT_TYPE_LAND
 val UnitActor.isWater get() = cUnit.type == UNIT_TYPE_WATER
+val UnitActor.isAir get() = cUnit.type == UNIT_TYPE_AIR
 
 @Deprecated("Returns cTerrainCost!!.", ReplaceWith("cTerrainCost?."), DeprecationLevel.WARNING)
 val UnitActor.terrainCost get() = cTerrainProps!!
