@@ -194,6 +194,7 @@ fun UnitActor.canAttack() : Boolean {
 }
 
 fun UnitActor.canAttack(unit: UnitActor) : Boolean {
+    if (unit.isAir && attackRange < 2) return false
     return canAttack() && isInAttackArea(unit)
 }
 
