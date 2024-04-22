@@ -3,7 +3,7 @@ package ctmn.petals.ai
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.player.Player
 
-abstract class AIBot(val player: Player, val playScreen: PlayScreen) {
+abstract class Bot(val player: Player, val playScreen: PlayScreen) {
 
     val playerID get() = player.id
 

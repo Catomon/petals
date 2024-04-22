@@ -5,7 +5,7 @@ import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
 import kotlin.concurrent.thread
 
-class SimpleAIBot(player: Player, playScreen: PlayScreen) : AIBot(player, playScreen) {
+class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
 
     val simpleAI = SimpleAI(player, playScreen)
 

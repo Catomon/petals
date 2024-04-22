@@ -1,7 +1,7 @@
 package ctmn.petals.story.alissa.scenarios
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
@@ -53,12 +53,12 @@ class Scenario9 : AlissaScenario("Swamp", "level_9.map") {
         playScreen.fogOfWarManager.drawDiscoverableFog = true
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen).apply {
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply {
             simpleAI.permaAgro = false
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 5
         })
-        playScreen.aiManager.add(SimpleAIBot(allyPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(allyPlayer, playScreen))
 
         //daytime
         playStage.timeOfDay = PlayStage.DayTime.DAY

@@ -21,7 +21,7 @@ import ctmn.petals.screens.MenuScreen
 import ctmn.petals.PetalsGame
 import ctmn.petals.Rich
 import ctmn.petals.ai.AIManager
-import ctmn.petals.ai.EasyAiDuelBot
+import ctmn.petals.ai.EasyDuelBot
 import ctmn.petals.discordRich
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.map.*
@@ -182,6 +182,7 @@ open class PlayScreen(
 
         // if first tile on a tiled position has layer != 1, shift all tiles layer on the position to make it 1
         // like 0 1 2 -> -1 0 1
+        // only if layer is <3, in this case: 0 1 2 3 -> -1 0 1 3
         val tiles = playStage.getAllTiles().toMutableList()
         val tilesSamePos = mutableListOf<TileActor>()
         for (x in 0 until playStage.tiledWidth) {
@@ -191,17 +192,37 @@ open class PlayScreen(
                 tilesSamePos.sortByDescending { it.layer }
                 if (tilesSamePos.isEmpty()) continue
 
-                if (tilesSamePos.first().layer == 1) continue
-
                 if (tilesSamePos.size == 1) {
                     tilesSamePos.first().layer = 1
                     continue
                 }
 
-                val layerDownTo = 1 - tilesSamePos.first().layer
-                tilesSamePos.forEach { it.layer += layerDownTo }
+                if (tilesSamePos.firstOrNull { it.layer == 2 } == null) continue
+
+                tilesSamePos.filter { it.layer < 3 }.forEach { it.layer -= 1 }
             }
         }
+
+        // val tiles = playStage.getAllTiles().toMutableList()
+        //        val tilesSamePos = mutableListOf<TileActor>()
+        //        for (x in 0 until playStage.tiledWidth) {
+        //            for (y in 0 until playStage.tiledHeight) {
+        //                tilesSamePos.clear()
+        //                tiles.forEach { if (it.tiledX == x && it.tiledY == y) tilesSamePos.add(it) }
+        //                tilesSamePos.sortByDescending { it.layer }
+        //                if (tilesSamePos.isEmpty()) continue
+        //
+        //                if (tilesSamePos.first().layer == 1) continue
+        //
+        //                if (tilesSamePos.size == 1) {
+        //                    tilesSamePos.first().layer = 1
+        //                    continue
+        //                }
+        //
+        //                val layerDownTo = 1 - tilesSamePos.first().layer
+        //                tilesSamePos.forEach { it.layer += layerDownTo }
+        //            }
+        //        }
 
         playStage.clearTiles()
         tiles.forEach { playStage.addActor(it) }
@@ -646,7 +667,7 @@ open class PlayScreen(
                 return
             }
 
-            aiManager.add(EasyAiDuelBot(player, this@PlayScreen))
+            aiManager.add(EasyDuelBot(player, this@PlayScreen))
 
             GameConsole.console.log("Added AI for player $player")
         }

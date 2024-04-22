@@ -200,7 +200,7 @@ class ScoreAI(
         playScreen.turnManager.players.addAll(gameState.players)
         playScreen.turnManager.turn = gameState.turn
         playScreen.friendlyFire = gameState.friendlyFire
-        gameState.aiPlayers.forEach { playScreen.aiManager.add(EasyAiDuelBot(playScreen.turnManager.getPlayerById(it) ?: return@forEach, playScreen)) }
+        gameState.aiPlayers.forEach { playScreen.aiManager.add(EasyDuelBot(playScreen.turnManager.getPlayerById(it) ?: return@forEach, playScreen)) }
 
         playScreen.playStage.idCounter = gameState.idCounter
 

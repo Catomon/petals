@@ -365,6 +365,11 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 	default: {
 		down: panel_b
 		up: panel_b
+	},
+	tool_select: {
+		down: tool_select
+		up: tool_select_pressed
+		focusBorder: tool_select_border
 	}
 	tool_drag_canvas: {
 		down: tool_drag_canvas
@@ -404,8 +409,8 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		down: ability_btn_pressed
 		up: ability_btn
 		focusBorder: ability_btn_border
-		pressedOffsetY: -1
-		imageUp: icons/doll_sword
+		pressedOffsetY: -1,
+		imageUp: icons/summon_doll
 	}
 	umm_capture: {
 		down: umm_capture_pressed,

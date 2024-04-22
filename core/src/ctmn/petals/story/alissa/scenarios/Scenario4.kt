@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa.scenarios
 
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
@@ -42,8 +42,8 @@ class Scenario4 : AlissaScenario(name = "Goblins", levelFileName = "level_4.map"
     override fun makeScenario(playScreen: PlayScreen) {
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen))
-        playScreen.aiManager.add(SimpleAIBot(allyPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(allyPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

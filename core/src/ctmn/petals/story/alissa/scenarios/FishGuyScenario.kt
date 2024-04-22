@@ -1,7 +1,7 @@
 package ctmn.petals.story.alissa.scenarios
 
 import ctmn.petals.actors.actions.JumpAction
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -42,7 +42,7 @@ class FishGuyScenario : AlissaScenario(name = "Fish Guy", levelFileName = "fish_
         playScreen.fogOfWarManager.drawFog = false
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

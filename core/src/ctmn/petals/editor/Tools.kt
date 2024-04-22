@@ -1,25 +1,31 @@
 package ctmn.petals.editor
 
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
+import com.badlogic.gdx.utils.Array
+import kotlin.math.absoluteValue
 
 class Tools {
 
     val pencil = Pencil()
     val eraser = Eraser()
     val dragCanvas = DragCanvas()
+    val select = Select()
 
     val toolList = listOf(
         pencil,
         eraser,
+        select,
         dragCanvas
     )
 
     var current: Tool = pencil
         set(value) {
+            field.toolChanged(value)
             field = value
             val canvas = this.canvas ?: return
             canvas.root?.listeners?.removeAll { it is Tool }
@@ -59,6 +65,8 @@ abstract class Tool(val name: String) : InputListener() {
 
     protected val tempVector = Vector2()
 
+    open var tooltip = name
+
     fun setToolContext(tools: Tools, canvas: CanvasStage) {
         _tools = tools
         _canvas = canvas
@@ -80,6 +88,10 @@ abstract class Tool(val name: String) : InputListener() {
         camera.position.x -= deltaX
         camera.position.y -= deltaY
         camera.update()
+    }
+
+    open fun toolChanged(tool: Tool) {
+
     }
 
     override fun handle(e: Event?): Boolean {
@@ -214,6 +226,76 @@ class Fill : Tool("fill") {
 
 class Select : Tool("select") {
 
+    val selectedActors = Array<CanvasActor>(false, 1024)
+    var selectionRect = Rectangle()
+
+    var ignoreLayer = true
+
+    var isSelecting = false
+
+    init {
+        tooltip = "select: [M] - move, [D] - delete"
+    }
+
+    override fun toolChanged(tool: Tool) {
+        super.toolChanged(tool)
+
+        //if (tool != this)
+        selectedActors.clear()
+    }
+
+    override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+        setPointer(x, y, button)
+
+        if (button == 0) isSelecting = true
+        else return true
+
+        selectionRect.setSize(0f)
+        selectionRect.setPosition(x, y)
+
+        return true
+    }
+
+    override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+        super.touchUp(event, x, y, pointer, button)
+
+        if (button != 0) return
+        else isSelecting = false
+
+        if (selectionRect.width < 0) {
+            selectionRect.x += selectionRect.width
+            selectionRect.width = selectionRect.width.absoluteValue
+        }
+        if (selectionRect.height < 0) {
+            selectionRect.y += selectionRect.height
+            selectionRect.height = selectionRect.height.absoluteValue
+        }
+
+        for (actor in canvas.getCanvasActors()) {
+            val actorRect = Rectangle.tmp.set(actor.x, actor.y, actor.width, actor.height)
+            val isContains = selectionRect.overlaps(actorRect)
+            val isSameLayer = actor.layer == tools.pencil.layer || ignoreLayer
+
+            if (isContains && isSameLayer) {
+                selectedActors.add(actor)
+            }
+        }
+
+        selectionRect.setSize(0f)
+        selectionRect.setPosition(x, y)
+    }
+
+    override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
+        super.touchDragged(event, x, y, pointer)
+
+        if (!isSelecting) {
+            dragCanvas(x, y)
+
+            return
+        }
+
+        selectionRect.setSize(x - selectionRect.x, y - selectionRect.y)
+    }
 }
 
 class DragCanvas : Tool("drag_canvas") {

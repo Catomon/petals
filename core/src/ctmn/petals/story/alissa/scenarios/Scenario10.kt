@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa.scenarios
 
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
@@ -47,7 +47,7 @@ class Scenario10 : AlissaScenario("Swamp 2", "level_10.map") {
         playScreen.fogOfWarManager.drawDiscoverableFog = true
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen).apply {
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply {
             simpleAI.permaAgro = false
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 6

@@ -5,6 +5,7 @@ import ctmn.petals.player.Player
 import ctmn.petals.player.fairy
 import ctmn.petals.player.goblin
 import ctmn.petals.player.speciesList
+import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.tiledDst
@@ -20,8 +21,13 @@ val TileActor.cPlayerId get() = get(PlayerIdComponent::class.java)
 val TileActor.cReplaceWith get() = get(ReplaceWithComponent::class.java)
 val TileActor.cLifeTime get() = get(LifeTimeComponent::class.java)
 val TileActor.cCapturing get() = get(CapturingComponent::class.java)
-
 val TileActor.isOccupied get() = (stage as PlayStage).getUnit(tiledX, tiledY) != null
+val TileActor.isWaterBase: Boolean get() {
+    if (!isBase) return false
+    val playStage = playStageOrNull ?: return false
+    val backTerrain = playStage.getTile(tiledX, tiledY, layer - 1)?.terrain
+    return backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater
+}
 
 fun TileActor.isPassableAndFree(): Boolean {
     return !isOccupied && terrain != TerrainNames.impassable

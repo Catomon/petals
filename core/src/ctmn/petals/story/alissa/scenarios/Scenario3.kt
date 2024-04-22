@@ -1,7 +1,7 @@
 package ctmn.petals.story.alissa.scenarios
 
 import ctmn.petals.actors.actions.JumpAction
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -49,7 +49,7 @@ class Scenario3 : AlissaScenario(name = "Slime 3", levelFileName = "level_3.map"
         playScreen.fogOfWarManager.drawFog = false
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

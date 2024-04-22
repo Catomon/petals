@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa.scenarios
 
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -38,7 +38,7 @@ class Scenario1dot5 : AlissaScenario(name = "Slime 1.5", levelFileName = "level_
 
     override fun makeScenario(playScreen: PlayScreen) {
         // ai
-        val aiBot = SimpleAIBot(enemyPlayer, playScreen)
+        val aiBot = SimpleBot(enemyPlayer, playScreen)
         aiBot.simpleAI.permaAgro = true
         playScreen.aiManager.add(aiBot)
 

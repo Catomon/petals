@@ -8,9 +8,9 @@ import ctmn.petals.multiplayer.ClientPlayScreen
 
 class AIManager(val playScreen: PlayScreen) {
 
-    val aiPlayers = Array<AIBot>()
+    val aiPlayers = Array<Bot>()
 
-    var current: AIBot? = null
+    var current: Bot? = null
 
     //not working with more than 1 ai just delete
     //val isDone: Boolean get() { aiPlayers.forEach { if (!it.isDone) return false }; return true}
@@ -49,7 +49,7 @@ class AIManager(val playScreen: PlayScreen) {
         }
     }
 
-    fun add(aiPlayer: AIBot) {
+    fun add(aiPlayer: Bot) {
         aiPlayers.add(aiPlayer)
     }
 

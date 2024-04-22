@@ -15,7 +15,7 @@ import ctmn.petals.*
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.RepeatAction
 import ctmn.petals.actors.actions.TimeAction
-import ctmn.petals.ai.EasyAiDuelBot
+import ctmn.petals.ai.EasyDuelBot
 import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.map.*
@@ -591,7 +591,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         ).apply {
             playerSlots.forEach {
                 if (it.isAI)
-                    aiManager.add(EasyAiDuelBot(it.player!!, this))
+                    aiManager.add(EasyDuelBot(it.player!!, this))
             }
 
             fogOfWarManager.drawFog = fogOfWarButton.userObject as Boolean

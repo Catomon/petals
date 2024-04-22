@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa.scenarios
 
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -46,7 +46,7 @@ class Scenario11 : AlissaScenario("Goblins 3", "level_11.map") {
         playStage.timeOfDay = PlayStage.DayTime.NIGHT
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
 
         // labels
         playStage.getLabels().forEach { label ->

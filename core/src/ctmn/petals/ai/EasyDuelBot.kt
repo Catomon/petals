@@ -19,7 +19,7 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.*
 import ctmn.petals.utils.tiledX
 
-class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, playScreen) {
+class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
 
     val unitsAwaitingOrders = Array<UnitActor>()
     val enemyUnits = Array<UnitActor>()
@@ -169,8 +169,9 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         //find base
         var baseX: Int = -999
         var baseY: Int = -999
+
         for (tile in playScreen.playStage.getTiles()) {
-            if (tile.terrain == TerrainNames.base) {
+            if (tile.isBase) {
                 if (tile.cPlayerId?.playerId == playerID) {
                     if (tile.isOccupied)
                         continue
@@ -184,6 +185,9 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         if (baseX < 0)
             return false
 
+        val baseTile = playScreen.playStage.getTile(baseX, baseY)
+        val isWater = baseTile?.isWaterBase == true
+
         //what unit to buy
         fun howMuchOfUnits(string: String, units: Array<UnitActor>): Int {
             var count = 0
@@ -195,6 +199,10 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
         }
 
         var unitToBuy = ""
+
+        val buyPriority =
+            if (isWater) buyPriority.filter { speciesUnits.find { unit -> unit.isWater }?.selfName == it.first } else buyPriority
+        val buyPriority2 = if (isWater) buyPriority else this.buyPriority2
 
         for ((name, count) in buyPriority) {
             if (player.credits < (speciesUnits.find { it.selfName == name }?.cShop?.price ?: continue)) continue
@@ -211,9 +219,18 @@ class EasyAiDuelBot(player: Player, playScreen: PlayScreen) : AIBot(player, play
                 unitsToBuy.add(name)
         }
 
+        // if (!unitsToBuy.isEmpty)
+        //                if (isWater) return false
+        //                else unitToBuy = this.buyPriority.filter { it.second in 100..600 }.random().first
+
         if (unitToBuy.isEmpty()) {
             if (unitsToBuy.isEmpty) {
-                unitToBuy = speciesUnits.first().selfName
+                unitToBuy =
+                    if (!isWater)
+                        speciesUnits.first().selfName
+                    else
+                        buyPriority.filter { speciesUnits.find { it.isWater }?.selfName == it.first }
+                            .minBy { it.second }.first
                 for ((name, count) in buyPriority2) {
                     if (howMuchOfUnits(name, playScreen.playStage.getUnitsOfPlayer(player)) < count)
                         unitsToBuy.add(name)

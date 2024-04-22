@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa.scenarios
 
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -60,7 +60,7 @@ class Scenario8 : AlissaScenario("Evil Trees 3", "level_8.map") {
         playScreen.fogOfWarManager.drawFog = true
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen).apply {
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply {
             simpleAI.permaAgro = false
             simpleAI.roamingIfNoAgro = false
             simpleAI.agroRange = 8

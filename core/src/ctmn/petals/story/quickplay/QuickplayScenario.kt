@@ -1,7 +1,7 @@
 package ctmn.petals.story.quickplay
 
-import ctmn.petals.ai.EasyAiDuelBot
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.EasyDuelBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.MapGenerator
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
@@ -54,8 +54,8 @@ class QuickplayScenario : Scenario("Fae", "") {
 
         playScreen.fogOfWarManager.drawFog = true
 
-        playScreen.aiManager.add(EasyAiDuelBot(players[1], playScreen))
-        playScreen.aiManager.add(SimpleAIBot(players[2], playScreen).apply {
+        playScreen.aiManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.aiManager.add(SimpleBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 1
             simpleAI.permaAgro = false

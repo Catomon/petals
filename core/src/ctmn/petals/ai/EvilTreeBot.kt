@@ -18,7 +18,7 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
-class EvilTreeAiBot(player: Player, playScreen: PlayScreen) : AIBot(player, playScreen) {
+class EvilTreeBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
 
     val unitsAwaitingOrders = Array<UnitActor>()
     val enemyUnits = Array<UnitActor>()

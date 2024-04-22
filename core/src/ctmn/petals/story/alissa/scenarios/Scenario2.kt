@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa.scenarios
 
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -48,7 +48,7 @@ class Scenario2 : AlissaScenario(name = "Slime 2", levelFileName = "level_2.map"
         playScreen.fogOfWarManager.drawFog = true
 
         // ai
-        val aiBot = SimpleAIBot(enemyPlayer, playScreen)
+        val aiBot = SimpleBot(enemyPlayer, playScreen)
         aiBot.simpleAI.permaAgro = true
         playScreen.aiManager.add(aiBot)
 

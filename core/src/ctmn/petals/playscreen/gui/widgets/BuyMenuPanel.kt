@@ -19,6 +19,7 @@ import ctmn.petals.player.getSpeciesUnits
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.tile.TerrainNames
+import ctmn.petals.tile.isWaterBase
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.addChangeListener
@@ -70,8 +71,7 @@ class BuyMenuPanel(
         setCenterOnAdd(true)
 
         val playStage = baseTile.playStageOrNull ?: throw IllegalStateException("Base tile in not on the stage.")
-        val backTerrain = playStage.getTile(baseTile.tiledX, baseTile.tiledY, baseTile.layer - 1)?.terrain
-        val isWater = backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater
+        val isWater = baseTile.isWaterBase
 
         //grid group
         val unitsData = guiStage.playScreen.unitsData

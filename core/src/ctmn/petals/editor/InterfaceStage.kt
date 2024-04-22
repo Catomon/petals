@@ -2,10 +2,10 @@ package ctmn.petals.editor
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
-import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
@@ -18,6 +18,7 @@ import com.kotcrab.vis.ui.FocusManager
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.Const
+import ctmn.petals.editor.ui.TooltipLabel
 import ctmn.petals.game
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.*
@@ -69,6 +70,8 @@ class InterfaceStage(
         addClickListener { _ ->
             setText(if (text.contentEquals(layerVisibilityAll)) layerVisibilityCurrent else layerVisibilityAll)
             changeLayer(tools.pencil.layer)
+
+            tools.select.ignoreLayer = text.contentEquals(layerVisibilityAll)
         }
     }
 
@@ -138,6 +141,11 @@ class InterfaceStage(
         mainTable.row().expandY()
         mainTable.add(actorsPickerHorizontalTable).colspan(4).bottom()
 
+        //add tooltips
+        toolButtons.buttons.forEach {
+            addActor(TooltipLabel(it, (it.userObject as Tool).tooltip))
+        }
+
         //default
         changeTool(tools.pencil)
         changeLayer(1)
@@ -193,6 +201,24 @@ class InterfaceStage(
 
             Keys.ESCAPE -> {
                 FocusManager.resetFocus(this)
+            }
+
+            Keys.D -> {
+                tools.select.selectedActors.forEach { canvas.removeActor(it) }
+                tools.select.selectedActors.clear()
+            }
+            Keys.M -> {
+                if (!tools.select.selectedActors.isEmpty) {
+                    val bottomLeftActorPos = with(tools.select.selectedActors.minBy { it.x + it.y }) { Vector2(x, y) }
+                    val moveTo =
+                        canvas.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+                            .apply { x -= x % tileSize; y -= y % tileSize }
+                    tools.select.selectedActors.forEach {
+                        it.setPosition(moveTo.x + it.x - bottomLeftActorPos.x, moveTo.y + it.y - bottomLeftActorPos.y)
+                    }
+
+                    canvas.updateBoundingRectangleSize()
+                }
             }
         }
 
@@ -490,6 +516,7 @@ class InterfaceStage(
         }
 
         init {
+            setKeepWithinStage(false)
             closeOnEscape()
             addCloseButton()
             setSize(400f, 700f)

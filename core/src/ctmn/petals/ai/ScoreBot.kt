@@ -7,7 +7,7 @@ import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.utils.printLess
 import kotlin.concurrent.thread
 
-class ScoreAIBot(player: Player, playScreen: PlayScreen) : AIBot(player, playScreen) {
+class ScoreBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
 
     val scoreAI = ScoreAI(player, playScreen)
 

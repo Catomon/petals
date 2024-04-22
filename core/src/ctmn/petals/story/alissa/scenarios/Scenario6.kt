@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa.scenarios
 
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
@@ -40,7 +40,7 @@ class Scenario6 : AlissaScenario(name = "Evil Trees", levelFileName = "level_6.m
     override fun makeScenario(playScreen: PlayScreen) {
 
         // ai
-        playScreen.aiManager.add(SimpleAIBot(enemyPlayer, playScreen).apply { simpleAI.permaAgro = false })
+        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply { simpleAI.permaAgro = false })
 
         //labels
         for (label in playStage.getLabels()) {

@@ -46,7 +46,7 @@ class QuickGameScreen(private val game: PetalsGame) : Stage(FillViewport(1366f *
     private fun startScenario() {
         val scenario = TestScenario(mapsList.selected)
 //        game.screen = StoryPlayScreen(game, scenario).also {
-//            it.aiManager.add(EasyAiDuelBot(scenario.redPlayer, it))
+//            it.aiManager.add(EasyDuelBot(scenario.redPlayer, it))
 //        }
     }
 

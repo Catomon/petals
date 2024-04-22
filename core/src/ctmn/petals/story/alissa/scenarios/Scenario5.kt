@@ -1,7 +1,7 @@
 package ctmn.petals.story.alissa.scenarios
 
 import ctmn.petals.actors.actions.JumpAction
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.ai.SimpleBot
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -61,9 +61,9 @@ class Scenario5 : AlissaScenario(name = "Goblins 2", levelFileName = "level_5.ma
     override fun makeScenario(playScreen: PlayScreen) {
 
         // AI
-        //playScreen.aiManager.add(EasyAiDuelBot(allyPlayer, playScreen))
-        playScreen.aiManager.add(SimpleAIBot(goblinsPlayer, playScreen))
-        playScreen.aiManager.add(SimpleAIBot(slimesPlayer, playScreen))
+        //playScreen.aiManager.add(EasyDuelBot(allyPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(goblinsPlayer, playScreen))
+        playScreen.aiManager.add(SimpleBot(slimesPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {
