@@ -2,6 +2,9 @@ package ctmn.petals.menu
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
@@ -698,7 +701,11 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 field = value
 
                 if (player != null)
-                    mapPreview.map?.labels?.filter { it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(this).toString() }
+                    mapPreview.map?.labels?.filter {
+                        it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(
+                            this
+                        ).toString()
+                    }
                         ?.forEach { it.data.put("player_id", player!!.id.toString()) }
             }
 
@@ -725,7 +732,11 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
                     mapPreview.changePlayerMark(value, playerSlots.indexOf(this, false))
 
-                    mapPreview.map?.labels?.filter { it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(this).toString() }
+                    mapPreview.map?.labels?.filter {
+                        it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(
+                            this
+                        ).toString()
+                    }
                         ?.forEach { it.data.put("player_id", value.id.toString()) }
                     //label?.data?.put("player_id", value.id.toString())
                 } else {
@@ -735,7 +746,11 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
                     mapPreview.changePlayerMark(null, playerSlots.indexOf(this, false))
 
-                    mapPreview.map?.labels?.filter { it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(this).toString() }
+                    mapPreview.map?.labels?.filter {
+                        it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(
+                            this
+                        ).toString()
+                    }
                         ?.forEach { it.data.removeKey("player_id") }
                     //label?.data?.removeKey("player_id")
                 }
@@ -770,6 +785,22 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             removePlayerButton.setPosByCenter(width - 12f, height - 9f)
             removePlayerButton.isVisible = false
             addActor(removePlayerButton)
+
+            addListener(object : InputListener() {
+                override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+                    super.enter(event, x, y, pointer, fromActor)
+
+                    mapPreview.markButtons.filter { it.userObject == playerSlots.indexOf(this@PlayerSlot) }
+                        .forEach { it.focusGained() }
+                }
+
+                override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+                    super.exit(event, x, y, pointer, toActor)
+
+                    mapPreview.markButtons.filter { it.userObject == playerSlots.indexOf(this@PlayerSlot) }
+                        .forEach { it.focusLost() }
+                }
+            })
 
             playerSlots.add(this)
         }

@@ -89,7 +89,7 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
         addActor(windowTable)
 
         customGameButton.addChangeListener {
-                menuScreen.stage = menuScreen.customGameSetupStage
+                menuScreen.stage = menuScreen.botGameSetupStage
         }
 
         serverLobbyButton.addChangeListener {

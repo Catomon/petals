@@ -32,8 +32,10 @@ class Strings {
 
     class Menu {
         val story = "Story"
-        val quickplay = "Random Map"
+        val quickplay = "Quickplay"
         val match = "Match"
+        val vsBot = "Vs Bot"
+        val vsPlayer = "Vs Player"
         val editor = "Editor"
         val settings = "Settings"
         val exit = "Exit"

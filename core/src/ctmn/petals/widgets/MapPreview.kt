@@ -119,7 +119,7 @@ class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
                     sprite.draw(batch)
                 }
             }
-        else batch.draw(bunny, x + 7f, y + 8f)
+        else batch.draw(bunny, x + 7f, y + 8f, 300f, 300f)
 
         batch.flush() //Make sure nothing is clipped before we want it to.
 

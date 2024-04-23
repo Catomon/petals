@@ -13,6 +13,7 @@ import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.QuickplayScreen
 import ctmn.petals.story.StoriesManager
+import ctmn.petals.utils.addClickListener
 import ctmn.petals.widgets.*
 
 class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
@@ -24,6 +25,8 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val storyButton = newTextButton(strings.menu.story).apply { isDisabled = true }
     private val quickPlayButton = newTextButton(strings.menu.quickplay)
     private val matchButton = newTextButton(strings.menu.match)
+    private val vsPlayerButton = newTextButton(strings.menu.vsPlayer)
+    private val vsBotButton = newTextButton(strings.menu.vsBot)
     private val editorButton = newTextButton(strings.menu.editor)
     private val settingsButton = newTextButton(strings.menu.settings)
     private val exitButton = newTextButton(strings.menu.exit)
@@ -59,28 +62,31 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         quickPlayButton.addChangeListener {
             game.screen = QuickplayScreen(game)
         }
-
-        bunnyImage.setSize(300f, 300f)
+        vsBotButton.addChangeListener {
+            menuScreen.stage = menuScreen.botGameSetupStage
+        }
+        vsPlayerButton.addChangeListener {
+            menuScreen.stage = menuScreen.lobbyTypesStage
+        }
 
         table.setFillParent(true)
         table.center()
 
-        with (table) {
-            add(bunnyImage).width(300f)
+        with(table) {
+            add(bunnyImage).size(200f).colspan(2)
+//            row()
+//            add(label).bottom()
             row()
-            add(label).bottom()
+            add(storyButton).bottom().width(150f)
+            add(vsBotButton).width(150f)
+//            add(quickPlayButton).width(150f)
             row()
-            add(storyButton).bottom()
+            add(vsPlayerButton).width(150f)
+//            add(matchButton).bottom().width(150f)
+            add(editorButton).width(150f)
             row()
-            add(quickPlayButton)
-            row()
-            add(matchButton).bottom()
-            row()
-            add(editorButton)
-            row()
-            add(settingsButton).bottom()
-            row()
-            add(exitButton).bottom()
+            add(settingsButton).bottom().width(150f)
+            add(exitButton).bottom().width(150f)
 
             //padBottom(30f)
         }
@@ -90,8 +96,15 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         table2.setFillParent(true)
         with(table2) {
             bottom()
-
-            // social buttons i guess
+            add(VisImage("icons/itch").addClickListener {
+                Gdx.net.openURI("https://serascout.itch.io/petals")
+            }.addClickSound())
+            add(VisImage("icons/reddit").addClickListener {
+                Gdx.net.openURI("https://www.reddit.com/r/Petals/")
+            }.addClickSound())
+            add(VisImage("icons/discord").addClickListener {
+                Gdx.net.openURI("https://discord.gg/QMG3UeUugF")
+            }.addClickSound())
         }
 
         addActor(table2)

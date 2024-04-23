@@ -33,7 +33,7 @@ fun updateAppConfigToPrefs() {
             Gdx.graphics.setWindowedMode(854, 480)
 }
 
-class PetalsGame : Game() {
+class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
 
     val assets = Assets()
 

@@ -7,7 +7,7 @@ public class RunTexturePacker {
         pack();
     }
 
-    public static void pack() {
+    public static int pack() {
         try {
             System.out.println(RunTexturePacker.class.getSimpleName() + "Running...");
             TexturePacker.Settings settings = new TexturePacker.Settings();
@@ -31,6 +31,10 @@ public class RunTexturePacker {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(RunTexturePacker.class.getSimpleName() + "Fail.");
+
+            return -1;
         }
+
+        return 1;
     }
 }

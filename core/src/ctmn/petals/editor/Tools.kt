@@ -233,9 +233,7 @@ class Select : Tool("select") {
 
     var isSelecting = false
 
-    init {
-        tooltip = "select: [M] - move, [D] - delete"
-    }
+    override var tooltip: String = "$name: [M] - move, [D] - delete"
 
     override fun toolChanged(tool: Tool) {
         super.toolChanged(tool)

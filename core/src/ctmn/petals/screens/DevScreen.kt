@@ -14,8 +14,6 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.Const
 import ctmn.petals.PetalsGame
 import ctmn.petals.assets
-import ctmn.petals.editor.EditorScreen
-import ctmn.petals.story.QuickplayScreen
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.MovingBackground
 import ctmn.petals.widgets.addChangeListener
@@ -46,6 +44,7 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
                     game.screen = MenuScreen(game)
                 })
                 group.addActor(VisTextButton("Reload Assets").addChangeListener {
+                    game.runTexturePacker.run()
                     game.assets.clear()
                     game.screen = LoadingScreen(game)
                 })
