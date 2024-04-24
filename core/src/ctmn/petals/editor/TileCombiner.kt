@@ -1,52 +1,44 @@
-package ctmn.petals.playstage
+package ctmn.petals.editor
 
 import com.badlogic.gdx.Gdx
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.playStageOrNull
-import ctmn.petals.playscreen.selfName
-import ctmn.petals.tile.TileActor
-import ctmn.petals.tile.TileData
 import ctmn.petals.tile.Tiles
 
-class Decorator {
+class TileCombiner(val actorsPackage: CanvasActorsPackage) {
+
     private val combinableSuffixes =
         arrayOf("l", "r", "t", "b", "lb", "lr", "lrb", "lrt", "lrtb", "lt", "ltb", "r", "rb", "rt", "rtb", "t", "tb")
 
-    fun decorate(playStage: PlayStage) {
-        //addMissingTiles()
-
-        for (tile in playStage.getAllTiles()) {
-            if (tile.isCombinable()) {
-                tile.combine()
-            }
+    fun combine(tile: CanvasActor) {
+        if (tile.name.endsWith("_combinable")) {
+            tile.name = tile.name.removeSuffix("_combinable")
+            tile.sprite.set(actorsPackage.get(tile.name).sprite)
         }
-    }
 
-    fun combineTile(tileActor: TileActor) {
-        tileActor.combine()
-    }
+        val nameNoSuff = tile.nameNoSuffix()
 
-    /** Combines tile with other equal tiles.
-     * The tile should have textures with the name containing one of suffixes [combinableSuffixes] */
-    private fun TileActor.combine() {
-        if (!isCombinable()) return
-        val playStage = playStageOrNull ?: throw IllegalStateException("Tile is not on the Stage")
+        if (actorsPackage.find(nameNoSuff + "_combinable") == null) return
 
-        val nameNoSuff = nameNoSuffix()
+        val stage = tile.stage as CanvasStage? ?: throw IllegalStateException("Tile is not on the Stage")
 
-        with(playStage) {
+        tile.name = nameNoSuff
+        tile.sprite.set(actorsPackage.get(tile.name).sprite)
+
+        val tiledX = tile.x.toTilePos()
+        val tiledY = tile.y.toTilePos()
+
+        with(stage) {
             /* make suffix based on similar neighbour tiles */
 
             // returns true if there are similar neighbour tile or if there are null neighbour at same level
             fun isSimilarTile(tiledX: Int, tiledY: Int): Boolean {
-                val hasSameNeighbour = getAllTiles().firstOrNull {
+                val hasSameNeighbour = getCanvasActors().firstOrNull {
                     val itNameNoSuffix = it.nameNoSuffix()
                     val bothNames = arrayOf(nameNoSuff, itNameNoSuffix)
                     val isSameName = itNameNoSuffix == nameNoSuff
                             || bothNames[0] == Tiles.WATER && bothNames[1] == Tiles.DEEPWATER
-                    isSameName && it.tiledX == tiledX && it.tiledY == tiledY
+                    isSameName && it.x.toTilePos() == tiledX && it.y.toTilePos() == tiledY
                 }
-                return hasSameNeighbour != null || getTile(tiledX, tiledY, layer) == null
+                return hasSameNeighbour != null || getActor(tiledX, tiledY, tile.layer) == null
             }
 
             val left = if (isSimilarTile(tiledX - 1, tiledY)) "l" else ""
@@ -58,21 +50,21 @@ class Decorator {
 
             /* Combine the tile name with the suffix and find a texture for the tile, then apply the texture */
 
-            var combinedName = tileComponent.name + suff
+            var combinedName = tile.name + suff
 
             // if swamp_lrtb not found else just swamp
             if (suff == "_lrtb") {
-                if (assets.textureAtlas.findRegion("tiles/${terrain}/" + combinedName) == null)
+                if (actorsPackage.find(combinedName) == null)
                     combinedName = combinedName.removeSuffix(suff)
             }
 
             // find texture for combined option, else, try flipping existing texture and throw exception if no textures found
-            if (assets.textureAtlas.findRegion("tiles/${terrain}/" + combinedName) != null) {
-                tileComponent.name = combinedName
-                initView()
+            if (actorsPackage.find(combinedName) != null) {
+                tile.name = combinedName
+                tile.sprite.set(actorsPackage.get(combinedName).sprite)
             } else {
                 // option if im too lazy to make all textures but have some that can be flipped or rotated
-                val cheapCombinedName = tileComponent.name +
+                val cheapCombinedName = tile.name +
                         when {
                             combinedName.contains("_lrb") -> "_rtb"
                             combinedName.contains("_ltb") -> "_rtb"
@@ -88,16 +80,19 @@ class Decorator {
                             else -> return // "swamp" with no neighbours I guess
                         }
 
-                if (assets.textureAtlas.findRegion("tiles/${terrain}/" + cheapCombinedName) == null) {
+                if (actorsPackage.find(cheapCombinedName) == null) {
                     Gdx.app.error(
-                        this@Decorator::class.simpleName,
-                        "Combining: Tile texture not found ${"tiles/${terrain}/" + cheapCombinedName}"
+                        this@TileCombiner::class.simpleName,
+                        "Combining: Tile not found: $cheapCombinedName}"
                     )
                     return
                 }
 
-                tileComponent.name = cheapCombinedName
-                initView()
+                tile.name = cheapCombinedName
+                tile.sprite.set(actorsPackage.get(cheapCombinedName).sprite)
+                val sprite = tile.sprite
+
+                sprite.setOriginCenter()
 
                 when {
                     combinedName.contains("_lrb") -> sprite.rotation = 270f
@@ -116,58 +111,41 @@ class Decorator {
                 }
             }
 
+            val nameNoSuff = tile.nameNoSuffix()
             // if there are "_back" texture, put a tile with it to layer 0
-            val backTexture = assets.textureAtlas.findRegion("tiles/$terrain/${nameNoSuff}_back")
+            val backTexture = actorsPackage.find("${nameNoSuff}_back")
             if (backTexture != null && suff != "_lrtb") {
 
                 //getTile(tiledX, tiledY, 0)?.remove()
 
-                if (getTile(tiledX, tiledY, 0) == null) {
+                val backLayer = tile.layer - 1
+                if (getActor(tiledX, tiledY, backLayer) == null) {
                     //val tileData = playScreen.tilesData.get("${nameNoSuff}_back")!!
-                    val tileData = TileData.get(nameNoSuff)!!
-                    val tile = TileActor(tileData.name, tileData.terrain)
-                    tile.initView()
-                    tile.tileComponent.layer = 0
-                    tile.setPosition(x, y)
-                    addActor(tile)
+                    val tileBack = actorsPackage.get(nameNoSuff).copy()
+                    tileBack.layer = backLayer
+                    tileBack.setPosition(tile.x, tile.y)
+                    addActor(tileBack, backLayer)
                 }
             }
         }
+
+        tile.name = tile.nameNoSuffix()
     }
 
-    private fun TileActor.nameNoSuffix(): String {
-        var nameNoSuffix = selfName
+    private fun CanvasActor.nameNoSuffix(): String {
+        var nameNoSuffix = name
         combinableSuffixes.forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
         "abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
 
         return nameNoSuffix
     }
 
-    private fun TileActor.isCombinable(): Boolean {
-        //var nameNoSuffix = selfName
-        //"abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
-
+    private fun CanvasActor.isCombinable(): Boolean {
         combinableSuffixes.forEach {
-            if (assets.textureAtlas.findRegion("tiles/${terrain}/" + selfName + "_$it") != null)
+            if (name.contains("_$it"))
                 return true
         }
 
         return false
-    }
-
-    // add grass tile if a tile in layer 1(main) is missing
-    fun addMissingTiles(playScreen: PlayScreen, playStage: PlayStage) {
-        for (x in 0 until playStage.tiledWidth()) {
-            for (y in 0 until playStage.tiledHeight()) {
-                if (playStage.getTile(x, y) == null) {
-                    val tileData = playScreen.tilesData.get("grass")!!
-                    val tile = TileActor(tileData.name, tileData.terrain)
-                    tile.initView()
-                    tile.tileComponent.layer = 1
-                    tile.setPosition(x, y)
-                    playStage.addActor(tile)
-                }
-            }
-        }
     }
 }

@@ -9,9 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.utils.Array
 import kotlin.math.absoluteValue
 
-class Tools {
+class Tools(private val actorsPackage: CanvasActorsPackage) {
 
-    val pencil = Pencil()
+    val pencil = Pencil(actorsPackage)
     val eraser = Eraser()
     val dragCanvas = DragCanvas()
     val select = Select()
@@ -102,7 +102,7 @@ abstract class Tool(val name: String) : InputListener() {
     }
 }
 
-class Pencil : Tool("pencil") {
+class Pencil(private val actorsPackage: CanvasActorsPackage) : Tool("pencil") {
 
     var canvasActor: CanvasActor? = null
 
@@ -141,6 +141,8 @@ class Pencil : Tool("pencil") {
             draw(x, y)
     }
 
+    private val combiner = TileCombiner(actorsPackage)
+
     fun draw(x: Float, y: Float) {
         if (x < 0 || y < 0) return
 
@@ -157,12 +159,21 @@ class Pencil : Tool("pencil") {
         }
 
         canvasActor?.let { canvasActor ->
-            canvas.addActor(
-                canvasActor.copy().apply {
-                    setPosition(x - x % tileSize, y - y % tileSize)
-                },
-                layer
-            )
+            val newActor = canvasActor.copy()
+
+            newActor.setPosition(x - x % tileSize, y - y % tileSize)
+
+            canvas.addActor(newActor, layer)
+
+            //only for tile with name containing "combinable"
+            combiner.combine(newActor)
+
+            val tiledX = newActor.x.toTilePos()
+            val tiledY = newActor.y.toTilePos()
+            canvas.getActor(tiledX + 1, tiledY, layer)?.let { combiner.combine(it) }
+            canvas.getActor(tiledX - 1, tiledY, layer)?.let { combiner.combine(it) }
+            canvas.getActor(tiledX, tiledY + 1, layer)?.let { combiner.combine(it) }
+            canvas.getActor(tiledX, tiledY - 1, layer)?.let { combiner.combine(it) }
         }
     }
 }

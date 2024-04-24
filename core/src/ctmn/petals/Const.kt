@@ -7,7 +7,7 @@ import kotlin.math.round
 object Const {
 
     // App:
-    const val APP_NAME = "serascout.itch.io/petals"
+    const val APP_NAME = "Petals: F&GCC"
     const val APP_VER_NAME = "\nDemo"
     const val IS_RELEASE = false
 

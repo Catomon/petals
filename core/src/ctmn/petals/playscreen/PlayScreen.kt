@@ -232,7 +232,7 @@ open class PlayScreen(
 
     fun levelCreated() {
         playStage.border.make()
-        Decorator(this, playStage).decorate()
+        Decorator().decorate(playStage)
         fogOfWarManager.updateGridMap()
     }
 

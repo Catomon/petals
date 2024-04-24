@@ -21,7 +21,7 @@ class EditorScreen : ScreenAdapter() {
     val shapeRenderer = ShapeRenderer()
 
     val actorsPackage = CanvasActorsPackage()
-    val tools = Tools()
+    val tools = Tools(actorsPackage)
 
     var canvas = CanvasStage(ScreenViewport(), batch, shapeRenderer)
     var interfaceStage = InterfaceStage(canvas, actorsPackage, tools, batch)

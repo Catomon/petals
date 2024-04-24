@@ -52,7 +52,8 @@ class CanvasStage(
         // if highlightLayerId was set before a group was created
         if (highlightLayer == null && highlightLayerId != null) highlightLayer = getLayer(highlightLayerId!!)
 
-        val groups = if (highlightLayer != null) getLayers().filter { it.name != highlightLayer!!.name } else getLayers()
+        val groups =
+            if (highlightLayer != null) getLayers().filter { it.name != highlightLayer!!.name } else getLayers()
         for (group in groups) {
             drawShapes(group)
         }
@@ -138,6 +139,14 @@ class CanvasStage(
         return getLayers().firstOrNull { it.name.toInt() == layerId }
     }
 
+    fun getActor(x: Int, y: Int, layer: Int): CanvasActor? =
+        getCanvasActors().find { it.x.toTilePos() == x && it.y.toTilePos() == y && it.layer == layer }
+
+    @Deprecated(
+        "You should use addActor(actor: Actor, layerId: Int) to add an actor to the CanvasStage.",
+        ReplaceWith("addActor(actor: Actor, layerId: Int)"),
+        DeprecationLevel.ERROR
+    )
     override fun addActor(actor: Actor?) {
         Gdx.app.error(
             CanvasStage::class.simpleName,

@@ -30,6 +30,8 @@ class CanvasActorsPackage {
         }
     }
 
+    fun find(name: String) : CanvasActor? =canvasActors.find { it.name == name }
+
     fun get(name: String): CanvasActor {
         return canvasActors.firstOrNull { it.name == name } ?: let {
             Gdx.app.log(this::class.simpleName, "Tile $name not found")
