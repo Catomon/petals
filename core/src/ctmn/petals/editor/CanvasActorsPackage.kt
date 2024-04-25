@@ -8,6 +8,7 @@ import ctmn.petals.assets
 class CanvasActorsPackage {
 
     val canvasActors = Array<CanvasActor>()
+    val canvasActorsFiltered = Array<CanvasActor>()
 
     var minTileSize = 64f
 
@@ -28,9 +29,26 @@ class CanvasActorsPackage {
             val tile = CanvasActor(name, sprite)
             canvasActors.add(tile)
         }
+
+        canvasActors.forEach { actor ->
+            if (!TileCombiner.hasCombinationSuffix(actor.name)) {
+                assets.tilesAtlas.regions.filter { region ->
+                    (if (region.name.contains("/"))
+                        region.name.split("/")[1]
+                    else
+                        region.name) == actor.name
+                }.let { regions ->
+                    if (regions.size <= 1)
+                        canvasActorsFiltered.add(actor)
+                    else
+                        if (canvasActorsFiltered.find { it.name == actor.name } == null)
+                            canvasActorsFiltered.add(actor)
+                }
+            }
+        }
     }
 
-    fun find(name: String) : CanvasActor? =canvasActors.find { it.name == name }
+    fun find(name: String): CanvasActor? = canvasActors.find { it.name == name }
 
     fun get(name: String): CanvasActor {
         return canvasActors.firstOrNull { it.name == name } ?: let {

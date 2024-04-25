@@ -42,7 +42,7 @@ class TurnManager(val playScreen: PlayScreen) {
 
     val previousPlayer get() = if (turn - 1 >= 0) players[turn - 1] else players[players.size - 1]
 
-    private val logger = Logger("PlayStage", Logger.INFO)
+    private val logger = Logger("TurnManager", Logger.INFO)
 
     fun nextTurn() {
         if (playScreen.isGameOver)

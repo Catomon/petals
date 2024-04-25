@@ -4,7 +4,9 @@ import ctmn.petals.*
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisImage
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.editor.EditorScreen
@@ -27,6 +29,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val matchButton = newTextButton(strings.menu.match)
     private val vsPlayerButton = newTextButton(strings.menu.vsPlayer)
     private val vsBotButton = newTextButton(strings.menu.vsBot)
+    private val profileButton = newTextButton(strings.menu.profile)
     private val editorButton = newTextButton(strings.menu.editor)
     private val settingsButton = newTextButton(strings.menu.settings)
     private val exitButton = newTextButton(strings.menu.exit)
@@ -73,22 +76,24 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         table.center()
 
         with(table) {
-            add(bunnyImage).size(200f).colspan(2)
-//            row()
-//            add(label).bottom()
+            add(bunnyImage).size(200f).colspan(2).padBottom(32f)
             row()
-            add(storyButton).bottom().width(150f)
-            add(vsBotButton).width(150f)
-//            add(quickPlayButton).width(150f)
+            add(storyButton).bottom().width(300f).colspan(2)
             row()
             add(vsPlayerButton).width(150f)
-//            add(matchButton).bottom().width(150f)
+            add(vsBotButton).width(150f)
+            row()
+            add(profileButton).width(150f)
             add(editorButton).width(150f)
             row()
             add(settingsButton).bottom().width(150f)
             add(exitButton).bottom().width(150f)
-
-            //padBottom(30f)
+            row()
+            add(VisLabel("ver " + Const.APP_VER_NAME).apply {
+                setFontScale(0.65f)
+                align(Align.center)
+            }).colspan(2).bottom().padTop(30f)
+            row().height(30f)
         }
 
         addActor(table)

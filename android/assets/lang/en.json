@@ -1,7 +1,11 @@
 {
   "menu": {
     "story": "Story",
+    "quickplay": "Quickplay",
     "match": "Match",
+    "vsBot": "Vs Bot",
+    "vsPlayer": "Vs Player",
+    "profile": "Profile",
     "editor": "Editor",
     "settings": "Settings",
     "exit": "Exit"

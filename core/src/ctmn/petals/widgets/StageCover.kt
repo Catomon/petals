@@ -9,13 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Widget
 import ctmn.petals.actors.actions.UpdateAction
 import ctmn.petals.actors.actions.OneAction
 
-class StageCover : Widget() {
+class StageCover(alpha: Float = 1f) : Widget() {
 
     private val sprite = Sprite(assets.textureAtlas.findRegion("gui/white"))
 
     private var afterFadeOutTime = 0f
 
     init {
+        color.a = alpha
         sprite.color = Color.BLACK
 
         setFillParent(true)

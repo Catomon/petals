@@ -20,8 +20,11 @@ import ctmn.petals.widgets.*
 
 class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
-    private val labelVsAi = newLabel("Vs AI", "font_5")
-    private val customGameButton = newTextButton("Custom game")
+//    private val labelVsAi = newLabel("Vs AI", "font_5")
+//    private val customGameButton = newTextButton("Custom game")
+
+    private val labelSameScreen = newLabel("Same Screen", "font_5")
+    private val passAndPlayButton = newTextButton("Pass and Play")
 
     private val labelLocalMp = newLabel("Local Multiplayer", "font_5")
     private val serverLobbyButton = newTextButton("Host")
@@ -67,16 +70,16 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
             setFillParent(true)
             center()
 
-            add(labelVsAi)
+            add(labelSameScreen)
             row()
-            add(customGameButton)
+            add(passAndPlayButton)
             row()
 
             add(labelLocalMp).padTop(4f)
             row()
             add(serverLobbyButton)
             row()
-            add(ipTextField).width(180f)
+            add(ipTextField).width(180f).padTop(8f)
             row()
             add(clientLobbyButton)
             row()
@@ -88,7 +91,7 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
         windowTable.setFillParent(true)
         addActor(windowTable)
 
-        customGameButton.addChangeListener {
+        passAndPlayButton.addChangeListener {
                 menuScreen.stage = menuScreen.botGameSetupStage
         }
 

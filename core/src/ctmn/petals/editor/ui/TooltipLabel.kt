@@ -4,7 +4,17 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
+
+fun Stage.addTooltip(target: Actor, text: String) {
+    addActor(TooltipLabel(target, text))
+}
+
+fun Actor.addTooltip(text: String) {
+    check(stage != null)
+    stage?.addActor(TooltipLabel(this, text))
+}
 
 class TooltipLabel(val target: Actor, text: String) : VisLabel(text) {
 

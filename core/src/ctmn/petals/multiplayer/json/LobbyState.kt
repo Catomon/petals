@@ -1,6 +1,7 @@
 package ctmn.petals.multiplayer.json
 
 import ctmn.petals.player.Player
+import ctmn.petals.playstage.PlayStage
 
 class LobbyState {
 
@@ -9,6 +10,8 @@ class LobbyState {
     val players = ArrayList<PlayerSlotState?>(8)
 
     var fogOfWar = true
+
+    var daytime = PlayStage.DayTime.DAY
 
     var state = State.WAITING
 

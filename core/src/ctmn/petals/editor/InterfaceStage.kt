@@ -19,6 +19,7 @@ import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.Const
 import ctmn.petals.editor.ui.TooltipLabel
+import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.game
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.*
@@ -38,24 +39,53 @@ class InterfaceStage(
     private val actorsPickerVerticalTable = VisTable()
     private val actorsPickerHorizontalTable = VisTable()
     private val actorsPickerTable get() = if (IS_PORTRAIT) actorsPickerHorizontalTable else actorsPickerVerticalTable
-    private val srollPaneCloseButton = newTextButton(">").addClickListener {
+    private val scrollPaneCloseButton = newTextButton(">").addClickListener {
         if (actorsPicker.stage != null) {
             actorsPickerHorizontalTable.clear()
             actorsPickerVerticalTable.clear()
             (it.listenerActor as VisTextButton).setText("<")
         } else {
-            actorsPickerHorizontalTable.clear()
-            actorsPickerVerticalTable.clear()
-            actorsPickerTable.add(actorsPicker)
+            reAddActorsPickerTable()
             (it.listenerActor as VisTextButton).setText(">")
+        }
+    }
+
+    private fun reAddActorsPickerTable() {
+        actorsPickerHorizontalTable.clear()
+        actorsPickerVerticalTable.clear()
+
+        if (IS_PORTRAIT) {
+            actorsPickerTable.add(actorsPicker).bottom().left()
+        } else {
+            actorsPickerTable.add(actorsPicker).top().left()
         }
     }
 
     private val toolButtons = ButtonGroup<VisImageButton>()
 
-    private val layerButton = newTextButton("${tools.pencil.layer} +", "layers")
+    private val skyLayerButton = VisImage("layer_sky")
         .addClickListener { _ ->
-            changeLayer(tools.pencil.layer + 1)
+            changeLayer(3)
+        }.addClickSound()
+
+    private val objectLayerButton = VisImage("layer_object")
+        .addClickListener { _ ->
+            changeLayer(2)
+        }.addClickSound()
+
+    private val groundLayerButton = VisImage("layer_ground")
+        .addClickListener { _ ->
+            changeLayer(1)
+        }.addClickSound()
+
+    private val undergroundLayerButton = VisImage("layer_underground")
+        .addClickListener { _ ->
+            changeLayer(0)
+        }.addClickSound()
+
+    private val layerButton = newTextButton("${tools.pencil.layer}", "layers") // +
+        .addClickListener { _ ->
+            //changeLayer(tools.pencil.layer + 1)
         }
 
     private val layerButtonMin = newTextButton("${tools.pencil.layer} -", "layers")
@@ -122,16 +152,20 @@ class InterfaceStage(
         //table.debug = true
 
         //setup table
-        mainTable.add(actorsPickerVerticalTable).left()
-        mainTable.add(GridGroup(srollPaneCloseButton.width).apply {
-            addActor(srollPaneCloseButton)
+        mainTable.add(actorsPickerVerticalTable).left().top()
+        mainTable.add(GridGroup(scrollPaneCloseButton.width).apply {
+            addActor(scrollPaneCloseButton)
             for (tool in tools.toolList) {
                 addActor(newToolButton(tool))
             }
+            addActor(skyLayerButton)
+            addActor(objectLayerButton)
+            addActor(groundLayerButton)
+            addActor(undergroundLayerButton)
             addActor(layerButton)
-            addActor(layerButtonMin)
+            //addActor(layerButtonMin)
             addActor(layerVisibilityButton)
-        }).minWidth(srollPaneCloseButton.width).padRight(12f).align(Align.top)
+        }).minWidth(scrollPaneCloseButton.width).padRight(12f).align(Align.top)
         mainTable.add().expandX()
         mainTable.add(VisTable().apply {
             add(mapsButton)
@@ -139,12 +173,19 @@ class InterfaceStage(
             add(exitButton)
         }).align(Align.topRight)
         mainTable.row().expandY()
-        mainTable.add(actorsPickerHorizontalTable).colspan(4).bottom()
+        mainTable.add(actorsPickerHorizontalTable).colspan(4).bottom().left()
 
         //add tooltips
         toolButtons.buttons.forEach {
             addActor(TooltipLabel(it, (it.userObject as Tool).tooltip))
         }
+
+        skyLayerButton.addTooltip("Sky layer")
+        objectLayerButton.addTooltip("Object layer")
+        groundLayerButton.addTooltip("Ground layer")
+        undergroundLayerButton.addTooltip("Underground layer")
+
+        layerButton.addTooltip("Current layer")
 
         //default
         changeTool(tools.pencil)
@@ -161,7 +202,15 @@ class InterfaceStage(
 
     private fun changeLayer(layer: Int) {
         tools.pencil.layer = layer
-        layerButton.setText("${tools.pencil.layer} +")
+        layerButton.setText(
+            when (layer) {
+                3 -> "Sky"
+                2 -> "Object"
+                1 -> "Ground"
+                0 -> "Underground"
+                else -> "Layer $layer"
+            }
+        )
         layerButtonMin.setText("${tools.pencil.layer} -")
 
         val show = layerVisibilityButton.text.toString()
@@ -207,6 +256,7 @@ class InterfaceStage(
                 tools.select.selectedActors.forEach { canvas.removeActor(it) }
                 tools.select.selectedActors.clear()
             }
+
             Keys.M -> {
                 if (!tools.select.selectedActors.isEmpty) {
                     val bottomLeftActorPos = with(tools.select.selectedActors.minBy { it.x + it.y }) { Vector2(x, y) }
@@ -251,15 +301,11 @@ class InterfaceStage(
         (viewport as ExtendViewport).minWorldHeight = height / GUI_SCALE
 
         if (IS_PORTRAIT) {
-            actorsPicker.setupItemsTable(actorsPicker.horizontal)
-            actorsPickerHorizontalTable.clear()
-            actorsPickerVerticalTable.clear()
-            actorsPickerTable.add(actorsPicker)
+            actorsPicker.fillItemsTable(actorsPicker.horizontal)
+            reAddActorsPickerTable()
         } else {
-            actorsPicker.setupItemsTable(actorsPicker.vertical)
-            actorsPickerHorizontalTable.clear()
-            actorsPickerVerticalTable.clear()
-            actorsPickerTable.add(actorsPicker)
+            actorsPicker.fillItemsTable(actorsPicker.vertical)
+            reAddActorsPickerTable()
         }
 
         viewport.update(width, height, true)
@@ -268,7 +314,7 @@ class InterfaceStage(
         root.findActor<MapsWindow>(MapsWindow::class.simpleName)?.centerWindow()
     }
 
-    inner class CanvasActorsPicker : VisScrollPane(VisTable()) {
+    inner class CanvasActorsPicker : VisScrollPane(VisTable().apply { setFillParent(true) }) {
 
         var hovered: Item? = null
         var selected: Item? = null
@@ -290,7 +336,14 @@ class InterfaceStage(
         val horizontal = 0
         val vertical = 1
 
-        fun setupItemsTable(arr: Int) {
+        private var currentArr = horizontal
+
+        fun fillItemsTable(pArr: Int = -1) {
+            val arr = if (pArr == -1) currentArr else {
+                currentArr = pArr
+                pArr
+            }
+
             with(this.actor as VisTable) {
                 clear()
 
@@ -298,13 +351,13 @@ class InterfaceStage(
 
                 val maxInRow = if (arr == horizontal) {
                     setScrollingDisabled(false, true)
-                    actorsPackage.canvasActors.size / itemsInRow + 1
+                    actorsPackage.canvasActorsFiltered.size / itemsInRow + 1
                 } else {
                     setScrollingDisabled(true, false)
                     itemsInRow
                 }
                 var currentInRow = 0
-                for (canvasActor in actorsPackage.canvasActors) {
+                for (canvasActor in actorsPackage.canvasActorsFiltered) {
                     val item = Item(canvasActor)
                     item.name = canvasActor.name
                     item.userObject = canvasActor
@@ -321,8 +374,9 @@ class InterfaceStage(
         }
 
         init {
-            (this.actor as VisTable).background("background")
-            setupItemsTable(horizontal)
+            setFillParent(true)
+            //(this.actor as VisTable).background("background")
+            fillItemsTable(horizontal)
 
             addListener(object : InputListener() {
                 override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {

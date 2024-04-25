@@ -74,16 +74,16 @@ class Decorator {
                 // option if im too lazy to make all textures but have some that can be flipped or rotated
                 val cheapCombinedName = tileComponent.name +
                         when {
-                            combinedName.contains("_lrb") -> "_rtb"
-                            combinedName.contains("_ltb") -> "_rtb"
-                            combinedName.contains("_lrt") -> "_rtb"
-                            combinedName.contains("_lb") -> "_rb"
-                            combinedName.contains("_rt") -> "_rb"
-                            combinedName.contains("_lt") -> "_rb"
-                            combinedName.contains("_lr") -> "_tb"
-                            combinedName.contains("_b") -> "_r"
-                            combinedName.contains("_t") -> "_r"
-                            combinedName.contains("_l") -> "_r"
+                            combinedName.endsWith("_lrb") -> "_rtb"
+                            combinedName.endsWith("_ltb") -> "_rtb"
+                            combinedName.endsWith("_lrt") -> "_rtb"
+                            combinedName.endsWith("_lb") -> "_rb"
+                            combinedName.endsWith("_rt") -> "_rb"
+                            combinedName.endsWith("_lt") -> "_rb"
+                            combinedName.endsWith("_lr") -> "_tb"
+                            combinedName.endsWith("_b") -> "_r"
+                            combinedName.endsWith("_t") -> "_r"
+                            combinedName.endsWith("_l") -> "_r"
 
                             else -> return // "swamp" with no neighbours I guess
                         }
@@ -100,19 +100,19 @@ class Decorator {
                 initView()
 
                 when {
-                    combinedName.contains("_lrb") -> sprite.rotation = 270f
-                    combinedName.contains("_ltb") -> sprite.rotation = 180f
-                    combinedName.contains("_lrt") -> sprite.rotation = 90f
+                    combinedName.endsWith("_lrb") -> sprite.rotation = 270f
+                    combinedName.endsWith("_ltb") -> sprite.rotation = 180f
+                    combinedName.endsWith("_lrt") -> sprite.rotation = 90f
 
-                    combinedName.contains("_lb") -> sprite.setFlip(true, false)
-                    combinedName.contains("_rt") -> sprite.setFlip(false, true)
-                    combinedName.contains("_lt") -> sprite.setFlip(true, true)
+                    combinedName.endsWith("_lb") -> sprite.setFlip(true, false)
+                    combinedName.endsWith("_rt") -> sprite.setFlip(false, true)
+                    combinedName.endsWith("_lt") -> sprite.setFlip(true, true)
 
-                    combinedName.contains("_lr") -> sprite.rotation = 90f
+                    combinedName.endsWith("_lr") -> sprite.rotation = 90f
 
-                    combinedName.contains("_b") -> sprite.rotation = 270f
-                    combinedName.contains("_t") -> sprite.rotation = 90f
-                    combinedName.contains("_l") -> sprite.rotation = 180f
+                    combinedName.endsWith("_b") -> sprite.rotation = 270f
+                    combinedName.endsWith("_t") -> sprite.rotation = 90f
+                    combinedName.endsWith("_l") -> sprite.rotation = 180f
                 }
             }
 

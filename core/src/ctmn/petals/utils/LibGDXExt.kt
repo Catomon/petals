@@ -56,6 +56,14 @@ fun NinePatchDrawable.scale(scale: Float) {
     patch.scale(scale, scale)
 }
 
+fun Stage.addCover(alpha: Float = 0.5f) {
+    addActor(StageCover(alpha))
+}
+
+fun Stage.removeCover() {
+    actors.find { it is StageCover }?.remove()
+}
+
 fun Stage.fadeInAndThen(duration: Float = 1f, action: () -> Unit) {
     addActor(StageCover().fadeInAndThen(OneAction(action)))
 }

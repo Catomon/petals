@@ -4,9 +4,37 @@ import com.badlogic.gdx.Gdx
 import ctmn.petals.tile.Tiles
 
 class TileCombiner(val actorsPackage: CanvasActorsPackage) {
+    companion object {
+        val combinableSuffixes =
+            arrayOf(
+                "l",
+                "r",
+                "t",
+                "b",
+                "lb",
+                "lr",
+                "lrb",
+                "lrt",
+                "lrtb",
+                "lt",
+                "ltb",
+                "r",
+                "rb",
+                "rt",
+                "rtb",
+                "t",
+                "tb"
+            )
 
-    private val combinableSuffixes =
-        arrayOf("l", "r", "t", "b", "lb", "lr", "lrb", "lrt", "lrtb", "lt", "ltb", "r", "rb", "rt", "rtb", "t", "tb")
+        fun hasCombinationSuffix(name: String): Boolean {
+            combinableSuffixes.forEach {
+                if (name.endsWith("_$it"))
+                    return true
+            }
+
+            return name.endsWith("_combinable") || name.endsWith("_back")
+        }
+    }
 
     fun combine(tile: CanvasActor) {
         if (tile.name.endsWith("_combinable")) {
@@ -138,14 +166,5 @@ class TileCombiner(val actorsPackage: CanvasActorsPackage) {
         "abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
 
         return nameNoSuffix
-    }
-
-    private fun CanvasActor.isCombinable(): Boolean {
-        combinableSuffixes.forEach {
-            if (name.contains("_$it"))
-                return true
-        }
-
-        return false
     }
 }

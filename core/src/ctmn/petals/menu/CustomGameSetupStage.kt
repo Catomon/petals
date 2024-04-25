@@ -9,11 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
-import com.kotcrab.vis.ui.widget.VisImage
-import com.kotcrab.vis.ui.widget.VisScrollPane
-import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.*
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.RepeatAction
@@ -46,6 +45,7 @@ import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.NoEnd
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playstage.PlayStage
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.PlayScreenTemplate
 import ctmn.petals.utils.*
@@ -67,8 +67,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val mapPreview = MapPreview()
     private val changeMapButton = newImageButton("change")
 
-    private val addAiButton = newTextButton("Add AI")
-    private val fogOfWarButton = newTextButton()
+    private val addBotButton = newTextButton("Add Easy Bot")
+    private val fogOfWarCheckbox = VisCheckBox("Fog Of War")
+    private val daytimeButton = newTextButton("Daytime")
 
     private val roomProblemDrawable = VisUI.getSkin().getDrawable("room_status_problem")
     private val roomOkDrawable = VisUI.getSkin().getDrawable("room_status_ok")
@@ -336,10 +337,11 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 add(playersTable)
                 row()
                 add(VisTable().apply {
-                    add(addAiButton)
-                    add(fogOfWarButton)
-                })
-            }))
+                    add(daytimeButton).colspan(2).width(300f)
+                    row()
+                    add(fogOfWarCheckbox).colspan(2)
+                }).width(300f)
+            })).width(300f)
             row()
             add().expandY()
             row()
@@ -390,7 +392,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             addLoadingCoverAndStartGame()
         }
 
-        addAiButton.addChangeListener {
+        addBotButton.addChangeListener {
             val slot = playerSlots.firstOrNull { it.player == null }
 
             if (slot != null) {
@@ -403,11 +405,23 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             serverManager.sendLobbyState()
         }
 
-        fogOfWarButton.userObject = true
-        fogOfWarButton.setText("FOW: " + if (fogOfWarButton.userObject as Boolean) "On" else "Off")
-        fogOfWarButton.addChangeListener {
-            fogOfWarButton.userObject = !(fogOfWarButton.userObject as Boolean)
-            fogOfWarButton.setText("FOW: " + if (fogOfWarButton.userObject as Boolean) "On" else "Off")
+        daytimeButton.userObject = PlayStage.DayTime.DAY
+        daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+        daytimeButton.addChangeListener {
+            daytimeButton.userObject = when ((daytimeButton.userObject as PlayStage.DayTime)) {
+                PlayStage.DayTime.DAY -> PlayStage.DayTime.EVENING
+                PlayStage.DayTime.EVENING -> PlayStage.DayTime.NIGHT
+                PlayStage.DayTime.NIGHT -> PlayStage.DayTime.DAY
+            }
+
+            it.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+
+            serverManager.sendLobbyState()
+        }
+
+        fogOfWarCheckbox.isChecked = true
+        fogOfWarCheckbox.addChangeListener {
+            serverManager.sendLobbyState()
         }
 
         val clientId = GamePref.clientId
@@ -519,8 +533,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             playerSlots[i].isAI = !isSlotEmpty && state.players[i]!!.isAI
         }
 
-        fogOfWarButton.userObject = state.fogOfWar
-        fogOfWarButton.setText("FOW: " + if (state.fogOfWar) "On" else "Off")
+        fogOfWarCheckbox.isChecked = state.fogOfWar
+        daytimeButton.userObject = state.daytime
+        daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name) //todo fun updateWidgets
 
         if (state.state == LobbyState.State.PLAYING)
             addLoadingCoverAndStartGame()
@@ -536,7 +551,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                     players[i] = slot.getSlotStateInstance()
                 }
 
-            fogOfWar = fogOfWarButton.userObject as Boolean
+            fogOfWar = fogOfWarCheckbox.isChecked
+            daytime = daytimeButton.userObject as PlayStage.DayTime
 
             state = this@CustomGameSetupStage.state
         }
@@ -586,7 +602,10 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             menuScreen.game,
             mapPreview.map!!,
             players,
-            GameType.MULTIPLAYER,
+            if (lobbyType == LobbyType.LOCAL)
+                GameType.PVP_SAME_SCREEN
+            else
+                GameType.MULTIPLAYER,
             NoEnd(),
             gameMode,
             localPlayer,
@@ -597,7 +616,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                     aiManager.add(EasyDuelBot(it.player!!, this))
             }
 
-            fogOfWarManager.drawFog = fogOfWarButton.userObject as Boolean
+            fogOfWarManager.drawFog = fogOfWarCheckbox.isChecked
+            playStage.timeOfDay = daytimeButton.userObject as PlayStage.DayTime
         }
         ps.ready()
 
@@ -674,7 +694,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private fun hostChanged() {
         changeMapButton.isDisabled = !isHost
 
-        addAiButton.isDisabled = !isHost
+        addBotButton.isDisabled = !isHost
 
         confirmButton.isDisabled = mapPreview.map == null || !isHost
     }
@@ -762,13 +782,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         init {
             button.addChangeListener {
-                if (player != null || !isHost)
-                    return@addChangeListener
-
-                getPlayerSlot(localPlayer)?.player = null
-                player = localPlayer
-
-                serverManager.sendLobbyState()
+                showPlayerSlotActionDialog()
             }
 
             setSize(72f, 72f)
@@ -830,6 +844,94 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         fun getSlotStateInstance(): PlayerSlotState {
             return PlayerSlotState(player, isLocalHostSlot, isAI)
         }
+    }
+
+    private fun PlayerSlot.showPlayerSlotActionDialog() {
+//        val label = newLabel(message, "font_5")
+//        label.wrap = true
+//        label.pack()
+//        label.setAlignment(Align.center)
+        val slot = this
+        this@CustomGameSetupStage.addCover()
+        val win = VisWindow("Player Slot ${playerSlots.indexOf(this) + 1}")
+
+        val moveHereButton = newTextButton("Move here").addChangeListener {
+            moveLocalPlayerToThisSlot()
+
+            win.remove()
+            this@CustomGameSetupStage.removeCover()
+        }
+
+        val addEasyBotButton = newTextButton("Add Easy Bot").addChangeListener {
+            if (slot.player == null) {
+                slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId).also {
+                    it.species = speciesList.random()
+                }
+                slot.isAI = true
+
+                serverManager.sendLobbyState()
+            }
+
+            win.remove()
+            this@CustomGameSetupStage.removeCover()
+        }
+
+        val addPlayerButton = newTextButton("Add Player").addChangeListener {
+            if (slot.player == null) {
+                slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId).also {
+                    it.species = speciesList.random()
+                }
+
+                serverManager.sendLobbyState()
+            }
+
+            win.remove()
+            this@CustomGameSetupStage.removeCover()
+        }
+
+        val removeButton = newTextButton("Remove").addChangeListener {
+            if (slot.player != localPlayer && slot.player != null) {
+                removePlayer(slot.player!!)
+
+                serverManager.sendLobbyState()
+            }
+
+            win.remove()
+            this@CustomGameSetupStage.removeCover()
+        }
+
+        val closeButton = newImageButton("cancel").addChangeListener {
+            win.remove()
+            this@CustomGameSetupStage.removeCover()
+        }
+
+        with(win) {
+            setCenterOnAdd(true)
+            closeOnEscape()
+            add().width(300f)
+            row()
+            add(moveHereButton)
+            row()
+            add(addEasyBotButton)
+            row()
+            add(addPlayerButton)
+            row()
+            add(removeButton)
+            row()
+            add(closeButton).padRight(8f).align(Align.right)
+            pack()
+        }
+        this@CustomGameSetupStage.addActor(win)
+    }
+
+    private fun PlayerSlot.moveLocalPlayerToThisSlot() {
+        if (player != null || !isHost)
+            return
+
+        getPlayerSlot(localPlayer)?.player = null
+        player = localPlayer
+
+        serverManager.sendLobbyState()
     }
 
     private inner class LobbyServerManager {

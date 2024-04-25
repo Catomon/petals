@@ -36,6 +36,7 @@ class Strings {
         val match = "Match"
         val vsBot = "Vs Bot"
         val vsPlayer = "Vs Player"
+        val profile = "Profile"
         val editor = "Editor"
         val settings = "Settings"
         val exit = "Exit"
