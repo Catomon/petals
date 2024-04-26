@@ -38,6 +38,7 @@ import ctmn.petals.playscreen.commands.GrantXpCommand
 import ctmn.petals.playscreen.events.BaseCapturedEvent
 import ctmn.petals.playscreen.events.GameOverEvent
 import ctmn.petals.playscreen.events.NextTurnEvent
+import ctmn.petals.playscreen.events.UnitMovedEvent
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.gui.PlayStageCameraController
 import ctmn.petals.playscreen.gui.widgets.FogOfWarDrawer
@@ -56,6 +57,7 @@ import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BonusFieldComponent
+import ctmn.petals.unit.component.LavaComponent
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.newLabel
 import kotlin.random.Random
@@ -152,6 +154,21 @@ open class PlayScreen(
         // less important game logic
         playStage.addListener(TileLifeTimeListener(playStage))
         playStage.addListener(PinkSlimeLingHealing())
+        playStage.addListener {
+            if (it is UnitMovedEvent) {
+                val unit = it.unit
+                if (!unit.isAir) {
+                    if (playStage.getTile(unit.tiledX, unit.tiledY)?.terrain == TerrainNames.lava) {
+                        unit.dealDamage(75, playScreen = this@PlayScreen)
+                        unit.add(LavaComponent(turnManager.currentPlayer.id))
+                    } else {
+                        unit.del(LavaComponent::class.java)
+                    }
+                }
+            }
+
+            false
+        }
     }
 
     fun update(delta: Float) {
@@ -581,6 +598,19 @@ open class PlayScreen(
                         }
                     }
                 }
+
+            playStage.getUnits().forEach { unit ->
+                if (!unit.isAir) {
+                    val cLava = unit.get(LavaComponent::class.java)
+                    if (cLava != null && cLava.playerId == turnCycleEvent.nextPlayer.id) {
+                        if (playStage.getTile(unit.tiledX, unit.tiledY)?.terrain == TerrainNames.lava) {
+                            unit.dealDamage(75, playScreen = this@PlayScreen)
+                        } else {
+                            unit.del(LavaComponent::class.java)
+                        }
+                    }
+                }
+            }
 
             return false
         }

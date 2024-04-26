@@ -3,6 +3,8 @@ package ctmn.petals.actors.actions
 import ctmn.petals.unit.UnitActor
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ctmn.petals.playscreen.events.UnitMovedEvent
+import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.utils.tiled
 
 class JumpAction(
@@ -69,8 +71,9 @@ class JumpAction(
             if (this.actor is UnitActor) {
                 val unit = actor as UnitActor
                 unit.setPosition(endX.tiled(), endY.tiled())
-
                 unit.setAnimation(unit.postAirborneAnimation, 2.5f)
+
+                unit.playStageOrNull?.root?.fire(UnitMovedEvent(unit, startX.tiled(), startY.tiled()))
             }
             else
                 actor?.setPosition(endX, endY)

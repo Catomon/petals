@@ -212,7 +212,10 @@ fun PlayStage.getMovementGrid(
             for (y in moveCostMap[x].indices) {
                 val unit = getUnit(x, y)
                 if (unit != null && unit.teamId != exceptTeam)
-                    moveCostMap[x][y] = 999
+                    moveCostMap[x][y] = UNREACHABLE
+
+                if (forUnit != null && moveCostMap[x][y] == ONE_TILE)
+                    moveCostMap[x][y] = forUnit.movingRange - 1
             }
         }
     }

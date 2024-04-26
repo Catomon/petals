@@ -11,9 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import ctmn.petals.AudioManager
 import ctmn.petals.Const
 import ctmn.petals.PetalsGame
 import ctmn.petals.assets
+import ctmn.petals.tile.TileData
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.MovingBackground
 import ctmn.petals.widgets.addChangeListener
@@ -33,6 +35,7 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         batch.projectionMatrix = viewport.camera.combined
 
         addWidgets()
+        AudioManager.sound("click.ogg")
     }
 
     private fun addWidgets() {

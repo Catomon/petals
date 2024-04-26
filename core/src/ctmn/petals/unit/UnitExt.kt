@@ -57,29 +57,71 @@ val UnitActor.cMatchUp get() = get(MatchUpBonusComponent::class.java)?.bonuses
 val UnitActor.cSpriteView get() = get(SpriteViewComponent::class.java)
 val UnitActor.cTerrainProps get() = get(TerrainPropComponent::class.java)?.props
 val UnitActor.cShop get() = get(ShopComponent::class.java)
+
 //val UnitActor.cSummoner get() = get(SummonerComponent::class.java)
 val UnitActor.cLevel get() = get(LevelComponent::class.java)
+
 //val UnitActor.cAlice get() = get(AliceComponent::class.java)
 val UnitActor.cSummonable get() = get(SummonableComponent::class.java)
 
 //component prop getters
-var UnitActor.health get() = cUnit.health; set(value) { cUnit.health = value }
-var UnitActor.defense get() = cUnit.defense; set(value) { cUnit.defense = value }
-var UnitActor.playerId get() = cUnit.playerID; set(value) { cUnit.playerID = value }
-var UnitActor.teamId get() = cUnit.teamID; set(value) { cUnit.teamID = value }
-var UnitActor.tiledX get() = cUnit.tiledX; set(value) { cUnit.tiledX = value; playStageOrNull?.updateCaches() }
-var UnitActor.tiledY get() = cUnit.tiledY; set(value) { cUnit.tiledY = value; playStageOrNull?.updateCaches() }
-var UnitActor.leaderID get() = cLeader?.leaderID ?: -1; set(value) { cLeader!!.leaderID = value }
-var UnitActor.followerID get() = cFollower?.leaderID ?: -1; set(value) { cFollower!!.leaderID = value }
+var UnitActor.health
+    get() = cUnit.health;
+    set(value) {
+        cUnit.health = value
+    }
+var UnitActor.defense
+    get() = cUnit.defense;
+    set(value) {
+        cUnit.defense = value
+    }
+var UnitActor.playerId
+    get() = cUnit.playerID;
+    set(value) {
+        cUnit.playerID = value
+    }
+var UnitActor.teamId
+    get() = cUnit.teamID;
+    set(value) {
+        cUnit.teamID = value
+    }
+var UnitActor.tiledX
+    get() = cUnit.tiledX;
+    set(value) {
+        cUnit.tiledX = value; playStageOrNull?.updateCaches()
+    }
+var UnitActor.tiledY
+    get() = cUnit.tiledY;
+    set(value) {
+        cUnit.tiledY = value; playStageOrNull?.updateCaches()
+    }
+var UnitActor.leaderID
+    get() = cLeader?.leaderID ?: -1;
+    set(value) {
+        cLeader!!.leaderID = value
+    }
+var UnitActor.followerID
+    get() = cFollower?.leaderID ?: -1;
+    set(value) {
+        cFollower!!.leaderID = value
+    }
 val UnitActor.minDamage get() = cAttack!!.minDamage
 val UnitActor.maxDamage get() = cAttack!!.maxDamage
 val UnitActor.attackRange get() = cAttack!!.attackRange
 val UnitActor.movingRange get() = cUnit.movingRange
 val UnitActor.viewRange get() = cUnit.viewRange
-var UnitActor.actionPoints get() = cUnit.actionPoints; set(value) { cUnit.actionPoints = value }
+var UnitActor.actionPoints
+    get() = cUnit.actionPoints;
+    set(value) {
+        cUnit.actionPoints = value
+    }
 val UnitActor.buffs get() = get(BuffsComponent::class.java)!!.buffs
 val UnitActor.abilities get() = cAbilities!!.abilities
-var UnitActor.mana get() = cAbilities!!.mana; set(value) { cAbilities!!.mana = value }
+var UnitActor.mana
+    get() = cAbilities!!.mana;
+    set(value) {
+        cAbilities!!.mana = value
+    }
 val UnitActor.allies get() = cUnit.allies;
 val UnitActor.isLand get() = cUnit.type == UNIT_TYPE_LAND
 val UnitActor.isWater get() = cUnit.type == UNIT_TYPE_WATER
@@ -87,16 +129,18 @@ val UnitActor.isAir get() = cUnit.type == UNIT_TYPE_AIR
 
 @Deprecated("Returns cTerrainCost!!.", ReplaceWith("cTerrainCost?."), DeprecationLevel.WARNING)
 val UnitActor.terrainCost get() = cTerrainProps!!
+
 @Deprecated("Returns cMatchUp!!.", ReplaceWith("cMatchUp?."), DeprecationLevel.WARNING)
 val UnitActor.matchupBonus get() = cMatchUp!!
 
 /** @return AnimationViewComponent.sprite or SpriteViewComponent,sprite or null */
-val UnitActor.sprite: Sprite? get() =
-    when (viewComponent) {
-        is AnimationViewComponent -> (viewComponent as AnimationViewComponent).sprite
-        is SpriteViewComponent -> (viewComponent as SpriteViewComponent).sprite
-        else -> null
-    }
+val UnitActor.sprite: Sprite?
+    get() =
+        when (viewComponent) {
+            is AnimationViewComponent -> (viewComponent as AnimationViewComponent).sprite
+            is SpriteViewComponent -> (viewComponent as SpriteViewComponent).sprite
+            else -> null
+        }
 
 /*** UnitActor extensions */
 //fun UnitActor.setPosition(x: Int, y: Int) {
@@ -105,7 +149,7 @@ val UnitActor.sprite: Sprite? get() =
 //    tiledY = y
 //}
 
-fun UnitActor.getAbility(name: String) : Ability? {
+fun UnitActor.getAbility(name: String): Ability? {
     for (ability in cAbilities?.abilities ?: return null) {
         if (ability.name == name) return ability
     }
@@ -113,9 +157,9 @@ fun UnitActor.getAbility(name: String) : Ability? {
     return null
 }
 
-fun UnitActor.distToUnit(otherUnit: UnitActor) : Int = tiledDst(tiledX, tiledY, otherUnit.tiledX, otherUnit.tiledY)
+fun UnitActor.distToUnit(otherUnit: UnitActor): Int = tiledDst(tiledX, tiledY, otherUnit.tiledX, otherUnit.tiledY)
 
-fun UnitActor.isUnitNear(unit: UnitActor, range: Int) : Boolean {
+fun UnitActor.isUnitNear(unit: UnitActor, range: Int): Boolean {
     return tiledDst(unit.tiledX, unit.tiledY, tiledX, tiledY) <= range
 }
 
@@ -158,7 +202,7 @@ fun UnitActor.setPositionOrNear(x: Int, y: Int, playStageOrNull: PlayStage? = nu
     for (offset in offsets) {
         val xOff = x + offset.first
         val yOff = y + offset.second
-        if (playStage.getTile(xOff, yOff)?.isOccupied == false ) {
+        if (playStage.getTile(xOff, yOff)?.isOccupied == false) {
             this.x = (xOff * Const.TILE_SIZE).toFloat()
             this.y = (yOff * Const.TILE_SIZE).toFloat()
             tiledX = xOff
@@ -168,10 +212,13 @@ fun UnitActor.setPositionOrNear(x: Int, y: Int, playStageOrNull: PlayStage? = nu
         }
     }
 
-    Gdx.app.error("UnitExt.UnitActor.setPositionOrNear", "Tile at $x, $y is Occupied, so are tiles around at radius of 2.")
+    Gdx.app.error(
+        "UnitExt.UnitActor.setPositionOrNear",
+        "Tile at $x, $y is Occupied, so are tiles around at radius of 2."
+    )
 }
 
-fun UnitActor.inAttackRange(x: Int, y: Int) : Boolean {
+fun UnitActor.inAttackRange(x: Int, y: Int): Boolean {
     if (cAttack == null)
         return false
 
@@ -180,35 +227,35 @@ fun UnitActor.inAttackRange(x: Int, y: Int) : Boolean {
     return tiledDst > cAttack!!.attackRangeBlocked && tiledDst <= cAttack!!.attackRange
 }
 
-fun UnitActor.isInRange(x: Int, y: Int, range: Int) : Boolean {
+fun UnitActor.isInRange(x: Int, y: Int, range: Int): Boolean {
     return tiledDst(x, y, tiledX, tiledY) <= range
 }
 
-fun UnitActor.haveActionPoints() : Boolean {
+fun UnitActor.haveActionPoints(): Boolean {
     return actionPoints >= 0
 }
 
 /** @return true if unit has enough AP to attack and has no Debuffs that are blocking it */
-fun UnitActor.canAttack() : Boolean {
+fun UnitActor.canAttack(): Boolean {
     return actionPoints > 0 && !buffs.any { it.name == "freeze" }
 }
 
-fun UnitActor.canAttack(unit: UnitActor) : Boolean {
+fun UnitActor.canAttack(unit: UnitActor): Boolean {
     if (unit.isAir && attackRange < 2) return false
     return canAttack() && isInAttackArea(unit)
 }
 
 /** @return true if player has enough AP to move and has no Debuffs that are blocking it */
-fun UnitActor.canMove() : Boolean {
+fun UnitActor.canMove(): Boolean {
     return actionPoints >= Const.ACTION_POINTS_MOVE_MIN && !buffs.any { it.name == "freeze" }
 }
 
-fun UnitActor.canMove(tile: TileActor) : Boolean {
+fun UnitActor.canMove(tile: TileActor): Boolean {
     return this.canMove(tile.tiledX, tile.tiledY)
 }
 
 /** @return true if player has enough AP to move and has no Debuffs that are blocking it */
-fun UnitActor.canMove(tileX: Int, tileY: Int) : Boolean {
+fun UnitActor.canMove(tileX: Int, tileY: Int): Boolean {
     if (this.stage == null)
         return false
 
@@ -225,38 +272,38 @@ fun UnitActor.isPlayerTeamUnit(player: Player): Boolean {
     return (teamId != Team.NONE && player.teamId != Team.NONE) && teamId == player.teamId
 }
 
-fun Player.isAlly(teamId: Int) : Boolean {
+fun Player.isAlly(teamId: Int): Boolean {
     return (this.teamId != Team.NONE && teamId != Team.NONE)
             && (this.teamId == teamId || allies.contains(teamId))
 }
 
-fun UnitActor.isAlly(unit: UnitActor) : Boolean {
+fun UnitActor.isAlly(unit: UnitActor): Boolean {
     return isAlly(unit.teamId)
 }
 
-fun UnitActor.isAlly(player: Player) : Boolean {
+fun UnitActor.isAlly(player: Player): Boolean {
     return isAlly(player.teamId)
 }
 
-fun UnitActor.isAlly(teamId: Int) : Boolean {
+fun UnitActor.isAlly(teamId: Int): Boolean {
     return (this.teamId != Team.NONE && teamId != Team.NONE)
             && (this.teamId == teamId || allies.contains(teamId))
 }
 
 /** @return TRUE if (X, Y) is in unit's move + attack range */
-fun UnitActor.isInAttackArea(checkX: Int, checkY: Int) : Boolean {
+fun UnitActor.isInAttackArea(checkX: Int, checkY: Int): Boolean {
     return isInRange(checkX, checkY, attackRange)
 }
 
-fun UnitActor.isInAttackArea(unitActor: UnitActor) : Boolean {
+fun UnitActor.isInAttackArea(unitActor: UnitActor): Boolean {
     return isInRange(unitActor.tiledX, unitActor.tiledY, attackRange)
 }
 
-fun UnitActor.isAlive() : Boolean {
+fun UnitActor.isAlive(): Boolean {
     return health > 0
 }
 
-fun UnitActor.canMoveAndAttackUnit(unit: UnitActor) : Boolean = isInAttackArea(unit.tiledX, unit.tiledY)
+fun UnitActor.canMoveAndAttackUnit(unit: UnitActor): Boolean = isInAttackArea(unit.tiledX, unit.tiledY)
 
 fun UnitActor.addAlly(teamId: Int) {
     allies.add(teamId)
@@ -266,7 +313,7 @@ fun UnitActor.removeAlly(teamId: Int) {
     allies.remove(teamId)
 }
 
-fun <T : UnitActor> T.player(player: Player) : T {
+fun <T : UnitActor> T.player(player: Player): T {
     playerId = player.id
     teamId = player.teamId
     allies.addAll(player.allies)
@@ -275,13 +322,13 @@ fun <T : UnitActor> T.player(player: Player) : T {
     return this
 }
 
-fun UnitActor.team(teamId: Int) : UnitActor {
+fun UnitActor.team(teamId: Int): UnitActor {
     this.teamId = teamId
 
     return this
 }
 
-fun UnitActor.level(lvl: Int) : UnitActor {
+fun UnitActor.level(lvl: Int): UnitActor {
     cLevel ?: add(LevelComponent())
     cLevel!!.lvl = lvl
     levelUp()
@@ -289,25 +336,25 @@ fun UnitActor.level(lvl: Int) : UnitActor {
     return this
 }
 
-fun UnitActor.addToStage(stage: PlayStage) : UnitActor {
+fun UnitActor.addToStage(stage: PlayStage): UnitActor {
     stage.addActor(this)
 
     return this
 }
 
-fun UnitActor.position(x: Int, y: Int) : UnitActor {
+fun UnitActor.position(x: Int, y: Int): UnitActor {
     setPositionOrNear(x, y)
 
     return this
 }
 
-fun UnitActor.position(label: LabelActor) : UnitActor {
+fun UnitActor.position(label: LabelActor): UnitActor {
     position(label.x.tiled(), label.y.tiled())
 
     return this
 }
 
-fun UnitActor.followerOf(leader: UnitActor, dieWithLeader: Boolean = false) : UnitActor {
+fun UnitActor.followerOf(leader: UnitActor, dieWithLeader: Boolean = false): UnitActor {
     check(leader.cLeader != null)
 
     followerOf(leader.leaderID, dieWithLeader)
@@ -315,7 +362,7 @@ fun UnitActor.followerOf(leader: UnitActor, dieWithLeader: Boolean = false) : Un
     return this
 }
 
-fun UnitActor.followerOf(leaderId: Int, dieWithLeader: Boolean = false) : UnitActor {
+fun UnitActor.followerOf(leaderId: Int, dieWithLeader: Boolean = false): UnitActor {
     cFollower?.let {
         it.leaderID = leaderId
         it.dieWithLeader = dieWithLeader
@@ -324,7 +371,7 @@ fun UnitActor.followerOf(leaderId: Int, dieWithLeader: Boolean = false) : UnitAc
     return this
 }
 
-fun UnitActor.leader(leaderId: Int, leaderRange: Int = 1, killUnitsOnDeath: Boolean = false) : UnitActor {
+fun UnitActor.leader(leaderId: Int, leaderRange: Int = 1, killUnitsOnDeath: Boolean = false): UnitActor {
     cLeader ?: add(LeaderComponent())
     this.leaderID = leaderId
     cLeader!!.leaderRange = leaderRange
@@ -333,7 +380,12 @@ fun UnitActor.leader(leaderId: Int, leaderRange: Int = 1, killUnitsOnDeath: Bool
     return this
 }
 
-fun UnitActor.dealDamage(damage: Int, attacker: UnitActor, playScreen: PlayScreen, killIfZero: Boolean = true) : UnitActor {
+fun UnitActor.dealDamage(
+    damage: Int,
+    attacker: UnitActor? = null,
+    playScreen: PlayScreen,
+    killIfZero: Boolean = true,
+): UnitActor {
     var damage = damage
 
     get(BarrierComponent::class.java)?.let {
@@ -356,7 +408,10 @@ fun UnitActor.dealDamage(damage: Int, attacker: UnitActor, playScreen: PlayScree
     playStageOrNull?.addActor(HealthChangeEffect(this, -damage))
 
     if (killIfZero && this.health < 1) {
-        this.killedBy(attacker, playScreen)
+        if (attacker != null)
+            this.killedBy(attacker, playScreen)
+        else
+            this.die(playScreen)
     }
 
     return this
@@ -419,7 +474,7 @@ fun UnitActor.grantExp(amount: Int, playScreen: PlayScreen) {
         playScreen.playStage.addActor(label)
     }
 
-    if(oldLvl != cLevel.lvl) {
+    if (oldLvl != cLevel.lvl) {
         if (playScreen.gameType == GameType.STORY)
             unit.levelUp()
         //TODO level up for other modes
@@ -451,7 +506,12 @@ fun UnitActor.captureBase(base: TileActor, player: Player? = null) {
     setPlayerForCapturableTile(base, playerId, player?.species)
 }
 
-fun UnitActor.getClosestTileInMoveRange(destX: Int, destY: Int, pTiles: Array<TileActor>? = null, includeUnitPosTile: Boolean = false) : TileActor? {
+fun UnitActor.getClosestTileInMoveRange(
+    destX: Int,
+    destY: Int,
+    pTiles: Array<TileActor>? = null,
+    includeUnitPosTile: Boolean = false,
+): TileActor? {
     playStageOrNull ?: return null
 
     var closestTile: TileActor? = null
@@ -461,8 +521,17 @@ fun UnitActor.getClosestTileInMoveRange(destX: Int, destY: Int, pTiles: Array<Ti
             if (this.canMove(tile.tiledX, tile.tiledY))
                 closestTile = tile
         } else {
-            if ((this.canMove(tile.tiledX, tile.tiledY) || (includeUnitPosTile && tile.tiledX == tiledX && tile.tiledY == tiledY))
-                && (tiledDst(destX, destY, tile.tiledX, tile.tiledY) < tiledDst(destX, destY, closestTile.tiledX, closestTile.tiledY))) {
+            if ((this.canMove(
+                    tile.tiledX,
+                    tile.tiledY
+                ) || (includeUnitPosTile && tile.tiledX == tiledX && tile.tiledY == tiledY))
+                && (tiledDst(destX, destY, tile.tiledX, tile.tiledY) < tiledDst(
+                    destX,
+                    destY,
+                    closestTile.tiledX,
+                    closestTile.tiledY
+                ))
+            ) {
                 closestTile = tile
             }
         }
@@ -493,7 +562,10 @@ fun playerColorName(playerId: Int) =
         else -> ""
     }
 
-fun UnitActor.createAnimation(regionName: String, frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION) : RegionAnimation {
+fun UnitActor.createAnimation(
+    regionName: String,
+    frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION,
+): RegionAnimation {
     assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/$regionName").also { teamFrames ->
         if (teamFrames.isEmpty) {
             assets.textureAtlas.findRegions("units/$regionName").also { defFrames ->
@@ -512,7 +584,8 @@ fun UnitActor.createAnimation(regionName: String, frameDuration: Float = Const.U
 fun xpToLevelUp(curLvl: Int) = Const.EXP_MOD_LEVEL_UP * curLvl
 
 fun findUnitTextures(unitName: String, playerId: Int): Array<TextureAtlas.AtlasRegion> {
-    var regions = assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/${unitName.lowercase(Locale.ROOT)}")
+    var regions =
+        assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/${unitName.lowercase(Locale.ROOT)}")
     if (regions.isEmpty) regions = assets.textureAtlas.findRegions("units/${unitName.lowercase(Locale.ROOT)}")
     if (regions.isEmpty) {
         regions.add(assets.textureAtlas.findRegion("units/unit"))

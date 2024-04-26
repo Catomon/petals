@@ -9,6 +9,10 @@ object TileData {
     val tiles = HashMap<String, Tile>()
 
     init {
+        parseTiles()
+    }
+
+    fun parseTiles() {
         for (region in assets.tilesAtlas.regions) {
             val a = region.name.split("/")
             if (a.size != 2)

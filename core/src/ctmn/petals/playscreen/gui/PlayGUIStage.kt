@@ -422,32 +422,37 @@ class PlayGUIStage(
 
         // Next Player
         nextPlayerPrepare.onEnter = {
-            clickStrategy = seeInfoCs
+            if (playScreen.turnManager.players.filter { !playScreen.aiManager.isAIPlayer(it) && !it.isOutOfGame }.size < 2) {
+                playScreen.fogOfWarManager.hideAll = false
+                endTurnButton.isDisabled = false
+            } else {
+                clickStrategy = seeInfoCs
 
-            playScreen.fogOfWarManager.hideAll = true
+                playScreen.fogOfWarManager.hideAll = true
 
-            val labelPlayerReady = newLabel(
-                "Player ${playerColorName(playScreen.turnManager.currentPlayer.id).replaceFirstChar { it.uppercaseChar() }} Ready",
-                "font_8"
-            )
-            addActor(labelPlayerReady)
-            labelPlayerReady.setPosition(camera.position.x - labelPlayerReady.width / 2, camera.position.y)
-            labelPlayerReady.isVisible = true
-            labelPlayerReady.addAction(object : Action() {
-                override fun act(delta: Float): Boolean {
-                    // see also InputManager
-                    if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                        || Gdx.input.justTouched()
-                    ) {
+                val labelPlayerReady = newLabel(
+                    "Player ${playerColorName(playScreen.turnManager.currentPlayer.id).replaceFirstChar { it.uppercaseChar() }} Ready",
+                    "font_8"
+                )
+                addActor(labelPlayerReady)
+                labelPlayerReady.setPosition(camera.position.x - labelPlayerReady.width / 2, camera.position.y)
+                labelPlayerReady.isVisible = true
+                labelPlayerReady.addAction(object : Action() {
+                    override fun act(delta: Float): Boolean {
+                        // see also InputManager
+                        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
+                            || Gdx.input.justTouched()
+                        ) {
 
-                        labelPlayerReady.remove()
+                            labelPlayerReady.remove()
 
-                        return true
+                            return true
+                        }
+
+                        return false
                     }
-
-                    return false
-                }
-            })
+                })
+            }
         }
 
         nextPlayerPrepare.update = {

@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
+import ctmn.petals.tile.TileData
 
 lateinit var assets: Assets
 
@@ -46,6 +47,8 @@ class Assets : AssetManager() {
     fun onFinishLoading() {
         for (texture in textureAtlas.textures)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+
+        TileData.parseTiles()
     }
 
     fun beginLoadingAll() {

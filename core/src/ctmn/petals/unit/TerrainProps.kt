@@ -15,6 +15,7 @@ import ctmn.petals.tile.TerrainNames.roads
 import ctmn.petals.tile.TerrainNames.forest
 import ctmn.petals.tile.TerrainNames.fortress
 import ctmn.petals.tile.TerrainNames.hills
+import ctmn.petals.tile.TerrainNames.lava
 import ctmn.petals.tile.TerrainNames.skyscraper
 import ctmn.petals.tile.TerrainNames.swamp
 import ctmn.petals.tile.TerrainNames.tower
@@ -23,6 +24,7 @@ import ctmn.petals.tile.TerrainNames.walls
 import ctmn.petals.tile.TerrainNames.water
 
 const val UNREACHABLE = 999
+const val ONE_TILE = 99
 
 data class Terrain(
     val name: String,
@@ -153,6 +155,7 @@ object TerrainPropsPack {
         put(deepwater, UNREACHABLE, -30, -15)
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
+        put(lava, ONE_TILE)
     }
 
     val foot = TerrainProps().apply {
@@ -177,6 +180,7 @@ object TerrainPropsPack {
         put(deepwater, 3, -15, -10)
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
+        put(lava, ONE_TILE)
     }
 
     val flier = TerrainProps().apply {
@@ -196,6 +200,7 @@ object TerrainPropsPack {
         put(fortress, 0, 0, 15)
         put(skyscraper, 1, 0, 15)
         put(chasm, 0)
+        put(lava, 0)
     }
 
     //todo swimmer
@@ -219,6 +224,7 @@ object TerrainPropsPack {
         put(fallenforest, UNREACHABLE)
         put(skyscraper, UNREACHABLE)
         put(chasm, UNREACHABLE)
+        put(lava, ONE_TILE)
     }
 
     val slime = TerrainProps().apply {
@@ -243,6 +249,7 @@ object TerrainPropsPack {
         put(deepwater, 2, 0, 5)
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
+        put(lava, ONE_TILE)
     }
 
     val giant = TerrainProps().apply {
@@ -267,5 +274,6 @@ object TerrainPropsPack {
         put(deepwater, 2, -15, -15)
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
+        put(lava, ONE_TILE)
     }
 }

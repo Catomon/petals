@@ -24,4 +24,5 @@ object TerrainNames {
     const val deepwater = "deepwater"
     const val skyscraper = "skyscraper"
     const val chasm = "chasm"
+    const val lava = "lava"
 }
