@@ -86,7 +86,7 @@ class LeaderFieldDrawer(private val guiStage: PlayGUIStage) : Actor() {
             return
         } else {
             isVisible = true
-            if (!unit.isPlayerUnit(guiStage.player)) {
+            if (!unit.isPlayerUnit(guiStage.localPlayer)) {
                 sprite.color = Color.RED
             } else sprite.color = Color.WHITE
 

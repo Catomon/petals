@@ -42,7 +42,7 @@ class PlayGUIStage(
     val assets = playScreen.assets
 
     //localPlayer
-    val player: Player get() = playScreen.localPlayer
+    val localPlayer: Player get() = playScreen.localPlayer
 
     //stage
     val playStage = playScreen.playStage
@@ -63,7 +63,7 @@ class PlayGUIStage(
 
     //labels
     val creditsLabel =
-        newLabel("Credits: ${player.credits}", "font_5").apply {
+        newLabel("Credits: ${localPlayer.credits}", "font_5").apply {
             isVisible = playScreen.gameMode == GameMode.CASTLES || playScreen.gameMode == GameMode.CRYSTALS
         }
     private val fpsLabel = VisLabel().apply {
@@ -286,13 +286,13 @@ class PlayGUIStage(
 
                 if (playScreen.actionManager.hasActions) return
 
-                playScreen.commandManager.queueCommand(EndTurnCommand(player))
+                playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
             }
         })
 
         captureButton.addChangeListener {
             selectedUnit?.let { unit ->
-                if (unit.isPlayerUnit(player)) {
+                if (unit.isPlayerUnit(localPlayer)) {
                     val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addChangeListener
                     if (!tile.isCapturable) return@addChangeListener
                     val captureCommand = CaptureCommand(unit.name, tile.name)
@@ -317,13 +317,13 @@ class PlayGUIStage(
 
             unit ?: return@addListener false
 
-            if (unit.isPlayerUnit(player) && unit.actionPoints > 0) {
+            if (unit.isPlayerUnit(localPlayer) && unit.actionPoints > 0) {
                 val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addListener false
                 if (!tile.isCapturable) return@addListener false
 
                 captureButton.isVisible = true
 
-                if (tile.cPlayerId?.playerId == player.id) {
+                if (tile.cPlayerId?.playerId == localPlayer.id) {
                     //captureButton.isDisabled = true
                     captureButton.isVisible = false
                     return@addListener false
@@ -363,7 +363,7 @@ class PlayGUIStage(
             endTurnButton.isDisabled = false
 
             if (forceMyTurnEnd)
-                playScreen.commandManager.queueCommand(EndTurnCommand(player))
+                playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
         }
 
         myTurn.onExit = {
@@ -376,10 +376,12 @@ class PlayGUIStage(
                 currentState = if (playScreen.gameType == GameType.PVP_SAME_SCREEN) {
                     if (!playScreen.aiManager.isAIPlayer(playScreen.turnManager.currentPlayer)) {
                         nextPlayerPrepare
-                    } else
+                    } else {
                         theirTurn
-                } else
+                    }
+                } else {
                     theirTurn
+                }
             }
         }
 
@@ -388,6 +390,9 @@ class PlayGUIStage(
         }
 
         endTurn.onEnter = {
+            if (!playScreen.aiManager.isAIPlayer(playScreen.turnManager.nextPlayer))
+                playScreen.fogOfWarManager.hideAll = true
+
             clickStrategy = seeInfoCs
 
             holdStateTimer.start(1f)
@@ -421,7 +426,10 @@ class PlayGUIStage(
 
             playScreen.fogOfWarManager.hideAll = true
 
-            val labelPlayerReady = newLabel("Player Ready", "font_8")
+            val labelPlayerReady = newLabel(
+                "Player ${playerColorName(playScreen.turnManager.currentPlayer.id).replaceFirstChar { it.uppercaseChar() }} Ready",
+                "font_8"
+            )
             addActor(labelPlayerReady)
             labelPlayerReady.setPosition(camera.position.x - labelPlayerReady.width / 2, camera.position.y)
             labelPlayerReady.isVisible = true
@@ -453,7 +461,7 @@ class PlayGUIStage(
             endTurnButton.isDisabled = false
         }
 
-        currentState = if (playScreen.turnManager.currentPlayer == player) myTurn else theirTurn
+        currentState = if (playScreen.turnManager.currentPlayer == localPlayer) myTurn else theirTurn
         // States setup ^
 
         // Listeners
@@ -465,7 +473,7 @@ class PlayGUIStage(
                 }
 
                 is ActionCompletedEvent -> {
-                    if (!playScreen.actionManager.hasActions && playScreen.turnManager.currentPlayer == player)
+                    if (!playScreen.actionManager.hasActions && playScreen.turnManager.currentPlayer == localPlayer)
                         endTurnButton.isDisabled = false
                 }
 
@@ -478,7 +486,7 @@ class PlayGUIStage(
                                 if (task.isForcePlayerToComplete || task is DialogTask)
                                     return@addOnCompleteTrigger
 
-                            if (!playScreen.actionManager.hasActions && playScreen.turnManager.currentPlayer == player)
+                            if (!playScreen.actionManager.hasActions && playScreen.turnManager.currentPlayer == localPlayer)
                                 endTurnButton.isDisabled = false
                         }
                     }
@@ -486,7 +494,7 @@ class PlayGUIStage(
 
                 is NextTurnEvent -> {
                     endTurnButton.isDisabled =
-                        playScreen.actionManager.hasActions || playScreen.turnManager.currentPlayer != player
+                        playScreen.actionManager.hasActions || playScreen.turnManager.currentPlayer != localPlayer
                 }
             }
 
@@ -503,11 +511,15 @@ class PlayGUIStage(
                 is NextTurnEvent -> {
                     when (playScreen.gameType) {
                         GameType.PVP_SAME_SCREEN -> {
-                            // see nextPlayerPrepare
+                            /**see [nextPlayerPrepare] */ //todo clue 1
+                            if (playScreen.aiManager.isAIPlayer(playScreen.turnManager.previousPlayer)) {
+                                if (playScreen.turnManager.currentPlayer.id == localPlayer.id)
+                                    currentState = nextPlayerPrepare
+                            }
                         }
 
                         else -> {
-                            if (playScreen.turnManager.currentPlayer.id == player.id)
+                            if (playScreen.turnManager.currentPlayer.id == localPlayer.id)
                                 currentState = startTurn
                         }
                     }
@@ -522,11 +534,11 @@ class PlayGUIStage(
                 //show unit buy menu when base clicked
                 val tile = it.tile
                 if (tile.isBase) {
-                    if (playScreen.turnManager.currentPlayer == player
-                        && tile.cPlayerId?.playerId == player.id
+                    if (playScreen.turnManager.currentPlayer == localPlayer
+                        && tile.cPlayerId?.playerId == localPlayer.id
                         && currentState == myTurn
                     )
-                        buyMenuPanelTable.add(BuyMenuPanel(this, it.tile, player))
+                        buyMenuPanelTable.add(BuyMenuPanel(this, it.tile, localPlayer))
                 }
             }
 
@@ -536,8 +548,8 @@ class PlayGUIStage(
         // Play stage listeners
         playStage.addListener {
             when (it) {
-                is UnitBoughtEvent -> creditsLabel.setText("Crystals: ${player.credits}")
-                is NextTurnEvent -> creditsLabel.setText("Crystals: ${player.credits}")
+                is UnitBoughtEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
+                is NextTurnEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
             }
 
             false
@@ -573,7 +585,7 @@ class PlayGUIStage(
 
         // unit level up listener
         playStage.addListener {
-            if (it is UnitLevelUpEvent && it.unit.playerId == player.id) {
+            if (it is UnitLevelUpEvent && it.unit.playerId == localPlayer.id) {
                 abilityChooseDialogTable.add(LevelUpWindow(it.unit)).center() //AbilitiesSelectTable(it.unit)
             }
 
@@ -682,7 +694,7 @@ class PlayGUIStage(
     }
 
     fun reset() {
-        currentState = when (player) {
+        currentState = when (localPlayer) {
             playScreen.turnManager.currentPlayer -> myTurn
             else -> theirTurn
         }
@@ -711,7 +723,7 @@ class PlayGUIStage(
             return
         }
 
-        if (!selectedUnit!!.isPlayerUnit(player) || !myTurn.isCurrent()) {
+        if (!selectedUnit!!.isPlayerUnit(localPlayer) || !myTurn.isCurrent()) {
             abilitiesPanel.setUpForUnit(null)
 
             clickStrategy = seeInfoCs
@@ -720,7 +732,7 @@ class PlayGUIStage(
 
         clickStrategy = unitSelectedCs
 
-        if (selectedUnit!!.isPlayerUnit(player)) {
+        if (selectedUnit!!.isPlayerUnit(localPlayer)) {
             //if (selectedUnit!!.isLeader || selectedUnit!!.isFollower) {
             val leader =
                 if (selectedUnit!!.isFollower) playStage.getLeadUnit(selectedUnit!!.followerID) else selectedUnit!!
@@ -842,9 +854,9 @@ class PlayGUIStage(
                     return true
                 }
 
-                if (selectedUnit!!.isPlayerTeamUnit(player)
-                    && selectedUnit!!.isPlayerUnit(player)
-                    && !unit.isPlayerTeamUnit(player)
+                if (selectedUnit!!.isPlayerTeamUnit(localPlayer)
+                    && selectedUnit!!.isPlayerUnit(localPlayer)
+                    && !unit.isPlayerTeamUnit(localPlayer)
                     && selectedUnit!!.inAttackRange(unit.tiledX, unit.tiledY)
                     && !selectedUnit!!.isAlly(unit)
                 ) {

@@ -78,10 +78,10 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
             if (unit.isPlayerUnit(guiStage.playScreen.turnManager.currentPlayer)) {
                 actionPointsSprite.setPosition(unit.x - 2f, unit.y - 2f)
 
-                if (unit.isPlayerUnit(guiStage.player))
+                if (unit.isPlayerUnit(guiStage.localPlayer))
                     actionPointsAnimation.setFrames(greenFrames)
                 else
-                    if (guiStage.player.isAlly(unit.teamId))
+                    if (guiStage.localPlayer.isAlly(unit.teamId))
                         actionPointsAnimation.setFrames(blueFrames)
                     else
                         actionPointsAnimation.setFrames(redFrames)

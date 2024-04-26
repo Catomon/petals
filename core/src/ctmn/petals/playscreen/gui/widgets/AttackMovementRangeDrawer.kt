@@ -79,7 +79,7 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
     }
 
     private fun updateBorders() {
-        if (unit?.isPlayerUnit(guiStage.player) == false && GamePref.showAiGui != true
+        if (unit?.isPlayerUnit(guiStage.localPlayer) == false && GamePref.showAiGui != true
             && guiStage.playScreen.aiManager.isAIPlayer(guiStage.playScreen.turnManager.currentPlayer)) {
             this.unit = null
             isVisible = false
@@ -123,9 +123,9 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
     override fun setVisible(visible: Boolean) {
         super.setVisible(visible)
 
-        moveRangeBorder.show(isVisible && unit?.canMove() == true && unit!!.isPlayerUnit(guiStage.player))
+        moveRangeBorder.show(isVisible && unit?.canMove() == true && unit!!.isPlayerUnit(guiStage.localPlayer))
 
-        if (unit != null && !unit!!.canMove() && !unit!!.isPlayerUnit(guiStage.player))
+        if (unit != null && !unit!!.canMove() && !unit!!.isPlayerUnit(guiStage.localPlayer))
             moveRangeBorder.isVisible = false
 
         if (GamePref.drawUnitAttackRange == true) {

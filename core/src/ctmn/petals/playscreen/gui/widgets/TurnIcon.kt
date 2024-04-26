@@ -109,12 +109,12 @@ class TurnIcon : Actor() {
         super.setStage(stage)
 
         if (stage is PlayGUIStage) {
-            onNextTurn(stage.player, stage.player)
+            onNextTurn(stage.localPlayer, stage.localPlayer)
 
             stage.playStage.addListener {
                 when (it) {
                     is NextTurnEvent -> {
-                        onNextTurn(stage.player, it.nextPlayer)
+                        onNextTurn(stage.localPlayer, it.nextPlayer)
                         mHideAfter = hideAfter
                         addAction(Actions.fadeIn(0.5f))
                     }

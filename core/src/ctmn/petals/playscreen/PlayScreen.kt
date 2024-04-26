@@ -241,6 +241,12 @@ open class PlayScreen(
     open fun ready() {
         if (levelId == null) throw IllegalStateException("Level is null")
 
+        if (gameType == GameType.PVP_SAME_SCREEN) {
+            localPlayer = if (aiManager.isAIPlayer(turnManager.currentPlayer)) turnManager.players.first {
+                !aiManager.isAIPlayer(it)
+            } else turnManager.currentPlayer
+        }
+
         if (map != null)
             assignPlayersToSpawnPoints()
 
@@ -252,7 +258,6 @@ open class PlayScreen(
         val currentPlayer = turnManager.currentPlayer
         for (base in playStage.getCapturablesOf(currentPlayer))
             currentPlayer.credits += Const.GOLD_PER_BASE
-
 
         fireEvent(NextTurnEvent(turnManager.currentPlayer, turnManager.currentPlayer))
     }

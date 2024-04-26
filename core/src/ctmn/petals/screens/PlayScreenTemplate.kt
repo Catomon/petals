@@ -33,9 +33,9 @@ object PlayScreenTemplate {
         gameEndCondition: GameEndCondition,
         gameMode: GameMode,
         pLocalPlayer: Player? = null,
-        playScreen: PlayScreen = PlayScreen(game)
+        playScreen: PlayScreen = PlayScreen(game),
     ): PlayScreen {
-        with (playScreen) {
+        with(playScreen) {
             // Step 1: init map, add units and players, set up gameEndCondition
             setLevel(map)
 
@@ -53,7 +53,12 @@ object PlayScreenTemplate {
             this.gameEndCondition = gameEndCondition
 
             // Step 1.5: set localPlayer
-            localPlayer = pLocalPlayer ?: turnManager.players.first { !aiManager.isAIPlayer(it) }
+            localPlayer = if (gameType == GameType.PVP_SAME_SCREEN)
+                if (aiManager.isAIPlayer(turnManager.currentPlayer)) turnManager.players.first {
+                    !aiManager.isAIPlayer(it)
+                } else turnManager.currentPlayer
+            else
+                pLocalPlayer ?: turnManager.players.first { !aiManager.isAIPlayer(it) }
 
             // Step 2: initGui
             //if player == null, init with first non-ai player

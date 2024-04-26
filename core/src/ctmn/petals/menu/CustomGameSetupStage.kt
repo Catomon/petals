@@ -877,7 +877,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         }
 
         val addPlayerButton = newTextButton("Add Player").addChangeListener {
-            if (slot.player == null) {
+            if ((slot.player == null || slot.isAI) && hasFreeSlot) {
+                if (slot.player != null) slot.player = null
                 slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId).also {
                     it.species = speciesList.random()
                 }
@@ -905,6 +906,11 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
+        moveHereButton.isDisabled = !this@CustomGameSetupStage.isHost// || slot.player == null
+        addEasyBotButton.isDisabled = !this@CustomGameSetupStage.isHost || slot.player != null
+        addPlayerButton.isDisabled = !this@CustomGameSetupStage.isHost || (slot.player != null && !slot.isAI)
+        removeButton.isDisabled = !this@CustomGameSetupStage.isHost || slot.player == localPlayer
+
         with(win) {
             setCenterOnAdd(true)
             closeOnEscape()
@@ -925,11 +931,20 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     }
 
     private fun PlayerSlot.moveLocalPlayerToThisSlot() {
-        if (player != null || !isHost)
+        if (!isHost)
             return
 
-        getPlayerSlot(localPlayer)?.player = null
+        val prevSlot = getPlayerSlot(localPlayer) ?: throw IllegalStateException("Local player has no slot")
+        prevSlot.player = null
+
+        val thisPlayer = player
+        val isThisAi = isAI
+
         player = localPlayer
+        if (thisPlayer != null) {
+            prevSlot.player = thisPlayer
+            prevSlot.isAI = isThisAi
+        }
 
         serverManager.sendLobbyState()
     }

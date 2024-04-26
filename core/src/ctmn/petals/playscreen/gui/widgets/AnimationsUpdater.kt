@@ -42,7 +42,7 @@ class AnimationsUpdater(val guiStage: PlayGUIStage) : Actor() {
 
         //anime enemy units at their turn if they have action points
         if (guiStage.theirTurn == guiStage.currentState) {
-            for (unit in guiStage.playStage.getUnitsOfEnemyOf(guiStage.player))
+            for (unit in guiStage.playStage.getUnitsOfEnemyOf(guiStage.localPlayer))
                 if (unit.actionPoints > 0) {
                     if (unit.viewComponent is AnimationViewComponent)
                         (unit.viewComponent as AnimationViewComponent).isAnimate = true

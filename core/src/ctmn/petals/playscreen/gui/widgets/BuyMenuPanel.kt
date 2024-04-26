@@ -18,7 +18,6 @@ import ctmn.petals.player.Player
 import ctmn.petals.player.getSpeciesUnits
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
-import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.isWaterBase
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.setPosByCenter
@@ -116,7 +115,7 @@ class BuyMenuPanel(
                     // give the unit to the first leader that comes to the unit if there are no leaders by default
                     var unitLeaderIdLoc = unitLeaderId
                     if (unitLeaderIdLoc == -1) {
-                        for (unit in guiStage.playStage.getUnitsOfPlayer(guiStage.player)) {
+                        for (unit in guiStage.playStage.getUnitsOfPlayer(guiStage.localPlayer)) {
                             if (unit.isLeader)
                                 unitLeaderIdLoc = unit.leaderID
                         }
@@ -124,7 +123,7 @@ class BuyMenuPanel(
 
                     val buyCommand = BuyUnitCommand(
                         unitButton.unit.selfName,
-                        guiStage.player,
+                        guiStage.localPlayer,
                         unitButton.cost,
                         baseTile!!.tiledX,
                         baseTile!!.tiledY,
