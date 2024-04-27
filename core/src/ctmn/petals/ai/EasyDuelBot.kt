@@ -248,7 +248,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             return false
 
         //buy
-        val buyCommand = BuyUnitCommand(unitToBuy, player, unitPrice, baseX, baseY)
+        val buyCommand = BuyUnitCommand(unitToBuy, player.id, unitPrice, baseX, baseY)
         if (buyCommand.canExecute(playScreen)) {
             if (moveCamera)
                 playScreen.actionManager.queueAction(CameraMoveAction(baseX.unTiled(), baseY.unTiled()))

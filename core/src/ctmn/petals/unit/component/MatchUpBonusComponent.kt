@@ -6,6 +6,10 @@ import ctmn.petals.utils.CopyableComponent
 data class MatchUpBonusComponent(val bonuses: HashMap<String, Pair<Int, Int>> = HashMap()) : Component, CopyableComponent {
 
     override fun makeCopy(): Component {
-        return copy()
+        return MatchUpBonusComponent(HashMap<String, Pair<Int, Int>>().apply {
+            for ((key, value) in this@MatchUpBonusComponent.bonuses) {
+                put(key, value.first to value.second)
+            }
+        })
     }
 }

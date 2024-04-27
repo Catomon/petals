@@ -103,18 +103,21 @@ class PlayGUIStage(
     private val mapFrame = VisImage(VisUI.getSkin().getPatch("map_frame"))
 
     //state
-    val myTurn = State()
-    val endTurn = State()
-    val startTurn = State()
-    val theirTurn = State()
-    val nextPlayerPrepare = State()
-    val gameOverState = State()
-    private val loseState = State()
-    private val winState = State()
-    var currentState: State = State()
+    val myTurn = State("myTurn")
+    val endTurn = State("endTurn")
+    val startTurn = State("startTurn")
+    val theirTurn = State("theirTurn")
+    val nextPlayerPrepare = State("nextPlayerPrepare")
+    val gameOverState = State("gameOverState")
+    private val loseState = State("loseState")
+    private val winState = State("winState")
+    var currentState: State = State("initialState")
         set(value) {
             field.onExit?.invoke()
             value.onEnter?.invoke()
+
+            log("State changed: ${field.name} -> ${value.name}")
+
             field = value
         }
 
@@ -174,6 +177,8 @@ class PlayGUIStage(
                 }
             }
 
+            log("CS changed: ${field::class.simpleName} -> ${value::class.simpleName}")
+
             if (field !is BlockedCs) //why
                 field = value
         }
@@ -190,24 +195,8 @@ class PlayGUIStage(
         playStage.zoomCameraByDefault()
         playStage.centerCameraByDefault()
 
-//        playStage.addActorAfterTiles(mapFrame)
-//        with(mapFrame) {
-//            val offset = (width - 16) / 2
-//            setPosition(-offset, -offset)
-//            width = playStage.mapWidth() + offset * 2
-//            height = playStage.mapHeight() + offset * 2
-//        }
-
         //setup actors
-        playStage.addActor(attackIconsDrawer)
-        playStage.addActor(tileHighlighter)
-        playStage.addActor(tileSelectionDrawer)
-        playStage.addActor(unitInfoDrawer)
-        playStage.addActor(movementCostDrawer)
-        playStage.addActorAfterTiles(movementBorder)
-        playStage.addActorAfterTiles(abilityRangeBorder)
-        playStage.addActorAfterTiles(abilityActivationRangeBorder)
-        playStage.addActorAfterTiles(leaderFieldDrawer)
+        setupPlayStage()
 
         addActor(animationsUpdater)
 
@@ -390,8 +379,10 @@ class PlayGUIStage(
         }
 
         endTurn.onEnter = {
-            if (!playScreen.aiManager.isAIPlayer(playScreen.turnManager.nextPlayer))
-                playScreen.fogOfWarManager.hideAll = true
+            if (playScreen.gameType == GameType.PVP_SAME_SCREEN)
+                if (!playScreen.aiManager.isAIPlayer(playScreen.turnManager.nextPlayer))
+                    if (playScreen.turnManager.players.filter { !playScreen.aiManager.isAIPlayer(it) && !it.isOutOfGame }.size > 1)
+                        playScreen.fogOfWarManager.hideAll = true
 
             clickStrategy = seeInfoCs
 
@@ -422,10 +413,17 @@ class PlayGUIStage(
 
         // Next Player
         nextPlayerPrepare.onEnter = {
-            if (playScreen.turnManager.players.filter { !playScreen.aiManager.isAIPlayer(it) && !it.isOutOfGame }.size < 2) {
+            // if game type is not same screen or there are less than 2 P&P players, do as usual
+            if (playScreen.gameType != GameType.PVP_SAME_SCREEN || (playScreen.turnManager.players.filter {
+                    !playScreen.aiManager.isAIPlayer(
+                        it
+                    ) && !it.isOutOfGame
+                }.size < 2)) {
                 playScreen.fogOfWarManager.hideAll = false
                 endTurnButton.isDisabled = false
             } else {
+                //if same screen and >1 p&p players, hide units and add player ready label
+
                 clickStrategy = seeInfoCs
 
                 playScreen.fogOfWarManager.hideAll = true
@@ -516,7 +514,7 @@ class PlayGUIStage(
                 is NextTurnEvent -> {
                     when (playScreen.gameType) {
                         GameType.PVP_SAME_SCREEN -> {
-                            /**see [nextPlayerPrepare] */ //todo clue 1
+                            /**see [nextPlayerPrepare] */
                             if (playScreen.aiManager.isAIPlayer(playScreen.turnManager.previousPlayer)) {
                                 if (playScreen.turnManager.currentPlayer.id == localPlayer.id)
                                     currentState = nextPlayerPrepare
@@ -550,16 +548,6 @@ class PlayGUIStage(
             false
         }
 
-        // Play stage listeners
-        playStage.addListener {
-            when (it) {
-                is UnitBoughtEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
-                is NextTurnEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
-            }
-
-            false
-        }
-
         //a listener that performs unit commands on an event depending on clickStrategy value
         addListener { event ->
             when (event) {
@@ -574,6 +562,39 @@ class PlayGUIStage(
                 is UnitClickedEvent -> {
                     clickStrategy.onUnitClicked(event.unit)
                 }
+            }
+
+            false
+        }
+    }
+
+    private fun setupPlayStage() {
+        if (playStage.root.findActor<Actor>("been_set_up_mark") != null) {
+            err("PlayStage is already set up.")
+            return
+        }
+
+        log("PlayStage setting up.")
+
+        playStage.addActor(Actor().apply { name = "been_set_up_mark" })
+
+        //TODO the problem is that they use old guiStage reference
+        //actors
+        playStage.addActor(attackIconsDrawer)
+        playStage.addActor(tileHighlighter)
+        playStage.addActor(tileSelectionDrawer)
+        playStage.addActor(unitInfoDrawer)
+        playStage.addActor(movementCostDrawer)
+        playStage.addActorAfterTiles(movementBorder)
+        playStage.addActorAfterTiles(abilityRangeBorder)
+        playStage.addActorAfterTiles(abilityActivationRangeBorder)
+        playStage.addActorAfterTiles(leaderFieldDrawer)
+
+        //listeners
+        playStage.addListener {
+            when (it) {
+                is UnitBoughtEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
+                is NextTurnEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
             }
 
             false

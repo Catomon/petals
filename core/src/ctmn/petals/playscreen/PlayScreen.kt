@@ -181,6 +181,10 @@ open class PlayScreen(
         triggerManager.update(delta)
     }
 
+    fun clear() {
+
+    }
+
     fun setLevel(map: MapConverted) {
         this.map = map
         this.levelId = map.mapId
@@ -281,6 +285,8 @@ open class PlayScreen(
 
     /** Should be called after TileData, Units, Players, and CurrentPlayer were added to playStage */
     open fun initGui() {
+        if (::guiStage.isInitialized) throw IllegalStateException("${guiStage::class.simpleName} is already initialized.")
+
         inputMultiplexer.processors.clear()
 
         guiStage = PlayGUIStage(this)

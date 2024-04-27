@@ -42,14 +42,38 @@ class GameServer(private val port: Int = ConnectionData.port) {
             }).option(ChannelOption.SO_BACKLOG, 128)
             .childOption(ChannelOption.SO_KEEPALIVE, true)
 
+        // o(￣▽￣)ｄ
         channelFuture = bootstrap.bind(port).addListener { future ->
             if (future.isSuccess) {
                 logger.info("Server Channel is active.")
+                futureResult(eventLoopGroup)
             } else {
-                logger.error("Failed to start server channel.", future.cause())
+                logger.error("Failed to start server channel. Trying port ${port + 1}", future.cause())
+
+                channelFuture = bootstrap.bind(port + 1).addListener { future ->
+                    if (future.isSuccess) {
+                        logger.info("Server Channel is active.")
+                        futureResult(eventLoopGroup)
+                    } else {
+                        logger.error("Failed to start server channel. Trying port ${port + 2}", future.cause())
+
+                        channelFuture = bootstrap.bind(port + 2).addListener { future ->
+                            if (future.isSuccess) {
+                                logger.info("Server Channel is active.")
+                                futureResult(eventLoopGroup)
+                            } else {
+                                logger.error("Failed to start server channel.", future.cause())
+
+                                futureResult(eventLoopGroup)
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
 
+    private fun futureResult(eventLoopGroup: EventLoopGroup) {
         // Start the request listener
         val executor = eventLoopGroup.next()
         executor.execute {

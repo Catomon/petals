@@ -112,7 +112,6 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             if (component is ViewComponent) continue
             if (component is MatchUpBonusComponent) continue
             if (component is TerrainPropComponent) continue
-            if (component is TerrainPropComponent) continue
             if (component is ShopComponent) continue
 
             val json = gson.toJsonTree(component)
@@ -127,10 +126,10 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
         name = json.get("id")?.asString ?: name
 
-        for (component in components.components) {
-            val json = json.get(component.javaClass.simpleName) ?: continue
+        for (componentClass in Components.classes) {
+            val jsonComponent = json.get(componentClass.simpleName) ?: continue
 
-            add(gson.fromJson(json, component.javaClass))
+            add(gson.fromJson(jsonComponent, componentClass))
         }
 
         //updateView()

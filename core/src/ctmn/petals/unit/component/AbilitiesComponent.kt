@@ -19,6 +19,6 @@ data class AbilitiesComponent(
     }
 
     override fun makeCopy(): Component {
-        return copy()
+        return AbilitiesComponent(baseMana, mutableSetOf<Ability>().apply { addAll(this@AbilitiesComponent.abilities) }, mana)
     }
 }

@@ -56,7 +56,8 @@ fun applyGameStateToPlayScreen(
             playStage.addActor(unit)
         }
 
-        playScreen.initGui()
+        //TODO probably should I not remake gui
+        //playScreen.initGui()
         fireEvent(NextTurnEvent(turnManager.previousPlayer, turnManager.currentPlayer))
     }
 

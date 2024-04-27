@@ -123,7 +123,7 @@ class BuyMenuPanel(
 
                     val buyCommand = BuyUnitCommand(
                         unitButton.unit.selfName,
-                        guiStage.localPlayer,
+                        guiStage.localPlayer.id,
                         unitButton.cost,
                         baseTile!!.tiledX,
                         baseTile!!.tiledY,

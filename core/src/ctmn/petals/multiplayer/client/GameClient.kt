@@ -54,19 +54,40 @@ class GameClient(val host: String = ConnectionData.host, val port: Int = Connect
                 }
             })
 
-        channelFuture = bootstrap.connect(host, port)
-
-        // Use a listener to be notified when the client channel becomes connected
-        channelFuture.addListener { future ->
+        channelFuture = bootstrap.connect(host, port).addListener { future ->
             isRunning = if (future.isSuccess) {
                 logger.info("Client Channel is connected.")
                 true
             } else {
-                logger.error("Failed to connect client channel.", future.cause())
+                logger.error("Failed to connect client channel. Trying port ${port + 1}", future.cause())
+
+                channelFuture = bootstrap.connect(host, port + 1).addListener { future ->
+                    isRunning = if (future.isSuccess) {
+                        logger.info("Client Channel is connected.")
+                        true
+                    } else {
+                        logger.error("Failed to connect client channel. Trying port ${port + 2}", future.cause())
+
+                        channelFuture = bootstrap.connect(host, port + 2).addListener { future ->
+                            isRunning = if (future.isSuccess) {
+                                logger.info("Client Channel is connected.")
+                                true
+                            } else {
+                                logger.error("Failed to connect client channel.", future.cause())
+                                false
+                            }
+                        }
+
+                        false
+                    }
+                }
+
                 false
             }
         }
+    }
 
+    private fun futureResult(workerGroup: NioEventLoopGroup) {
         // Use SingleThreadEventExecutor to wait for the client channel to connect
         val executor = DefaultEventExecutor(workerGroup)
         executor.execute {

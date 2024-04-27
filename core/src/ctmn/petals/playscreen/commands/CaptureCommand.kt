@@ -21,8 +21,6 @@ class CaptureCommand(val unitId: String, val baseId: String) : Command() {
 
         if (unit.actionPoints <= 0) return false
 
-        println(base.toSimpleString())
-
         if (!base.isCapturable)
             throw IllegalArgumentException("The tile terrain is not capturable")
 

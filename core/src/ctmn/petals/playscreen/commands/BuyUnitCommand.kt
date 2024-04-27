@@ -1,12 +1,11 @@
 package ctmn.petals.playscreen.commands
 
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.player.Player
 import ctmn.petals.playscreen.events.UnitBoughtEvent
 import ctmn.petals.unit.*
 import com.badlogic.gdx.Gdx
 
-class BuyUnitCommand(val unitName: String, val player: Player, var cost: Int = -1, val tileX: Int, val tileY: Int, val leaderId: Int = -1) : Command() {
+class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int = -1, val tileX: Int, val tileY: Int, val leaderId: Int = -1) : Command() {
 
     override fun canExecute(playScreen: PlayScreen): Boolean {
         //command executes only on a castle terrain
@@ -16,6 +15,9 @@ class BuyUnitCommand(val unitName: String, val player: Player, var cost: Int = -
         //check if a castle terrain tile is occupied by other unit
         if (playScreen.playStage.getUnit(tileX, tileY) != null)
             return false
+
+        //find player
+        val player = playScreen.turnManager.getPlayerById(buyerPlayerId) ?: return false
 
         //check if player has not enough gold
         if (player.credits < cost)
@@ -32,6 +34,7 @@ class BuyUnitCommand(val unitName: String, val player: Player, var cost: Int = -
     }
 
     override fun execute(playScreen: PlayScreen): Boolean {
+        val player = playScreen.turnManager.getPlayerById(buyerPlayerId) ?: return false
         val unitActor = playScreen.unitsData.get(unitName, player)
 
         player.credits -= cost

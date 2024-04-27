@@ -176,7 +176,7 @@ class EvilTreeBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             return false
 
         //buy
-        val buyCommand = BuyUnitCommand(unitToBuy, player, unitPrice, hatchX, hatchY)
+        val buyCommand = BuyUnitCommand(unitToBuy, player.id, unitPrice, hatchX, hatchY)
         if (buyCommand.canExecute(playScreen)) {
             if (moveCamera)
                 playScreen.actionManager.queueAction(CameraMoveAction(hatchX.unTiled(), hatchY.unTiled()))

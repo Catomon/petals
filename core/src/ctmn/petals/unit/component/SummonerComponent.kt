@@ -13,6 +13,6 @@ data class SummonerComponent(
 ) : Component, CopyableComponent {
 
     override fun makeCopy(): Component {
-        return copy()
+        return SummonerComponent(mutableSetOf<String>().apply { addAll(this@SummonerComponent.units) }, selectedUnit, giveAP, maxUnits)
     }
 }

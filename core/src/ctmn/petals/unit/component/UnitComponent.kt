@@ -28,6 +28,6 @@ data class UnitComponent(
     val baseHealth = health
 
     override fun makeCopy(): Component {
-        return copy()
+        return copy().also { it.allies = mutableSetOf<Int>().apply { addAll(this@UnitComponent.allies) } }
     }
 }
