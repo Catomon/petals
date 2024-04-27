@@ -32,6 +32,7 @@ class EditorScreen : ScreenAdapter() {
 
     init {
         tools.setContext(canvas)
+        tools.isFavouriteLayersMode = true
 
         Gdx.input.inputProcessor = InputMultiplexer(interfaceStage, canvas)
 

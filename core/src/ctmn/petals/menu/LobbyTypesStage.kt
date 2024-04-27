@@ -72,17 +72,20 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
 
             add(labelSameScreen)
             row()
-            add(passAndPlayButton)
+            add(passAndPlayButton).padBottom(16f)
             row()
 
             add(labelLocalMp).padTop(4f)
             row()
-            add(serverLobbyButton)
+            add(serverLobbyButton).padBottom(16f).minWidth(100f)
             row()
-            add(ipTextField).width(180f).padTop(8f)
+
+            add(ipTextField).width(180f)
             row()
-            add(clientLobbyButton)
+
+            add(clientLobbyButton).padBottom(16f)
             row()
+
             add(returnButton).padTop(8f)
 
             padBottom(30f)

@@ -63,7 +63,7 @@ class InterfaceStage(
 
     private val toolButtons = ButtonGroup<VisImageButton>()
 
-    private val skyLayerButton = VisImage("layer_sky")
+    private val markerLayerButton = VisImage("layer_marker")
         .addClickListener { _ ->
             changeLayer(3)
         }.addClickSound()
@@ -158,10 +158,10 @@ class InterfaceStage(
             for (tool in tools.toolList) {
                 addActor(newToolButton(tool))
             }
-            addActor(skyLayerButton)
+            addActor(markerLayerButton)
             addActor(objectLayerButton)
             addActor(groundLayerButton)
-            addActor(undergroundLayerButton)
+            //addActor(undergroundLayerButton)
             addActor(layerButton)
             //addActor(layerButtonMin)
             addActor(layerVisibilityButton)
@@ -180,10 +180,10 @@ class InterfaceStage(
             addActor(TooltipLabel(it, (it.userObject as Tool).tooltip))
         }
 
-        skyLayerButton.addTooltip("Sky layer")
-        objectLayerButton.addTooltip("Object layer")
+        markerLayerButton.addTooltip("Markers layer")
+        objectLayerButton.addTooltip("Objects layer")
         groundLayerButton.addTooltip("Ground layer")
-        undergroundLayerButton.addTooltip("Underground layer")
+        //undergroundLayerButton.addTooltip("Underground layer")
 
         layerButton.addTooltip("Current layer")
 
@@ -204,8 +204,8 @@ class InterfaceStage(
         tools.pencil.layer = layer
         layerButton.setText(
             when (layer) {
-                3 -> "Sky"
-                2 -> "Object"
+                3 -> "Labels"
+                2 -> "Objects"
                 1 -> "Ground"
                 0 -> "Underground"
                 else -> "Layer $layer"
@@ -221,6 +221,11 @@ class InterfaceStage(
         }
 
         canvas.highlightLayerId = tools.pencil.layer
+
+        if (tools.isFavouriteLayersMode) {
+            tools.pencil.canvasActor = null
+            actorsPicker.fillItemsTable()
+        }
     }
 
     fun changeTool(tool: Tool) {
@@ -344,6 +349,12 @@ class InterfaceStage(
                 pArr
             }
 
+            val canvasActors = actorsPackage.canvasActorsFiltered.filter {
+                if (tools.isFavouriteLayersMode)
+                    it.favouriteLayer == tools.pencil.layer
+                else true
+            }
+
             with(this.actor as VisTable) {
                 clear()
 
@@ -351,13 +362,13 @@ class InterfaceStage(
 
                 val maxInRow = if (arr == horizontal) {
                     setScrollingDisabled(false, true)
-                    actorsPackage.canvasActorsFiltered.size / itemsInRow + 1
+                    canvasActors.size / itemsInRow + 1
                 } else {
                     setScrollingDisabled(true, false)
                     itemsInRow
                 }
                 var currentInRow = 0
-                for (canvasActor in actorsPackage.canvasActorsFiltered) {
+                for (canvasActor in canvasActors) {
                     val item = Item(canvasActor)
                     item.name = canvasActor.name
                     item.userObject = canvasActor

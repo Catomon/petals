@@ -457,6 +457,9 @@ class PlayGUIStage(
         nextPlayerPrepare.update = {
             if (currentState == nextPlayerPrepare)
                 endTurnButton.isDisabled = true
+
+            if (!playScreen.fogOfWarManager.hideAll)
+                currentState = startTurn
         }
 
         nextPlayerPrepare.onExit = {
@@ -620,7 +623,7 @@ class PlayGUIStage(
 
         //select AI unit in action
         playStage.addListener { event ->
-            if (GamePref.showAiGui != true) return@addListener false
+            if (!GamePref.showAiGui) return@addListener false
 
             if (playScreen.aiManager.isAIPlayer(playScreen.turnManager.currentPlayer)) {
                 when (event) {

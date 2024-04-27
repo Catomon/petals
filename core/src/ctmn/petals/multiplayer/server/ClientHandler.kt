@@ -100,11 +100,11 @@ class ClientHandler(val clientsController: ClientsController) : ChannelInboundHa
 
         if (!disconnected) {
             clientsController.clientsListener?.onClientLostConnection(this)
-            logger.info("Client$clientId has lost connection.")
+            logger.info("Client $clientId has lost connection.")
         }
         else {
             clientsController.clientsListener?.onClientDisconnected(this)
-            logger.info("Client$clientId have been disconnected.")
+            logger.info("Client $clientId have been disconnected.")
         }
     }
 

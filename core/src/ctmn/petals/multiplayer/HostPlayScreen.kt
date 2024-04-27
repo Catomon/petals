@@ -15,6 +15,7 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.addAction
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandExecutedEvent
+import ctmn.petals.playscreen.gui.floatingLabel
 import ctmn.petals.playscreen.seqactions.SeqAction
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.fromGson
@@ -49,7 +50,11 @@ class HostPlayScreen(
             override fun onClientIdentified(client: ClientHandler) {
                 super.onClientIdentified(client)
 
-                // todo prob should wait till client loads into the game
+                if (playerStatuses[client.clientId] == PlayerStatus.DISCONNECTED || playerStatuses[client.clientId] == PlayerStatus.LOST_CONNECTION)
+                    guiStage.floatingLabel("Player reconnected: ${turnManager.players.find { it.clientId == client.clientId }}")
+                else
+                    guiStage.floatingLabel("Player connected: ${turnManager.players.find { it.clientId == client.clientId }}")
+
                 playerStatuses[client.clientId] = PlayerStatus.READY
 
                 broadcastMessage(JsonMessage(LobbyStateResponse(lobbyState).toGson()))
@@ -59,6 +64,8 @@ class HostPlayScreen(
                 super.onClientDisconnected(client)
 
                 playerStatuses[client.clientId] = PlayerStatus.DISCONNECTED
+
+                guiStage.floatingLabel("Player disconnected: ${turnManager.players.find { it.clientId == client.clientId }}")
             }
 
             override fun onClientLostConnection(client: ClientHandler) {
@@ -66,23 +73,25 @@ class HostPlayScreen(
 
                 playerStatuses[client.clientId] = PlayerStatus.LOST_CONNECTION
 
-                val loadingCover = LoadingCover()
-                guiStage.addActor(loadingCover)
+                guiStage.floatingLabel("Player lost connection: ${turnManager.players.find { it.clientId == client.clientId }}")
 
-                addAction(object : SeqAction() {
-                    override fun update(deltaTime: Float) {
-                        if (playerStatuses.values.firstOrNull { it != PlayerStatus.READY } == null) {
-                            loadingCover.done()
-                            isDone = true
-                        }
-                    }
-
-                    override fun onStart(playScreen: PlayScreen): Boolean {
-                        lifeTime = 60f
-
-                        return true
-                    }
-                })
+//                val loadingCover = LoadingCover()
+//                guiStage.addActor(loadingCover)
+//
+//                addAction(object : SeqAction() {
+//                    override fun update(deltaTime: Float) {
+//                        if (playerStatuses.values.firstOrNull { it != PlayerStatus.READY } == null) {
+//                            loadingCover.done()
+//                            isDone = true
+//                        }
+//                    }
+//
+//                    override fun onStart(playScreen: PlayScreen): Boolean {
+//                        lifeTime = 60f
+//
+//                        return true
+//                    }
+//                })
             }
         }
 
@@ -140,7 +149,8 @@ class HostPlayScreen(
             var allDisconnected = true
             for ((i, playerStatus) in playerStatuses.values.withIndex()) {
                 if (playerStatuses[localPlayer.clientId] != playerStatuses.values.elementAt(i)
-                    && playerStatus != PlayerStatus.LOST_CONNECTION && playerStatus != PlayerStatus.DISCONNECTED)
+                    && playerStatus != PlayerStatus.LOST_CONNECTION && playerStatus != PlayerStatus.DISCONNECTED
+                )
                     allDisconnected = false
             }
 
@@ -163,9 +173,7 @@ class HostPlayScreen(
             false
         })
     }
-
-    /** Gui Stage is getting destroyed after applying the requested state to PlayScreen
-     * see [ctmn.petals.multiplayer.applyGameStateToPlayScreen] */
+    
     override fun initGui() {
         super.initGui()
 

@@ -13,6 +13,8 @@ class CanvasActor(name: String, val sprite: Sprite = Sprite()) : Actor() {
 
     var layer = 1
 
+    var favouriteLayer: Int? = null
+
     init {
         this.name = name
 

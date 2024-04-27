@@ -36,6 +36,8 @@ class Tools(private val actorsPackage: CanvasActorsPackage) {
     var canvas: CanvasStage? = null
         private set
 
+    var isFavouriteLayersMode = false
+
     fun setContext(canvas: CanvasStage) {
         current = pencil
         this.canvas = canvas
@@ -159,6 +161,9 @@ class Pencil(private val actorsPackage: CanvasActorsPackage) : Tool("pencil") {
         }
 
         canvasActor?.let { canvasActor ->
+            if (tools.isFavouriteLayersMode)
+                if (layer == 2) canvas.getActor(x.toTilePos(), y.toTilePos(), 1) ?: return
+
             val newActor = canvasActor.copy()
 
             newActor.setPosition(x - x % tileSize, y - y % tileSize)
@@ -212,6 +217,18 @@ class Eraser : Tool("eraser") {
     }
 
     fun delete(x: Float, y: Float) {
+        if (tools.isFavouriteLayersMode) {
+            if (tools.pencil.layer <= 2) {
+                canvas.getActor(x.toTilePos(), y.toTilePos(), 0)?.remove()
+                canvas.getActor(x.toTilePos(), y.toTilePos(), 1)?.remove()
+                canvas.getActor(x.toTilePos(), y.toTilePos(), 2)?.remove()
+            } else {
+                canvas.getActor(x.toTilePos(), y.toTilePos(), tools.pencil.layer)?.remove()
+            }
+
+            return
+        }
+
         var actorHit: CanvasActor? = null
         for (actor in canvas.getCanvasActors()) {
             val localCoords = actor.stageToLocalCoordinates(Vector2(x, y))

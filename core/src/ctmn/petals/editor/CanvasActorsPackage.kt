@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.assets
+import ctmn.petals.tile.TerrainNames
 
 class CanvasActorsPackage {
 
@@ -14,10 +15,12 @@ class CanvasActorsPackage {
 
     init {
         for (region in assets.tilesAtlas.regions) {
+            var terrain = ""
             val name =
-                if (region.name.contains("/"))
+                if (region.name.contains("/")) {
+                    terrain = region.name.split("/")[0]
                     region.name.split("/")[1]
-                else
+                } else
                     region.name
 
             val sprite = Sprite(region).apply {
@@ -25,9 +28,42 @@ class CanvasActorsPackage {
             }
 
             if (name.contains("goblin_den") || name.contains("pixie_nest")) continue
+            if (name == "tile") continue
 
             val tile = CanvasActor(name, sprite)
             canvasActors.add(tile)
+
+            when {
+                arrayOf("water").find { tile.name.startsWith(it) && terrain == TerrainNames.water } != null -> {
+                    tile.favouriteLayer = 1
+                }
+
+                arrayOf("grass", "grass_rain").find { tile.name == it && terrain == TerrainNames.grass } != null -> {
+                    tile.favouriteLayer = 1
+                }
+
+                arrayOf("road").find { tile.name.startsWith(it) && terrain == TerrainNames.roads } != null -> {
+                    tile.favouriteLayer = 1
+                }
+
+                arrayOf("swamp").find { tile.name.startsWith(it) && terrain == TerrainNames.swamp } != null -> {
+                    tile.favouriteLayer = 1
+                }
+
+                arrayOf("lava").find { tile.name.startsWith(it) && terrain == TerrainNames.lava } != null -> {
+                    tile.favouriteLayer = 1
+                }
+
+                arrayOf("deepwater").find { tile.name.startsWith(it) && terrain == TerrainNames.deepwater } != null -> {
+                    tile.favouriteLayer = 1
+                }
+
+                arrayOf("leader_spawn_point").find { tile.name == it && terrain.isEmpty() } != null -> {
+                    tile.favouriteLayer = 3
+                }
+
+                else -> tile.favouriteLayer = 2
+            }
         }
 
         canvasActors.forEach { actor ->
