@@ -192,7 +192,7 @@ class AbilitiesPanel(val guiStage: PlayGUIStage) : VisTable() {
                         return
 
                     if (ability == null) {
-                        guiStage.clickStrategy = guiStage.unitSelectedCs
+                        guiStage.mapClickListener = guiStage.unitSelectedCL
                         return
                     }
 
@@ -201,7 +201,7 @@ class AbilitiesPanel(val guiStage: PlayGUIStage) : VisTable() {
                     if (guiStage.currentState != guiStage.myTurn) return
 
                     if (ability!!.range <= 0) {
-                        guiStage.clickStrategy = guiStage.confirmAbilityCs
+                        guiStage.mapClickListener = guiStage.confirmAbilityCL
                         guiStage.abilityActivationRangeBorder.makeForRange(ability!!.activationRange,
                             guiStage.selectedUnit!!.tiledX,
                             guiStage.selectedUnit!!.tiledY,
@@ -215,7 +215,7 @@ class AbilitiesPanel(val guiStage: PlayGUIStage) : VisTable() {
 
                     selectedAbility = ability
 
-                    guiStage.clickStrategy = guiStage.useAbilityCs
+                    guiStage.mapClickListener = guiStage.useAbilityCL
                     guiStage.abilityRangeBorder.makeForRange(
                             ability!!.range,
                             guiStage.selectedUnit!!.tiledX,

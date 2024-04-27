@@ -93,8 +93,8 @@ class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
             selectedSprite.draw(batch)
         }
 
-        when (guiStage.clickStrategy) {
-            guiStage.selectUnitCs -> {
+        when (guiStage.mapClickListener) {
+            guiStage.selectUnitCL -> {
                 val hoveringUnit = guiStage.playStage.getUnit(hoveringSprite.centerX().tiled(), hoveringSprite.centerY().tiled())
                 if (hoveringUnit != null && hoveringUnit.isVisible) {
                     hoveringSprite.setRegion(selectTexture)
@@ -102,7 +102,7 @@ class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
                 }
             }
 
-            guiStage.unitSelectedCs -> {
+            guiStage.unitSelectedCL -> {
                 when (hoveringActor) {
                     is UnitActor -> {
                         if (hoveringActor != guiStage.selectedUnit
@@ -149,7 +149,7 @@ class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
                 }
             }
 
-            guiStage.useAbilityCs -> {
+            guiStage.useAbilityCL -> {
                 if (guiStage.selectedUnit!!.isInRange(hoveringSprite.centerX().tiled(), hoveringSprite.centerY().tiled(), guiStage.abilitiesPanel.selectedAbility!!.range)) {
                     hoveringSprite.setRegion(abilityTexture)
                 } else {
@@ -158,7 +158,7 @@ class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
                 drawHoveringSprite = true
             }
 
-            guiStage.confirmAbilityCs -> {
+            guiStage.confirmAbilityCL -> {
                 confirmLock = true
 
                 if (guiStage.abilitiesPanel.selectedAbility?.range == 0) {

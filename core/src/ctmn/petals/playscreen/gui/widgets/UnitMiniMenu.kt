@@ -66,17 +66,17 @@ class UnitMiniMenu(val guiStage: PlayGUIStage) : VerticalGroup() {
         }
 
         moveButton.addChangeListener {
-            //guiStage.clickStrategy = guiStage.moveCs
+            //guiStage.mapClickListener = guiStage.moveCs
             hide()
         }
 
         attackButton.addChangeListener {
-            //guiStage.clickStrategy = guiStage.attackCs
+            //guiStage.mapClickListener = guiStage.attackCs
             hide()
         }
 
         abilityButton.addChangeListener {
-//            guiStage.clickStrategy = PlayGUIStage.ClickStrategy.USE_ABILITY
+//            guiStage.mapClickListener = PlayGUIStage.MapClickListener.USE_ABILITY
             guiStage.abilitiesPanel.isVisible = true
         }
 
@@ -93,7 +93,7 @@ class UnitMiniMenu(val guiStage: PlayGUIStage) : VerticalGroup() {
         } else {
             if (!isVisible)
             if (unit != null && guiStage.playScreen.actionManager.isQueueEmpty) {
-                if (guiStage.clickStrategy == guiStage.unitSelectedCs) {
+                if (guiStage.mapClickListener == guiStage.unitSelectedCL) {
                     unit = unit
                     show()
                 }

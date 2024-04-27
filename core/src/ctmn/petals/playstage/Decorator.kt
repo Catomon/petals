@@ -16,7 +16,7 @@ class Decorator {
         //addMissingTiles()
 
         for (tile in playStage.getAllTiles()) {
-            if (tile.isCombinable()) {
+            if (tile.isCombinable() && tile.layer == 1) {
                 tile.combine()
             }
         }

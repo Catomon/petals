@@ -201,6 +201,14 @@ open class PlayScreen(
             playStage.addActor(label)
         }
 
+        Decorator().decorate(playStage)
+
+        fixLevel()
+
+        levelCreated()
+    }
+
+    private fun fixLevel() {
         // if first tile on a tiled position has layer != 1, shift all tiles layer on the position to make it 1
         // like 0 1 2 -> -1 0 1
         // only if layer is <3, in this case: 0 1 2 3 -> -1 0 1 3
@@ -220,40 +228,22 @@ open class PlayScreen(
 
                 if (tilesSamePos.firstOrNull { it.layer == 2 } == null) continue
 
-                tilesSamePos.filter { it.layer < 3 }.forEach { it.layer -= 1 }
+                val filtered = tilesSamePos.filter { it.layer < 3 }
+                if (filtered.find { it.layer == 2 } != null) {
+                    filtered.forEach {
+                        it.layer -= 1
+                    }
+                }
             }
         }
 
-        // val tiles = playStage.getAllTiles().toMutableList()
-        //        val tilesSamePos = mutableListOf<TileActor>()
-        //        for (x in 0 until playStage.tiledWidth) {
-        //            for (y in 0 until playStage.tiledHeight) {
-        //                tilesSamePos.clear()
-        //                tiles.forEach { if (it.tiledX == x && it.tiledY == y) tilesSamePos.add(it) }
-        //                tilesSamePos.sortByDescending { it.layer }
-        //                if (tilesSamePos.isEmpty()) continue
-        //
-        //                if (tilesSamePos.first().layer == 1) continue
-        //
-        //                if (tilesSamePos.size == 1) {
-        //                    tilesSamePos.first().layer = 1
-        //                    continue
-        //                }
-        //
-        //                val layerDownTo = 1 - tilesSamePos.first().layer
-        //                tilesSamePos.forEach { it.layer += layerDownTo }
-        //            }
-        //        }
-
+        // re-add tiles to create missing layers
         playStage.clearTiles()
         tiles.forEach { playStage.addActor(it) }
-
-        levelCreated()
     }
 
     fun levelCreated() {
         playStage.border.make()
-        Decorator().decorate(playStage)
         fogOfWarManager.updateGridMap()
     }
 

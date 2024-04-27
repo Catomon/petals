@@ -29,7 +29,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val matchButton = newTextButton(strings.menu.match)
     private val vsPlayerButton = newTextButton(strings.menu.vsPlayer)
     private val vsBotButton = newTextButton(strings.menu.vsBot)
-    private val profileButton = newTextButton(strings.menu.profile)
+    private val profileButton = newTextButton(strings.menu.profile).apply { isDisabled = true }
     private val editorButton = newTextButton(strings.menu.editor)
     private val settingsButton = newTextButton(strings.menu.settings)
     private val exitButton = newTextButton(strings.menu.exit)

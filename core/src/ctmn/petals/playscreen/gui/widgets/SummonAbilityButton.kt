@@ -99,7 +99,7 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
                 if (pane.stage != null) {
                     pane.remove()
 
-                    gui.clickStrategy = gui.unitSelectedCs
+                    gui.mapClickListener = gui.unitSelectedCL
 
                     return@addChangeListener
                 }
@@ -131,7 +131,7 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
 
                 gui.abilitiesPanel.selectedAbility = summonAbility
 
-                gui.clickStrategy = gui.useAbilityCs
+                gui.mapClickListener = gui.useAbilityCL
             }
         }
 
@@ -187,7 +187,7 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
         button.addChangeListener {
             caster?.summoner?.selectedUnit = unitName
 
-            //clickStrategy = SummonDollCs??
+            //mapClickListener = SummonDollCs??
 
             if (pane.stage != null) {
                 pane.remove()

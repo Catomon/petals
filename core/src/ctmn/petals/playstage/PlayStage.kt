@@ -213,6 +213,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
 
                 actor.setPosition(actor.tiledX, actor.tiledY)
             }
+
             is UnitActor -> {
                 if (actor.name == null) actor.name = actor.cUnit.name + "@" + newId
 
@@ -221,6 +222,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
                 if (initView)
                     root.fire(UnitAddedEvent(actor))
             }
+
             else -> super.addActor(actor)
         }
     }
@@ -265,18 +267,18 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         clearMinorGameActors()
     }
 
-    fun findUnit(name: String) : UnitActor? {
+    fun findUnit(name: String): UnitActor? {
         if (actorIdsMap.containsKey(name))
             return actorIdsMap[name] as UnitActor
 
         return null
     }
 
-    fun getUnit(x: Int, y: Int) : UnitActor? {
+    fun getUnit(x: Int, y: Int): UnitActor? {
         return if (x >= 0 && y >= 0 && x < unitPositionsMap.size && y < unitPositionsMap[0].size) unitPositionsMap[x][y] else null
     }
 
-    fun getTile(x: Int, y: Int) : TileActor? {
+    fun getTile(x: Int, y: Int): TileActor? {
         for (tile in getTiles()) {
             if (tile.tiledX == x && tile.tiledY == y) {
                 return tile
@@ -285,7 +287,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         return null
     }
 
-    fun getTile(x: Int, y: Int, layer: Int) : TileActor? {
+    fun getTile(x: Int, y: Int, layer: Int): TileActor? {
         for (tile in (tileLayers.get(layer) ?: return null).children) {
             tile as TileActor
             if (tile.tiledX == x && tile.tiledY == y) {

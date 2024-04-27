@@ -123,43 +123,42 @@ class PlayGUIStage(
 
     private val holdStateTimer = Timer(0f)
 
-    //click strategy
-    val blockedCs = BlockedCs()
-    val seeInfoCs = SeeInfoCs()
-    val selectUnitCs = SelectUnitCs()
-    val unitSelectedCs = UnitSelectedCs()
-    val useAbilityCs = UseAbilityCs()
-    val confirmAbilityCs = ConfirmAbilityCs()
+    /** [MapClickListener]s */
+    val blockedCL = BlockedCL()
+    val seeInfoCL = SeeInfoCL()
+    val selectUnitCL = SelectUnitCL()
+    val unitSelectedCL = UnitSelectedCL()
+    val useAbilityCL = UseAbilityCL()
+    val confirmAbilityCL = ConfirmAbilityCL()
 
-    //val summonDollCs = SummonDollCs()
-    var clickStrategy: ClickStrategy = selectUnitCs
+    var mapClickListener: MapClickListener = selectUnitCL
         set(value) {
 
             //hide borders on exit
             when {
-                field is UnitSelectedCs && value !is UnitSelectedCs -> {
+                field is UnitSelectedCL && value !is UnitSelectedCL -> {
                     // fire event
                 }
 
-                field is UseAbilityCs && value !is UseAbilityCs -> {
+                field is UseAbilityCL && value !is UseAbilityCL -> {
                     abilityRangeBorder.isVisible = false
 
                     tileHighlighter.clearHighlights()
                     (abilitiesPanel.cells.firstOrNull { it.actor is SummonAbilityButton }?.actor as SummonAbilityButton?)?.hidePane()
                 }
 
-                field is ConfirmAbilityCs && value !is ConfirmAbilityCs -> {
+                field is ConfirmAbilityCL && value !is ConfirmAbilityCL -> {
                     abilityActivationRangeBorder.isVisible = false
                 }
             }
 
             when (value) {
-                is UnitSelectedCs -> {
+                is UnitSelectedCL -> {
 
                 }
 
-                is UseAbilityCs -> {
-                    if (selectedUnit == null) throw IllegalStateException("While clickStrategy is UseAbilityCs, selectedUnit shouldn't be null.")
+                is UseAbilityCL -> {
+                    if (selectedUnit == null) throw IllegalStateException("While mapClickListener is UseAbilityCL, selectedUnit shouldn't be null.")
 
                     abilityRangeBorder.isVisible = true
 
@@ -172,20 +171,22 @@ class PlayGUIStage(
                     }
                 }
 
-                is ConfirmAbilityCs -> {
+                is ConfirmAbilityCL -> {
                     abilityActivationRangeBorder.isVisible = true
                 }
             }
 
-            log("CS changed: ${field::class.simpleName} -> ${value::class.simpleName}")
+            log("MapClickListener changed: ${field::class.simpleName} -> ${value::class.simpleName}")
 
-            if (field !is BlockedCs) //why
+            if (field !is BlockedCL) //why
                 field = value
         }
 
     //use selectUnit(unit)
     var selectedUnit: UnitActor? = null
     val isUnitSelected get() = selectedUnit != null
+
+    var mapClickDisabled = false
 
     var forceMyTurnEnd = false
 
@@ -254,7 +255,7 @@ class PlayGUIStage(
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 super.clicked(event, x, y)
 
-                playScreen.returnToMenuScreen()
+                addActor(InGameMenu(playScreen))
             }
         })
 
@@ -332,7 +333,7 @@ class PlayGUIStage(
         }
 
         startTurn.onEnter = {
-            clickStrategy = seeInfoCs
+            mapClickListener = seeInfoCL
 
             holdStateTimer.start(0.25f)
 
@@ -347,7 +348,7 @@ class PlayGUIStage(
 
         // My turn
         myTurn.onEnter = {
-            clickStrategy = selectUnitCs
+            mapClickListener = selectUnitCL
 
             endTurnButton.isDisabled = false
 
@@ -384,7 +385,7 @@ class PlayGUIStage(
                     if (playScreen.turnManager.players.filter { !playScreen.aiManager.isAIPlayer(it) && !it.isOutOfGame }.size > 1)
                         playScreen.fogOfWarManager.hideAll = true
 
-            clickStrategy = seeInfoCs
+            mapClickListener = seeInfoCL
 
             holdStateTimer.start(1f)
 
@@ -393,22 +394,22 @@ class PlayGUIStage(
 
         // Their turn
         theirTurn.onEnter = {
-            clickStrategy = seeInfoCs
+            mapClickListener = seeInfoCL
         }
 
         // Game Over
         gameOverState.onEnter = {
-            clickStrategy = blockedCs
+            mapClickListener = blockedCL
         }
 
         // Lose
         loseState.onEnter = {
-            clickStrategy = blockedCs
+            mapClickListener = blockedCL
         }
 
         // Win
         winState.onEnter = {
-            clickStrategy = blockedCs
+            mapClickListener = blockedCL
         }
 
         // Next Player
@@ -424,7 +425,7 @@ class PlayGUIStage(
             } else {
                 //if same screen and >1 p&p players, hide units and add player ready label
 
-                clickStrategy = seeInfoCs
+                mapClickListener = seeInfoCL
 
                 playScreen.fogOfWarManager.hideAll = true
 
@@ -548,19 +549,19 @@ class PlayGUIStage(
             false
         }
 
-        //a listener that performs unit commands on an event depending on clickStrategy value
+        //a listener that performs unit commands on an event depending on mapClickListener value
         addListener { event ->
             when (event) {
                 is MapClickedEvent -> {
-                    clickStrategy.onMapClicked(event.clickX.tiled(), event.clickY.tiled())
+                    mapClickListener.onMapClicked(event.clickX.tiled(), event.clickY.tiled())
                 }
 
                 is TileClickedEvent -> {
-                    clickStrategy.onTileClicked(event.tile)
+                    mapClickListener.onTileClicked(event.tile)
                 }
 
                 is UnitClickedEvent -> {
-                    clickStrategy.onUnitClicked(event.unit)
+                    mapClickListener.onUnitClicked(event.unit)
                 }
             }
 
@@ -570,15 +571,14 @@ class PlayGUIStage(
 
     private fun setupPlayStage() {
         if (playStage.root.findActor<Actor>("been_set_up_mark") != null) {
-            err("PlayStage is already set up.")
+            err("PlayStage UI is already set up.")
             return
         }
 
-        log("PlayStage setting up.")
+        log("PlayStage UI set up.")
 
         playStage.addActor(Actor().apply { name = "been_set_up_mark" })
 
-        //TODO the problem is that they use old guiStage reference
         //actors
         playStage.addActor(attackIconsDrawer)
         playStage.addActor(tileHighlighter)
@@ -742,7 +742,7 @@ class PlayGUIStage(
             cancelButton.style = cancelButtonStyle
 
         if (selectedUnit == null) {
-            clickStrategy = if (myTurn.isCurrent()) selectUnitCs else seeInfoCs
+            mapClickListener = if (myTurn.isCurrent()) selectUnitCL else seeInfoCL
 
             abilitiesPanel.setUpForUnit(null)
             //unitMiniMenu.unit = null
@@ -752,11 +752,11 @@ class PlayGUIStage(
         if (!selectedUnit!!.isPlayerUnit(localPlayer) || !myTurn.isCurrent()) {
             abilitiesPanel.setUpForUnit(null)
 
-            clickStrategy = seeInfoCs
+            mapClickListener = seeInfoCL
             return
         }
 
-        clickStrategy = unitSelectedCs
+        mapClickListener = unitSelectedCL
 
         if (selectedUnit!!.isPlayerUnit(localPlayer)) {
             //if (selectedUnit!!.isLeader || selectedUnit!!.isFollower) {
@@ -771,8 +771,10 @@ class PlayGUIStage(
         }
     }
 
-    /** Fires @MapClickedEvent and, if clickStrategy has not changed, UnitClickedEvent TileClickedEvent */
+    /** Fires @MapClickedEvent and, if mapClickListener has not changed, UnitClickedEvent TileClickedEvent */
     fun onMapClicked(clickX: Float, clickY: Float) {
+        if (mapClickDisabled) return
+
         val tiledX: Int = clickX.toInt() / TILE_SIZE
         val tiledY: Int = clickY.toInt() / TILE_SIZE
 
@@ -789,11 +791,11 @@ class PlayGUIStage(
             }
         }
 
-        val oldClickStrategy = clickStrategy
+        val oldClickListener = mapClickListener
 
         root.fire(MapClickedEvent(clickX, clickY))
 
-        if (oldClickStrategy == clickStrategy) {
+        if (oldClickListener == mapClickListener) {
             if (clickedUnit != null)
                 root.fire(UnitClickedEvent(clickedUnit))
             else
@@ -825,15 +827,15 @@ class PlayGUIStage(
     }
 
     /** What da click doin */
-    interface ClickStrategy {
+    interface MapClickListener {
         fun onMapClicked(tiledX: Int, tiledY: Int): Boolean = false
         fun onTileClicked(tile: TileActor): Boolean = false
         fun onUnitClicked(unit: UnitActor): Boolean = false
     }
 
-    inner class BlockedCs : ClickStrategy
+    inner class BlockedCL : MapClickListener
 
-    inner class SeeInfoCs : ClickStrategy {
+    inner class SeeInfoCL : MapClickListener {
         override fun onTileClicked(tile: TileActor): Boolean {
             selectUnit(null)
 
@@ -847,7 +849,7 @@ class PlayGUIStage(
         }
     }
 
-    inner class SelectUnitCs : ClickStrategy {
+    inner class SelectUnitCL : MapClickListener {
         override fun onUnitClicked(unit: UnitActor): Boolean {
             if (myTurn.isCurrent()) {
                 selectUnit(unit)
@@ -858,7 +860,7 @@ class PlayGUIStage(
         }
     }
 
-    inner class UnitSelectedCs : ClickStrategy {
+    inner class UnitSelectedCL : MapClickListener {
         override fun onTileClicked(tile: TileActor): Boolean {
             if (myTurn.isCurrent()) {
                 if (selectedUnit!!.canMove()) {
@@ -899,7 +901,7 @@ class PlayGUIStage(
         }
     }
 
-    inner class UseAbilityCs : ClickStrategy {
+    inner class UseAbilityCL : MapClickListener {
         override fun onMapClicked(tiledX: Int, tiledY: Int): Boolean {
             if (playStage.isOutOfMap(tiledX, tiledY)) return false
 
@@ -909,7 +911,7 @@ class PlayGUIStage(
                 val isExecuted = command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)
 
                 if (isExecuted && abilitiesPanel.selectedAbility is SummonAbility && abilitiesPanel.selectedAbility!!.castAmountsLeft > 1) {
-                    clickStrategy = useAbilityCs
+                    mapClickListener = useAbilityCL
                 } else
                     selectUnit(selectedUnit)
 
@@ -922,7 +924,7 @@ class PlayGUIStage(
                         selectedUnit!!.tiledY
                     ) <= abilitiesPanel.selectedAbility!!.range
                 ) {
-                    clickStrategy = confirmAbilityCs
+                    mapClickListener = confirmAbilityCL
                     abilityActivationRangeBorder.makeForRange(
                         abilitiesPanel.selectedAbility!!.activationRange,
                         tiledX,
@@ -933,7 +935,7 @@ class PlayGUIStage(
                     return true
                 } else {
 
-                    clickStrategy = unitSelectedCs
+                    mapClickListener = unitSelectedCL
                     selectUnit(selectedUnit)
                 }
             }
@@ -954,7 +956,7 @@ class PlayGUIStage(
         }
     }
 
-    inner class ConfirmAbilityCs : ClickStrategy {
+    inner class ConfirmAbilityCL : MapClickListener {
 
         override fun onTileClicked(tile: TileActor): Boolean {
             selectUnit(selectedUnit)
@@ -977,7 +979,7 @@ class PlayGUIStage(
             val isExecuted = command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)
 
             if (isExecuted && abilitiesPanel.selectedAbility is SummonAbility && abilitiesPanel.selectedAbility!!.castAmountsLeft > 0) {
-                clickStrategy = confirmAbilityCs
+                mapClickListener = confirmAbilityCL
             }
 
             return isExecuted

@@ -128,7 +128,17 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
         }
     }
 
+    //if (crystalTile.isWaterBase) {
+    //        val newName = crystalTile.tileComponent.name + "_water"
+    //        if (assets.tilesAtlas.findRegion("base/new") != null) {
+    //            crystalTile.tileComponent.name = newName
+    //        }
+    //    }
+
     if (colorName.isNotEmpty()) {
+        if (crystalTile.isWaterBase)
+            crystalTile.tileComponent.name += "_water"
+
         if (crystalTile.isBase)
             crystalTile.tileComponent.name += "_$colorName"
     }
