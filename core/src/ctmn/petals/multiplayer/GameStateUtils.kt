@@ -2,6 +2,7 @@ package ctmn.petals.multiplayer
 
 import ctmn.petals.ai.EasyDuelBot
 import ctmn.petals.multiplayer.json.GameStateSnapshot
+import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.NextTurnEvent
 import ctmn.petals.tile.TileActor
@@ -38,6 +39,8 @@ fun applyGameStateToPlayScreen(
     playScreen.turnManager.turn = snapshot.turn
     playScreen.friendlyFire = snapshot.friendlyFire
     snapshot.aiPlayers.forEach { playScreen.aiManager.add(EasyDuelBot(playScreen.turnManager.getPlayerById(it) ?: return@forEach, playScreen)) }
+
+    playScreen.gameEndCondition = GameEndCondition.get(snapshot.gameEndCondition)
 
     playScreen.playStage.idCounter = snapshot.idCounter
 

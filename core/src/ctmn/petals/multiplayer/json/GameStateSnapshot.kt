@@ -17,6 +17,8 @@ class GameStateSnapshot(playScreen: PlayScreen) {
     val aiPlayers = ArrayList<Int>().apply { playScreen.aiManager.aiPlayers.forEach { add(it.playerID) } }
     val turn = playScreen.turnManager.turn
 
+    val gameEndCondition = playScreen.gameEndCondition.id
+
     val friendlyFire = playScreen.friendlyFire
 
     val isGameOver = playScreen.isGameOver

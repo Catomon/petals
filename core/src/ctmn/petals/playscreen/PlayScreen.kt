@@ -104,7 +104,7 @@ open class PlayScreen(
 
     var gameType = GameType.STORY
     var gameMode = GameMode.ALL
-    var gameEndCondition: GameEndCondition = NoEnd()
+    var gameEndCondition: GameEndCondition = CaptureBases()
     var isGameOver = false
 
     var gameStateId = 1
@@ -271,6 +271,7 @@ open class PlayScreen(
             currentPlayer.credits += Const.GOLD_PER_BASE
 
         fireEvent(NextTurnEvent(turnManager.currentPlayer, turnManager.currentPlayer))
+        /** checkGameEndCondition() <- not needed here cuz [EndConditionListener] calls it on NextTurnEvent */
     }
 
     /** Should be called after TileData, Units, Players, and CurrentPlayer were added to playStage */
@@ -391,40 +392,46 @@ open class PlayScreen(
     }
 
     private fun checkGameEndCondition() {
-        if (gameEndCondition.check(this)) {
-            isGameOver = true
+        if (isGameOver) return
 
+        for (player in turnManager.players) {
+            player.isOutOfGame =
+                player.isOutOfGame || gameEndCondition.checkPlayerOutOfGame(player, this@PlayScreen) == true
+        }
+
+        if (gameEndCondition.check(this)) {
             queueAction {
                 val labelGameOver = newLabel("GameOver", "font_8").also { it.isVisible = false }
 
-                when (gameEndCondition) {
-                    is AnyTeamStand -> {
-                        if ((gameEndCondition as AnyTeamStand).result != GameEndCondition.Result.DRAW)
-                            labelGameOver.setText(
-                                "${
-                                    turnManager.getPlayerById(
-                                        playStage.getUnitsForTeam((gameEndCondition as AnyTeamStand).teamStandId)
-                                            .first().playerId
-                                    )?.name
-                                } Won"
-                            )
-                        else
-                            labelGameOver.setText("Draw")
+                val winners = gameEndCondition.winners
+                val youWon = winners.contains(localPlayer.id)
+                val draw = winners.size == 0
+                val enemyWon = !draw && !youWon
+                val oneWinner = winners.size == 1
+
+                log("Game Over. Winners: ${winners.joinToString()}; teamId: ${turnManager.getPlayerById(winners.firstOrNull() ?: -1)?.teamId ?: ""}")
+
+                when {
+                    youWon -> {
+                        labelGameOver.setText("You Won")
+                        if (oneWinner) {
+
+                        } else {
+
+                        }
                     }
 
-                    is TeamStand -> labelGameOver.setText("You Won")
-                    is AnyTeamBaseStand -> {
-                        if ((gameEndCondition as AnyTeamBaseStand).result != GameEndCondition.Result.DRAW)
-                            labelGameOver.setText(
-                                "${
-                                    turnManager.getPlayerById(
-                                        playStage.getUnitsForTeam((gameEndCondition as AnyTeamBaseStand).teamStandId)
-                                            .first().playerId
-                                    )?.name
-                                } Won"
-                            )
-                        else
-                            labelGameOver.setText("Draw")
+                    enemyWon -> {
+                        labelGameOver.setText("You Lost")
+                        if (oneWinner) {
+
+                        } else {
+
+                        }
+                    }
+
+                    draw -> {
+                        labelGameOver.setText("Draw")
                     }
                 }
 
@@ -445,6 +452,9 @@ open class PlayScreen(
     }
 
     open fun onGameOver() {
+        if (isGameOver) return
+
+        isGameOver = true
         fireEvent(GameOverEvent())
 
         //game.screen = MenuScreen(game)
@@ -641,12 +651,6 @@ open class PlayScreen(
                 return
 
             gameStateId++
-
-            // Mark player out of game if they have no units or non-occupied bases
-            for (player in turnManager.players) {
-                player.isOutOfGame =
-                    player.isOutOfGame || gameEndCondition.checkPlayerOutOfGame(player, this@PlayScreen) == true
-            }
 
             checkGameEndCondition()
         }

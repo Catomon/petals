@@ -2,7 +2,6 @@ package ctmn.petals.screens
 
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
-import ctmn.petals.playscreen.TeamStand
 import ctmn.petals.story.Scenario
 import ctmn.petals.widgets.addChangeListener
 import com.badlogic.gdx.Gdx
@@ -20,6 +19,7 @@ import com.kotcrab.vis.ui.widget.VisList
 import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.Const
 import ctmn.petals.PetalsGame
+import ctmn.petals.playscreen.EliminateEnemyUnits
 
 class QuickGameScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 0.3f, 768f * 0.3f)), Screen {
 
@@ -37,7 +37,7 @@ class QuickGameScreen(private val game: PetalsGame) : Stage(FillViewport(1366f *
 
         init {
             player = Player("BluePlayer", Player.BLUE, Team.BLUE)
-            gameEndCondition = TeamStand(Team.BLUE)
+            gameEndCondition = EliminateEnemyUnits()
 
             players.add(player, redPlayer)
         }

@@ -14,7 +14,19 @@ import ctmn.petals.playstage.getUnits
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.isCapturable
 
-abstract class GameEndCondition {
+abstract class GameEndCondition(val id: String) {
+
+    companion object {
+        fun get(id: String) : GameEndCondition {
+            return when (id) {
+                "endless" -> NoEnd()
+                "eliminate_enemy_units" -> EliminateEnemyUnits()
+                "capture_bases" -> CaptureBases()
+                "base_control_overtime" -> ControlBasesWOvertime()
+                else -> throw IllegalArgumentException("GameEndCondition with id $id not found.")
+            }
+        }
+    }
 
     enum class Result {
         NONE,
@@ -26,19 +38,21 @@ abstract class GameEndCondition {
 
     var result: Result = Result.NONE
 
-    abstract fun check(playScreen: PlayScreen) : Boolean
+    var winners = mutableListOf<Int>()
 
-    open fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen) : Boolean = false
+    abstract fun check(playScreen: PlayScreen): Boolean
+
+    open fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean = false
 }
 
-class NoEnd : GameEndCondition() {
+class NoEnd : GameEndCondition("endless") {
 
-    override fun check(playScreen: PlayScreen) : Boolean {
+    override fun check(playScreen: PlayScreen): Boolean {
         return false
     }
 }
 
-class AnyTeamStand : GameEndCondition() {
+class EliminateEnemyUnits : GameEndCondition("eliminate_enemy_units") {
 
     private var mTeamStandId = Team.NONE
     val teamStandId get() = mTeamStandId
@@ -49,6 +63,7 @@ class AnyTeamStand : GameEndCondition() {
         if (fUnit == null) {
             mTeamStandId = Team.NONE
             result = Result.DRAW
+            winners.clear()
             return true
         }
 
@@ -62,6 +77,9 @@ class AnyTeamStand : GameEndCondition() {
 
                 mTeamStandId = player.teamId
                 result = Result.HAS_WINNER
+                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                    winners.add(it.id)
+                }
                 return true
             }
         }
@@ -69,6 +87,7 @@ class AnyTeamStand : GameEndCondition() {
 
         mTeamStandId = Team.NONE
         result = Result.DRAW
+        winners.clear()
         return true
     }
 
@@ -77,58 +96,12 @@ class AnyTeamStand : GameEndCondition() {
     }
 }
 
-class PlayerStand(val player: Player) : GameEndCondition() {
-    override fun check(playScreen: PlayScreen) : Boolean {
-        var alive = false
-        for (unit in playScreen.playStage.getUnits()) {
-            if (unit.playerId == player.id)
-                alive = true
-        }
-
-        var enemyAlive = false
-        for (unit in playScreen.playStage.getUnits()) {
-            if (unit.playerId != player.id)
-                enemyAlive = true
-        }
-
-        if (alive && enemyAlive) return false
-
-        result = if (alive) Result.WIN else Result.LOSE
-
-        return true
-    }
-}
-
-class TeamStand(val teamId: Int) : GameEndCondition() {
-    override fun check(playScreen: PlayScreen): Boolean {
-        var alive = false
-        for (unit in playScreen.playStage.getUnits()) {
-            if (unit.teamId == teamId)
-                alive = true
-        }
-
-        var enemyAlive = false
-        for (unit in playScreen.playStage.getUnits()) {
-            if (unit.teamId != teamId && !unit.isAlly(teamId))
-                enemyAlive = true
-        }
-
-        if (alive && enemyAlive) return false
-
-        result = if (alive) Result.WIN else Result.LOSE
-
-        return true
-    }
-}
-
-class AnyTeamBaseStand : GameEndCondition() {
+class CaptureBases : GameEndCondition("capture_bases") {
 
     private var mTeamStandId = Team.NONE
     val teamStandId get() = mTeamStandId
 
-    override fun check(playScreen: PlayScreen) : Boolean {
-        val fUnit = playScreen.playStage.getUnits().firstOrNull()
-
+    override fun check(playScreen: PlayScreen): Boolean {
         for (player in playScreen.turnManager.players) {
             if (!player.isOutOfGame) {
                 for (player2 in playScreen.turnManager.players) {
@@ -138,16 +111,20 @@ class AnyTeamBaseStand : GameEndCondition() {
 
                 mTeamStandId = player.teamId
                 result = Result.HAS_WINNER
+                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                    winners.add(it.id)
+                }
                 return true
             }
         }
 
         mTeamStandId = Team.NONE
         result = Result.DRAW
+        winners.clear()
         return true
     }
 
-    override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen) : Boolean {
+    override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
         for (base in playScreen.playStage.getCapturablesOf(player)) {
             if (!base.isOccupied || playScreen.playStage.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
                 return false
@@ -157,7 +134,7 @@ class AnyTeamBaseStand : GameEndCondition() {
     }
 }
 
-class TeamControlsBases : GameEndCondition() {
+class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
 
     private var mTeamStandId = Team.NONE
     val teamStandId get() = mTeamStandId
@@ -169,7 +146,7 @@ class TeamControlsBases : GameEndCondition() {
         }
     var overtimeRoundsLeft = 3
 
-    override fun check(playScreen: PlayScreen) : Boolean {
+    override fun check(playScreen: PlayScreen): Boolean {
         val fUnit = playScreen.playStage.getUnits().firstOrNull()
 
 //        if (fUnit == null) {
@@ -183,6 +160,9 @@ class TeamControlsBases : GameEndCondition() {
             if (overtimeRoundsLeft <= 0) {
                 mTeamStandId = overtimeTeamId
                 result = Result.HAS_WINNER
+                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                    winners.add(it.id)
+                }
                 return true
             }
         }
@@ -233,21 +213,26 @@ class TeamControlsBases : GameEndCondition() {
 
                 mTeamStandId = player.teamId
                 result = Result.HAS_WINNER
+                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                    winners.add(it.id)
+                }
                 return true
             }
         }
 
         mTeamStandId = Team.NONE
         result = Result.NONE
+        winners.clear()
         return true
     }
 
-    private fun checkOvertime(player: Player, playScreen: PlayScreen) : Boolean {
+    private fun checkOvertime(player: Player, playScreen: PlayScreen): Boolean {
         //todo get bases of team
-        return playScreen.playStage.getCapturablesOf(player).size >= playScreen.playStage.getTiles().filter { it.isCapturable }.size * 0.70f
+        return playScreen.playStage.getCapturablesOf(player).size >= playScreen.playStage.getTiles()
+            .filter { it.isCapturable }.size * 0.70f
     }
 
-    override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen) : Boolean {
+    override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
         if (!playScreen.playStage.getUnitsOfPlayer(player).isEmpty)
             return false
 

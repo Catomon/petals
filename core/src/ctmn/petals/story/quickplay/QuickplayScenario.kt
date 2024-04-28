@@ -7,7 +7,7 @@ import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.TeamControlsBases
+import ctmn.petals.playscreen.ControlBasesWOvertime
 import ctmn.petals.playscreen.queueAddUnitAction
 import ctmn.petals.playstage.getTiles
 import ctmn.petals.story.Scenario
@@ -31,7 +31,7 @@ class QuickplayScenario : Scenario("Fae", "") {
         players.add(Player("slime", 3, 3))
         player = players.first()
 
-        gameEndCondition = TeamControlsBases()
+        gameEndCondition = ControlBasesWOvertime()
     }
 
     override fun createLevel(playScreen: PlayScreen) {

@@ -41,10 +41,7 @@ import ctmn.petals.multiplayer.toJsonMessage
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.speciesList
-import ctmn.petals.playscreen.GameMode
-import ctmn.petals.playscreen.GameType
-import ctmn.petals.playscreen.NoEnd
-import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.*
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.PlayScreenTemplate
@@ -606,7 +603,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 GameType.PVP_SAME_SCREEN
             else
                 GameType.MULTIPLAYER,
-            NoEnd(),
+            CaptureBases(),
             gameMode,
             localPlayer,
             playScreen,

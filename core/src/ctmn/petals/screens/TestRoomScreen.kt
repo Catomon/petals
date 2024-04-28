@@ -46,7 +46,7 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
 
         init {
             player = Player("BluePlayer", Player.BLUE, Team.BLUE)
-            gameEndCondition = TeamStand(Team.BLUE)
+            gameEndCondition = EliminateEnemyUnits()
 
             players.add(player, redPlayer)
         }
@@ -83,7 +83,7 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
         val scenario = TestScenario(mapsList.selected)
 //        game.screen = StoryPlayScreen(game, scenario, null).also {
 //            it.gameType = GameType.CUSTOM
-//            it.gameEndCondition = AnyTeamBaseStand()
+//            it.gameEndCondition = CaptureBases()
 //            //it.aiManager.add(EasyDuelBot(scenario.player, it.playStage)) //ai test
 //            it.aiManager.add(EasyDuelBot(scenario.redPlayer, it))
 //        }
@@ -113,7 +113,7 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
                         loadMap(mapsList.selected),
                         Array<Player>().apply { add(bluePlayer, redPlayer) },
                         GameType.PVP_SAME_SCREEN,
-                        NoEnd(), //AnyTeamBaseStand()
+                        NoEnd(), //CaptureBases()
                         GameMode.ALL,
                     ).apply {
                         //aiManager.add(EasyDuelBot(redPlayer, this))
