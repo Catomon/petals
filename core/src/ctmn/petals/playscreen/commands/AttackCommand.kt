@@ -23,11 +23,9 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
             return false
         }
 
-        if (!attackerUnit.isInAttackArea(targetUnit.tiledX, targetUnit.tiledY)) return false
-
         if (attackerUnit.isAlly(targetUnit)) return false
 
-        if (targetUnit.isAir && attackerUnit.attackRange < 2) return false
+        if (!attackerUnit.canAttack(targetUnit)) return false
 
         return attackerUnit.actionPoints >= Const.ACTION_POINTS_ATTACK_MIN
     }
@@ -64,7 +62,8 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
         //take damage if in target attack range
         if (attackerUnit.isUnitNear(targetUnit, 1)
-            && targetUnit.cAttack!!.attackRangeBlocked <= 0 && (!attackerUnit.isAir || targetUnit.attackRange > 1)
+            && targetUnit.cAttack!!.attackRangeBlocked <= 0
+            && ((!attackerUnit.isAir || (attackerUnit.isAir && targetUnit.isAir)) || targetUnit.attackRange > 1)
         ) {
             attackerUnit.dealDamage(defenderDamage, targetUnit, playScreen, false)
         }

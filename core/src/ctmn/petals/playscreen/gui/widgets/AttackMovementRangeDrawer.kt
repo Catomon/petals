@@ -79,7 +79,7 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
     }
 
     private fun updateBorders() {
-        if (unit?.isPlayerUnit(guiStage.localPlayer) == false && GamePref.showAiGui != true
+        if (unit?.isPlayerUnit(guiStage.localPlayer) == false && GamePref.showBotGui != true
             && guiStage.playScreen.botManager.isBotPlayer(guiStage.playScreen.turnManager.currentPlayer)) {
             this.unit = null
             isVisible = false

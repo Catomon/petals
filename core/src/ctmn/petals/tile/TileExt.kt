@@ -1,6 +1,7 @@
 package ctmn.petals.tile
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ctmn.petals.assets
 import ctmn.petals.player.Player
 import ctmn.petals.player.fairy
 import ctmn.petals.player.goblin
@@ -22,12 +23,13 @@ val TileActor.cReplaceWith get() = get(ReplaceWithComponent::class.java)
 val TileActor.cLifeTime get() = get(LifeTimeComponent::class.java)
 val TileActor.cCapturing get() = get(CapturingComponent::class.java)
 val TileActor.isOccupied get() = (stage as PlayStage).getUnit(tiledX, tiledY) != null
-val TileActor.isWaterBase: Boolean get() {
-    if (!isBase) return false
-    val playStage = playStageOrNull ?: return false
-    val backTerrain = playStage.getTile(tiledX, tiledY, layer - 1)?.terrain
-    return backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater || backTerrain == TerrainNames.lava
-}
+val TileActor.isWaterBase: Boolean
+    get() {
+        if (!isBase) return false
+        val playStage = playStageOrNull ?: return false
+        val backTerrain = playStage.getTile(tiledX, tiledY, layer - 1)?.terrain
+        return backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater || backTerrain == TerrainNames.lava
+    }
 
 fun TileActor.isPassableAndFree(): Boolean {
     return !isOccupied && terrain != TerrainNames.impassable
@@ -139,16 +141,18 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
         if (crystalTile.isWaterBase)
             crystalTile.tileComponent.name += "_water"
 
-        if (crystalTile.isBase)
+        //if (crystalTile.isBase)
+
+        if (assets.tilesAtlas.findRegion(crystalTile.terrain + "/" + crystalTile.tileComponent.name + "_$colorName") != null)
             crystalTile.tileComponent.name += "_$colorName"
     }
 
     crystalTile.initView()
 
-    if (colorName.isNotEmpty()) {
-        if (!crystalTile.isBase)
-            crystalTile.sprite.setColor(color)
-    }
+//    if (colorName.isNotEmpty()) {
+//        if (!crystalTile.isBase)
+//            crystalTile.sprite.setColor(color)
+//    }
 
 //    if (species == fairy && playerId == 1 || species == goblin && playerId == 2) return
 }

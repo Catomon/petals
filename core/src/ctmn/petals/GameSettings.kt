@@ -73,7 +73,7 @@ object GamePref {
             prefs.putBoolean(DRAW_UNIT_ATK_RANGE, value)
         }
 
-    var showAiGui: Boolean
+    var showBotGui: Boolean
         get() = prefs.getBoolean(SHOW_AI_GUI)
         set(value) {
             prefs.putBoolean(SHOW_AI_GUI, value)

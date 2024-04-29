@@ -8,7 +8,7 @@ object Const {
 
     // App:
     const val APP_NAME = "Petals: F&GCC"
-    const val APP_VER_NAME = "0.1.0-a"
+    const val APP_VER_NAME = "0.1.0-alpha"
     const val IS_RELEASE = false
 
     const val CONSOLE_ENABLED = !IS_RELEASE
@@ -18,10 +18,12 @@ object Const {
     const val DISABLE_RICH = !IS_RELEASE
 
     // Multiplayer:
+    const val SERVER_PORT = 7396
+    //JmDNS
     const val SERVICE_TYPE = "_alissagame._upd.local."
     const val SERVICE_NAME = "AlissaGameService"
     const val SERVICE_DESCRIPTION = "Alissa Game Service"
-    const val SERVER_PORT = 7396
+
 
     // GUI:
     val IS_MOBILE get() = Gdx.app.type == Application.ApplicationType.Android

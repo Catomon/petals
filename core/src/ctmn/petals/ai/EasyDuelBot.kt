@@ -200,9 +200,19 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
 
         var unitToBuy = ""
 
+        if (isWater && playScreen.playStage.getUnitsOfPlayer(playerID).filter { it.isWater }.size > 3)
+            return false
+
         val buyPriority =
-            if (isWater) buyPriority.filter { speciesUnits.find { unit -> unit.isWater }?.selfName == it.first } else buyPriority
-        val buyPriority2 = if (isWater) buyPriority else this.buyPriority2
+            if (isWater)
+                buyPriority.filter { speciesUnits.find { unit -> unit.isWater }?.selfName == it.first }
+            else
+                buyPriority.filter { speciesUnits.find { unit -> unit.selfName == it.first && !unit.isWater } != null }
+        val buyPriority2 =
+            if (isWater)
+                buyPriority
+            else
+                this.buyPriority2.filter { speciesUnits.find { unit -> unit.selfName == it.first && !unit.isWater } != null }
 
         for ((name, count) in buyPriority) {
             if (player.credits < (speciesUnits.find { it.selfName == name }?.cShop?.price ?: continue)) continue

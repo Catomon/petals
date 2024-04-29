@@ -74,6 +74,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
 
         positionChanged()
+
+        isVisible = false
     }
 
     override fun add(component: Component): Component {

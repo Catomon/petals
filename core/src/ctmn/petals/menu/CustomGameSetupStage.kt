@@ -64,7 +64,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val mapPreview = MapPreview()
     private val changeMapButton = newIconButton("change")
 
-    private val addBotButton = newTextButton("Add Easy Bot")
     private val fogOfWarCheckbox = VisCheckBox("Fog Of War")
     private val daytimeButton = newTextButton("Daytime")
 
@@ -389,19 +388,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             addLoadingCoverAndStartGame()
         }
 
-        addBotButton.addChangeListener {
-            val slot = playerSlots.firstOrNull { it.player == null }
-
-            if (slot != null) {
-                slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId).also {
-                    it.species = speciesList.random()
-                }
-                slot.isAI = true
-            }
-
-            serverManager.sendLobbyState()
-        }
-
         daytimeButton.userObject = PlayStage.DayTime.DAY
         daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
         daytimeButton.addChangeListener {
@@ -631,8 +617,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 addNotifyWindow("Outdated map, unplayable", "Custom Game")
                 confirmButton.isDisabled = true
                 return
-            } else {
-                confirmButton.isDisabled = false
             }
 
             map.actors
@@ -647,11 +631,15 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                     Gdx.app.error("CustomGameSetupStage", "Unknown game mode: $gm")
             }
 
+            playerSlots.forEach { it.isLocked = true }
+
             for (label in map.labels) {
                 if (label.labelName == "player") {
                     val id = label.data["id"].toInt()
 
-                    playerSlots.get(id).label = label
+                    val slot = playerSlots.get(id)
+                    slot.label = label
+                    slot.isLocked = false
                 }
             }
         } else {
@@ -666,7 +654,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             }
         }
 
-        confirmButton.isDisabled = map == null || !isHost
+        confirmButton.isDisabled =
+            playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
     }
 
     private fun addPlayer(player: Player) {
@@ -690,10 +679,10 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
     private fun hostChanged() {
         changeMapButton.isDisabled = !isHost
-
-        addBotButton.isDisabled = !isHost
-
-        confirmButton.isDisabled = mapPreview.map == null || !isHost
+        confirmButton.isDisabled =
+            playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+        daytimeButton.isDisabled = !isHost
+        fogOfWarCheckbox.isDisabled = !isHost
     }
 
     private fun removePlayer(player: Player) {
@@ -735,6 +724,12 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         var isHostSlot = false
         var isLocalPlayer = false
         var isAI = false
+
+        var isLocked = false
+            set(value) {
+                color.a = if (value) 0.5f else 1f
+                field = value
+            }
 
         var player: Player? = null
             set(value) {
@@ -791,6 +786,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                     return@addChangeListener
 
                 removePlayer(player!!)
+
+                confirmButton.isDisabled =
+                    playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
             }
 
             removePlayerButton.setPosByCenter(width - 12f, height - 9f)
@@ -869,6 +867,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 serverManager.sendLobbyState()
             }
 
+            confirmButton.isDisabled =
+                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+
             win.remove()
             this@CustomGameSetupStage.removeCover()
         }
@@ -883,6 +884,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 serverManager.sendLobbyState()
             }
 
+            confirmButton.isDisabled =
+                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+
             win.remove()
             this@CustomGameSetupStage.removeCover()
         }
@@ -893,6 +897,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
                 serverManager.sendLobbyState()
             }
+
+            confirmButton.isDisabled =
+                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
 
             win.remove()
             this@CustomGameSetupStage.removeCover()
@@ -905,7 +912,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         moveHereButton.isDisabled = !this@CustomGameSetupStage.isHost// || slot.player == null
         addEasyBotButton.isDisabled = !this@CustomGameSetupStage.isHost || slot.player != null
-        addPlayerButton.isDisabled = !this@CustomGameSetupStage.isHost || (slot.player != null && !slot.isAI)
+        addPlayerButton.isDisabled =
+            !this@CustomGameSetupStage.isHost || (slot.player != null && !slot.isAI) || lobbyType != LobbyType.LOCAL
         removeButton.isDisabled = !this@CustomGameSetupStage.isHost || slot.player == localPlayer
 
         with(win) {
@@ -917,8 +925,10 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             row()
             add(addEasyBotButton)
             row()
-            add(addPlayerButton)
-            row()
+            if (lobbyType == LobbyType.LOCAL) {
+                add(addPlayerButton)
+                row()
+            }
             add(removeButton)
             row()
             add(closeButton).padRight(8f).align(Align.right)

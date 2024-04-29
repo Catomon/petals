@@ -64,7 +64,7 @@ class PlayGUIStage(
     //labels
     val creditsLabel =
         newLabel("Credits: ${localPlayer.credits}", "font_5").apply {
-            isVisible = playScreen.gameMode == GameMode.CASTLES || playScreen.gameMode == GameMode.CRYSTALS
+            isVisible = playScreen.gameMode == GameMode.CRYSTALS
         }
     private val fpsLabel = VisLabel().apply {
         isVisible = !Const.IS_RELEASE
@@ -661,9 +661,9 @@ class PlayGUIStage(
             return@addListener false
         }
 
-        //select AI unit in action
+        //select Bot unit in action
         playStage.addListener { event ->
-            if (!GamePref.showAiGui) return@addListener false
+            if (!GamePref.showBotGui) return@addListener false
 
             if (playScreen.botManager.isBotPlayer(playScreen.turnManager.currentPlayer)) {
                 when (event) {
@@ -931,7 +931,6 @@ class PlayGUIStage(
                     && selectedUnit!!.inAttackRange(unit.tiledX, unit.tiledY)
                     && !selectedUnit!!.isAlly(unit)
                 ) {
-
                     val command = AttackCommand(selectedUnit!!, unit)
                     if (command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)) {
                         selectUnit(selectedUnit)

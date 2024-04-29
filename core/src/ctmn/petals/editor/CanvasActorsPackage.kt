@@ -13,6 +13,8 @@ class CanvasActorsPackage {
 
     var minTileSize = 64f
 
+    lateinit var missingTilePlaceholder: CanvasActor
+
     init {
         for (region in assets.tilesAtlas.regions) {
             var terrain = ""
@@ -28,7 +30,11 @@ class CanvasActorsPackage {
             }
 
             if (name.contains("goblin_den") || name.contains("pixie_nest")) continue
-            if (name == "tile") continue
+
+            if (name == "tile") {
+                missingTilePlaceholder = CanvasActor(name, sprite)
+                continue
+            }
 
             val tile = CanvasActor(name, sprite)
             canvasActors.add(tile)
@@ -89,7 +95,8 @@ class CanvasActorsPackage {
     fun get(name: String): CanvasActor {
         return canvasActors.firstOrNull { it.name == name } ?: let {
             Gdx.app.log(this::class.simpleName, "Tile $name not found")
-            canvasActors.firstOrNull { it.name == "tile" } ?: throw IllegalStateException("Not even \"tile\" found")
+
+            missingTilePlaceholder
         }
     }
 }
