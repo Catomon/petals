@@ -84,8 +84,8 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
 //        game.screen = StoryPlayScreen(game, scenario, null).also {
 //            it.gameType = GameType.CUSTOM
 //            it.gameEndCondition = CaptureBases()
-//            //it.aiManager.add(EasyDuelBot(scenario.player, it.playStage)) //ai test
-//            it.aiManager.add(EasyDuelBot(scenario.redPlayer, it))
+//            //it.botManager.add(EasyDuelBot(scenario.player, it.playStage)) //ai test
+//            it.botManager.add(EasyDuelBot(scenario.redPlayer, it))
 //        }
     }
 
@@ -116,7 +116,7 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
                         NoEnd(), //CaptureBases()
                         GameMode.ALL,
                     ).apply {
-                        //aiManager.add(EasyDuelBot(redPlayer, this))
+                        //botManager.add(EasyDuelBot(redPlayer, this))
 
                         playStage.addActor(SlimeHuge().player(bluePlayer).position(10, 10))
                     }

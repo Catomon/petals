@@ -15,7 +15,7 @@ import ctmn.petals.story.aliceOrNull
 import ctmn.petals.unit.*
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.utils.*
-import ctmn.petals.widgets.newImageButton
+import ctmn.petals.widgets.newIconButton
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
@@ -71,19 +71,19 @@ class PlayGUIStage(
     }
 
     //buttons
-    private val zoomButton = newImageButton("zoom").apply { isVisible = false }
-    private val infoButton = newImageButton("info").apply { isVisible = false }
-    private val pauseButton = newImageButton("pause")
-    val endTurnButton = newImageButton("end_turn")
+    private val zoomButton = newIconButton("zoom").apply { isVisible = false }
+    private val infoButton = newIconButton("info").apply { isVisible = false }
+    private val pauseButton = newIconButton("pause")
+    val endTurnButton = newIconButton("end_turn")
     private val backButtonStyle = VisUI.getSkin().get("back", VisImageButton.VisImageButtonStyle::class.java)
     private val cancelButtonStyle =
         VisUI.getSkin().get("cancel_in-game", VisImageButton.VisImageButtonStyle::class.java)
-    private val cancelButton: VisImageButton = newImageButton("back").apply { isVisible = false }
-    private val refreshButton = newImageButton("refresh")
+    private val cancelButton: VisImageButton = newIconButton("back").apply { isVisible = false }
+    private val refreshButton = newIconButton("refresh")
     val abilitiesPanel = AbilitiesPanel(this)
     private val unitMiniMenu = UnitMiniMenu(this)
     val nextDialogButton = StoryDialog.NextDialogButton(this)
-    private val captureButton = newImageButton("capture").apply { isVisible = false }
+    private val captureButton = newIconButton("capture").apply { isVisible = false }
 
     //not widgets
     val tileSelectionDrawer = TileSelectionDrawer(this)
@@ -364,7 +364,7 @@ class PlayGUIStage(
         endTurn.update = {
             if (holdStateTimer.isDone) {
                 currentState = if (playScreen.gameType == GameType.PVP_SAME_SCREEN) {
-                    if (!playScreen.aiManager.isAIPlayer(playScreen.turnManager.currentPlayer)) {
+                    if (!playScreen.botManager.isBotPlayer(playScreen.turnManager.currentPlayer)) {
                         nextPlayerPrepare
                     } else {
                         theirTurn
@@ -381,8 +381,8 @@ class PlayGUIStage(
 
         endTurn.onEnter = {
             if (playScreen.gameType == GameType.PVP_SAME_SCREEN)
-                if (!playScreen.aiManager.isAIPlayer(playScreen.turnManager.nextPlayer))
-                    if (playScreen.turnManager.players.filter { !playScreen.aiManager.isAIPlayer(it) && !it.isOutOfGame }.size > 1)
+                if (!playScreen.botManager.isBotPlayer(playScreen.turnManager.nextPlayer))
+                    if (playScreen.turnManager.players.filter { !playScreen.botManager.isBotPlayer(it) && !it.isOutOfGame }.size > 1)
                         playScreen.fogOfWarManager.hideAll = true
 
             mapClickListener = seeInfoCL
@@ -416,7 +416,7 @@ class PlayGUIStage(
         nextPlayerPrepare.onEnter = {
             // if game type is not same screen or there are less than 2 P&P players, do as usual
             if (playScreen.gameType != GameType.PVP_SAME_SCREEN || (playScreen.turnManager.players.filter {
-                    !playScreen.aiManager.isAIPlayer(
+                    !playScreen.botManager.isBotPlayer(
                         it
                     ) && !it.isOutOfGame
                 }.size < 2)) {
@@ -559,7 +559,7 @@ class PlayGUIStage(
                     when (playScreen.gameType) {
                         GameType.PVP_SAME_SCREEN -> {
                             /**see [nextPlayerPrepare] */
-                            if (playScreen.aiManager.isAIPlayer(playScreen.turnManager.previousPlayer)) {
+                            if (playScreen.botManager.isBotPlayer(playScreen.turnManager.previousPlayer)) {
                                 if (playScreen.turnManager.currentPlayer.id == localPlayer.id)
                                     currentState = nextPlayerPrepare
                             }
@@ -665,7 +665,7 @@ class PlayGUIStage(
         playStage.addListener { event ->
             if (!GamePref.showAiGui) return@addListener false
 
-            if (playScreen.aiManager.isAIPlayer(playScreen.turnManager.currentPlayer)) {
+            if (playScreen.botManager.isBotPlayer(playScreen.turnManager.currentPlayer)) {
                 when (event) {
                     is CommandAddedEvent -> {
                         val unit = when (val command = event.command) {

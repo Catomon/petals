@@ -363,8 +363,10 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 }
 com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 	default: {
-		down: panel_b
-		up: panel_b
+		down: button_a_pressed
+		up: button_a
+		disabled: button_a_disabled
+		focusBorder: button_a_focus_border
 	},
 	tool_select: {
 		down: tool_select

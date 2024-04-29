@@ -60,7 +60,7 @@ class Scenario8 : AlissaScenario("Evil Trees 3", "level_8.map") {
         playScreen.fogOfWarManager.drawFog = true
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply {
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen).apply {
             simpleAI.permaAgro = false
             simpleAI.roamingIfNoAgro = false
             simpleAI.agroRange = 8

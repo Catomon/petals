@@ -15,7 +15,7 @@ import ctmn.petals.unit.abilities.HealingTouchAbility
 import ctmn.petals.unit.abilities.PersonalBarrierAbility
 import ctmn.petals.unit.cAbilities
 import ctmn.petals.widgets.addChangeListener
-import ctmn.petals.widgets.newImageButton
+import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
 
 class LevelUpWindow(val unitActor: UnitActor) : VisWindow("${unitActor.selfName.first().toUpperCase()}${unitActor.selfName.substring(1)} Level Up") {
@@ -82,7 +82,7 @@ class LevelUpWindow(val unitActor: UnitActor) : VisWindow("${unitActor.selfName.
 
         closeOnEscape()
         row()
-        add(newImageButton("cancel").addChangeListener { remove() }).padTop(8f)
+        add(newIconButton("cancel").addChangeListener { remove() }).padTop(8f)
 
         pack()
     }

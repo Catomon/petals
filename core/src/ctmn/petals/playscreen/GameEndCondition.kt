@@ -12,6 +12,7 @@ import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.getUnits
 import ctmn.petals.playstage.getUnitsOfPlayer
+import ctmn.petals.tile.isBase
 import ctmn.petals.tile.isCapturable
 
 abstract class GameEndCondition(val id: String) {
@@ -125,7 +126,7 @@ class CaptureBases : GameEndCondition("capture_bases") {
     }
 
     override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
-        for (base in playScreen.playStage.getCapturablesOf(player)) {
+        for (base in playScreen.playStage.getCapturablesOf(player).filter { it.isBase }) {
             if (!base.isOccupied || playScreen.playStage.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
                 return false
         }

@@ -53,12 +53,12 @@ class Scenario9 : AlissaScenario("Swamp", "level_9.map") {
         playScreen.fogOfWarManager.drawDiscoverableFog = true
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply {
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen).apply {
             simpleAI.permaAgro = false
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 5
         })
-        playScreen.aiManager.add(SimpleBot(allyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(allyPlayer, playScreen))
 
         //daytime
         playStage.timeOfDay = PlayStage.DayTime.DAY

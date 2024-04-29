@@ -18,10 +18,7 @@ import ctmn.petals.utils.closeJmDNS
 import ctmn.petals.utils.startJmDNSAsClient
 import ctmn.petals.widgets.*
 
-class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
-
-//    private val labelVsAi = newLabel("Vs AI", "font_5")
-//    private val customGameButton = newTextButton("Custom game")
+class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val labelSameScreen = newLabel("Same Screen", "font_5")
     private val passAndPlayButton = newTextButton("Pass and Play")
@@ -29,14 +26,15 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
     private val labelLocalMp = newLabel("Local Multiplayer", "font_5")
     private val serverLobbyButton = newTextButton("Host")
     private val ipTextField = VisTextField()
-    private val clientLobbyButton = newTextButton("Connect")
+
+    //private val clientLobbyButton = newTextButton("Connect")
+    private val serverSearchButton = newImageButton("server_search")
+    private val serverConnectButton = newImageButton("server_connect")
 
     private val returnButton = newTextButton("Return")
 
     private val table = VisTable()
     private val windowTable = VisTable()
-
-    private val searchHost get() = ipTextField.isEmpty
 
     init {
 //        addListener {
@@ -47,7 +45,7 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
 //            false
 //        }
 
-        ipTextField.messageText = "Ip Address"
+        ipTextField.messageText = "localhost" //"Ip Address"
         ipTextField.setAlignment(Align.center)
 
         addListener(object : InputListener() {
@@ -80,13 +78,14 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
             add(serverLobbyButton).padBottom(16f).minWidth(100f)
             row()
 
-            add(ipTextField).width(180f)
+            add(VisTable().apply {
+                add(serverSearchButton)
+                add(ipTextField).fillX().expandX()
+                add(serverConnectButton)
+            }).width(300f)
             row()
 
-            add(clientLobbyButton).padBottom(16f)
-            row()
-
-            add(returnButton).padTop(8f)
+            add(returnButton).padTop(24f)
 
             padBottom(30f)
         }
@@ -95,11 +94,10 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
         addActor(windowTable)
 
         passAndPlayButton.addChangeListener {
-                menuScreen.stage = menuScreen.botGameSetupStage
+            menuScreen.stage = menuScreen.botGameSetupStage
         }
 
         serverLobbyButton.addChangeListener {
-
             val loadingCover = LoadingCover()
             addActor(loadingCover)
 
@@ -120,86 +118,103 @@ class LobbyTypesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vie
             })
         }
 
-        clientLobbyButton.addChangeListener {
-            clientLobbyButton.isDisabled = true
+        serverSearchButton.addChangeListener {
+            searchServer()
+        }
 
-            val loadingCover = LoadingCover()
-            addActor(loadingCover)
-
-            if (searchHost) {
-                clientLobbyButton.addAction(TimeAction {
-                    if (it > 5f) {
-                        closeJmDNS()
-
-                        clientLobbyButton.isDisabled = false
-
-                        addActor(newNotifyWindow("No local servers found", "Connect"))
-
-                        loadingCover.done()
-
-                        return@TimeAction true
-                    }
-                    return@TimeAction false
-                })
-            }
-
-            fun goCustomGameSetupStage() {
-                menuScreen.stage =
-                    CustomGameSetupStage(menuScreen, CustomGameSetupStage.LobbyType.CLIENT)
-
-                loadingCover.done()
-                loadingCover.remove()
-                menuScreen.stage.addActor(loadingCover)
-            }
-
-            if (searchHost) {
-                startJmDNSAsClient { result ->
-                    if (result) {
-                        this@LobbyTypesStage.addAction(OneAction {
-                            clientLobbyButton.actions.clear()
-                            clientLobbyButton.isDisabled = false
-
-                            closeJmDNS()
-
-                            goCustomGameSetupStage()
-                        })
-                    } else {
-                        Gdx.app.log(javaClass.simpleName, "Unable to start JmDNS.")
-
-                        clientLobbyButton.clearActions()
-                        clientLobbyButton.isDisabled = false
-
-                        addActor(
-                            newNotifyWindow(
-                                "Unable to start JmDNS.\nCheck your network connection.",
-                                "Connect"
-                            )
-                        )
-
-                        loadingCover.done()
-                    }
-                }
-            } else {
-                GameClient.ConnectionData.host = ipTextField.text
-
-                try {
-                    goCustomGameSetupStage()
-                } catch (e: Exception) {
-                    addActor(
-                        newNotifyWindow(
-                            e.localizedMessage,
-                            "Connect"
-                        )
-                    )
-                } finally {
-                    clientLobbyButton.isDisabled = false
-                    loadingCover.done()
-                }
-            }
+        serverConnectButton.addChangeListener {
+            serverConnect()
         }
 
         returnButton.addChangeListener {
             menuScreen.stage = menuScreen.menuStage
+        }
+    }
+
+    private fun searchServer() {
+        serverSearchButton.isDisabled = true
+
+        val loadingCover = LoadingCover("Connecting...")
+        addActor(loadingCover)
+
+
+
+        loadingCover.setLabelText("Looking for server...")
+
+        startJmDNSAsClient { result ->
+            if (result) {
+                this@MpLobbyVariantsStage.addAction(OneAction {
+                    serverSearchButton.actions.clear()
+                    serverSearchButton.isDisabled = false
+
+                    closeJmDNS()
+
+                    menuScreen.stage =
+                        CustomGameSetupStage(menuScreen, CustomGameSetupStage.LobbyType.CLIENT)
+
+                    loadingCover.done()
+                    loadingCover.remove()
+                    menuScreen.stage.addActor(loadingCover)
+                })
+            } else {
+                Gdx.app.log(javaClass.simpleName, "Unable to start JmDNS.")
+
+                serverSearchButton.clearActions()
+                serverSearchButton.isDisabled = false
+
+                addActor(
+                    newNotifyWindow(
+                        "Unable to start JmDNS.\nCheck your network connection.",
+                        "Connect"
+                    )
+                )
+
+                loadingCover.done()
+            }
+        }
+
+        // close jmdns after 5 secs
+        serverSearchButton.addAction(TimeAction {
+            if (it > 5f) {
+                closeJmDNS()
+
+                serverSearchButton.isDisabled = false
+
+                addActor(newNotifyWindow("No local servers found", "Connect"))
+
+                loadingCover.done()
+
+                return@TimeAction true
+            }
+            return@TimeAction false
+        })
+    }
+
+    private fun serverConnect() {
+        serverConnectButton.isDisabled = true
+
+        val loadingCover = LoadingCover("Connecting...")
+        addActor(loadingCover)
+
+        GameClient.ConnectionData.host = ipTextField.text.ifEmpty { "localhost" }
+
+        try {
+            menuScreen.stage =
+                CustomGameSetupStage(menuScreen, CustomGameSetupStage.LobbyType.CLIENT)
+
+            loadingCover.done()
+            loadingCover.remove()
+            menuScreen.stage.addActor(loadingCover)
+        } catch (e: Exception) {
+            addActor(
+                newNotifyWindow(
+                    e.localizedMessage,
+                    "Connect"
+                )
+            )
+        } finally {
+            serverConnectButton.isDisabled = false
+            loadingCover.done()
         }
     }
 

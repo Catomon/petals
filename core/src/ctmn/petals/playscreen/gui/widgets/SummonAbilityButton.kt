@@ -21,7 +21,7 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.addFocusBorder
-import ctmn.petals.widgets.newImageButton
+import ctmn.petals.widgets.newIconButton
 import java.io.FileNotFoundException
 
 class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) : VisImageButton("summon") {
@@ -166,7 +166,7 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
     private fun addDoll(unitName: String) {
         if (!Units.names.contains(unitName)) throw IllegalArgumentException("No unit with such name: $unitName")
 
-        val button = newImageButton("doll")
+        val button = newIconButton("doll")
 
         val icon = Image(gui.assets.get<TextureAtlas>("textures.atlas").findRegion("gui/icons/$unitName").also { if (it == null) throw FileNotFoundException("No unit icon found in icons/${unitName}.") })
         icon.setSize(16f, 16f)

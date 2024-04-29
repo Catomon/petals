@@ -44,7 +44,7 @@ class StoryDialog(
 
     var cameraMove = true
 
-    private val okayButton = newImageButton("confirm").addChangeListener {
+    private val okayButton = newIconButton("confirm").addChangeListener {
         guiStage.nextDialogButton.press()
     }
 

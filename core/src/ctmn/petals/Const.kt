@@ -8,7 +8,7 @@ object Const {
 
     // App:
     const val APP_NAME = "Petals: F&GCC"
-    const val APP_VER_NAME = "a-0.1.0"
+    const val APP_VER_NAME = "0.1.0-a"
     const val IS_RELEASE = false
 
     const val CONSOLE_ENABLED = !IS_RELEASE

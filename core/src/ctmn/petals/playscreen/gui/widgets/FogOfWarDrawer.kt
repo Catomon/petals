@@ -26,6 +26,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
     var fogMap: KArray<IntArray>? = null
 
     var drawFog = false
+        get() = field || hideAll
         set(value) {
             field = value
 

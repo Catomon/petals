@@ -54,8 +54,8 @@ class QuickplayScenario : Scenario("Fae", "") {
 
         playScreen.fogOfWarManager.drawFog = true
 
-        playScreen.aiManager.add(EasyDuelBot(players[1], playScreen))
-        playScreen.aiManager.add(SimpleBot(players[2], playScreen).apply {
+        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 1
             simpleAI.permaAgro = false

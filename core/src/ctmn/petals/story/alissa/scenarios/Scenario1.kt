@@ -42,7 +42,7 @@ class Scenario1 : AlissaScenario(name = "Slime 1", levelFileName = "level_1.map"
     override fun makeScenario(playScreen: PlayScreen) {
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

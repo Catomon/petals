@@ -68,7 +68,7 @@ class TurnManager(val playScreen: PlayScreen) {
         //send event
         val nextPlayer = currentPlayer
 
-        if (playScreen.gameType == GameType.PVP_SAME_SCREEN && !playScreen.aiManager.isAIPlayer(currentPlayer))
+        if (playScreen.gameType == GameType.PVP_SAME_SCREEN && !playScreen.botManager.isBotPlayer(currentPlayer))
             playScreen.localPlayer = currentPlayer
 
         playScreen.fireEvent(NextTurnEvent(lastPlayer, nextPlayer))

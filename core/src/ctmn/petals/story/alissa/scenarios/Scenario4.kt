@@ -42,8 +42,8 @@ class Scenario4 : AlissaScenario(name = "Goblins", levelFileName = "level_4.map"
     override fun makeScenario(playScreen: PlayScreen) {
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
-        playScreen.aiManager.add(SimpleBot(allyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(allyPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

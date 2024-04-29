@@ -49,7 +49,7 @@ class Scenario3 : AlissaScenario(name = "Slime 3", levelFileName = "level_3.map"
         playScreen.fogOfWarManager.drawFog = false
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

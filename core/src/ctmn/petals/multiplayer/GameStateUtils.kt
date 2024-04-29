@@ -18,7 +18,7 @@ fun applyGameStateToPlayScreen(
     playScreen.playStage.initView = initView
 
     playScreen.turnManager.players.clear()
-    playScreen.aiManager.aiPlayers.clear()
+    playScreen.botManager.botPlayers.clear()
 
     playScreen.actionManager.clear()
     playScreen.commandManager.clearQueue()
@@ -38,7 +38,7 @@ fun applyGameStateToPlayScreen(
     playScreen.turnManager.players.addAll(snapshot.players)
     playScreen.turnManager.turn = snapshot.turn
     playScreen.friendlyFire = snapshot.friendlyFire
-    snapshot.aiPlayers.forEach { playScreen.aiManager.add(EasyDuelBot(playScreen.turnManager.getPlayerById(it) ?: return@forEach, playScreen)) }
+    snapshot.aiPlayers.forEach { playScreen.botManager.add(EasyDuelBot(playScreen.turnManager.getPlayerById(it) ?: return@forEach, playScreen)) }
 
     playScreen.gameEndCondition = GameEndCondition.get(snapshot.gameEndCondition)
 

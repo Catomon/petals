@@ -20,7 +20,7 @@ import ctmn.petals.Const
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.PetalsGame
 import ctmn.petals.Rich
-import ctmn.petals.ai.AIManager
+import ctmn.petals.ai.BotManager
 import ctmn.petals.ai.EasyDuelBot
 import ctmn.petals.discordRich
 import ctmn.petals.effects.FloatingUpLabel
@@ -91,7 +91,7 @@ open class PlayScreen(
     val taskManager = TaskManager(this)
     val triggerManager = TriggerManager(this)
     val actionManager = SeqActionManager(this)
-    val aiManager = AIManager(this)
+    val botManager = BotManager(this)
 
     val fogOfWarManager = FogOfWarDrawer(this)
 
@@ -175,7 +175,7 @@ open class PlayScreen(
         playStageCameraController.update(delta)
 
         actionManager.update(delta)
-        aiManager.update(delta)
+        botManager.update(delta)
         commandManager.update(delta)
         taskManager.update(delta)
         triggerManager.update(delta)
@@ -253,8 +253,8 @@ open class PlayScreen(
         if (levelId == null) throw IllegalStateException("Level is null")
 
         if (gameType == GameType.PVP_SAME_SCREEN) {
-            localPlayer = if (aiManager.isAIPlayer(turnManager.currentPlayer)) turnManager.players.first {
-                !aiManager.isAIPlayer(it)
+            localPlayer = if (botManager.isBotPlayer(turnManager.currentPlayer)) turnManager.players.first {
+                !botManager.isBotPlayer(it)
             } else turnManager.currentPlayer
         }
 
@@ -696,20 +696,20 @@ open class PlayScreen(
                 return
             }
 
-            if (aiManager.isAIPlayer(player)) {
+            if (botManager.isBotPlayer(player)) {
                 console.log("Player is already AI.")
 
                 return
             }
 
-            aiManager.add(EasyDuelBot(player, this@PlayScreen))
+            botManager.add(EasyDuelBot(player, this@PlayScreen))
 
             GameConsole.console.log("Added AI for player $player")
         }
 
         @ConsoleDoc(description = "Removes AI for given player Id")
         fun removeAI(playerId: Int) {
-            if (!aiManager.isAIPlayer(turnManager.getPlayerById(playerId) ?: let {
+            if (!botManager.isBotPlayer(turnManager.getPlayerById(playerId) ?: let {
                     console.log("Player is not found", LogLevel.ERROR)
                     return
                 })) {
@@ -718,7 +718,7 @@ open class PlayScreen(
                 return
             }
 
-            aiManager.aiPlayers.removeAll { it.playerID == playerId }
+            botManager.botPlayers.removeAll { it.playerID == playerId }
         }
 
         fun endTurn() {

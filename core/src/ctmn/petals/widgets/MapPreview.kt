@@ -78,7 +78,7 @@ class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
             if (actor is LabelActor && actor.labelName == "player") {
                 val position = Vector2(mapOffX + actor.x.tiled() * tileSize, mapOffY + actor.y.tiled() * tileSize)
 
-                val mark = newImageButton("map_preview_mark")
+                val mark = newIconButton("map_preview_mark")
                 mark.setPosition(position.x, position.y)
                 mark.userObject = actor.data["id"].toInt()
                 addActor(mark)

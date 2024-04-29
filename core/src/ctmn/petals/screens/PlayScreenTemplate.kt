@@ -54,11 +54,11 @@ object PlayScreenTemplate {
 
             // Step 1.5: set localPlayer
             localPlayer = if (gameType == GameType.PVP_SAME_SCREEN)
-                if (aiManager.isAIPlayer(turnManager.currentPlayer)) turnManager.players.first {
-                    !aiManager.isAIPlayer(it)
+                if (botManager.isBotPlayer(turnManager.currentPlayer)) turnManager.players.first {
+                    !botManager.isBotPlayer(it)
                 } else turnManager.currentPlayer
             else
-                pLocalPlayer ?: turnManager.players.first { !aiManager.isAIPlayer(it) }
+                pLocalPlayer ?: turnManager.players.first { !botManager.isBotPlayer(it) }
 
             // Step 2: initGui
             //if player == null, init with first non-ai player

@@ -55,6 +55,8 @@ class GameClient(val host: String = ConnectionData.host, val port: Int = Connect
             })
 
         channelFuture = bootstrap.connect(host, port).addListener { future ->
+            if (future.isDone) isRunning = false
+
             isRunning = if (future.isSuccess) {
                 logger.info("Client Channel is connected.")
                 true
@@ -62,6 +64,8 @@ class GameClient(val host: String = ConnectionData.host, val port: Int = Connect
                 logger.error("Failed to connect client channel. Trying port ${port + 1}", future.cause())
 
                 channelFuture = bootstrap.connect(host, port + 1).addListener { future ->
+                    if (future.isDone) isRunning = false
+
                     isRunning = if (future.isSuccess) {
                         logger.info("Client Channel is connected.")
                         true
@@ -69,6 +73,8 @@ class GameClient(val host: String = ConnectionData.host, val port: Int = Connect
                         logger.error("Failed to connect client channel. Trying port ${port + 2}", future.cause())
 
                         channelFuture = bootstrap.connect(host, port + 2).addListener { future ->
+                            if (future.isDone) isRunning = false
+
                             isRunning = if (future.isSuccess) {
                                 logger.info("Client Channel is connected.")
                                 true

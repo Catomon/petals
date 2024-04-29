@@ -42,7 +42,7 @@ class FishGuyScenario : AlissaScenario(name = "Fish Guy", levelFileName = "fish_
         playScreen.fogOfWarManager.drawFog = false
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

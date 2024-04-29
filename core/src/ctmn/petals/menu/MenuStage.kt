@@ -51,7 +51,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
                 menuScreen.stage = menuScreen.storySelectStage
         }
         matchButton.addChangeListener {
-            menuScreen.stage = menuScreen.lobbyTypesStage
+            menuScreen.stage = menuScreen.mpLobbyVariantsStage
         }
         editorButton.addChangeListener {
             game.screen = EditorScreen()
@@ -69,7 +69,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             menuScreen.stage = menuScreen.botGameSetupStage
         }
         vsPlayerButton.addChangeListener {
-            menuScreen.stage = menuScreen.lobbyTypesStage
+            menuScreen.stage = menuScreen.mpLobbyVariantsStage
         }
 
         table.setFillParent(true)

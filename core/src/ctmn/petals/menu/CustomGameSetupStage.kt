@@ -62,7 +62,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val playersTable = VisTable()
 
     private val mapPreview = MapPreview()
-    private val changeMapButton = newImageButton("change")
+    private val changeMapButton = newIconButton("change")
 
     private val addBotButton = newTextButton("Add Easy Bot")
     private val fogOfWarCheckbox = VisCheckBox("Fog Of War")
@@ -184,7 +184,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val clientConnectionListener by lazy {
         GenericFutureListener<ChannelFuture> { future ->
             if (!future.isSuccess) {
-                menuScreen.stage = menuScreen.lobbyTypesStage
+                menuScreen.stage = menuScreen.mpLobbyVariantsStage
 
                 val e = Exception() //future.exceptionNow()
                 when (e) {
@@ -450,13 +450,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         startJmDNSAsServer { result ->
             if (!result) {
                 Gdx.app.log("CustomGameSetupStage", "Unable to start JmDNS.")
-//                menuScreen.lobbyTypesStage.addActor(
+//                menuScreen.mpLobbyVariantsStage.addActor(
 //                    newNotifyWindow(
 //                        "Unable to start JmDNS.\nCheck your network connection.",
 //                        "Host"
 //                    )
 //                )
-//                menuScreen.stage = menuScreen.lobbyTypesStage
+//                menuScreen.stage = menuScreen.mpLobbyVariantsStage
 
                 roomStatusImage.drawable = roomFailDrawable
             } else {
@@ -610,7 +610,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         ).apply {
             playerSlots.forEach {
                 if (it.isAI)
-                    aiManager.add(EasyDuelBot(it.player!!, this))
+                    botManager.add(EasyDuelBot(it.player!!, this))
             }
 
             fogOfWarManager.drawFog = fogOfWarCheckbox.isChecked
@@ -711,8 +711,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     }
 
     private inner class PlayerSlot : WidgetGroup() {
-        val button = newImageButton("player_slot")
-        val removePlayerButton = newImageButton("remove_player")
+        val button = newIconButton("player_slot")
+        val removePlayerButton = newIconButton("remove_player")
         var label: LabelActor? = null
             set(value) {
                 field = value
@@ -898,7 +898,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val closeButton = newImageButton("cancel").addChangeListener {
+        val closeButton = newIconButton("cancel").addChangeListener {
             win.remove()
             this@CustomGameSetupStage.removeCover()
         }

@@ -47,7 +47,7 @@ class Scenario10 : AlissaScenario("Swamp 2", "level_10.map") {
         playScreen.fogOfWarManager.drawDiscoverableFog = true
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply {
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen).apply {
             simpleAI.permaAgro = false
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 6

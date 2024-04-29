@@ -513,7 +513,7 @@ class InterfaceStage(
             toSave()
         }
 
-        private fun loadButton(mapItem: MapItem) = newImageButton("edit").addClickListener {
+        private fun loadButton(mapItem: MapItem) = newIconButton("edit").addClickListener {
             val mapSave = fromGson(mapItem.fileHandle.readString(), MapSave::class.java)
 
             if (mapSave.isOutdatedVersion) {
@@ -548,7 +548,7 @@ class InterfaceStage(
                 load()
         }
 
-        private fun deleteButton(mapItem: MapItem) = newImageButton("remove").addChangeListener {
+        private fun deleteButton(mapItem: MapItem) = newIconButton("remove").addChangeListener {
             addNotifyWindow("Are you sure?", "Delete Map", {
                 if (mapItem.fileHandle.delete()) {
 

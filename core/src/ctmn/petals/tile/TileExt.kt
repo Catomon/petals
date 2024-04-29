@@ -26,7 +26,7 @@ val TileActor.isWaterBase: Boolean get() {
     if (!isBase) return false
     val playStage = playStageOrNull ?: return false
     val backTerrain = playStage.getTile(tiledX, tiledY, layer - 1)?.terrain
-    return backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater
+    return backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater || backTerrain == TerrainNames.lava
 }
 
 fun TileActor.isPassableAndFree(): Boolean {

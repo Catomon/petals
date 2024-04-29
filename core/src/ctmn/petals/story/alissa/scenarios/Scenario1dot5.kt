@@ -40,7 +40,7 @@ class Scenario1dot5 : AlissaScenario(name = "Slime 1.5", levelFileName = "level_
         // ai
         val aiBot = SimpleBot(enemyPlayer, playScreen)
         aiBot.simpleAI.permaAgro = true
-        playScreen.aiManager.add(aiBot)
+        playScreen.botManager.add(aiBot)
 
         //labels
         for (label in playStage.getLabels()) {

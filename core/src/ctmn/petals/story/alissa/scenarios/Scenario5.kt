@@ -61,9 +61,9 @@ class Scenario5 : AlissaScenario(name = "Goblins 2", levelFileName = "level_5.ma
     override fun makeScenario(playScreen: PlayScreen) {
 
         // AI
-        //playScreen.aiManager.add(EasyDuelBot(allyPlayer, playScreen))
-        playScreen.aiManager.add(SimpleBot(goblinsPlayer, playScreen))
-        playScreen.aiManager.add(SimpleBot(slimesPlayer, playScreen))
+        //playScreen.botManager.add(EasyDuelBot(allyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(goblinsPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(slimesPlayer, playScreen))
 
         //labels
         for (label in playStage.getLabels()) {

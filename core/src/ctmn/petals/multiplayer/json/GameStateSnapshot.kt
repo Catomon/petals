@@ -14,7 +14,7 @@ class GameStateSnapshot(playScreen: PlayScreen) {
     val gameStateId = playScreen.gameStateId
 
     val players = playScreen.turnManager.players
-    val aiPlayers = ArrayList<Int>().apply { playScreen.aiManager.aiPlayers.forEach { add(it.playerID) } }
+    val aiPlayers = ArrayList<Int>().apply { playScreen.botManager.botPlayers.forEach { add(it.playerID) } }
     val turn = playScreen.turnManager.turn
 
     val gameEndCondition = playScreen.gameEndCondition.id

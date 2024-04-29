@@ -22,7 +22,7 @@ import ctmn.petals.tile.isWaterBase
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.addChangeListener
-import ctmn.petals.widgets.newImageButton
+import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
 
 class BuyMenuPanel(
@@ -102,7 +102,7 @@ class BuyMenuPanel(
         //scrollPane.setScrollingDisabled(true, false)
         add(scrollPane).size(340f, 360f).padLeft(18f)
         row()
-        add(newImageButton("cancel").addChangeListener { fadeOut() }).padTop(24f)
+        add(newIconButton("cancel").addChangeListener { fadeOut() }).padTop(24f)
     }
 
     private fun GridGroup.addButton(unitButton: UnitButton) {
@@ -152,7 +152,7 @@ class BuyMenuPanel(
 
     private class UnitButton(val unit: UnitActor, val cost: Int) : WidgetGroup() {
 
-        val button = newImageButton("buy_unit")
+        val button = newIconButton("buy_unit")
         private val labelCost = newLabel(cost.toString())
 
         init {

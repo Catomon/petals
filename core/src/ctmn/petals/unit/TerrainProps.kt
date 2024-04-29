@@ -270,7 +270,7 @@ object TerrainPropsPack {
         put(fortress, 3, -10, 10)
         put(fallenforest, 2, 0, 0)
         put(swamp, 2, -10, -10)
-        put(crystals, 1, 0, 0)
+        put(crystals, UNREACHABLE, 0, 0)
         put(deepwater, 2, -15, -15)
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)

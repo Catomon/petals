@@ -12,12 +12,13 @@ import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.setPositionByCenter
 
-class LoadingCover : Widget() {
+class LoadingCover(labelText: String = "") : Widget() {
 
     private val cover = Sprite(assets.textureAtlas.findRegion("gui/white"))
     //private val icon = Sprite(assets.textureAtlas.findRegion("gui/loading"))
     private val animation = RegionAnimation(0.25f, assets.textureAtlas.findRegions("gui/animated/loading"))
     private val loadingAni = Sprite(animation.currentFrame)
+    private val label = newLabel(labelText)
 
     private val coverAlpha = 0.7f
     private val fadeOutTime = 0.5f
@@ -29,6 +30,8 @@ class LoadingCover : Widget() {
         cover.setAlpha(coverAlpha)
 
         setFillParent(true)
+
+        label.pack()
     }
 
     fun done() {
@@ -42,15 +45,15 @@ class LoadingCover : Widget() {
         if (color.a < coverAlpha)
             cover.setAlpha(color.a)
 
-        //icon.setAlpha(color.a)
         loadingAni.setAlpha(color.a)
+        label.color.a = color.a
         
         if (stage != null)
             cover.setSize(width, height)
 
         cover.draw(batch)
-        //icon.draw(batch)
         loadingAni.draw(batch)
+        label.draw(batch, parentAlpha)
     }
 
     override fun act(delta: Float) {
@@ -68,5 +71,12 @@ class LoadingCover : Widget() {
 
         animation.update(delta)
         loadingAni.setRegion(animation.currentFrame)
+
+        label.setPosition(loadingAni.centerX() - label.width / 2, loadingAni.centerY() + loadingAni.height)
+    }
+
+    fun setLabelText(text: String) {
+        label.setText(text)
+        label.pack()
     }
 }

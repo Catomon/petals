@@ -23,6 +23,7 @@ import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.gui.floatingLabel
 import ctmn.petals.utils.fromGson
+import ctmn.petals.utils.log
 import ctmn.petals.utils.toGson
 import ctmn.petals.widgets.newNotifyWindow
 
@@ -35,7 +36,7 @@ class ClientPlayScreen(
     private var randomGeneratorObtained = false
 
     private enum class ServerStatus {
-        NOT_READY, READY
+        NOT_READY, READY, SHUTDOWN
     }
 
     private val maxReconnects = 3
@@ -58,6 +59,11 @@ class ClientPlayScreen(
                 // return if at this point we are not at this stage assuming that we got "disconnected" message
                 if (game.screen != this@ClientPlayScreen) return
 
+                if (serverStatus == ServerStatus.SHUTDOWN) {
+                    log("Disconnected due to server shutdown.")
+                    return
+                }
+
                 // Adding action to try to reconnect, if we are not connected after 3 tries show a notification window
                 guiStage.addAction(
                     Actions.sequence(
@@ -68,8 +74,11 @@ class ClientPlayScreen(
 
                             guiStage.floatingLabel("Reconnecting... $reconnectCounter")
 
-                            if (!client.running())
-                                client.run()
+                            // todo I guess GameClient should make isRunning == false when disconnected
+                            // it was so before but after addition of port incrementing
+                            // fixme running() returns true even if disconnected
+                            //if (!client.running())
+                            client.run()
 
                             if (client.running() && client.channelFuture.isSuccess) {
                                 Gdx.app.log("CustomGameSetupStage", "Reconnected!")
@@ -86,6 +95,8 @@ class ClientPlayScreen(
                         DelayAction(1.5f),
                         OneAction {
                             if (!client.running() && !client.channelFuture.isSuccess) {
+                                log("Lost connection to the server.")
+
                                 returnToMenuScreen()
                                 val menuScreen = (game.screen as MenuScreen)
                                 menuScreen.stage.addActor(
@@ -180,6 +191,20 @@ class ClientPlayScreen(
 
                         randomGeneratorObtained = true
                     }
+
+                    "disconnected" -> {
+                        serverStatus = ServerStatus.SHUTDOWN
+
+                        if (!isGameOver) {
+                            guiStage.addAction(OneAction {
+                                returnToMenuScreen()
+                                val menuScreen = (game.screen as MenuScreen)
+                                menuScreen.stage.addActor(
+                                    newNotifyWindow("Server closed.", "Multiplayer")
+                                )
+                            })
+                        }
+                    }
                 }
             }
         })
@@ -196,8 +221,6 @@ class ClientPlayScreen(
         gameClient.clientManager.sendMessage(StatusResponse("ready").toJsonMessage())
     }
 
-    /** Gui Stage is getting destroyed after applying the requested state to PlayScreen
-     * see [ctmn.petals.multiplayer.applyGameStateToPlayScreen] */
     override fun initGui() {
         super.initGui()
         // every time we execute a command, we send it to the server

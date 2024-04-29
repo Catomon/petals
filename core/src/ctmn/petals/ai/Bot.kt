@@ -9,20 +9,20 @@ abstract class Bot(val player: Player, val playScreen: PlayScreen) {
 
     var isDone: Boolean = false
 
-    // AI manager will call it if isDone != true
+    /** update if [isDone] != true */
     abstract fun update(delta: Float)
 
-    // AI manager will call it at its player AI turn start
+    /** on Bot turn start */
     open fun onStart() {
         isDone = false
     }
 
-    // AI manager will call it at its player AI turn end
+    /** on Bot turn end */
     open fun onEnd() {
         isDone = true
     }
 
-    // AI should call it if it's done
+    /** called by Bot when it's done */
     fun done() {
         isDone = true
     }

@@ -1,7 +1,7 @@
 package ctmn.petals.playscreen.gui.widgets
 
 import ctmn.petals.Const
-import ctmn.petals.widgets.newImageButton
+import ctmn.petals.widgets.newIconButton
 import ctmn.petals.playscreen.commands.CaptureCommand
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.unit.*
@@ -19,12 +19,12 @@ import java.lang.IllegalStateException
 
 class UnitMiniMenu(val guiStage: PlayGUIStage) : VerticalGroup() {
 
-    private val captureButton = newImageButton("umm_capture")
-    private val moveButton = newImageButton("umm_move")
-    private val attackButton = newImageButton("umm_attack")
-    private val abilityButton = newImageButton("umm_ability")
-    private val cancelButton = newImageButton("umm_cancel")
-    private val closeButton = newImageButton("umm_close")
+    private val captureButton = newIconButton("umm_capture")
+    private val moveButton = newIconButton("umm_move")
+    private val attackButton = newIconButton("umm_attack")
+    private val abilityButton = newIconButton("umm_ability")
+    private val cancelButton = newIconButton("umm_cancel")
+    private val closeButton = newIconButton("umm_close")
 
     private var itemWidth: Float = 0f
 

@@ -46,7 +46,7 @@ class Scenario11 : AlissaScenario("Goblins 3", "level_11.map") {
         playStage.timeOfDay = PlayStage.DayTime.NIGHT
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen))
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen))
 
         // labels
         playStage.getLabels().forEach { label ->

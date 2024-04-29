@@ -40,7 +40,7 @@ class Scenario6 : AlissaScenario(name = "Evil Trees", levelFileName = "level_6.m
     override fun makeScenario(playScreen: PlayScreen) {
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply { simpleAI.permaAgro = false })
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen).apply { simpleAI.permaAgro = false })
 
         //labels
         for (label in playStage.getLabels()) {

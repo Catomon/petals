@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Button
-import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
@@ -18,7 +17,6 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisWindow
-import ctmn.petals.Const
 import ctmn.petals.AudioManager
 import ctmn.petals.utils.addClickListener
 
@@ -28,12 +26,12 @@ fun newLabel(text: String = "text", style: String? = null): VisLabel {
     return if (style == null) VisLabel(text) else VisLabel(text, style)
 }
 
-fun newButton(styleName: String): Button {
-    return Button(VisUI.getSkin().get(styleName, ButtonStyle::class.java)).addClickSound()
+/** A button that has drawable and styled button frame */
+fun newImageButton(drawableName: String): Button {
+    return VisImageButton(VisUI.getSkin().newDrawable(drawableName)).addClickSound().addFocusBorder()
 }
 
-// todo i used this button wrong. could use just Button instead
-fun newImageButton(styleName: String): VisImageButton {
+fun newIconButton(styleName: String): VisImageButton {
     return VisImageButton(styleName).addClickSound().addFocusBorder()
 }
 
@@ -61,15 +59,15 @@ private fun <T : BorderOwner> T.addFocusBorderP(): T {
     if (this !is Focusable) throw IllegalArgumentException("The actor class is not Focusable")
 
 //    if (!Const.IS_MOBILE) {
-        addListener(object : ClickListener() {
-            override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-                focusGained()
-            }
+    addListener(object : ClickListener() {
+        override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+            focusGained()
+        }
 
-            override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-                focusLost()
-            }
-        })
+        override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+            focusLost()
+        }
+    })
 //    } else {
 //
 //        isFocusBorderEnabled = false
@@ -116,13 +114,13 @@ fun newNotifyWindow(
     win.add(label).expandX().prefWidth(400f).pad(10f)
     win.row().padTop(8f)
     win.add(VisTable().apply {
-        add(newImageButton("confirm").addChangeListener {
+        add(newIconButton("confirm").addChangeListener {
             win.fadeOut()
             action?.invoke()
         }).padLeft(8f).align(Align.left)
         if (cancelButton) {
             add().expandX()
-            add(newImageButton("cancel").addChangeListener {
+            add(newIconButton("cancel").addChangeListener {
                 win.fadeOut()
             }).padRight(8f).align(Align.right)
         }

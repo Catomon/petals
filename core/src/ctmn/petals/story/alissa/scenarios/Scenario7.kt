@@ -39,7 +39,7 @@ class Scenario7 : AlissaScenario(name = "Evil Trees 2", levelFileName = "level_7
         playScreen.fogOfWarManager.drawFog = true
 
         // ai
-        playScreen.aiManager.add(SimpleBot(enemyPlayer, playScreen).apply {
+        playScreen.botManager.add(SimpleBot(enemyPlayer, playScreen).apply {
             simpleAI.permaAgro = false
             simpleAI.roamingIfNoAgro = false
             simpleAI.agroRange = 8
