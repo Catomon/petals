@@ -64,7 +64,7 @@ class PlayGUIStage(
     //labels
     val creditsLabel =
         newLabel("Credits: ${localPlayer.credits}", "font_5").apply {
-            isVisible = playScreen.gameMode == GameMode.CRYSTALS
+            isVisible = playScreen.gameMode == GameMode.CRYSTALS || playScreen.gameMode == GameMode.CRYSTALS_LEADERS
         }
     private val fpsLabel = VisLabel().apply {
         isVisible = !Const.IS_RELEASE

@@ -114,7 +114,7 @@ class TestRoomScreen(private val game: PetalsGame) : Stage(FillViewport(1366f * 
                         Array<Player>().apply { add(bluePlayer, redPlayer) },
                         GameType.PVP_SAME_SCREEN,
                         NoEnd(), //CaptureBases()
-                        GameMode.ALL,
+                        GameMode.STORY,
                     ).apply {
                         //botManager.add(EasyDuelBot(redPlayer, this))
 

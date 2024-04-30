@@ -55,7 +55,7 @@ val newPvPAlice get() = Alice().apply {
 //                activationRange = 1
 //                value = 25 }
     ).apply {
-        mana = 10
+        mana = 30
     })
     add(SummonerComponent().apply {
         maxUnits = 25

@@ -51,6 +51,7 @@ import io.netty.channel.ChannelFuture
 import io.netty.util.concurrent.GenericFutureListener
 import java.net.UnknownHostException
 import java.util.*
+import kotlin.concurrent.thread
 
 class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: LobbyType = LobbyType.LOCAL) :
     Stage(menuScreen.viewport, menuScreen.batch) {
@@ -75,7 +76,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val returnButton = newTextButton("Return")
     private val confirmButton = newTextButton("Confirm").apply { isDisabled = true }
 
-    private var gameMode = GameMode.ALL
+    private var gameMode = GameMode.CRYSTALS
 
     private var isHost = pLobbyType != LobbyType.CLIENT
         set(value) {
@@ -243,7 +244,10 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                     "map" -> {
                         val mapResponse = fromGson(jsonMessage.message, MapResponse::class.java)
                         setLevel(MapConverted(mapResponse.mapSave).apply {
-                            saveSharedMap(mapSave)
+                            thread {
+                                if (loadMapById(mapSave.id) == null)
+                                    saveSharedMap(mapSave)
+                            }
                         })
                     }
                 }
@@ -360,9 +364,18 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         changeMapButton.addChangeListener {
             menuScreen.stage = menuScreen.mapSelectionStage.also {
-                it.onResult = { map ->
-                    if (map != null) {
-                        setLevel(map)
+                it.onResult = { result ->
+                    if (result != null) {
+                        val map = result.map
+                        val gameMode = result.gameMode
+
+                        if (map != null) {
+                            setLevel(map)
+
+                            if (gameMode != null) {
+                                this.gameMode = gameMode
+                            }
+                        }
                     }
 
                     menuScreen.stage = this
@@ -516,6 +529,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             playerSlots[i].isAI = !isSlotEmpty && state.players[i]!!.isAI
         }
 
+        gameMode = state.gameMode
+
         fogOfWarCheckbox.isChecked = state.fogOfWar
         daytimeButton.userObject = state.daytime
         daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name) //todo fun updateWidgets
@@ -536,6 +551,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
             fogOfWar = fogOfWarCheckbox.isChecked
             daytime = daytimeButton.userObject as PlayStage.DayTime
+            gameMode = this@CustomGameSetupStage.gameMode
 
             state = this@CustomGameSetupStage.state
         }
@@ -623,13 +639,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
             mapPreview.setPreview(map)
 
-            if (map.gameMode.isNotEmpty()) {
-                val gm = map.gameMode.uppercase(Locale.ROOT)
-                if (GameMode.entries.any { it.name == gm })
-                    gameMode = GameMode.valueOf(gm)
-                else
-                    Gdx.app.error("CustomGameSetupStage", "Unknown game mode: $gm")
-            }
+//            if (map.gameMode.isNotEmpty()) {
+//                val gm = map.gameMode.uppercase(Locale.ROOT)
+//                if (GameMode.entries.any { it.name == gm })
+//                    gameMode = GameMode.valueOf(gm)
+//                else
+//                    Gdx.app.error("CustomGameSetupStage", "Unknown game mode: $gm")
+//            }
 
             playerSlots.forEach { it.isLocked = true }
 

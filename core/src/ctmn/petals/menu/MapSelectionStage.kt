@@ -13,7 +13,7 @@ import ctmn.petals.widgets.*
 import ctmn.petals.widgets.newTextButton
 import java.util.*
 
-class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: MapConverted?) -> Unit) :
+class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (result: Result?) -> Unit) :
     Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val table = VisTable()
@@ -21,7 +21,9 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: 
     private val mapPreview = MapPreview()
     private val mapsList = ButtonsScrollPane()
 
-    private val gameModeSelectBox = VisSelectBox<GameMode>().also { it.setItems(Array(GameMode.values())) }
+    private val gameModeSelectBox = VisSelectBox<GameMode>().also {
+        it.setItems(Array(GameMode.values().filter { it != GameMode.STORY }.toTypedArray()))
+    }
 
     private val returnButton = newTextButton("Return")
     private val confirmButton = newTextButton("Confirm")
@@ -29,10 +31,12 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: 
     private val maps = Array<MapConverted>()
 
     // private val gameModeButton = VisSelectBox<GameMode>().also {
-    //        it.setItems(GameMode.ALL, GameMode.ALICE_VS_ALICE, GameMode.CASTLES)
+    //        it.setItems(GameMode.STORY, GameMode.ALICE_VS_ALICE, GameMode.CASTLES)
     //    }
 
     private val size = 300f
+
+    class Result(val map: MapConverted?, val gameMode: GameMode?)
 
     init {
         confirmButton.isDisabled = true
@@ -61,12 +65,16 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: 
 
         confirmButton.addChangeListener {
             val mapConverted = mapPreview.map ?: return@addChangeListener
-            onResult(mapConverted)
+            onResult(Result(mapConverted, gameModeSelectBox.selected))
         }
 
         gameModeSelectBox.addListener {
             if (it is ChangeEvent) {
                 updateList()
+
+                if (mapPreview.map != null)
+                    if (mapPreview.map?.gameMode != gameModeSelectBox.selected.name.lowercase())
+                        mapPreview.setPreview(null)
             }
 
             false
@@ -111,8 +119,9 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (map: 
         for (mapItem in mapItems) {
             val mapConverted = MapConverted(mapItem.mapSave)
 
-            if (gameModeSelectBox.selected != GameMode.ALL
-                && mapConverted.gameMode != gameModeSelectBox.selected.name.toLowerCase(Locale.ROOT)
+            if (mapConverted.gameMode == GameMode.CRYSTALS.name.lowercase()
+                && gameModeSelectBox.selected != GameMode.CRYSTALS
+                && gameModeSelectBox.selected != GameMode.CRYSTALS_LEADERS // todo multiple game modes for maps
             ) continue
 
             val sameName = mapItems.firstOrNull {

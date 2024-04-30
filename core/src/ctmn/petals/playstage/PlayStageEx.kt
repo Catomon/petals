@@ -453,7 +453,7 @@ fun PlayStage.getLeadUnit(leaderID: Int) : UnitActor? {
     return null
 }
 
-/** returns array containing unit and ALL tiles */
+/** returns array containing unit and STORY tiles */
 fun PlayStage.getAllTilesAndUnits() : Array<Actor> {
     val actors = Array<Actor>()
     for (tileLayer in tileLayers.values()) {

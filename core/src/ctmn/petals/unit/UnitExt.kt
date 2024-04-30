@@ -549,6 +549,19 @@ fun UnitActor.throwAction(sourceUnit: UnitActor, throwX: Int, throwY: Int, damag
     }
 }
 
+fun playerIdByColor(colorName: String) =
+    when (colorName) {
+        "blue" -> 1
+        "red" -> 2
+        "green" -> 3
+        "purple" -> 4
+        "yellow" -> 5
+        "orange" -> 6
+        "pink" -> 7
+        "brown" -> 8
+        else -> -1
+    }
+
 fun playerColorName(playerId: Int) =
     when (playerId) {
         1 -> "blue"

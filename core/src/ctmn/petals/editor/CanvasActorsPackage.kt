@@ -64,7 +64,7 @@ class CanvasActorsPackage {
                     tile.favouriteLayer = 1
                 }
 
-                arrayOf("leader_spawn_point").find { tile.name == it && terrain.isEmpty() } != null -> {
+                arrayOf("leader_spawn_point").find { tile.name.startsWith("leader_spawn_point") && terrain.isEmpty() } != null -> {
                     tile.favouriteLayer = 3
                 }
 

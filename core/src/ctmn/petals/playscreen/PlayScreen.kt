@@ -50,11 +50,13 @@ import ctmn.petals.playscreen.seqactions.SeqActionManager
 import ctmn.petals.playscreen.tasks.TaskManager
 import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
+import ctmn.petals.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.*
+import ctmn.petals.unit.actors.Alice
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.unit.component.LavaComponent
@@ -103,7 +105,7 @@ open class PlayScreen(
     var creditsPerCluster = 75
 
     var gameType = GameType.STORY
-    var gameMode = GameMode.ALL
+    var gameMode = GameMode.STORY
     var gameEndCondition: GameEndCondition = CaptureBases()
     var isGameOver = false
 
@@ -263,13 +265,26 @@ open class PlayScreen(
 
         if (!::guiStage.isInitialized) initGui()
 
-        isReady = true
+        // add leaders if CRYSTALS_LEADERS mode
+        for (label in playStage.getLabels()) {
+            if (label.labelName.startsWith("leader_spawn_point")) {
+                if (gameMode == GameMode.CRYSTALS_LEADERS) {
+                    queueAddUnitAction(newPvPAlice.apply {
+                        playerId = playerIdByColor(label.selfName.removePrefix("leader_spawn_point_"))
+                        teamId = playerId
+                        position(label)
+                    })
+                }
+            }
+        }
 
         // give first turn player gold for all bases
         val currentPlayer = turnManager.currentPlayer
         for (base in playStage.getCapturablesOf(currentPlayer))
             currentPlayer.credits += Const.GOLD_PER_BASE
 
+        // ready to show the screen
+        isReady = true
         fireEvent(NextTurnEvent(turnManager.currentPlayer, turnManager.currentPlayer))
         /** checkGameEndCondition() <- not needed here cuz [EndConditionListener] calls it on NextTurnEvent */
     }

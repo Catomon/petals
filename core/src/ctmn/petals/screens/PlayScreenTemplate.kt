@@ -19,7 +19,7 @@ object PlayScreenTemplate {
             players = Array<Player>().apply { add(newBluePlayer, newRedPlayer) },
             GameType.PVP_SAME_SCREEN,
             NoEnd(),
-            GameMode.ALL
+            GameMode.STORY
         ).apply {
             ready()
         }
@@ -37,13 +37,14 @@ object PlayScreenTemplate {
     ): PlayScreen {
         with(playScreen) {
             // Step 1: init map, add units and players, set up gameEndCondition
-            setLevel(map)
-
-            this.creditsPerBase = map.mapSave.extra?.get(EXTRA_CREDITS_PER_BASE) as Int? ?: this.creditsPerBase
-            this.creditsPerCluster = map.mapSave.extra?.get(EXTRA_CREDITS_PER_CLUSTER) as Int? ?: this.creditsPerCluster
-
             this.gameType = gameType
             this.gameMode = gameMode
+            // game mode and type should be set before level
+            setLevel(map)
+
+            // do not remove null check
+            this.creditsPerBase = map.mapSave.extra?.get(EXTRA_CREDITS_PER_BASE) as Int? ?: this.creditsPerBase
+            this.creditsPerCluster = map.mapSave.extra?.get(EXTRA_CREDITS_PER_CLUSTER) as Int? ?: this.creditsPerCluster
 
             turnManager.players.addAll(players)
             turnManager.currentPlayer =

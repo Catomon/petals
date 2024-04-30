@@ -71,18 +71,26 @@ fun MapSave.convertActors(): ArrayList<Actor> {
     val convertedActors = ArrayList<Actor>()
 
     for (layer in layers) {
-        actorsLoop@ for (actor in layer.actors) {
-            val tileData = TileData.get(actor.id)
-            if (tileData == null) {
-                Gdx.app.error("MapSave.convertActors()", "Tile ${actor.id} not found 💀 if its not a tile idc")
-                continue
-            }
+        when {
+            layer.id <= 2 ->
+                actorsLoop@ for (actor in layer.actors) {
+                    val tileData = TileData.get(actor.id)
+                    if (tileData == null) {
+                        Gdx.app.error("MapSave.convertActors()", "Tile ${actor.id} not found if its not a tile idc")
+                        continue
+                    }
 
-            convertedActors.add(
-                TileActor(tileData.name, tileData.terrain, layer.id, actor.x, actor.y).also { tile ->
-                    tile.initView()
+                    convertedActors.add(
+                        TileActor(tileData.name, tileData.terrain, layer.id, actor.x, actor.y).also { tile ->
+                            tile.initView()
+                        }
+                    )
                 }
-            )
+
+            layer.id == 3 ->
+                for (actor in layer.actors) {
+                    convertedActors.add(LabelActor(actor.id, actor.x, actor.y))
+                }
         }
     }
 

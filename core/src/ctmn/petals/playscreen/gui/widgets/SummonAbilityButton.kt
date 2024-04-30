@@ -15,10 +15,13 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
+import ctmn.petals.assets
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.addFocusBorder
 import ctmn.petals.widgets.newIconButton
@@ -29,17 +32,17 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
     var caster: UnitActor? = null
         set(value) {
             if (field != value)
-            if (holdAlice) {
-                if (value != null) {
-                    field = value
-                    isDisabled = false
+                if (holdAlice) {
+                    if (value != null) {
+                        field = value
+                        isDisabled = false
+                    }
+                } else {
+                    if (field == null) {
+                        field = value
+                        isDisabled = value == null
+                    }
                 }
-            } else {
-                if (field == null) {
-                    field = value
-                    isDisabled = value == null
-                }
-            }
 
             if (pane.stage != null) {
                 pane.remove()
@@ -124,7 +127,10 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
 
                 //show dolls pane
                 pane.scrollY = 4f
-                pane.setSize(width, (height + 1) * (if (dollsAmount > dollsShownOnPane) dollsShownOnPane else dollsAmount))
+                pane.setSize(
+                    width,
+                    (height + 1) * (if (dollsAmount > dollsShownOnPane) dollsShownOnPane else dollsAmount)
+                )
                 val inStagePosition = localToStageCoordinates(Vector2(x, y + height))
                 pane.setPosition(inStagePosition.x, inStagePosition.y - 2)
                 gui.addActor(pane)
@@ -158,8 +164,7 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
             cooldownLabel.setText("${summonAbility.currentCooldown}")
             cooldownLabel.setPosByCenter(centerX + 3f, centerY)
             cooldownLabel.draw(batch, parentAlpha)
-        }
-        else
+        } else
             super.draw(batch, parentAlpha)
     }
 
@@ -168,9 +173,20 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
 
         val button = newIconButton("doll")
 
-        val icon = Image(gui.assets.get<TextureAtlas>("textures.atlas").findRegion("gui/icons/$unitName").also { if (it == null) throw FileNotFoundException("No unit icon found in icons/${unitName}.") })
-        icon.setSize(16f, 16f)
+        //
+        val iconRegion = assets.textureAtlas.findRegion("gui/icons/$unitName")
+        val unitRegion = findUnitTextures(unitName, caster?.playerId ?: 1).firstOrNull()
+
+        val icon = Image(
+            if (iconRegion != null)
+                VisUI.getSkin().getDrawable("icons/$unitName")
+            else
+                TextureRegionDrawable(unitRegion)
+        )
+
+        icon.setSize(64f, 64f)
         icon.setPosByCenter(button.width / 2, button.width / 2)
+
         button.addActor(icon)
 
         val unitSummonCost = Units.get(unitName).cSummonable?.cost ?: 0

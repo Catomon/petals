@@ -1,6 +1,7 @@
 package ctmn.petals.playscreen
 
 enum class GameMode {
-    ALL,
     CRYSTALS,
+    CRYSTALS_LEADERS,
+    STORY,
 }
