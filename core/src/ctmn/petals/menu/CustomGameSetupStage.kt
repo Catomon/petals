@@ -869,6 +869,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         val moveHereButton = newTextButton("Move here").addChangeListener {
             moveLocalPlayerToThisSlot()
 
+            confirmButton.isDisabled =
+                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+
             win.remove()
             this@CustomGameSetupStage.removeCover()
         }

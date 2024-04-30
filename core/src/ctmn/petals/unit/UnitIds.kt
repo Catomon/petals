@@ -14,12 +14,14 @@ object UnitIds {
     const val SPEARMAN = "spearman"
     const val BOWMAN = "bowman"
 
+    const val PIXIE = "pixie"
     const val DOLL_SWORD = "doll_sword"
     const val DOLL_AXE = "doll_axe"
     const val DOLL_PIKE = "doll_pike"
     const val DOLL_BOW = "doll_bow"
     const val DOLL_CANNON = "doll_cannon"
     const val DOLL_BOMBER = "doll_bomber"
+    const val HUNTER = "hunter"
     const val CUCUMBER = "cucumber"
     const val WATERPLANT = "waterplant"
 
@@ -49,6 +51,8 @@ object UnitIds {
     const val GOBLIN_GALLEY = "goblin_galley"
     const val GOBLIN_WYVERN = "goblin_wyvern"
     const val GOBLIN_WOLF = "goblin_wolf"
+    const val GOBLIN_GIANT = "goblin_giant"
+    const val GOBLIN_SCOUT = "goblin_scout"
 
     const val ROOT_TREE = "root_tree"
     const val ANGRY_OWL = "angry_owl"

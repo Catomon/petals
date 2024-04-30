@@ -27,8 +27,8 @@ class GoblinWyvern : UnitActor(
         )
 
         add(TerrainPropComponent(TerrainPropsPack.flier.copy().apply {
-            get(TerrainNames.base).mv(999)
-            get(TerrainNames.crystals).mv(999)
+//            get(TerrainNames.base).mv(999)
+//            get(TerrainNames.crystals).mv(999)
         }))
         add(MatchUpBonusComponent())
     }

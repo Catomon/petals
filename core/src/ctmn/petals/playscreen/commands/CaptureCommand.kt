@@ -5,11 +5,8 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.tile.*
 import ctmn.petals.tile.components.CapturingComponent
-import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.actionPoints
+import ctmn.petals.unit.*
 import ctmn.petals.unit.component.InvisibilityComponent
-import ctmn.petals.unit.playerId
-import ctmn.petals.unit.teamId
 
 class CaptureCommand(val unitId: String, val baseId: String) : Command() {
 
@@ -23,6 +20,8 @@ class CaptureCommand(val unitId: String, val baseId: String) : Command() {
 
         if (!base.isCapturable)
             throw IllegalArgumentException("The tile terrain is not capturable")
+
+        if (!unit.canCapture(base)) return false
 
         return !(unit.playerId == base.cPlayerId?.playerId ||
                 unit.teamId == playScreen.turnManager.getPlayerById((base.cPlayerId?.playerId ?: -1))?.teamId)

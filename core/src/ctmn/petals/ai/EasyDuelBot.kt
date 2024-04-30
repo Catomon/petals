@@ -387,6 +387,8 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
     private fun moveNCaptureCrystal(unit: UnitActor): Boolean {
         val playStage = playScreen.playStage
 
+        if (!unit.canCapture()) return false
+
         // find the closest enemy unit
         var closestEnemyUnit = enemyUnits.firstOrNull()
         if (closestEnemyUnit != null) {

@@ -10,8 +10,6 @@ import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
-import ctmn.petals.tile.isOccupied
-import ctmn.petals.tile.isPassableAndFree
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.unit.actors.Alice
 import ctmn.petals.unit.component.*
@@ -26,8 +24,7 @@ import ctmn.petals.playscreen.events.UnitLevelUpEvent
 import ctmn.petals.playscreen.seqactions.KillUnitAction
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playstage.*
-import ctmn.petals.tile.TileActor
-import ctmn.petals.tile.setPlayerForCapturableTile
+import ctmn.petals.tile.*
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
@@ -262,6 +259,19 @@ fun UnitActor.canMove(tileX: Int, tileY: Int): Boolean {
     return playStage.getMovementGrid(this, true)[tileX][tileY] != 0
             && canMove()
             && playStage.getTile(tileX, tileY)?.isPassableAndFree() ?: false
+}
+
+fun UnitActor.canCapture(): Boolean {
+    return (selfName != UnitIds.GOBLIN_GIANT
+            && selfName != UnitIds.HUNTER
+            && selfName != UnitIds.GOBLIN_SCOUT
+            && selfName != UnitIds.PIXIE
+            //&& !isAir
+            )
+}
+
+fun UnitActor.canCapture(tile: TileActor): Boolean {
+    return tile.isCapturable && canCapture()
 }
 
 fun UnitActor.isPlayerUnit(player: Player): Boolean {

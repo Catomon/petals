@@ -152,7 +152,7 @@ class InterfaceStage(
         //table.debug = true
 
         //setup table
-        mainTable.add(actorsPickerVerticalTable).left().top()
+        mainTable.add(actorsPickerVerticalTable).left().top().padTop(16f)
         mainTable.add(GridGroup(scrollPaneCloseButton.width).apply {
             addActor(scrollPaneCloseButton)
             for (tool in tools.toolList) {
@@ -173,7 +173,7 @@ class InterfaceStage(
             add(exitButton)
         }).align(Align.topRight)
         mainTable.row().expandY()
-        mainTable.add(actorsPickerHorizontalTable).colspan(4).bottom().left()
+        mainTable.add(actorsPickerHorizontalTable).colspan(5).bottom().left().expandX()
 
         //add tooltips
         toolButtons.buttons.forEach {
@@ -319,7 +319,7 @@ class InterfaceStage(
         root.findActor<MapsWindow>(MapsWindow::class.simpleName)?.centerWindow()
     }
 
-    inner class CanvasActorsPicker : VisScrollPane(VisTable().apply { setFillParent(true) }) {
+    inner class CanvasActorsPicker : VisScrollPane(VisTable()) {
 
         var hovered: Item? = null
         var selected: Item? = null
@@ -385,7 +385,7 @@ class InterfaceStage(
         }
 
         init {
-            setFillParent(true)
+            //setFillParent(true)
             //(this.actor as VisTable).background("background")
             fillItemsTable(horizontal)
 

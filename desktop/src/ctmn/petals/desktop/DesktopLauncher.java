@@ -15,13 +15,15 @@ public class DesktopLauncher {
         else System.out.println(DesktopLauncher.class.getSimpleName() + " RunTexturePacker.pack() canceled");
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.preferencesDirectory = "Documents/Catomon";
+        config.preferencesDirectory = "Documents/Petals - F&GCC";
         config.foregroundFPS = 60;
         config.backgroundFPS = 30;
         config.vSyncEnabled = true;
         config.title = Const.APP_NAME + " (" + Const.APP_VER_NAME + ")";
         config.width = 854;
         config.height = 480;
+        config.pauseWhenBackground = false;
+        config.pauseWhenMinimized = false;
         config.addIcon("libgdx128.png", Files.FileType.Internal);
         config.addIcon("libgdx64.png", Files.FileType.Internal);
         config.addIcon("libgdx32.png", Files.FileType.Internal);

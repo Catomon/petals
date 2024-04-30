@@ -253,24 +253,24 @@ object TerrainPropsPack {
     }
 
     val giant = TerrainProps().apply {
+        put(base, ONE_TILE, 0, 5)
+        put(crystals, ONE_TILE, 0, 0)
         put(grass, 0, 0, 0)
         put(forest, 2, 0, 5)
         put(mountains, 2, 0, 10)
         put(water, 2, 0, -10)
         put(roads, -1, 0, 0)
-        put(walls, 3, 0, 10)
+        put(walls, ONE_TILE, 0, 10) //3
         put(impassable, 999, 0, 0)
         put(indoors, 0, 0, 0)
         put(highwall, 999, 0, 0)
-        put(base, 3, 5, 5)
         put(unwalkable, 999, 0, 0)
         put(hills, 2, 10, 0)
         put(earthcrack, 2, -10, -5)
-        put(tower, 3, -5, 5)
-        put(fortress, 3, -10, 10)
+        put(tower, ONE_TILE, -5, 5) //3
+        put(fortress, ONE_TILE, -10, 10) //3
         put(fallenforest, 2, 0, 0)
         put(swamp, 2, -10, -10)
-        put(crystals, UNREACHABLE, 0, 0)
         put(deepwater, 2, -15, -15)
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)

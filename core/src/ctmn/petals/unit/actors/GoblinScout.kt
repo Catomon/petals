@@ -6,12 +6,13 @@ import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.UnitIds.GOBLIN_SCOUT
 import ctmn.petals.unit.component.*
 
 
 class GoblinScout : UnitActor(
     UnitComponent(
-        "goblin_scout",
+        GOBLIN_SCOUT,
         75,
         0,
         4,
@@ -29,8 +30,8 @@ class GoblinScout : UnitActor(
         )
 
         add(TerrainPropComponent(TerrainPropsPack.flier.copy().apply {
-            get(TerrainNames.base).mv(999)
-            get(TerrainNames.crystals).mv(999)
+//            get(TerrainNames.base).mv(999)
+//            get(TerrainNames.crystals).mv(999)
         }))
         add(MatchUpBonusComponent())
     }

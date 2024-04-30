@@ -319,6 +319,8 @@ class PlayGUIStage(
                     return@addListener false
                 }
 
+                if (unit.canCapture(tile)) return@addListener false
+
                 captureButton.isDisabled = false
             }
 
