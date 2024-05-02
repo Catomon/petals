@@ -33,4 +33,10 @@ class FairyBomber : UnitActor(
         }))
         add(MatchUpBonusComponent())
     }
+
+    override fun loadAnimations() {
+        super.loadAnimations()
+
+        attackAnimation?.frameDuration = 0.175f
+    }
 }

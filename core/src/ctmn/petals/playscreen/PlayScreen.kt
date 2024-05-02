@@ -320,7 +320,7 @@ open class PlayScreen(
                     base,
                     playerId,
                     turnManager.getPlayerById(playerId)?.species
-                        ?: throw IllegalStateException("Player with playerId assigned to player label not found in turnManager")
+                        ?: throw IllegalStateException("Player with playerId<$playerId> assigned to player label not found in turnManager")
                 )
             } else {
                 setPlayerForCapturableTile(base, -1)

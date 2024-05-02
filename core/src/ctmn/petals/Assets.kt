@@ -8,11 +8,14 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import ctmn.petals.tile.TileData
+import ctmn.petals.unit.playerColorName
+import ctmn.petals.utils.replaceColor
 
 lateinit var assets: Assets
 
@@ -44,11 +47,60 @@ class Assets : AssetManager() {
 
     private var finishedLoading = false
 
-    fun onFinishLoading() {
+    private fun onFinishLoading() {
+        addUnitAtlases()
+
+        //..
         for (texture in textureAtlas.textures)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
         TileData.parseTiles()
+    }
+
+    private val redPlayerColors = arrayOf(
+        // faerie
+        -10763539 to -1221769, // bright blue
+        -12022828 to -2863800, // shadow blue
+        -13865041 to -5296852, // dark line blue
+        -16765819 to -8055040 // very dark line blue
+        //goblin
+
+    )
+
+    fun findUnitAtlas(playerColor: String): TextureAtlas {
+        println("trying " + playerColor)
+        val assetName = "units_$playerColor.atlas"
+        if (!contains(assetName)) return unitsAtlas
+        println("found " + assetName)
+        return get(assetName)
+    }
+
+    fun findUnitAtlas(playerId: Int): TextureAtlas = findUnitAtlas(playerColorName(playerId))
+
+    private fun addUnitAtlases() {
+        addAsset("units_red.atlas", TextureAtlas::class.java, createUnitsAtlas(redPlayerColors))
+    }
+
+    private fun createUnitsAtlas(colors: kotlin.Array<Pair<Int, Int>>): TextureAtlas {
+        val atl = TextureAtlas(UNITS_ATLAS)
+        val texture = atl.textures.first()
+        texture.textureData.prepare()
+        val pixmap = texture.textureData.consumePixmap()
+
+        colors.forEach {
+            pixmap.replaceColor(it.first, it.second)
+        }
+
+        val modifiedTexture = Texture(pixmap)
+
+        atl.textures.remove(texture)
+        atl.textures.add(modifiedTexture)
+        atl.regions.forEach { it.texture = modifiedTexture }
+
+        texture.dispose()
+        pixmap.dispose()
+
+        return atl
     }
 
     fun beginLoadingAll() {
@@ -74,10 +126,10 @@ class Assets : AssetManager() {
         fun loadSound(name: String) {
             load("$soundsFolderName/$name", Sound::class.java)
         }
-        loadSound("click.ogg", )
-        loadSound("heal_up.ogg", )
-        loadSound("hit.ogg", )
-        loadSound("unit_explosion.ogg", )
+        loadSound("click.ogg")
+        loadSound("heal_up.ogg")
+        loadSound("hit.ogg")
+        loadSound("unit_explosion.ogg")
 
         Gdx.app.debug(Assets::class.simpleName, "Loading sounds... Done")
 
@@ -107,18 +159,18 @@ class Assets : AssetManager() {
 //        VisUI.getSkin().setScale(0.5f)
     }
 
-    fun getTexture(name: String) : Texture = get(name, Texture::class.java)
+    fun getTexture(name: String): Texture = get(name, Texture::class.java)
 
-    fun findAtlasRegion(name: String) : TextureAtlas.AtlasRegion = textureAtlas.findRegion(name)
-    fun findAtlasRegions(name: String) : Array<TextureAtlas.AtlasRegion> = textureAtlas.findRegions(name)
+    fun findAtlasRegion(name: String): TextureAtlas.AtlasRegion = textureAtlas.findRegion(name)
+    fun findAtlasRegions(name: String): Array<TextureAtlas.AtlasRegion> = textureAtlas.findRegions(name)
 
-    fun getSound(name: String) : Sound = get("$soundsFolderName/$name")
+    fun getSound(name: String): Sound = get("$soundsFolderName/$name")
 
-    fun getMusic(name: String) : Music = get("$musicFolderName/$name")
+    fun getMusic(name: String): Music = get("$musicFolderName/$name")
 
     fun getDrawable(name: String): Drawable = VisUI.getSkin().getDrawable(name)
 
-    fun generateFont(name: String = "Pixel.ttf", size: Int = 16, color: Color = Color.WHITE) : BitmapFont {
+    fun generateFont(name: String = "Pixel.ttf", size: Int = 16, color: Color = Color.WHITE): BitmapFont {
         val font: BitmapFont
         val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/$name"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()

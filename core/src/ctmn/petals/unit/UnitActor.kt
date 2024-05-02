@@ -6,6 +6,7 @@ import ctmn.petals.Const
 import ctmn.petals.unit.component.*
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -27,6 +28,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     var isViewInitialized = false
 
     lateinit var defaultAnimation: RegionAnimation
+    var attackAnimation: RegionAnimation? = null
     var abilityCastAnimation: RegionAnimation? = null
     var talkingAnimation: RegionAnimation? = null
     var airborneAnimation: RegionAnimation? = null
@@ -76,6 +78,12 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         positionChanged()
 
         isVisible = false
+
+        loadAnimations()
+    }
+
+    protected open fun loadAnimations() {
+        attackAnimation = findAnimation("${selfName}_attack", 0.25f)
     }
 
     override fun add(component: Component): Component {
@@ -93,6 +101,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             return
         val viewComponent = viewComponent as AnimationViewComponent
         viewComponent.animation = animation ?: defaultAnimation
+
+        animation?.stateTime = 0f
 
         currentAnimationDuration = duration
     }

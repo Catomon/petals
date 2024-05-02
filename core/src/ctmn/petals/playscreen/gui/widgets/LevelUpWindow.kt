@@ -14,19 +14,28 @@ import ctmn.petals.unit.abilities.FireboltAbility
 import ctmn.petals.unit.abilities.HealingTouchAbility
 import ctmn.petals.unit.abilities.PersonalBarrierAbility
 import ctmn.petals.unit.cAbilities
+import ctmn.petals.unit.playerId
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
 
-class LevelUpWindow(val unitActor: UnitActor) : VisWindow("${unitActor.selfName.first().toUpperCase()}${unitActor.selfName.substring(1)} Level Up") {
+class LevelUpWindow(val unitActor: UnitActor) :
+    VisWindow("${unitActor.selfName.first().toUpperCase()}${unitActor.selfName.substring(1)} Level Up") {
 
-    private val unitIcon = VisImage(assets.textureAtlas.findRegions("units/${unitActor.selfName}").first()).apply { setSize(24f, 24f) }
+    private val unitIcon =
+        VisImage(assets.findUnitAtlas(unitActor.playerId).findRegions(unitActor.selfName).first()).apply {
+            setSize(
+                24f,
+                24f
+            )
+        }
 
     private val fontScale = 0.16f
 
-    private val unitNameLabel = newLabel("${unitActor.selfName.first().toUpperCase()}${unitActor.selfName.substring(1)}", "font_5")
+    private val unitNameLabel =
+        newLabel("${unitActor.selfName.first().toUpperCase()}${unitActor.selfName.substring(1)}", "font_5")
 
-    private val captureListener =  object : EventListener {
+    private val captureListener = object : EventListener {
         override fun handle(event: Event?): Boolean {
             if (isVisible && event is InputEvent) {
 
@@ -61,15 +70,15 @@ class LevelUpWindow(val unitActor: UnitActor) : VisWindow("${unitActor.selfName.
         add(AbilitiesSelectTable(
             unitActor,
             object : ChangeListener() {
-            override fun changed(event: ChangeEvent, actor: Actor) {
-                unitActor.cAbilities?.abilities?.add(actor.userObject as Ability)?.let {
+                override fun changed(event: ChangeEvent, actor: Actor) {
+                    unitActor.cAbilities?.abilities?.add(actor.userObject as Ability)?.let {
 
-                    (stage as PlayGUIStage).abilitiesPanel.updateAbilities()
+                        (stage as PlayGUIStage).abilitiesPanel.updateAbilities()
+                    }
+
+                    this@LevelUpWindow.remove()
                 }
-
-                this@LevelUpWindow.remove()
-            }
-        }).apply {
+            }).apply {
             background = null
             abilities.removeAll { it.name == "summon" }
 

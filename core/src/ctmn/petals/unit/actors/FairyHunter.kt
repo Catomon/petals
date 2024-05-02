@@ -35,4 +35,10 @@ class FairyHunter : UnitActor(
 
         })
     }
+
+    override fun loadAnimations() {
+        super.loadAnimations()
+
+        attackAnimation?.frameDuration = 0.175f
+    }
 }

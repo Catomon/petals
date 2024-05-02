@@ -8,14 +8,27 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.AudioManager
 import ctmn.petals.Const
 import ctmn.petals.PetalsGame
+import ctmn.petals.ai.EasyDuelBot
 import ctmn.petals.assets
+import ctmn.petals.map.labels
+import ctmn.petals.map.loadMap
+import ctmn.petals.menu.CustomGameSetupStage
+import ctmn.petals.player.*
+import ctmn.petals.playscreen.CaptureBases
+import ctmn.petals.playscreen.GameMode
+import ctmn.petals.playscreen.GameType
+import ctmn.petals.playscreen.NoEnd
+import ctmn.petals.playstage.PlayStage
 import ctmn.petals.tile.TileData
+import ctmn.petals.tile.isCapturable
+import ctmn.petals.tile.setPlayerForCapturableTile
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.MovingBackground
 import ctmn.petals.widgets.addChangeListener
@@ -26,7 +39,8 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
 
     private val background = MovingBackground(assets.getTexture("sky.png"), 5f)
 
-    private val blackThingy = Sprite(assets.findAtlasRegion("gui/white")).also { it.color = Color.BLACK; it.setAlpha(0.5f) }
+    private val blackThingy =
+        Sprite(assets.findAtlasRegion("gui/white")).also { it.color = Color.BLACK; it.setAlpha(0.5f) }
 
     private val testMapName = "test"
 
@@ -42,7 +56,12 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         addActor(VisTable().apply {
             setFillParent(true)
 
-            add(VerticalGroup().also {  group ->
+            add(VerticalGroup().also { group ->
+                group.addActor(newTextButton("Test Play").addChangeListener {
+                    startTestPlay()
+                })
+            })
+            add(VerticalGroup().also { group ->
                 group.addActor(newTextButton("Menu Screen").addChangeListener {
                     game.screen = MenuScreen(game)
                 })
@@ -54,6 +73,37 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
             })
         })
     }
+
+    private fun startTestPlay() {
+        val players = Array<Player>().apply {
+            addAll(newBluePlayer.apply { credits = 99999 },
+                newRedPlayer.apply { species = fairy })
+        }
+        val ps = PlayScreenTemplate.pvp(
+            game,
+            loadMap("test"),
+            players,
+            GameType.PVP_SAME_SCREEN,
+            NoEnd(),
+            GameMode.CRYSTALS_LEADERS,
+            players.first(),
+        ).apply {
+            botManager.add(EasyDuelBot(players[1], this))
+            fogOfWarManager.drawFog = false
+        }
+
+        ps.map?.labels?.forEach { label ->
+            if (label.labelName == "player") {
+                label.data.put("player_id", (label.data["id"].toInt() + 1).toString())
+            }
+        }
+
+        ps.ready()
+
+        game.screen = ps
+    }
+
+    private val unitsAtlasRandom = assets.findUnitAtlas(Random.nextInt(1, 9)).textures.first()
 
     override fun render(delta: Float) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
@@ -67,6 +117,10 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         blackThingy.x = viewport.camera.position.x - 150f
         blackThingy.setSize(300f, height)
         blackThingy.draw(batch, root.color.a)
+
+        //todo remove
+        batch.draw(unitsAtlasRandom, 0f, 0f)
+
         batch.end()
 
         act()

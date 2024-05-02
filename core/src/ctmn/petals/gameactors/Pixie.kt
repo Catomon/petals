@@ -22,7 +22,7 @@ class Pixie : GameActor() {
 
     var isSeeking = true
 
-    private val animation = RegionAnimation(0.5f, assets.textureAtlas.findRegions("units/pixie"))
+    private val animation = RegionAnimation(0.5f, assets.findUnitAtlas(1).findRegions("pixie"))
     private val sprite = newPlaySprite(animation.currentFrame)
 
     override fun draw(batch: Batch?, parentAlpha: Float) {

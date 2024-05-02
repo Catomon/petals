@@ -47,4 +47,10 @@ class FairyCannon : UnitActor(
             bonuses[UnitIds.GOBLIN_WYVERN] = 15 to 0
         })
     }
+
+    override fun loadAnimations() {
+        super.loadAnimations()
+
+        attackAnimation?.frameDuration = 0.2f
+    }
 }

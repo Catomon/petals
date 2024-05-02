@@ -57,33 +57,38 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         defenderDamage -= attackerDefense //final damage
         if (defenderDamage < 1) defenderDamage = 0 //min damage
 
+        val targetDealDamage: () -> Unit
+        var attackerDealDamage: (() -> Unit)? = null
+        val postAttack: () -> Unit
+
         /** health */
-        targetUnit.dealDamage(attackerDamage, attackerUnit, playScreen, false)
+        targetDealDamage = {
+            targetUnit.dealDamage(attackerDamage, attackerUnit, playScreen, false)
+
+            val isUnitDefenderDie = targetUnit.health <= 0
+            if (isUnitDefenderDie) targetUnit.killedBy(attackerUnit, playScreen)
+        }
 
         //take damage if in target attack range
         if (attackerUnit.isUnitNear(targetUnit, 1)
             && targetUnit.cAttack!!.attackRangeBlocked <= 0
             && ((!attackerUnit.isAir || (attackerUnit.isAir && targetUnit.isAir)) || targetUnit.attackRange > 1)
         ) {
-            attackerUnit.dealDamage(defenderDamage, targetUnit, playScreen, false)
+            attackerDealDamage = {
+                attackerUnit.dealDamage(defenderDamage, targetUnit, playScreen, false)
+
+                val isUnitAttackerDie = attackerUnit.health <= 0
+                if (isUnitAttackerDie) attackerUnit.killedBy(targetUnit, playScreen)
+            }
         }
 
-        //if attacker is ranged unit he takes no damage
-//        if (unitAttacker.attackRange == 1)
-//            unitAttacker.health -= defenderDamage
-
-//        Gdx.app.debug(AttackCommand::class.simpleName, "Attacker: ${attackerUnit.name}, A: ${attackerDamage}, D: ${attackerDefense}")
-//        Gdx.app.debug(AttackCommand::class.simpleName, "Defender: ${targetUnit.name}, A: ${defenderDamage}, D: ${defenderDefense}")
+        postAttack = {
+            /** remove unit if dead */
+            //moved
+        }
 
         /** add attack action */
-        playScreen.queueAction(AttackAction(attackerUnit, targetUnit))
-
-        /** remove unit if dead */
-        val isUnitDefenderDie = targetUnit.health <= 0
-        val isUnitAttackerDie = attackerUnit.health <= 0
-
-        if (isUnitDefenderDie) targetUnit.killedBy(attackerUnit, playScreen)
-        if (isUnitAttackerDie) attackerUnit.killedBy(targetUnit, playScreen)
+        playScreen.queueAction(AttackAction(attackerUnit, targetUnit, targetDealDamage, attackerDealDamage, postAttack))
 
         return true
     }

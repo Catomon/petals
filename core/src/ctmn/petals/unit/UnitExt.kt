@@ -3,6 +3,7 @@ package ctmn.petals.unit
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.Animation
 import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.effects.HealthChangeEffect
@@ -582,16 +583,19 @@ fun playerColorName(playerId: Int) =
         6 -> "orange"
         7 -> "pink"
         8 -> "brown"
-        else -> ""
+        else -> playerId.toString()
     }
 
+/** Crates looped animation.
+ * @throws IllegalArgumentException if unit texture region [regionName] not found */
 fun UnitActor.createAnimation(
     regionName: String,
     frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION,
 ): RegionAnimation {
-    assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/$regionName").also { teamFrames ->
+    val unitAtlas = assets.findUnitAtlas(playerId)
+    unitAtlas.findRegions(regionName).also { teamFrames ->
         if (teamFrames.isEmpty) {
-            assets.textureAtlas.findRegions("units/$regionName").also { defFrames ->
+            unitAtlas.findRegions(regionName).also { defFrames ->
                 if (defFrames.isEmpty) {
                     throw IllegalArgumentException("Textures not found")
                 } else {
@@ -604,15 +608,41 @@ fun UnitActor.createAnimation(
     }
 }
 
+/** Crates looped animation or normal if [loop] is false.
+ * @returns null if unit texture region [regionName] not found */
+fun UnitActor.findAnimation(
+    regionName: String,
+    frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION,
+    loop: Boolean = false,
+): RegionAnimation? {
+    val unitAtlas = assets.findUnitAtlas(playerId)
+    unitAtlas.findRegions(regionName).also { teamFrames ->
+        if (teamFrames.isEmpty) {
+            unitAtlas.findRegions(regionName).also { defFrames ->
+                if (defFrames.isEmpty) {
+                    return null
+                } else {
+                    return RegionAnimation(frameDuration, defFrames).apply {
+                        if (!loop) playMode = Animation.PlayMode.NORMAL
+                    }
+                }
+            }
+        } else {
+            return RegionAnimation(frameDuration, teamFrames).apply {
+                if (!loop) playMode = Animation.PlayMode.NORMAL
+            }
+        }
+    }
+}
+
 fun xpToLevelUp(curLvl: Int) = Const.EXP_MOD_LEVEL_UP * curLvl
 
 fun findUnitTextures(unitName: String, playerId: Int): Array<TextureAtlas.AtlasRegion> {
-    var regions =
-        assets.textureAtlas.findRegions("units/${playerColorName(playerId)}/${unitName.lowercase(Locale.ROOT)}")
-    if (regions.isEmpty) regions = assets.textureAtlas.findRegions("units/${unitName.lowercase(Locale.ROOT)}")
+    val unitAtlas = assets.findUnitAtlas(playerId)
+    val regions = unitAtlas.findRegions(unitName.lowercase(Locale.ROOT))
     if (regions.isEmpty) {
-        regions.add(assets.textureAtlas.findRegion("units/unit"))
-        Gdx.app.log("UnitActor.initView", "Unit textures not found: units/${playerColorName(playerId)}/$unitName")
+        regions.add(unitAtlas.findRegion("unit"))
+        Gdx.app.log("UnitsExt.findUnitTextures()", "Unit textures not found: $unitName")
     }
 
     return regions
