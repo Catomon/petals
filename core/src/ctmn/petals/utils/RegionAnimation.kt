@@ -10,6 +10,12 @@ class RegionAnimation(frameDuration: Float, regions: Array<TextureAtlas.AtlasReg
     var stateTime = 0f
     val currentFrame get() = getKeyFrame(stateTime)
 
+    /** 1f means animation is at the last frame*/
+    val progressLast get() = (stateTime + frameDuration) / animationDuration
+
+    /** 1f means animation is ended */
+    val progress get() = stateTime / animationDuration
+
     init {
         playMode = PlayMode.LOOP
     }
@@ -26,7 +32,6 @@ class RegionAnimation(frameDuration: Float, regions: Array<TextureAtlas.AtlasReg
 
     fun setKeyFrames(keyFrames: Array<TextureAtlas.AtlasRegion>, frameDuration: Float = this.frameDuration) {
         this.keyFrames
-
         this.frameDuration = frameDuration
     }
 }

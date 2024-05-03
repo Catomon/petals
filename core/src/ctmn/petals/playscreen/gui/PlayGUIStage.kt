@@ -131,13 +131,22 @@ class PlayGUIStage(
     val useAbilityCL = UseAbilityCL()
     val confirmAbilityCL = ConfirmAbilityCL()
 
+    /** Previously selected unit between UnitSelectedCL and other CL*/
+    private var prevSelectedUnit: UnitActor? = null
+
     var mapClickListener: MapClickListener = selectUnitCL
         set(value) {
 
             //hide borders on exit
             when {
+                field !is UnitSelectedCL && value is UnitSelectedCL -> {
+
+                }
+
                 field is UnitSelectedCL && value !is UnitSelectedCL -> {
                     // fire event
+                    AudioManager.sound("unit_deselect")
+                    prevSelectedUnit = null
                 }
 
                 field is UseAbilityCL && value !is UseAbilityCL -> {
@@ -154,7 +163,17 @@ class PlayGUIStage(
 
             when (value) {
                 is UnitSelectedCL -> {
+                    if (selectedUnit != null ) {
+                        if (prevSelectedUnit != selectedUnit) {
+                            AudioManager.sound("unit_select")
+                        } else {
+                            // assuming unit just moved
+//                            if (selectedUnit!!.actionPoints >= Const.ACTION_POINTS_ATTACK)
+//                            AudioManager.sound("unit_deselect")
+                        }
+                    }
 
+                    prevSelectedUnit = selectedUnit
                 }
 
                 is UseAbilityCL -> {

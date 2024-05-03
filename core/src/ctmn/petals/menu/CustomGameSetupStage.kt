@@ -38,9 +38,7 @@ import ctmn.petals.multiplayer.server.ClientRequestsQueue
 import ctmn.petals.multiplayer.server.ClientsController
 import ctmn.petals.multiplayer.server.GameServer
 import ctmn.petals.multiplayer.toJsonMessage
-import ctmn.petals.player.Player
-import ctmn.petals.player.newBluePlayer
-import ctmn.petals.player.speciesList
+import ctmn.petals.player.*
 import ctmn.petals.playscreen.*
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.screens.MenuScreen
@@ -50,7 +48,6 @@ import ctmn.petals.widgets.*
 import io.netty.channel.ChannelFuture
 import io.netty.util.concurrent.GenericFutureListener
 import java.net.UnknownHostException
-import java.util.*
 import kotlin.concurrent.thread
 
 class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: LobbyType = LobbyType.LOCAL) :
@@ -910,6 +907,28 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
+        val makeGoblinButton = newTextButton("Set Goblin").addChangeListener {
+            if ((slot.player != null)) {
+                slot.player?.species = goblin
+
+                serverManager.sendLobbyState()
+            }
+
+            win.remove()
+            this@CustomGameSetupStage.removeCover()
+        }
+
+        val makeFaerieButton = newTextButton("Set Faerie").addChangeListener {
+            if ((slot.player != null)) {
+                slot.player?.species = fairy
+
+                serverManager.sendLobbyState()
+            }
+
+            win.remove()
+            this@CustomGameSetupStage.removeCover()
+        }
+
         val removeButton = newTextButton("Remove").addChangeListener {
             if (slot.player != localPlayer && slot.player != null) {
                 removePlayer(slot.player!!)
@@ -946,6 +965,14 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             row()
             if (lobbyType == LobbyType.LOCAL) {
                 add(addPlayerButton)
+                row()
+            }
+            if (slot.player != null) {
+                if (slot.player?.species == goblin) {
+                    add(makeFaerieButton)
+                } else {
+                    add(makeGoblinButton)
+                }
                 row()
             }
             add(removeButton)

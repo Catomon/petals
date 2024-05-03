@@ -130,6 +130,8 @@ class Assets : AssetManager() {
         loadSound("heal_up.ogg")
         loadSound("hit.ogg")
         loadSound("unit_explosion.ogg")
+        loadSound("unit_select.ogg")
+        loadSound("unit_deselect.ogg")
 
         Gdx.app.debug(Assets::class.simpleName, "Loading sounds... Done")
 
@@ -217,7 +219,7 @@ object AudioManager {
     }
 
     fun sound(name: String): Long {
-        return sound(assets.getSound(name))
+        return sound(assets.getSound("$name.ogg"))
     }
 
     private fun sound(sound: Sound): Long {

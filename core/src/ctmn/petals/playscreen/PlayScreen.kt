@@ -136,7 +136,7 @@ open class PlayScreen(
 
         playStageSetup()
 
-        commandManager.onCommand = onCommand@{ CommandManagerOnCommandHandler().onCommand(it) }
+        commandManager.onCommand = CommandManagerOnCommandHandler()::onCommand
     }
 
     private fun playStageSetup() {

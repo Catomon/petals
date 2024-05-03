@@ -140,6 +140,6 @@ fun <T : Actor> T.addChangeListener(listener: (actor: T) -> Unit): T {
     return this as T
 }
 
-fun <T : Actor> T.addClickSound(soundName: String = "click.ogg"): T {
+fun <T : Actor> T.addClickSound(soundName: String = "click"): T {
     return addClickListener { AudioManager.sound(soundName) } as T
 }

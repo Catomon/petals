@@ -5,6 +5,8 @@ import ctmn.petals.unit.*
 import ctmn.petals.unit.component.AnimationViewComponent
 import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.effects.Animations
+import ctmn.petals.playscreen.commands.AttackCommand
+import ctmn.petals.playscreen.commands.MoveUnitCommand
 import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playstage.*
@@ -19,6 +21,18 @@ class AnimationsUpdater(val guiStage: PlayGUIStage) : Actor() {
         guiStage.addListener {
             if (it is CommandExecutedEvent || it is ActionCompletedEvent) {
                 updateUnitFlip()
+            }
+
+            if (it is CommandExecutedEvent) {
+                val command = it.command
+                val unitId = when (command) {
+                    is MoveUnitCommand -> command.unitId
+                    is AttackCommand -> command.attackerUnitId
+                    else -> null
+                }
+                if (unitId != null) {
+                   playStage.findUnit(unitId)?.setZIndex(playStage.unitsLayer.children.size)
+                }
             }
 
             false

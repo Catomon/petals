@@ -38,5 +38,6 @@ class FairyBomber : UnitActor(
         super.loadAnimations()
 
         attackAnimation?.frameDuration = 0.175f
+        animationProps.attackFrame = 10f / 11f
     }
 }

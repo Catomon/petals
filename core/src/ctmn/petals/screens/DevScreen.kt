@@ -49,7 +49,7 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         batch.projectionMatrix = viewport.camera.combined
 
         addWidgets()
-        AudioManager.sound("click.ogg")
+        AudioManager.sound("click")
     }
 
     private fun addWidgets() {

@@ -57,12 +57,12 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         defenderDamage -= attackerDefense //final damage
         if (defenderDamage < 1) defenderDamage = 0 //min damage
 
-        val targetDealDamage: () -> Unit
-        var attackerDealDamage: (() -> Unit)? = null
+        val damageTarget: () -> Unit
+        var damageAttacker: (() -> Unit)? = null
         val postAttack: () -> Unit
 
         /** health */
-        targetDealDamage = {
+        damageTarget = {
             targetUnit.dealDamage(attackerDamage, attackerUnit, playScreen, false)
 
             val isUnitDefenderDie = targetUnit.health <= 0
@@ -74,7 +74,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
             && targetUnit.cAttack!!.attackRangeBlocked <= 0
             && ((!attackerUnit.isAir || (attackerUnit.isAir && targetUnit.isAir)) || targetUnit.attackRange > 1)
         ) {
-            attackerDealDamage = {
+            damageAttacker = {
                 attackerUnit.dealDamage(defenderDamage, targetUnit, playScreen, false)
 
                 val isUnitAttackerDie = attackerUnit.health <= 0
@@ -88,7 +88,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         }
 
         /** add attack action */
-        playScreen.queueAction(AttackAction(attackerUnit, targetUnit, targetDealDamage, attackerDealDamage, postAttack))
+        playScreen.queueAction(AttackAction(attackerUnit, targetUnit, damageTarget, damageAttacker, postAttack))
 
         return true
     }

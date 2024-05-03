@@ -11,16 +11,45 @@ import ctmn.petals.unit.tiledX
 class AttackAction(
     val attackerUnit: UnitActor,
     val targetUnit: UnitActor,
-    val targetDealDamage: () -> Unit,
-    val attackerDealDamage: (() -> Unit)?,
-    val postAttack: () -> Unit
+    val damageTarget: () -> Unit,
+    val damageAttacker: (() -> Unit)?,
+    val postAttack: () -> Unit,
 ) : SeqAction() {
 
     private lateinit var attackEffect: UnitAttackEffect
     private var targetIsShaking = false
 
+    private var attackerAttacked = false
+    private var defenderAttacked = false
+
     override fun update(deltaTime: Float) {
-        isDone = attackEffect.lifeTime <= 0
+        if (!attackerAttacked) {
+            if (attackerUnit.animationProps.attackFrame <= (attackerUnit.attackAnimation?.progressLast
+                    ?: 0f) || attackerUnit.cAnimationView?.animation != attackerUnit.attackAnimation
+            ) {
+
+                damageTarget()
+
+                attackEffect = UnitAttackEffect(playScreen.assets)
+                attackEffect.x = targetUnit.x + Const.TILE_SIZE / 2
+                attackEffect.y = targetUnit.y + Const.TILE_SIZE / 2
+                playScreen.playStage.addActor(attackEffect)
+
+                attackerAttacked = true
+            }
+        }
+
+        if (!defenderAttacked) {
+            if (targetUnit.animationProps.attackFrame <= (targetUnit.attackAnimation?.stateTime
+                    ?: 0f) || targetUnit.cAnimationView?.animation != targetUnit.attackAnimation
+            ) {
+                damageAttacker?.invoke()
+
+                defenderAttacked = true
+            }
+        }
+
+        isDone = this::attackEffect.isInitialized && attackEffect.lifeTime <= 0
 
         if (!isDone) {
             if (attackerUnit.cAnimationView?.animation == attackerUnit.attackAnimation) {
@@ -34,20 +63,17 @@ class AttackAction(
     }
 
     override fun onStart(playScreen: PlayScreen): Boolean {
-        targetDealDamage()
+        //
         attackerUnit.setAnimation(attackerUnit.attackAnimation)
 
-        if (attackerDealDamage != null) {
-            attackerDealDamage?.invoke()
+        if (damageAttacker != null) {
+            //
             targetUnit.setAnimation(targetUnit.attackAnimation)
+        } else {
+            defenderAttacked = true
         }
 
         attackerUnit.viewComponent.flipX = targetUnit.tiledX < attackerUnit.tiledX
-
-        attackEffect = UnitAttackEffect(playScreen.assets)
-        attackEffect.x = targetUnit.x + Const.TILE_SIZE / 2
-        attackEffect.y = targetUnit.y + Const.TILE_SIZE / 2
-        playScreen.playStage.addActor(attackEffect)
 
         return true
     }

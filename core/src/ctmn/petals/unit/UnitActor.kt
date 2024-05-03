@@ -36,6 +36,12 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     private var currentAnimationDuration = 0f
 
+    val animationProps = AnimationProps()
+
+    class AnimationProps {
+        var attackFrame = 1f
+    }
+
     init {
         if (pUnitComponent != null) {
             this.add(pUnitComponent)
