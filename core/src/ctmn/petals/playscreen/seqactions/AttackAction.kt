@@ -49,7 +49,7 @@ class AttackAction(
             }
         }
 
-        isDone = this::attackEffect.isInitialized && attackEffect.lifeTime <= 0
+        isDone = attackerAttacked && defenderAttacked
 
         if (!isDone) {
             if (attackerUnit.cAnimationView?.animation == attackerUnit.attackAnimation) {

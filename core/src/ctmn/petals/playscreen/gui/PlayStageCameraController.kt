@@ -30,7 +30,7 @@ class PlayStageCameraController(val playStage: PlayStage) {
     var playerId = Player.BLUE
     var maxDistFromUnit = 320f
 
-    var maxZoomOut = 0f //if 0f map sized zoom out
+    var maxZoomOut = 320f //if 0f map sized zoom out
     var maxZoomIn = 240f
 
     fun update(delta: Float) {
@@ -132,8 +132,7 @@ class PlayStageCameraController(val playStage: PlayStage) {
     fun zoomUp(z: Float) {
         camera.zoom += z
 
-        val offset = 12 * camera.zoom +
-                if (max(playStage.tiledWidth, playStage.tiledHeight) <= 15) 54f else 0f
+        val offset = 12 * camera.zoom + 32
 
         fun zoomToMapSizeLimit() {
             if (camera.viewportWidth * camera.zoom > playStage.mapWidth() + offset &&
@@ -148,15 +147,21 @@ class PlayStageCameraController(val playStage: PlayStage) {
                 if (maxZoomOut == 0f) { // if didn't set maxZoomOut, limit it to map size
                     zoomToMapSizeLimit()
                 } else { // if did set, limit to it or map size if limit is larger than map size
-                    if (playStage.mapWidth() <= maxZoomOut || playStage.mapHeight() <= maxZoomOut) {
-                        zoomToMapSizeLimit()
-                    } else {
-                        if (camera.viewportWidth * camera.zoom > maxZoomOut + offset &&
-                            camera.viewportHeight * camera.zoom > maxZoomOut + offset
-                        ) {
-                            camera.zoom -= z
-                        }
+                    if (camera.viewportWidth * camera.zoom > maxZoomOut + offset &&
+                        camera.viewportHeight * camera.zoom > maxZoomOut + offset
+                    ) {
+                        camera.zoom -= z
                     }
+
+//                    if (playStage.mapWidth() <= maxZoomOut || playStage.mapHeight() <= maxZoomOut) {
+//                        zoomToMapSizeLimit()
+//                    } else {
+//                        if (camera.viewportWidth * camera.zoom > maxZoomOut + offset &&
+//                            camera.viewportHeight * camera.zoom > maxZoomOut + offset
+//                        ) {
+//                            camera.zoom -= z
+//                        }
+//                    }
                 }
             }
 

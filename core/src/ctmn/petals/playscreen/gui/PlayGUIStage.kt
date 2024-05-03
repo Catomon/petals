@@ -753,7 +753,7 @@ class PlayGUIStage(
             top()
             add(turnIcon).top().center()
             row()
-            add(turnIcon.label).top().center()
+            //add(turnIcon.label).top().center()
         }
 
         addActor(VisTable().apply {

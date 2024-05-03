@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.utils.Array
@@ -26,6 +27,7 @@ import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.NoEnd
 import ctmn.petals.playstage.PlayStage
+import ctmn.petals.story.QuickplayScreen
 import ctmn.petals.tile.TileData
 import ctmn.petals.tile.isCapturable
 import ctmn.petals.tile.setPlayerForCapturableTile
@@ -59,6 +61,9 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
             add(VerticalGroup().also { group ->
                 group.addActor(newTextButton("Test Play").addChangeListener {
                     startTestPlay()
+                })
+                group.addActor(newTextButton("Random Map").addChangeListener {
+                    ctmn.petals.game.screen = QuickplayScreen(ctmn.petals.game)
                 })
             })
             add(VerticalGroup().also { group ->
@@ -118,8 +123,8 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         blackThingy.setSize(300f, height)
         blackThingy.draw(batch, root.color.a)
 
-        //todo remove
-        batch.draw(unitsAtlasRandom, 0f, 0f)
+        val scr = screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+        batch.draw(unitsAtlasRandom, scr.x - unitsAtlasRandom.width / 2f, scr.y - unitsAtlasRandom.height / 2f)
 
         batch.end()
 
