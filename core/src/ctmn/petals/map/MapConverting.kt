@@ -3,11 +3,13 @@ package ctmn.petals.map
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.GdxRuntimeException
+import ctmn.petals.editor.CanvasActorsPackage
 import ctmn.petals.editor.MAP_FILE_EXTENSION
 import ctmn.petals.editor.MapSave
+import ctmn.petals.editor.collectMaps
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.tile.*
-import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.*
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
 import java.io.FileNotFoundException
@@ -87,9 +89,15 @@ fun MapSave.convertActors(): ArrayList<Actor> {
                     )
                 }
 
-            layer.id == 3 ->
+            layer.id == CanvasActorsPackage.MARKERS_LAYER ->
                 for (actor in layer.actors) {
                     convertedActors.add(LabelActor(actor.id, actor.x, actor.y))
+                }
+
+            layer.id == CanvasActorsPackage.UNITS_LAYER ->
+                for (actor in layer.actors) {
+                    convertedActors.add(
+                        Units.get(actor.id).also { it.position(actor.x, actor.y).player(playerIdByUnitSpecies(it)) })
                 }
         }
     }
@@ -137,15 +145,10 @@ fun loadMap(fileName: String): MapConverted {
 }
 
 fun loadMapById(mapId: String): MapConverted? {
-    val defMaps = Gdx.files.internal("maps")
-    val customMaps = Gdx.files.internal("maps/custom")
-    val sharedMaps = Gdx.files.internal("maps/shared")
-    for (path in defMaps.list() + customMaps.list() + sharedMaps.list()) {
-        if (path.isDirectory) continue
-
-        val mapSave = createMapFromJson(path.readString())
-        if (mapId == mapSave.mapId)
-            return mapSave
+    for (mapItem in collectMaps()) {
+        val mapSave = mapItem.mapSave
+        if (mapId == mapSave.id)
+            return MapConverted(mapSave)
     }
 
     return null

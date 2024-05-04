@@ -1,5 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
+import com.badlogic.gdx.graphics.Color
 import ctmn.petals.playscreen.events.TaskBeginEvent
 import ctmn.petals.playscreen.events.TaskCompletedEvent
 import ctmn.petals.playscreen.events.TaskUpdatedEvent
@@ -63,9 +64,14 @@ class TasksTable : VisTable() {
 
                         val taskLabel = taskCell.actor as VisLabel
                         if(taskLabel.userObject == it.task) {
-                            removeActor(taskLabel)
-
-                            //TODO animation based on completion result
+                            //removeActor(taskLabel)
+                            if (it.task.state == Task.State.FAILED) {
+                                taskLabel.setText(taskLabel.text.toString() + " X")
+                                taskLabel.color = Color.RED
+                            } else {
+                                taskLabel.setText(taskLabel.text.toString() + " V")
+                                taskLabel.color = Color.GREEN
+                            }
                         }
                     }
                 }

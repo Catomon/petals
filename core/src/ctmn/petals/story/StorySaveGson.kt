@@ -17,6 +17,6 @@ open class StorySaveGson(
     val extra = mutableMapOf<String, String>()
 
     override fun toString(): String {
-        return save_name
+        return "StorySave name: $save_name, progress: $progress, v:$game_version"
     }
 }

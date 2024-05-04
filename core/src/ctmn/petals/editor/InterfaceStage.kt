@@ -65,17 +65,22 @@ class InterfaceStage(
 
     private val markerLayerButton = VisImage("layer_marker")
         .addClickListener { _ ->
-            changeLayer(3)
+            changeLayer(CanvasActorsPackage.MARKERS_LAYER)
+        }.addClickSound()
+
+    private val unitLayerButton = VisImage("layer_unit")
+        .addClickListener { _ ->
+            changeLayer(CanvasActorsPackage.UNITS_LAYER)
         }.addClickSound()
 
     private val objectLayerButton = VisImage("layer_object")
         .addClickListener { _ ->
-            changeLayer(2)
+            changeLayer(CanvasActorsPackage.OBJECTS_LAYER)
         }.addClickSound()
 
     private val groundLayerButton = VisImage("layer_ground")
         .addClickListener { _ ->
-            changeLayer(1)
+            changeLayer(CanvasActorsPackage.GROUND_LAYER)
         }.addClickSound()
 
     private val undergroundLayerButton = VisImage("layer_underground")
@@ -159,6 +164,7 @@ class InterfaceStage(
                 addActor(newToolButton(tool))
             }
             addActor(markerLayerButton)
+            addActor(unitLayerButton)
             addActor(objectLayerButton)
             addActor(groundLayerButton)
             //addActor(undergroundLayerButton)
@@ -181,6 +187,7 @@ class InterfaceStage(
         }
 
         markerLayerButton.addTooltip("Markers layer")
+        unitLayerButton.addTooltip("Units layer")
         objectLayerButton.addTooltip("Objects layer")
         groundLayerButton.addTooltip("Ground layer")
         //undergroundLayerButton.addTooltip("Underground layer")
@@ -204,7 +211,8 @@ class InterfaceStage(
         tools.pencil.layer = layer
         layerButton.setText(
             when (layer) {
-                3 -> "Labels"
+                4 -> "Markers"
+                3 -> "Units"
                 2 -> "Objects"
                 1 -> "Ground"
                 0 -> "Underground"

@@ -18,8 +18,6 @@ class ClickActorTask(val actor: Actor) : Task() {
     override fun onBegin(playScreen: PlayScreen) {
         super.onBegin(playScreen)
 
-
-
         playScreen.commandManager.stop = true
         actor.addListener(clickListener)
     }

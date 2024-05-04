@@ -13,7 +13,7 @@ class MapItem(
     val mapSave by lazy { fromGson(fileHandle.readString(), MapSave::class.java) }
 
     enum class Type {
-        DEFAULT, CUSTOM, SHARED
+        DEFAULT, CUSTOM, SHARED, UNLISTED
     }
 }
 
@@ -21,6 +21,7 @@ fun collectMaps(): ArrayList<MapItem> {
     val defMaps = Gdx.files.internal("maps/default")
     val customMaps = Gdx.files.local("maps/custom")
     val sharedMaps = Gdx.files.local("maps/shared")
+    val unlistedMaps = Gdx.files.internal("maps/")
 
     val maps = ArrayList<MapItem>()
     for (path in defMaps.list()) {
@@ -34,6 +35,10 @@ fun collectMaps(): ArrayList<MapItem> {
     for (path in sharedMaps.list()) {
         if (path.isDirectory) continue
         maps.add(MapItem(path, MapItem.Type.SHARED))
+    }
+    for(path in unlistedMaps.list()) {
+        if (path.isDirectory) continue
+        maps.add(MapItem(path, MapItem.Type.UNLISTED))
     }
 
     return maps

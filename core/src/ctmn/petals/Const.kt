@@ -10,6 +10,7 @@ object Const {
     const val APP_NAME = "Petals - F&GCC"
     const val APP_VER_NAME = "0.1.0-alpha"
     const val IS_RELEASE = false
+    const val USER_FOLDER = "Documents/Petals - F&GCC/"
 
     const val CONSOLE_ENABLED = !IS_RELEASE
     const val DEBUG_MODE = !IS_RELEASE
@@ -61,6 +62,7 @@ object Const {
 
     // Alice
     const val ALICE_LEADER_ID = 13404
+    const val FAERIE_CAMPAIGN_ID: Int = 537351234
     const val TREASURED_PETALS_STORY_ID: Int = 182730192
     const val FAE_STORY_ID: Int = 286903792
 

@@ -25,6 +25,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "font_5")
 
     private val storyButton = newTextButton(strings.menu.story).apply { isDisabled = true }
+    private val levelsButton = newTextButton(strings.menu.levels)
     private val quickPlayButton = newTextButton(strings.menu.quickplay)
     private val matchButton = newTextButton(strings.menu.match)
     private val vsPlayerButton = newTextButton(strings.menu.vsPlayer)
@@ -49,6 +50,9 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
                     menuScreen.game.screen = LevelSelectScreen(game, story)
             } else
                 menuScreen.stage = menuScreen.storySelectStage
+        }
+        levelsButton.addChangeListener {
+            menuScreen.stage = menuScreen.levelsStage
         }
         matchButton.addChangeListener {
             menuScreen.stage = menuScreen.mpLobbyVariantsStage
@@ -78,7 +82,9 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         with(table) {
             add(bunnyImage).size(200f).colspan(2).padBottom(32f)
             row()
-            add(storyButton).bottom().width(300f).colspan(2)
+//            add(storyButton).bottom().width(300f).colspan(2)
+//            row()
+            add(levelsButton).bottom().width(300f).colspan(2)
             row()
             add(vsPlayerButton).width(150f)
             add(vsBotButton).width(150f)

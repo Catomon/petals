@@ -1,7 +1,7 @@
 package ctmn.petals.story.quickplay
 
-import ctmn.petals.ai.EasyDuelBot
-import ctmn.petals.ai.SimpleBot
+import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.SimpleBot
 import ctmn.petals.map.MapGenerator
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer

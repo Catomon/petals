@@ -1,4 +1,4 @@
-package ctmn.petals.ai
+package ctmn.petals.bot
 
 interface TestState {
     fun enter() {}

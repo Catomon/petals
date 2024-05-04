@@ -367,6 +367,15 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		up: button_a
 		disabled: button_a_disabled
 		focusBorder: button_a_focus_border
+		checkedOffsetY: -1
+	},
+	level: {
+		down: level_button_pressed
+		up: level_button
+		disabled: level_button_disabled
+		focusBorder: button_a_focus_border
+		checkedOffsetY: -1
+		pressedOffsetY: -3
 	},
 	tool_select: {
 		down: tool_select
@@ -619,11 +628,16 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 },
 com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle: {
 	default: {
-		down: panel_b
-		up: panel_b
+		down: button_a_pressed
+		up: button_a
+		disabled: button_a_disabled
 		font: font_8
 		fontColor: white
 		downFontColor: light-gray
+		pressedOffsetY: -1
+		focused: button_a_focused
+		focusBorder: button_a_focus_border
+		checkedOffsetY: -1
 	}
 }
 com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle: {

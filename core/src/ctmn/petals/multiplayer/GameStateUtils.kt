@@ -1,6 +1,6 @@
 package ctmn.petals.multiplayer
 
-import ctmn.petals.ai.EasyDuelBot
+import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.multiplayer.json.GameStateSnapshot
 import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.playscreen.PlayScreen

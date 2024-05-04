@@ -1,18 +1,25 @@
-package ctmn.petals.ai
+package ctmn.petals.bot
 
 import com.badlogic.gdx.Gdx
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.commands.Command
+import ctmn.petals.utils.printLess
 import kotlin.concurrent.thread
 
-class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
+class ScoreBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
 
-    val simpleAI = SimpleAI(player, playScreen)
+    val scoreAI = ScoreAI(player, playScreen)
 
     private val idleTime = 0.5f
     private var elapsedTime = 0f
 
-    private var didIPrintDebug = false
+    private var currentCommand: Command? = null
+
+    private var didISayWaiting = false
+    private var didISayNext = false
+
+    private var moveCamera = true
 
     private var thinking = false
     private var isCommandExecuted = false
@@ -20,19 +27,16 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
 
     private var thinkingThread: Thread? = null
 
-    private var lastThinkingElapsedTime = 0L
-
     override fun update(delta: Float) {
         if (isDone) return
 
         elapsedTime += delta
 
         if (playScreen.actionManager.hasActions) {
-            if (!didIPrintDebug) {
-                Gdx.app.log(this::class.simpleName, "Last thinking elapsed time: ${lastThinkingElapsedTime/1_000_000}")
+            if (!didISayWaiting) {
                 Gdx.app.log(this::class.simpleName, "Waiting for action complete...")
 
-                didIPrintDebug = true
+                didISayWaiting = true
             }
 
             elapsedTime = 0f
@@ -52,31 +56,39 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
             isCommandExecuted = false
             noCommands = false
             elapsedTime = 0f
-            didIPrintDebug = false
+            didISayWaiting = false
+            didISayNext = false
         }
     }
 
     override fun onEnd() {
         super.onEnd()
+
+
     }
 
     private fun commandExecuted() {
         elapsedTime = 0f
         isCommandExecuted = false
-        didIPrintDebug = false
+        didISayWaiting = false
     }
 
     private fun startThinking() {
+        printLess("Thinking...")
         thinking = true
         thinkingThread = thread {
             try {
 
                 val startTime = System.nanoTime()
 
-                val command = simpleAI.makeCommand()
+                val command = scoreAI.makeCommand()
 
                 val endTime = System.nanoTime()
-                lastThinkingElapsedTime = endTime - startTime
+                val elapsedTime = endTime - startTime
+
+                println("AI elapsed time: ${elapsedTime / 1_000_000} milliseconds")
+
+                Gdx.app.log(this::class.simpleName, "Next Command...")
 
                 if (command != null) {
                     isCommandExecuted = command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)

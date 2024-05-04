@@ -1,4 +1,4 @@
-package ctmn.petals.ai
+package ctmn.petals.bot
 
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.*

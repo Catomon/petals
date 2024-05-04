@@ -1,4 +1,4 @@
-import ctmn.petals.ai.SimpleAIBot
+import ctmn.petals.bot.SimpleAIBot
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.NoEnd

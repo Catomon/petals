@@ -1,4 +1,4 @@
-package ctmn.petals.ai
+package ctmn.petals.bot
 
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.player.Player
@@ -13,7 +13,6 @@ import ctmn.petals.player.getSpeciesUnits
 import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
-import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.components.PlayerIdComponent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.*

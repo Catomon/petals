@@ -218,10 +218,10 @@ class Eraser : Tool("eraser") {
 
     fun delete(x: Float, y: Float) {
         if (tools.isFavouriteLayersMode) {
-            if (tools.pencil.layer <= 2) {
+            if (tools.pencil.layer <= 1) {
                 canvas.getActor(x.toTilePos(), y.toTilePos(), 0)?.remove()
                 canvas.getActor(x.toTilePos(), y.toTilePos(), 1)?.remove()
-                canvas.getActor(x.toTilePos(), y.toTilePos(), 2)?.remove()
+                //canvas.getActor(x.toTilePos(), y.toTilePos(), 2)?.remove()
             } else {
                 canvas.getActor(x.toTilePos(), y.toTilePos(), tools.pencil.layer)?.remove()
             }

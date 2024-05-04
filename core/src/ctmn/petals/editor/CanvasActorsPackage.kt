@@ -5,8 +5,16 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.assets
 import ctmn.petals.tile.TerrainNames
+import ctmn.petals.unit.Units
 
 class CanvasActorsPackage {
+
+    companion object {
+        const val MARKERS_LAYER = 4
+        const val UNITS_LAYER = 3
+        const val OBJECTS_LAYER = 2
+        const val GROUND_LAYER = 1
+    }
 
     val canvasActors = Array<CanvasActor>()
     val canvasActorsFiltered = Array<CanvasActor>()
@@ -41,35 +49,50 @@ class CanvasActorsPackage {
 
             when {
                 arrayOf("water").find { tile.name.startsWith(it) && terrain == TerrainNames.water } != null -> {
-                    tile.favouriteLayer = 1
+                    tile.favouriteLayer = GROUND_LAYER
                 }
 
                 arrayOf("grass", "grass_rain").find { tile.name == it && terrain == TerrainNames.grass } != null -> {
-                    tile.favouriteLayer = 1
+                    tile.favouriteLayer = GROUND_LAYER
                 }
 
                 arrayOf("road").find { tile.name.startsWith(it) && terrain == TerrainNames.roads } != null -> {
-                    tile.favouriteLayer = 1
+                    tile.favouriteLayer = GROUND_LAYER
                 }
 
                 arrayOf("swamp").find { tile.name.startsWith(it) && terrain == TerrainNames.swamp } != null -> {
-                    tile.favouriteLayer = 1
+                    tile.favouriteLayer = GROUND_LAYER
                 }
 
                 arrayOf("lava").find { tile.name.startsWith(it) && terrain == TerrainNames.lava } != null -> {
-                    tile.favouriteLayer = 1
+                    tile.favouriteLayer = GROUND_LAYER
                 }
 
                 arrayOf("deepwater").find { tile.name.startsWith(it) && terrain == TerrainNames.deepwater } != null -> {
-                    tile.favouriteLayer = 1
+                    tile.favouriteLayer = GROUND_LAYER
                 }
 
                 arrayOf("leader_spawn_point").find { tile.name.startsWith("leader_spawn_point") && terrain.isEmpty() } != null -> {
-                    tile.favouriteLayer = 3
+                    tile.favouriteLayer = MARKERS_LAYER
                 }
 
-                else -> tile.favouriteLayer = 2
+                else -> tile.favouriteLayer = OBJECTS_LAYER
             }
+        }
+
+        for (unitName in Units.names) {
+            val region = assets.unitsAtlas.findRegion(unitName)
+            if (region == null) {
+                Gdx.app.log(this::class.simpleName, "Unit region not found: $unitName")
+                continue
+            }
+            val sprite = Sprite(region).apply {
+                setSize(tileSize / minTileSize * region.regionWidth, tileSize / minTileSize * region.regionHeight)
+            }
+
+            val unit = CanvasActor(unitName, sprite)
+            unit.favouriteLayer = UNITS_LAYER
+            canvasActors.add(unit)
         }
 
         canvasActors.forEach { actor ->

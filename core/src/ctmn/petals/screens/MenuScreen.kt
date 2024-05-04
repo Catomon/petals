@@ -32,6 +32,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     })
 
     val storySelectStage = StorySelectStage(this)
+    val levelsStage = LevelsStage(this)
     val menuStage = MenuStage(this)
     val mpLobbyVariantsStage = MpLobbyVariantsStage(this)
     val botGameSetupStage = CustomGameSetupStage(this)

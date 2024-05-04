@@ -13,6 +13,7 @@ import com.kotcrab.vis.ui.Focusable
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.util.BorderOwner
 import com.kotcrab.vis.ui.widget.VisImageButton
+import com.kotcrab.vis.ui.widget.VisImageTextButton
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
@@ -31,6 +32,11 @@ fun newImageButton(drawableName: String): Button {
     return VisImageButton(VisUI.getSkin().newDrawable(drawableName)).addClickSound().addFocusBorder()
 }
 
+/** A button that has drawable and styled button frame */
+fun newImageTextButton(text: String, drawableName: String): Button {
+    return VisImageTextButton(text, VisUI.getSkin().newDrawable(drawableName)).addClickSound().addFocusBorder()
+}
+
 fun newIconButton(styleName: String): VisImageButton {
     return VisImageButton(styleName).addClickSound().addFocusBorder()
 }
@@ -44,6 +50,10 @@ fun newTextButton(text: String = "text", styleName: String? = null): VisTextButt
     button.addFocusBorder()
 
     return button
+}
+
+fun VisImageTextButton.addFocusBorder(): VisImageTextButton {
+    return addFocusBorderP()
 }
 
 fun VisImageButton.addFocusBorder(): VisImageButton {

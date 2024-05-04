@@ -20,8 +20,8 @@ import ctmn.petals.Const
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.PetalsGame
 import ctmn.petals.Rich
-import ctmn.petals.ai.BotManager
-import ctmn.petals.ai.EasyDuelBot
+import ctmn.petals.bot.BotManager
+import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.discordRich
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.map.*
@@ -35,10 +35,7 @@ import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.commands.CommandManager
 import ctmn.petals.playscreen.commands.EndTurnCommand
 import ctmn.petals.playscreen.commands.GrantXpCommand
-import ctmn.petals.playscreen.events.BaseCapturedEvent
-import ctmn.petals.playscreen.events.GameOverEvent
-import ctmn.petals.playscreen.events.NextTurnEvent
-import ctmn.petals.playscreen.events.UnitMovedEvent
+import ctmn.petals.playscreen.events.*
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.gui.PlayStageCameraController
 import ctmn.petals.playscreen.gui.widgets.FogOfWarDrawer
@@ -56,7 +53,6 @@ import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.Alice
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.unit.component.LavaComponent
@@ -167,6 +163,10 @@ open class PlayScreen(
                         unit.del(LavaComponent::class.java)
                     }
                 }
+            }
+
+            if (it is ActionCompletedEvent) {
+                checkGameEndCondition()
             }
 
             false
@@ -304,6 +304,14 @@ open class PlayScreen(
         Gdx.input.inputProcessor = inputMultiplexer
     }
 
+    fun setDefaultPlayerIdToLabels() {
+        playStage.getLabels().forEach { label ->
+            if (label.labelName == "player") {
+                label.data.put("player_id", (label.data["id"].toInt() + 1).toString())
+            }
+        }
+    }
+
     private fun assignPlayersToSpawnPoints() {
         val map = this.map ?: throw IllegalStateException("map == null")
 
@@ -406,8 +414,10 @@ open class PlayScreen(
         game.screen = MenuScreen(game)
     }
 
+    private var gameEnding = false
+
     private fun checkGameEndCondition() {
-        if (isGameOver) return
+        if (isGameOver || gameEnding) return
 
         for (player in turnManager.players) {
             player.isOutOfGame =
@@ -415,6 +425,8 @@ open class PlayScreen(
         }
 
         if (gameEndCondition.check(this)) {
+            gameEnding = true
+
             queueAction {
                 val labelGameOver = newLabel("GameOver", "font_8").also { it.isVisible = false }
 
@@ -469,6 +481,7 @@ open class PlayScreen(
     open fun onGameOver() {
         if (isGameOver) return
 
+        gameEnding = true
         isGameOver = true
         fireEvent(GameOverEvent())
 
@@ -667,7 +680,7 @@ open class PlayScreen(
 
             gameStateId++
 
-            checkGameEndCondition()
+            // checkGameEndCondition()
         }
     }
 

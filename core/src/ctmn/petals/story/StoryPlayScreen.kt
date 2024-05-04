@@ -14,9 +14,8 @@ import ctmn.petals.Const.PLAY_CAMERA_ZOOM_STORY
 class StoryPlayScreen(
     game: PetalsGame,
     val story: Story,
+    var currentScenario: Scenario? = null
 ) : PlayScreen(game) {
-
-    private var currentScenario: Scenario
 
     init {
         // Set up story
@@ -31,7 +30,10 @@ class StoryPlayScreen(
         story.applySave()
 
         //
-        currentScenario = story.currentScenario
+        if (currentScenario == null)
+            currentScenario = story.currentScenario
+
+        val currentScenario = currentScenario!!
 
         // Step 1: init map, add units and players, set up gameEndCondition
         currentScenario.createLevel(this)
@@ -63,18 +65,30 @@ class StoryPlayScreen(
     }
 
     override fun onGameOver() {
-        if (Const.IS_RELEASE && story.storySave.progress == story.scenarios.size)
-            game.screen = MenuScreen(game)
+        super.onGameOver()
+        //todo show continue / end buttons
+
+//        if (Const.IS_RELEASE && story.storySave.progress == story.scenarios.size) {
+//            game.screen = MenuScreen(game)
+//        }
+
+        fun onWin() {
+            story.onScenarioOverSave()
+
+            val storySave = story.storySave
+
+            storySave.friendly_fire = friendlyFire
+
+            SavesManager.save(storySave)
+        }
 
         when (gameEndCondition.result) {
+            GameEndCondition.Result.HAS_WINNER -> {
+                if (gameEndCondition.winners.contains(localPlayer.id))
+                    onWin()
+            }
             GameEndCondition.Result.WIN -> {
-                story.onScenarioOverSave()
-
-                val storySave = story.storySave
-
-                storySave.friendly_fire = friendlyFire
-
-                SavesManager.save(storySave)
+                onWin()
             }
 
             GameEndCondition.Result.LOSE -> {
@@ -86,8 +100,13 @@ class StoryPlayScreen(
 
         // fade in and change screen
         guiStage.addActor(StageCover().fadeInAndThen(OneAction {
-            story.initScenarios()
-            game.screen = StoryPlayScreen(game, story)
+//            story.initScenarios()
+//            game.screen = StoryPlayScreen(game, story)
+
+            game.screen = MenuScreen().apply {
+                stage = levelsStage
+                stage.fadeOut()
+            }
         }))
     }
 }

@@ -2,6 +2,7 @@ package ctmn.petals
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Preferences
+import ctmn.petals.editor.IS_MOBILE
 import ctmn.petals.utils.*
 import java.lang.Exception
 import java.util.*
@@ -12,7 +13,7 @@ fun GamePref.overridePrefs() {
 
 object GamePref {
 
-    const val PREF_FILE_NAME = "saves.petals.ctmn"
+    const val PREF_FILE_NAME = "settings.xml"
 
     private const val LEVEL = "level"
 
@@ -21,6 +22,12 @@ object GamePref {
     private const val SHOW_AI_GUI = "show_ai_gui"
 
     var prefs: Preferences = Gdx.app.getPreferences(PREF_FILE_NAME)
+    val savesFolder =
+        (if (IS_MOBILE)
+            Gdx.files.local("saves/")
+        else
+            Gdx.files.external(Const.USER_FOLDER + "/saves/"))
+            .apply { mkdirs() }
 
     // always set random if it is not release build (for testing)
     val clientId: String =
@@ -34,7 +41,9 @@ object GamePref {
 
     var locale: String
         get() = prefs.getString(LOCALE, GameLocale.ENGLISH)
-        set(value) { prefs.putString(LOCALE, value) }
+        set(value) {
+            prefs.putString(LOCALE, value)
+        }
 
     var targetFps: Int
         get() = prefs.getInteger("target_fps", 60)
@@ -103,7 +112,7 @@ object GamePref {
         println(decryptData(prefs.getString("player"), generateSecretKey("cringe")))
     }
 
-    fun save()  {
+    fun save() {
         prefs.flush()
     }
 }

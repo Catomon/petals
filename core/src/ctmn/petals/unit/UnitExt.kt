@@ -12,7 +12,7 @@ import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
 import ctmn.petals.unit.abilities.SummonAbility
-import ctmn.petals.unit.actors.Alice
+import ctmn.petals.unit.actors.*
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.tiled
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -26,6 +26,8 @@ import ctmn.petals.playscreen.seqactions.KillUnitAction
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
+import ctmn.petals.unit.actors.AngryOwl
+import ctmn.petals.unit.actors.FairyBomber
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
@@ -328,6 +330,14 @@ fun <T : UnitActor> T.player(player: Player): T {
     playerId = player.id
     teamId = player.teamId
     allies.addAll(player.allies)
+    initView(assets)
+
+    return this
+}
+
+fun <T : UnitActor> T.player(playerId: Int, teamId: Int = playerId): T {
+    this.playerId = playerId
+    this.teamId = teamId
     initView(assets)
 
     return this
@@ -647,3 +657,47 @@ fun findUnitTextures(unitName: String, playerId: Int): Array<TextureAtlas.AtlasR
 
     return regions
 }
+
+fun playerIdByUnitSpecies(unit: UnitActor): Int =
+    when (unit) {
+        is Alice -> 1
+        is FairyAxe -> 1
+        is FairyBomber -> 1
+        is FairyBow -> 1
+        is FairyCannon -> 1
+        is FairyCucumber -> 1
+        is FairyHealer -> 1
+        is FairyHunter -> 1
+        is FairyPike -> 1
+        is FairyPixie -> 1
+        is FairyScout -> 1
+        is FairyShield -> 1
+        is FairySword -> 1
+        is FairyWaterplant -> 1
+
+        is Goblin -> 2
+        is GoblinBoar -> 2
+        is GoblinBow -> 2
+        is GoblinCatapult -> 2
+        is GoblinDuelist -> 2
+        is GoblinGalley -> 2
+        is GoblinGiant -> 2
+        is GoblinHealer -> 2
+        is GoblinLeader -> 2
+        is GoblinPike -> 2
+        is GoblinScout -> 2
+        is GoblinShip -> 2
+        is GoblinSword -> 2
+        is GoblinWolf -> 2
+        is GoblinWyvern -> 2
+
+        is Cherie -> 3
+        is CherieSpearman -> 3
+
+        is Slime -> 4
+        is PinkSlimeLing -> 4
+        is SlimeLing -> 4
+        is SlimeBig -> 4
+        is SlimeHuge -> 4
+        else -> 4
+    }

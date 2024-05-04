@@ -28,10 +28,17 @@ abstract class Task {
         if (stopCommands) playScreen.commandManager.stop =  true
     }
 
+    open fun complete(state: State = State.SUCCEEDED) {
+        isCompleted = true
+
+        this.state = state
+    }
+
     open fun onCompleted() {
         if (stopCommands) playScreen.commandManager.stop = false
 
-        state = State.SUCCEEDED
+        if (state == State.IN_PROCESS)
+            this.state = State.SUCCEEDED
     }
 
     fun description(string: String) : Task {

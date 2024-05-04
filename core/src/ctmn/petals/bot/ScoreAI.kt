@@ -1,4 +1,4 @@
-package ctmn.petals.ai
+package ctmn.petals.bot
 
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.player.Player

@@ -17,7 +17,7 @@ import ctmn.petals.*
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.RepeatAction
 import ctmn.petals.actors.actions.TimeAction
-import ctmn.petals.ai.EasyDuelBot
+import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.map.*
