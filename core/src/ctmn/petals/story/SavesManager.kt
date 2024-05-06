@@ -3,6 +3,8 @@ package ctmn.petals.story
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.Array
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import ctmn.petals.Const
 import ctmn.petals.GamePref
 import ctmn.petals.utils.*
 
@@ -34,30 +36,62 @@ object SavesManager {
         return saves
     }
 
+    @Deprecated("Don't")
     inline fun <reified T : StorySaveGson> getByFileName(fileName: String): T? {
         if (fileName == "") throw IllegalArgumentException("fileName can't be empty.")
+
+        val string = decryptStoryToJson(savesFolder.readString())
+        checkSaveJsonVer(string)
+
         return Gson().fromJson(decryptStoryToJson(savesFolder.child("$fileName$SAVE_EXT").readString()), T::class.java)
     }
 
+
+    @Deprecated("Don't")
     inline fun <reified T : StorySaveGson> getByName(saveName: String): T? {
         val folder = savesFolder
 
         for (savePath in folder.list()) {
             val storySaveGson = Gson().fromJson(decryptStoryToJson(savePath.readString()), T::class.java)
-            if (storySaveGson.save_name == saveName)
+            if (storySaveGson.save_name == saveName) {
+                val string = decryptStoryToJson(savePath.readString())
+                checkSaveJsonVer(string)
                 return storySaveGson
+            }
         }
 
         return null
     }
 
+    fun checkSaveJsonVer(jsonString: String) : Int {
+        val json = Gson().fromJson(jsonString, JsonObject::class.java)
+        if (json.has("game_version")) {
+            val ver = Version.compareVersions(Const.APP_VER_NAME, json.get("game_version").asString)
+            if (ver > 0)
+                err("Warn: Save version is older that the game version")
+
+            return ver
+        }
+
+        return -1
+    }
+
     inline fun <reified T : StorySaveGson> getByStoryId(storyId: Int): T? {
         val folder = savesFolder
 
-        for (savePath in folder.list()) {
-            val storySaveGson = Gson().fromJson(decryptStoryToJson(savePath.readString()), StorySaveGson::class.java)
-            if (storySaveGson.story_id == storyId)
-                return Gson().fromJson(decryptStoryToJson(savePath.readString()), T::class.java)
+        try {
+            for (savePath in folder.list()) {
+                val string = decryptStoryToJson(savePath.readString())
+                checkSaveJsonVer(string)
+                val storySaveGson = Gson().fromJson(string, StorySaveGson::class.java)
+                if (storySaveGson.story_id == storyId)
+                    return Gson().fromJson(string, T::class.java)
+            }
+        } catch (e: Exception) {
+            err("Failed to read save file for story id: $storyId")
+            e.printStackTrace()
+
+            return null
         }
 
         return null
@@ -68,9 +102,16 @@ object SavesManager {
     fun save(storySaveGson: StorySaveGson) {
         val folder = savesFolder.list()
         for (save in folder) {
-            if (Gson().fromJson(decryptStoryToJson(save.readString()), StorySaveGson::class.java).save_name == storySaveGson.save_name) {
-                save.writeString(encryptData(storySaveGson.toGson(), generateSecretKey(asdfaksf)), false, Charsets.UTF_8.name())
-                return
+            try {
+                if (Gson().fromJson(decryptStoryToJson(save.readString()), StorySaveGson::class.java).save_name == storySaveGson.save_name) {
+                    save.writeString(encryptData(storySaveGson.toGson(), generateSecretKey(asdfaksf)), false, Charsets.UTF_8.name())
+                    return
+                }
+            } catch (e: Exception) {
+                err("Failed to save story $storySaveGson to file ${save.path()}")
+                e.printStackTrace()
+
+                break
             }
         }
 
@@ -82,18 +123,19 @@ object SavesManager {
     fun decryptStoryToJson(encryptedString: String) : String {
         return try {
             decryptData(encryptedString, generateSecretKey(asdfaksf))
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             err("Failed to decrypt a story save")
+            e.printStackTrace()
             "{ }"
         }
     }
 
     /** Parses StorySaveGson to json and saves it in the file with name of fileName */
-    fun save(storySaveGson: StorySaveGson, fileName: String) {
+    fun save(storySaveGson: StorySaveGson, saveName: String) {
         if (storySaveGson.save_name == "") throw IllegalArgumentException("StorySaveGson::name can't be empty.")
-        if (fileName == "") throw IllegalArgumentException("fileName can't be empty.")
+        if (saveName == "") throw IllegalArgumentException("fileName can't be empty.")
 
-        val fileName = "$fileName$SAVE_EXT"
+        val fileName = "$saveName$SAVE_EXT"
         val jsonSave = Gson().toJson(storySaveGson, storySaveGson::class.java)
         
         val storyEncrypted = encryptData(jsonSave, generateSecretKey(asdfaksf))

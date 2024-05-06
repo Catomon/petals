@@ -1,4 +1,4 @@
-package ctmn.petals.pvp
+package ctmn.petals.screens.pvp
 
 import ctmn.petals.Const
 import ctmn.petals.player.Player

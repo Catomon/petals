@@ -24,7 +24,7 @@ import ctmn.petals.player.*
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.NoEnd
-import ctmn.petals.story.QuickplayScreen
+import ctmn.petals.screens.quickplay.QuickplayScreen
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.MovingBackground
 import ctmn.petals.widgets.addChangeListener

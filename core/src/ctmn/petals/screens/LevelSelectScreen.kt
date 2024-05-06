@@ -37,11 +37,10 @@ class LevelSelectScreen(val game: PetalsGame, story: Story) : Stage(ExtendViewpo
             story.initScenarios()
 
         for ((i, scenario) in story.scenarios.withIndex()) {
-            levelsButonsTable.add(newTextButton("$i. " + scenario.name).apply {
+            levelsButonsTable.add(newTextButton("$i. " + scenario.id).apply {
                 userObject = i
                 addChangeListener {
-                    story.storySave.progress = userObject as Int
-                    game.screen = StoryPlayScreen(game, story)
+                    game.screen = StoryPlayScreen(game, story, scenario)
                 }
             })
             levelsButonsTable.row()

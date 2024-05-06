@@ -10,6 +10,7 @@ import ctmn.petals.editor.collectMaps
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.tile.*
 import ctmn.petals.unit.*
+import ctmn.petals.utils.err
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
 import java.io.FileNotFoundException
@@ -96,8 +97,14 @@ fun MapSave.convertActors(): ArrayList<Actor> {
 
             layer.id == CanvasActorsPackage.UNITS_LAYER ->
                 for (actor in layer.actors) {
-                    convertedActors.add(
-                        Units.get(actor.id).also { it.position(actor.x, actor.y).player(playerIdByUnitSpecies(it)) })
+                    val unit = Units.find(actor.id)
+                        ?.also { it.position(actor.x, actor.y).player(playerIdByUnitSpecies(it)) }
+                    if (unit == null) {
+                        err("Unit not found: ${actor.id}")
+                        continue
+                    }
+
+                    convertedActors.add(unit)
                 }
         }
     }

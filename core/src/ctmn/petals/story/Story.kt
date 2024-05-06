@@ -5,16 +5,16 @@ import com.badlogic.gdx.utils.Array
 abstract class Story(
     val name: String,
     val id: Int,
-    var storySave: StorySaveGson = StorySaveGson(name, id)
+    var storySave: StorySaveGson = StorySaveGson(name, id),
 ) {
 
     val scenarios = Array<Scenario>()
 
-    val currentScenario: Scenario get() =
-        if (storySave.progress > scenarios.size)
-            scenarios[scenarios.size - 1]
-        else
-            scenarios[storySave.progress]
+    val currentUndoneScenario: Scenario?
+        get() {
+            val curI = scenarios.indexOfLast { sc -> storySave.progress.levels.any { it.key == sc.id } } + 1
+            return if (curI >= scenarios.size) null else scenarios[curI]
+        }
 
     var areScenariosInitialized = false
 
@@ -28,14 +28,14 @@ abstract class Story(
     }
 
     fun applySave() {
-        currentScenario.loadFrom(storySave)
+        if (currentUndoneScenario == null) return
+
+        currentUndoneScenario!!.loadFrom(storySave)
     }
 
     fun onScenarioOverSave() {
-        currentScenario.saveTo(storySave)
+        if (currentUndoneScenario == null) return
 
-        storySave.progress++
-        if (storySave.progress == scenarios.size)
-            storySave.progress = 0
+        currentUndoneScenario!!.saveTo(storySave)
     }
 }

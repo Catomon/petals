@@ -114,7 +114,7 @@ class StorySelectStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vi
                     }
                 }
 
-                val addTime = if (story.storySave.progress == 0) 2f else 0f
+                val addTime = if (story.storySave.progress.levels.isEmpty()) 2f else 0f
                 if (IS_RELEASE)
                     fadeInAndThen(2f, addTime) {
 

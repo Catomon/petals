@@ -1,4 +1,4 @@
-package ctmn.petals.story
+package ctmn.petals.story.alissa
 
 import ctmn.petals.player.Player
 

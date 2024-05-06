@@ -14,6 +14,7 @@ object Const {
 
     const val CONSOLE_ENABLED = !IS_RELEASE
     const val DEBUG_MODE = !IS_RELEASE
+    const val SHOW_FPS = false
 
     /** discord */
     const val DISABLE_RICH = !IS_RELEASE

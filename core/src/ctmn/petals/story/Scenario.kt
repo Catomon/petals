@@ -8,9 +8,11 @@ import ctmn.petals.map.loadMap
 import ctmn.petals.playstage.PlayStage
 
 abstract class Scenario(
-    val name: String,
+    val id: String,
     val mapFileName: String,
 ) {
+
+    var result = 1
 
     val map by lazy {
         if (mapFileName.isNotEmpty())
@@ -29,8 +31,13 @@ abstract class Scenario(
 
     }
 
-    open fun saveTo(storySaveGson: StorySaveGson) {
+    open fun evaluateResult() {
 
+    }
+
+    open fun saveTo(storySaveGson: StorySaveGson) {
+        evaluateResult()
+        storySaveGson.progress.levels.put(id, LevelProgress(result))
     }
 
     open fun createLevel(playScreen: PlayScreen) {

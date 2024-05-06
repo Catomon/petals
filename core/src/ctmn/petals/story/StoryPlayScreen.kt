@@ -1,6 +1,5 @@
 package ctmn.petals.story
 
-import ctmn.petals.Const
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM_OUT_MAX_STORY
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.playscreen.PlayScreen
@@ -31,7 +30,7 @@ class StoryPlayScreen(
 
         //
         if (currentScenario == null)
-            currentScenario = story.currentScenario
+            currentScenario = story.currentUndoneScenario ?: throw IllegalStateException("Scenario was not set")
 
         val currentScenario = currentScenario!!
 

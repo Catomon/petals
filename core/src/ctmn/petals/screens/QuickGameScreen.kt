@@ -32,7 +32,7 @@ class QuickGameScreen(private val game: PetalsGame) : Stage(FillViewport(1366f *
     private val loadButton = VisTextButton("Go")
     private val backButton = VisTextButton("Back")
 
-    inner class TestScenario(levelName: String) : Scenario(name = "Test Scenario", mapFileName = levelName,) {
+    inner class TestScenario(levelName: String) : Scenario(id = "Test Scenario", mapFileName = levelName,) {
         val redPlayer = Player("RedPlayer", Player.RED, Team.RED)
 
         init {

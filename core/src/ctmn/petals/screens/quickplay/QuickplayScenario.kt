@@ -1,4 +1,4 @@
-package ctmn.petals.story.quickplay
+package ctmn.petals.screens.quickplay
 
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.bot.SimpleBot

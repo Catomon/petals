@@ -1,4 +1,4 @@
-package ctmn.petals.story
+package ctmn.petals.screens.quickplay
 
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.PetalsGame
@@ -8,7 +8,7 @@ import ctmn.petals.utils.fadeOut
 import ctmn.petals.widgets.StageCover
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM_STORY
 import ctmn.petals.playscreen.listeners.CreditsForKillingSlimes
-import ctmn.petals.story.quickplay.QuickplayScenario
+import ctmn.petals.story.Scenario
 
 class QuickplayScreen(
     game: PetalsGame,

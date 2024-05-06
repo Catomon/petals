@@ -12,7 +12,7 @@ open class StorySaveGson(
 
     var friendly_fire = false
 
-    var progress = 0
+    var progress = Progress()
 
     val extra = mutableMapOf<String, String>()
 

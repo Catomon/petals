@@ -47,7 +47,7 @@ import ctmn.petals.playscreen.seqactions.SeqActionManager
 import ctmn.petals.playscreen.tasks.TaskManager
 import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
-import ctmn.petals.pvp.newPvPAlice
+import ctmn.petals.screens.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*

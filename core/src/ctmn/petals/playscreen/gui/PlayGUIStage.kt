@@ -67,7 +67,7 @@ class PlayGUIStage(
             isVisible = playScreen.gameMode == GameMode.CRYSTALS || playScreen.gameMode == GameMode.CRYSTALS_LEADERS
         }
     private val fpsLabel = VisLabel().apply {
-        isVisible = !Const.IS_RELEASE
+        isVisible = Const.SHOW_FPS
     }
 
     //buttons

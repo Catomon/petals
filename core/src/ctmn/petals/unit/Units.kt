@@ -87,6 +87,16 @@ object Units {
         return unit
     }
 
+    fun find(name: String, player: Player? = null) : UnitActor? {
+        if (map[name] == null) return null
+
+        val unitActor = map[name]!!.java.constructors.first().newInstance() as UnitActor
+        unitActor.playerId = player?.id ?: -1
+        unitActor.teamId = player?.teamId ?: -1
+
+        return unitActor
+    }
+
     fun get(name: String, player: Player? = null) : UnitActor {
         if (map[name] == null)
             throw IllegalArgumentException("Unit with name '$name' is not found.")

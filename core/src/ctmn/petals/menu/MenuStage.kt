@@ -13,7 +13,7 @@ import ctmn.petals.editor.EditorScreen
 import ctmn.petals.menu.StorySelectStage.Companion.startStory
 import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
-import ctmn.petals.story.QuickplayScreen
+import ctmn.petals.screens.quickplay.QuickplayScreen
 import ctmn.petals.story.StoriesManager
 import ctmn.petals.utils.addClickListener
 import ctmn.petals.widgets.*

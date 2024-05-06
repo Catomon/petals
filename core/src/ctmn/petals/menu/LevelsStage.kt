@@ -2,7 +2,6 @@ package ctmn.petals.menu
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisImageButton
@@ -10,16 +9,12 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.Const
-import ctmn.petals.playscreen.GameMode
-import ctmn.petals.playscreen.GameType
-import ctmn.petals.playscreen.NoEnd
 import ctmn.petals.screens.MenuScreen
-import ctmn.petals.screens.PlayScreenTemplate
 import ctmn.petals.story.SavesManager
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.StoryPlayScreen
-import ctmn.petals.story.levels.FaerieStory
-import ctmn.petals.story.levels.FaerieStorySave
+import ctmn.petals.story.faecampaign.FaerieStory
+import ctmn.petals.story.faecampaign.FaerieStorySave
 import ctmn.petals.utils.log
 import ctmn.petals.widgets.*
 
@@ -52,9 +47,18 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
             addActor(label)
 
             statusImage.setSize(width, height)
+            val levelProgress = story.storySave.progress.levels[story.scenarios[levelNum - 1].id]
+            val nextLvlIndex =
+                story.scenarios.indexOfLast { sc -> story.storySave.progress.levels.any { it.key == sc.id } } + 1
             when {
-                story.storySave.progress + 1 == levelNum -> statusImage.setDrawable(VisUI.getSkin().newDrawable("unlocked_level"))
-                story.storySave.progress + 1 > levelNum -> statusImage.setDrawable(VisUI.getSkin().newDrawable("completed_level"))
+                levelProgress != null && levelProgress.state > 0 -> {
+                    statusImage.setDrawable(VisUI.getSkin().newDrawable("completed_level"))
+                }
+
+                nextLvlIndex < story.scenarios.size && levelNum - 1 <= nextLvlIndex -> {
+                    statusImage.setDrawable(VisUI.getSkin().newDrawable("unlocked_level"))
+                }
+
                 else -> isDisabled = true
             }
             addActor(statusImage)
@@ -84,7 +88,8 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
 
             add(VisTable().apply {
                 var curCol = 0
-                for ((i, levelScenario) in story.scenarios.withIndex()) {
+                for (i in 0 until story.scenarios.size) {
+                    val levelScenario = story.scenarios[i]
                     val levelType = when {
                         i <= 8 -> "forest_level"
                         i <= 16 -> "road_level"
