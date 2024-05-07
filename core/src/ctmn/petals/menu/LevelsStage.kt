@@ -9,14 +9,21 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.Const
+import ctmn.petals.PetalsGame
 import ctmn.petals.screens.MenuScreen
-import ctmn.petals.story.SavesManager
-import ctmn.petals.story.Scenario
-import ctmn.petals.story.StoryPlayScreen
+import ctmn.petals.story.*
 import ctmn.petals.story.faecampaign.FaerieStory
 import ctmn.petals.story.faecampaign.FaerieStorySave
 import ctmn.petals.utils.log
 import ctmn.petals.widgets.*
+
+fun PetalsGame.startLevel(story: Story, scenario: Scenario) {
+    val game = this
+    val playScreen = StoryPlayScreen(game, story, scenario)
+    playScreen.setDefaultPlayerIdToLabels()
+    playScreen.ready()
+    game.screen = playScreen
+}
 
 class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
@@ -47,21 +54,31 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
             addActor(label)
 
             statusImage.setSize(width, height)
-            val levelProgress = story.storySave.progress.levels[story.scenarios[levelNum - 1].id]
-            val nextLvlIndex =
-                story.scenarios.indexOfLast { sc -> story.storySave.progress.levels.any { it.key == sc.id } } + 1
+            val levelProgress = story.storySave.progress.levels[story.idOf(levelNum - 1)]
+            val nextLvlIndex = story.nextScenarioIndex()
+
             when {
                 levelProgress != null && levelProgress.state > 0 -> {
                     statusImage.setDrawable(VisUI.getSkin().newDrawable("completed_level"))
+
+                    addActorBefore(
+                        label, VisImage(
+                            when (levelProgress.state) {
+                                1 -> "1_star"
+                                2 -> "2_star"
+                                else -> "3_star"
+                            }
+                        ).also { it.y = 16f }
+                    )
                 }
 
-                nextLvlIndex < story.scenarios.size && levelNum - 1 <= nextLvlIndex -> {
+                levelNum - 1 <= nextLvlIndex -> {
                     statusImage.setDrawable(VisUI.getSkin().newDrawable("unlocked_level"))
                 }
 
                 else -> isDisabled = true
             }
-            addActor(statusImage)
+            addActorBefore(children.first(), statusImage)
         }
     }
 
@@ -76,7 +93,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
 //            false
 //        }
 
-        story.initScenarios()
+        story.addScenarios()
 
         addActor(table)
         with(table) {
@@ -88,15 +105,14 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
 
             add(VisTable().apply {
                 var curCol = 0
-                for (i in 0 until story.scenarios.size) {
-                    val levelScenario = story.scenarios[i]
+                for (i in 0 until story.size) {
                     val levelType = when {
                         i <= 8 -> "forest_level"
                         i <= 16 -> "road_level"
                         else -> "mountain_level"
                     }
                     add(LevelButton(i + 1, levelType).addChangeListener {
-                        startLevel(levelScenario)
+                        game.startLevel(story, story.getScenario(i))
                     })
                     curCol++
                     if (curCol == 4) {
@@ -118,13 +134,6 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
         returnButton.addChangeListener {
             menuScreen.stage = menuScreen.menuStage
         }
-    }
-
-    fun startLevel(scenario: Scenario) {
-        val playScreen = StoryPlayScreen(game, story, scenario)
-        playScreen.setDefaultPlayerIdToLabels()
-        playScreen.ready()
-        game.screen = playScreen
     }
 
     override fun addActor(actor: Actor?) {

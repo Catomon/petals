@@ -68,7 +68,7 @@ class FishGuyScenario : AlissaScenario(name = "Fish Guy", levelFileName = "fish_
 
             //appearance
             val triggerLabel = playStage.getLabel("trigger")
-            addTrigger(UnitPosRectTrigger(alice, triggerLabel.tiledX, triggerLabel.tiledY).expandX().expandTop()).trigger {
+            addTrigger(UnitPosRectTrigger(alice, triggerLabel.tiledX, triggerLabel.tiledY).expandX().expandTop()).onTrigger {
                 taskManager.completeTasks()
 
                 slimeAppearance()
@@ -79,7 +79,7 @@ class FishGuyScenario : AlissaScenario(name = "Fish Guy", levelFileName = "fish_
                         override fun check(delta: Float): Boolean {
                             return playStage.getUnitsOfPlayer(enemyPlayer).size <= 3
                         }
-                    }.trigger {
+                    }.onTrigger {
                         //spawnEnemy()
                     }).dontRemoveOnTrigger()
                 }

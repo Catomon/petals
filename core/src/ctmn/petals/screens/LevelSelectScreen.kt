@@ -33,14 +33,15 @@ class LevelSelectScreen(val game: PetalsGame, story: Story) : Stage(ExtendViewpo
         Gdx.input.inputProcessor = this
         batch.projectionMatrix = viewport.camera.combined
 
-        if (!story.areScenariosInitialized)
-            story.initScenarios()
+        if (!story.scenariosAdded)
+            story.addScenarios()
 
-        for ((i, scenario) in story.scenarios.withIndex()) {
-            levelsButonsTable.add(newTextButton("$i. " + scenario.id).apply {
+        for (i in 0 until story.size) {
+            val id = story.idOf(i)
+            levelsButonsTable.add(newTextButton("$i. $id").apply {
                 userObject = i
                 addChangeListener {
-                    game.screen = StoryPlayScreen(game, story, scenario)
+                    game.screen = StoryPlayScreen(game, story, story.getScenario(i))
                 }
             })
             levelsButonsTable.row()

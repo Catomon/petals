@@ -53,6 +53,7 @@ object UnitIds {
     const val GOBLIN_WOLF = "goblin_wolf"
     const val GOBLIN_GIANT = "goblin_giant"
     const val GOBLIN_SCOUT = "goblin_scout"
+    const val GOBLIN_DUELIST = "goblin_duelist"
 
     const val ROOT_TREE = "root_tree"
     const val ANGRY_OWL = "angry_owl"

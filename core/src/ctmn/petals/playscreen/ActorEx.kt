@@ -11,7 +11,7 @@ import ctmn.petals.map.label.LabelActor
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.unit.cUnit
 
-fun Actor.doActionAndThen(action: Action, thenAction: () -> Unit) {
+fun Actor.doActionAndThen(action: Action, thenAction: Action.() -> Unit) {
     addAction(Actions.sequence(action, OneAction(thenAction)))
 }
 

@@ -9,5 +9,5 @@ class Progress(
 }
 
 data class LevelProgress(
-    val state: Int
+    var state: Int
 )

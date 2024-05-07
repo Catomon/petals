@@ -98,7 +98,7 @@ class Scenario2 : AlissaScenario(name = "Slime 2", levelFileName = "level_2.map"
 
             currentEnemySpawn = label0
 
-            addTrigger(UnitPosRectTrigger(alice, triggerLabel.tiledX, triggerLabel.tiledY).expandX().expandTop()).trigger {
+            addTrigger(UnitPosRectTrigger(alice, triggerLabel.tiledX, triggerLabel.tiledY).expandX().expandTop()).onTrigger {
                 queueAddUnitAction(Slime().player(enemyPlayer).leader(2, 1, true).position(label3), true)
                 for (i in 0..3) {
                     queueAddUnitAction(SlimeLing().player(enemyPlayer).followerOf(2, true).position(label3), false)
@@ -135,7 +135,7 @@ class Scenario2 : AlissaScenario(name = "Slime 2", levelFileName = "level_2.map"
 
                     return true
                 }
-            }.trigger {
+            }.onTrigger {
                 spawnEnemy()
             }).dontRemoveOnTrigger()
         }

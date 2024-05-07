@@ -125,7 +125,7 @@ class StoryDialog(
 
                 val cameraMoveAction = CameraMoveAction(unit.centerX, unit.centerY)
                 guiStage.playScreen.actionManager.addAction(cameraMoveAction)
-                guiStage.playScreen.triggerManager.addTrigger(OnActionCompleteTrigger(cameraMoveAction).trigger {
+                guiStage.playScreen.triggerManager.addTrigger(OnActionCompleteTrigger(cameraMoveAction).onTrigger {
 
                     isVisible = true
                     quoteTail.isVisible = true

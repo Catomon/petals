@@ -492,47 +492,6 @@ class PlayGUIStage(
         currentState = if (playScreen.turnManager.currentPlayer == localPlayer) myTurn else theirTurn
         // States setup ^
 
-        // Listeners
-        addListener {
-            if (it is GameOverEvent) {
-                val winners = playScreen.gameEndCondition.winners
-                val youWon = winners.contains(localPlayer.id)
-                val draw = winners.size == 0
-                val enemyWon = !draw && !youWon
-                val oneWinner = winners.size == 1
-
-                val message = when {
-                    youWon -> {
-                        if (oneWinner) {
-
-                        } else {
-
-                        }
-                        "Victory!"
-                    }
-
-                    enemyWon -> {
-                        if (oneWinner) {
-
-                        } else {
-
-                        }
-                        "Defeat"
-                    }
-
-                    draw -> {
-                        "Draw"
-                    }
-
-                    else -> "Game Over"
-                }
-
-                addActor(GameOverMenu(message, playScreen))
-            }
-
-            false
-        }
-
         // disable or enable end turn button
         addListener {
             when (it) {

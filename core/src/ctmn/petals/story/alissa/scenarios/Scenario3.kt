@@ -87,7 +87,7 @@ class Scenario3 : AlissaScenario(name = "Slime 3", levelFileName = "level_3.map"
             queueTask(MoveUnitTask(alice, alice.tiledX + 1, playStage.tiledHeight() - 2).description("Bring Alissa to the marked position"))
 
             //slime appearance
-            addTrigger(TurnStartTrigger(enemyPlayer)).trigger {
+            addTrigger(TurnStartTrigger(enemyPlayer)).onTrigger {
                 taskManager.completeTasks()
 
                 slimeAppearance()
@@ -99,7 +99,7 @@ class Scenario3 : AlissaScenario(name = "Slime 3", levelFileName = "level_3.map"
                         override fun check(delta: Float): Boolean {
                             return playStage.getUnitsOfPlayer(enemyPlayer).size <= 3
                         }
-                    }.trigger {
+                    }.onTrigger {
                         spawnEnemy()
                     }).dontRemoveOnTrigger()
                 }

@@ -39,8 +39,8 @@ class Level2 : Scenario("lv_2", "level_2") {
     override fun evaluateResult() {
         //playScreen.taskManager.getTasks().all { it.state == Task.State.SUCCEEDED }
         result = when {
-            task.state != Task.State.SUCCEEDED -> 3
-            playScreen.playStage.getUnitsOfPlayer(players[0]).size < initialUnits / 2 -> 2
+            task.state == Task.State.SUCCEEDED -> 3
+            playScreen.playStage.getUnitsOfPlayer(players[0]).size >= initialUnits / 2 -> 2
             else -> 1
         }
     }

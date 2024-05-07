@@ -1,25 +1,17 @@
 package ctmn.petals.story.faecampaign.levels
 
-import com.badlogic.gdx.scenes.scene2d.Event
-import com.badlogic.gdx.scenes.scene2d.EventListener
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
-import ctmn.petals.playscreen.events.ActionCompletedEvent
-import ctmn.petals.playscreen.events.GameOverEvent
-import ctmn.petals.playscreen.events.UnitDiedEvent
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
 import ctmn.petals.playscreen.tasks.Task
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
-import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
-import ctmn.petals.unit.playerId
-import ctmn.petals.utils.log
 
-class Level1 : Scenario("lv_1", "level_1") {
+class Level1A : Scenario("lv_1a", "level_2") {
 
     private val task by lazy { KeepPlayerUnitsAlive(players[1]) }
 
@@ -32,6 +24,8 @@ class Level1 : Scenario("lv_1", "level_1") {
         player = players.first()
 
         gameEndCondition = EliminateEnemyUnits()
+
+        result = 3
     }
 
     private var initialUnits = 0

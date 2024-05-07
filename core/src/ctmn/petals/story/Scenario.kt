@@ -5,7 +5,9 @@ import ctmn.petals.player.Player
 import ctmn.petals.playscreen.*
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.map.loadMap
+import ctmn.petals.map.loadScenarioMap
 import ctmn.petals.playstage.PlayStage
+import ctmn.petals.utils.log
 
 abstract class Scenario(
     val id: String,
@@ -16,7 +18,7 @@ abstract class Scenario(
 
     val map by lazy {
         if (mapFileName.isNotEmpty())
-            loadMap(mapFileName)
+            loadScenarioMap(mapFileName)
         else
             null
     }
@@ -37,7 +39,14 @@ abstract class Scenario(
 
     open fun saveTo(storySaveGson: StorySaveGson) {
         evaluateResult()
-        storySaveGson.progress.levels.put(id, LevelProgress(result))
+        log("Result: $result")
+        val lp = storySaveGson.progress.levels[id]
+        if (lp != null) {
+            if (lp.state < result)
+                lp.state = result
+        } else {
+            storySaveGson.progress.levels[id] = LevelProgress(result)
+        }
     }
 
     open fun createLevel(playScreen: PlayScreen) {

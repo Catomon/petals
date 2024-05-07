@@ -16,7 +16,7 @@ abstract class Trigger {
 
     }
 
-    fun trigger(onTrigger: ((PlayScreen) -> Unit)?) : Trigger {
+    fun onTrigger(onTrigger: ((PlayScreen) -> Unit)?) : Trigger {
         this.onTrigger = onTrigger
 
         return this

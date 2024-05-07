@@ -149,7 +149,7 @@ class Scenario9 : AlissaScenario("Swamp", "level_9.map") {
 
             addTrigger(UnitsDiedTrigger(Array<UnitActor>().also { rootTrees ->
                 playStage.getUnitsOfPlayer(enemyPlayer).filter { it.selfName == UnitIds.ROOT_TREE }.forEach { rootTrees.add(it) }
-            })).trigger {
+            })).onTrigger {
                 queueAction {
                     playStage.getAllTiles().forEach {
                         if (it.selfName == Tiles.ROOT) {

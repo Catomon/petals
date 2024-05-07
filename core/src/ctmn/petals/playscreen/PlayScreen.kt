@@ -36,6 +36,7 @@ import ctmn.petals.playscreen.commands.CommandManager
 import ctmn.petals.playscreen.commands.EndTurnCommand
 import ctmn.petals.playscreen.commands.GrantXpCommand
 import ctmn.petals.playscreen.events.*
+import ctmn.petals.playscreen.gui.GameOverMenu
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.gui.PlayStageCameraController
 import ctmn.petals.playscreen.gui.widgets.FogOfWarDrawer
@@ -470,7 +471,7 @@ open class PlayScreen(
                 labelGameOver.isVisible = true
                 labelGameOver.addAction(Actions.delay(3f, object : Action() {
                     override fun act(delta: Float): Boolean {
-                        onGameOver()
+                        gameOver()
                         return true
                     }
                 }))
@@ -478,14 +479,50 @@ open class PlayScreen(
         }
     }
 
-    open fun onGameOver() {
+    fun gameOver() {
         if (isGameOver) return
 
         gameEnding = true
         isGameOver = true
         fireEvent(GameOverEvent())
 
-        //game.screen = MenuScreen(game)
+        onGameOver()
+    }
+
+    open fun onGameOver() {
+        val winners = gameEndCondition.winners
+        val youWon = winners.contains(localPlayer.id)
+        val draw = winners.size == 0
+        val enemyWon = !draw && !youWon
+        val oneWinner = winners.size == 1
+
+        val message = when {
+            youWon -> {
+                if (oneWinner) {
+
+                } else {
+
+                }
+                "Victory!"
+            }
+
+            enemyWon -> {
+                if (oneWinner) {
+
+                } else {
+
+                }
+                "Defeat"
+            }
+
+            draw -> {
+                "Draw"
+            }
+
+            else -> "Game Over"
+        }
+
+        guiStage.addActor(GameOverMenu(message, this))
     }
 
     fun fireEvent(event: Event) {

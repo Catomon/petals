@@ -1,38 +1,37 @@
 package ctmn.petals.story
 
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM_OUT_MAX_STORY
-import ctmn.petals.screens.MenuScreen
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.PetalsGame
 import ctmn.petals.playscreen.GameEndCondition
-import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.utils.fadeOut
-import ctmn.petals.widgets.StageCover
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM_STORY
+import ctmn.petals.playscreen.gui.StoryGameOverMenu
 
 class StoryPlayScreen(
     game: PetalsGame,
     val story: Story,
-    var currentScenario: Scenario? = null
+    scenario: Scenario? = null,
 ) : PlayScreen(game) {
+
+    var currentScenario: Scenario
 
     init {
         // Set up story
         //init scenarios
-        if (!story.areScenariosInitialized)
-            story.initScenarios()
+        if (!story.scenariosAdded)
+            story.addScenarios()
 
-        if (story.scenarios.isEmpty) throw IllegalStateException("Story does not contain scenarios")
+        if (story.isEmpty) throw IllegalStateException("Story does not contain any scenarios")
 
         friendlyFire = story.storySave.friendly_fire
 
-        story.applySave()
-
         //
-        if (currentScenario == null)
-            currentScenario = story.currentUndoneScenario ?: throw IllegalStateException("Scenario was not set")
+        currentScenario =
+            scenario ?: (story.createNextUndoneScenario()
+                ?: throw IllegalStateException("currentScenario is null cuz param 'scenario' is null and no unfinished scenarios found"))
 
-        val currentScenario = currentScenario!!
+        story.applySave(currentScenario)
 
         // Step 1: init map, add units and players, set up gameEndCondition
         currentScenario.createLevel(this)
@@ -64,20 +63,10 @@ class StoryPlayScreen(
     }
 
     override fun onGameOver() {
-        super.onGameOver()
-        //todo show continue / end buttons
-
-//        if (Const.IS_RELEASE && story.storySave.progress == story.scenarios.size) {
-//            game.screen = MenuScreen(game)
-//        }
-
         fun onWin() {
-            story.onScenarioOverSave()
-
+            story.onScenarioOverSave(currentScenario)
             val storySave = story.storySave
-
             storySave.friendly_fire = friendlyFire
-
             SavesManager.save(storySave)
         }
 
@@ -86,6 +75,7 @@ class StoryPlayScreen(
                 if (gameEndCondition.winners.contains(localPlayer.id))
                     onWin()
             }
+
             GameEndCondition.Result.WIN -> {
                 onWin()
             }
@@ -97,15 +87,6 @@ class StoryPlayScreen(
             else -> {}
         }
 
-        // fade in and change screen
-        guiStage.addActor(StageCover().fadeInAndThen(OneAction {
-//            story.initScenarios()
-//            game.screen = StoryPlayScreen(game, story)
-
-            game.screen = MenuScreen().apply {
-                stage = levelsStage
-                stage.fadeOut()
-            }
-        }))
+        guiStage.addActor(StoryGameOverMenu(currentScenario.result, this))
     }
 }

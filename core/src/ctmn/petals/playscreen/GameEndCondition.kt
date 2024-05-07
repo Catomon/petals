@@ -21,6 +21,7 @@ abstract class GameEndCondition(val id: String) {
         fun get(id: String) : GameEndCondition {
             return when (id) {
                 "endless" -> NoEnd()
+                "manual" -> Manual()
                 "eliminate_enemy_units" -> EliminateEnemyUnits()
                 "capture_bases" -> CaptureBases()
                 "base_control_overtime" -> ControlBasesWOvertime()
@@ -41,17 +42,44 @@ abstract class GameEndCondition(val id: String) {
 
     var winners = mutableListOf<Int>()
 
-    abstract fun check(playScreen: PlayScreen): Boolean
+    var end = false
+
+    open fun check(playScreen: PlayScreen): Boolean = end
+
+    fun win(playerId: Int = 1) {
+        winners.add(playerId)
+        end = true
+        result = Result.WIN
+    }
+
+    fun lose() {
+        winners.add(-1)
+        end = true
+        result = Result.LOSE
+    }
+
+    fun draw() {
+        winners.clear()
+        end = true
+        result = Result.DRAW
+    }
+
+    fun gotWinner(playerId: Int = 1) {
+        winners.add(playerId)
+        end = true
+        result = Result.HAS_WINNER
+    }
 
     open fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean = false
 }
 
 class NoEnd : GameEndCondition("endless") {
-
     override fun check(playScreen: PlayScreen): Boolean {
         return false
     }
 }
+
+class Manual : GameEndCondition("endless")
 
 class EliminateEnemyUnits : GameEndCondition("eliminate_enemy_units") {
 

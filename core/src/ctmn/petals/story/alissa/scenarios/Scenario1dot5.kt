@@ -91,7 +91,7 @@ class Scenario1dot5 : AlissaScenario(name = "Slime 1.5", levelFileName = "level_
 
                     return false
                 }
-            }).trigger {
+            }).onTrigger {
                 queueAction(CameraMoveAction(spottedEnemyLeader.tileCenterX, spottedEnemyLeader.tileCenterY))
                 queueDialogAction(StoryDialog.Quote(
                     "Units with a leader have their strength increased\n" +

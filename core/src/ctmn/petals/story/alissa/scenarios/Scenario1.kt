@@ -100,7 +100,7 @@ class Scenario1 : AlissaScenario(name = "Slime 1", levelFileName = "level_1.map"
                         Quote("Now press End Turn button"))
                 }
                 queueTask(EndTurnTask()).addOnCompleteTrigger {
-                    addTrigger(TurnStartTrigger(alicePlayer)).trigger {
+                    addTrigger(TurnStartTrigger(alicePlayer)).onTrigger {
                         queueDialogAction(Quote("To attack, move your unit in attack range\n" +
                                 "and then select an enemy unit"))
                     }
@@ -144,7 +144,7 @@ class Scenario1 : AlissaScenario(name = "Slime 1", levelFileName = "level_1.map"
 
                         return false
                     }
-                }).trigger {
+                }).onTrigger {
                     queueDialogAction(
                         Quote(
                             "Strength of a unit can drop up to -25 percent\n" +

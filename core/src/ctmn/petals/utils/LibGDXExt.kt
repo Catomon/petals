@@ -64,11 +64,11 @@ fun Stage.removeCover() {
     actors.find { it is StageCover }?.remove()
 }
 
-fun Stage.fadeInAndThen(duration: Float = 1f, action: () -> Unit) {
+fun Stage.fadeInAndThen(duration: Float = 1f, action: Action.() -> Unit) {
     addActor(StageCover().fadeInAndThen(OneAction(action)))
 }
 
-fun Stage.fadeInAndThen(duration: Float = 1f, addTime: Float = 0f, action: () -> Unit) {
+fun Stage.fadeInAndThen(duration: Float = 1f, addTime: Float = 0f, action: Action.() -> Unit) {
     addActor(StageCover().fadeInAndThen(OneAction(action), duration, addTime))
 }
 

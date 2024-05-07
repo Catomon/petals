@@ -97,7 +97,7 @@ class Scenario5 : AlissaScenario(name = "Goblins 2", levelFileName = "level_5.ma
         playScreen {
             addAliceDiedGameOverTrigger(alice)
 
-            addTrigger(UnitsDiedTrigger(cherie)).trigger {
+            addTrigger(UnitsDiedTrigger(cherie)).onTrigger {
                 actionManager.queueFirst(
                     DialogAction(
                         StoryDialog(
@@ -131,7 +131,7 @@ class Scenario5 : AlissaScenario(name = "Goblins 2", levelFileName = "level_5.ma
 
             //label3
             //slime appearance
-            addTrigger(TurnCycleTrigger(2, slimesPlayer)).trigger {
+            addTrigger(TurnCycleTrigger(2, slimesPlayer)).onTrigger {
                 slimeAppearance()
             }
 

@@ -76,7 +76,7 @@ class Scenario4 : AlissaScenario(name = "Goblins", levelFileName = "level_4.map"
         playScreen {
             addAliceDiedGameOverTrigger(alice)
 
-            addTrigger(UnitsDiedTrigger(cherie)).trigger {
+            addTrigger(UnitsDiedTrigger(cherie)).onTrigger {
                 gameOverFailure()
             }
 

@@ -10,7 +10,7 @@ class GoblinBoar : UnitActor(
     UnitComponent(
         "goblin_boar",
         100,
-        10,
+        15,
         5,
         6
     )

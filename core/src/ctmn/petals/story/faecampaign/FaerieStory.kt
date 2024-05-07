@@ -2,8 +2,7 @@ package ctmn.petals.story.faecampaign
 
 import ctmn.petals.Const
 import ctmn.petals.story.Story
-import ctmn.petals.story.faecampaign.levels.Level1
-import ctmn.petals.story.faecampaign.levels.Level2
+import ctmn.petals.story.faecampaign.levels.*
 
 class FaerieStory(storySave: FaerieStorySave = FaerieStorySave()) : Story(
     "Levels",
@@ -11,33 +10,14 @@ class FaerieStory(storySave: FaerieStorySave = FaerieStorySave()) : Story(
     storySave
 ) {
 
-    override fun initScenarios() {
-        super.initScenarios()
+    override fun addScenarios() {
+        super.addScenarios()
 
         check(storySave is FaerieStorySave)
 
-        scenarios.add(Level1())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
-        scenarios.add(Level2())
+        scenarios["lv_1"] = Level1::class.java
+        scenarios["lv_1a"] = Level1A::class.java
+        scenarios["lv_2"] = Level2::class.java
+        scenarios["lv_3"] = Level3::class.java
     }
 }

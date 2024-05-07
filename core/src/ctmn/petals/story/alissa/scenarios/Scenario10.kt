@@ -133,7 +133,7 @@ class Scenario10 : AlissaScenario("Swamp 2", "level_10.map") {
             )
 
             queueAction {
-                addTrigger(PlayerHasNoUnits(enemyPlayer).trigger {
+                addTrigger(PlayerHasNoUnits(enemyPlayer).onTrigger {
                     queueDialogAction(
                         StoryDialog.Quote("Don't see any more enemies here,\n" +
                                 "lets move on", cherie)

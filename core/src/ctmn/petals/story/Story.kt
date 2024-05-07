@@ -1,41 +1,48 @@
 package ctmn.petals.story
 
-import com.badlogic.gdx.utils.Array
-
 abstract class Story(
     val name: String,
     val id: Int,
     var storySave: StorySaveGson = StorySaveGson(name, id),
 ) {
 
-    val scenarios = Array<Scenario>()
+    protected val scenarios = LinkedHashMap<String, Class<out Scenario>>()
 
-    val currentUndoneScenario: Scenario?
-        get() {
-            val curI = scenarios.indexOfLast { sc -> storySave.progress.levels.any { it.key == sc.id } } + 1
-            return if (curI >= scenarios.size) null else scenarios[curI]
-        }
+    val size: Int get() = scenarios.size
 
-    var areScenariosInitialized = false
+    var scenariosAdded = false
 
-    init {
+    val isEmpty: Boolean get() = scenarios.isEmpty()
 
+    /** @returns Index of the [Scenario] that is after the last finished [Scenario] ([LevelProgress.state] > 0), or -1*/
+    fun nextScenarioIndex() =
+        scenarios.keys.indexOfLast { id -> storySave.progress.levels.any { it.key == id && it.value.state > 0 } } + 1
+
+    /** @returns The [Scenario] after the last [Scenario] with [LevelProgress.state] > 0, or nul */
+    fun createNextUndoneScenario(): Scenario? {
+        val nextIndex = nextScenarioIndex()
+        return if (nextIndex !in 0 until scenarios.size) null else scenarios.values.elementAt(nextIndex).getConstructor().newInstance()
     }
 
-    open fun initScenarios() {
+    fun idOf(index: Int): String =
+        scenarios.keys.elementAtOrNull(index) ?: throw IndexOutOfBoundsException("No scenario at index of $index")
+
+    fun getScenario(index: Int): Scenario = scenarios.values.elementAtOrNull(index)?.getConstructor()?.newInstance()
+        ?: throw IllegalArgumentException("Scenario of id<$id> was not found")
+
+    fun getScenario(id: String): Scenario = scenarios[id]?.getConstructor()?.newInstance()
+        ?: throw IllegalArgumentException("Scenario of id<$id> was not found")
+
+    open fun addScenarios() {
         scenarios.clear()
-        areScenariosInitialized = true
+        scenariosAdded = true
     }
 
-    fun applySave() {
-        if (currentUndoneScenario == null) return
-
-        currentUndoneScenario!!.loadFrom(storySave)
+    fun applySave(scenario: Scenario) {
+        scenario.loadFrom(storySave)
     }
 
-    fun onScenarioOverSave() {
-        if (currentUndoneScenario == null) return
-
-        currentUndoneScenario!!.saveTo(storySave)
+    fun onScenarioOverSave(scenario: Scenario) {
+        scenario.saveTo(storySave)
     }
 }

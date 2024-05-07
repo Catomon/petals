@@ -106,6 +106,10 @@ class CanvasStage(
 
     fun removeActor(actor: CanvasActor) {
         actor.remove()
+    }
+
+    override fun actorRemoved(actor: Actor?) {
+        super.actorRemoved(actor)
 
         updateBoundingRectangleSize()
     }

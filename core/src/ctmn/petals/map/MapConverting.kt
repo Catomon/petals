@@ -3,6 +3,7 @@ package ctmn.petals.map
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.GdxRuntimeException
+import ctmn.petals.Const
 import ctmn.petals.editor.CanvasActorsPackage
 import ctmn.petals.editor.MAP_FILE_EXTENSION
 import ctmn.petals.editor.MapSave
@@ -149,6 +150,15 @@ fun loadMap(fileName: String): MapConverted {
         paths.firstOrNull { it.exists() } ?: throw FileNotFoundException("Level file with name $fileName not found")
 
     return createMapFromJson(existingPath.readString())
+}
+
+fun loadScenarioMap(fileName: String): MapConverted {
+    if (!Const.IS_RELEASE) {
+        val custom = Gdx.files.internal("maps/custom/$fileName.ptmap")
+        if (custom.exists())
+            return createMapFromJson(custom.readString())
+    }
+    return createMapFromJson(Gdx.files.internal("maps/scenario/$fileName.ptmap").readString())
 }
 
 fun loadMapById(mapId: String): MapConverted? {

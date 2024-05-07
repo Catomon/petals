@@ -99,7 +99,7 @@ class Scenario8 : AlissaScenario("Evil Trees 3", "level_8.map") {
             queueDialogAction(Quote("Ok", alice))
             queueDialogAction(Quote("Ok", cherie))
 
-            addTrigger(PlayerHasNoUnits(enemyPlayer)).trigger {
+            addTrigger(PlayerHasNoUnits(enemyPlayer)).onTrigger {
 
             }
 
