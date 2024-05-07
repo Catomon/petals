@@ -28,10 +28,10 @@ class QuickplayScenario : Scenario("Fae", "") {
     init {
         players.add(newBluePlayer)
         players.add(newRedPlayer.apply { credits = 1000 })
-        players.add(Player("slime", 3, 3))
+        players.add(Player("Slimes", 3, 3))
         player = players.first()
 
-        gameEndCondition = ControlBasesWOvertime()
+        gameEndCondition = ControlBasesWOvertime().apply { ignorePlayers.add(players[2].id) }
     }
 
     override fun createLevel(playScreen: PlayScreen) {
@@ -63,10 +63,13 @@ class QuickplayScenario : Scenario("Fae", "") {
         })
 
         playScreen {
-            val base = playStage.getTiles().firstOrNull { it.get(PlayerIdComponent::class.java)?.playerId == player!!.id }
+            val base =
+                playStage.getTiles().firstOrNull { it.get(PlayerIdComponent::class.java)?.playerId == player!!.id }
             if (base != null)
                 queueAddUnitAction(CreateUnit.alice.player(player!!).position(base.tiledX, base.tiledY))
-            queueAddUnitAction(SlimeHuge().player(players[2]).position(playStage.tiledWidth / 2, playStage.tiledHeight / 2))
+            queueAddUnitAction(
+                SlimeHuge().player(players[2]).position(playStage.tiledWidth / 2, playStage.tiledHeight / 2)
+            )
         }
     }
 }

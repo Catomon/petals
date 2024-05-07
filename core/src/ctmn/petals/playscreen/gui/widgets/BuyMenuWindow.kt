@@ -9,9 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.VisScrollPane
+import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.assets
 import ctmn.petals.player.Player
@@ -25,10 +27,28 @@ import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
 
-class BuyMenuPanel(
+class BuyMenu : VisTable() {
+
+    private val guiStage get() = stage as PlayGUIStage
+
+    val availableUnits = HashMap<Int, Array<UnitActor>>()
+
+    init {
+        setFillParent(true)
+    }
+
+    fun show(base: TileActor, player: Player) {
+        check(stage != null)
+
+        addActor(BuyMenuWindow(guiStage, base, player, availableUnits[player.id]))
+    }
+}
+
+class BuyMenuWindow(
     private val guiStage: PlayGUIStage,
     var baseTile: TileActor,
     val player: Player? = null,
+    val units: Array<UnitActor>? = null,
 ) : VisWindow("Buy Menu") {
 
     companion object {
@@ -44,7 +64,7 @@ class BuyMenuPanel(
         override fun handle(event: Event?): Boolean {
             if (isVisible && event is InputEvent) {
 
-                if (event.target.isDescendantOf(this@BuyMenuPanel)) {
+                if (event.target.isDescendantOf(this@BuyMenuWindow)) {
                     if (event.type == InputEvent.Type.touchDragged)
                         event.stop()
                 } else {
@@ -90,7 +110,7 @@ class BuyMenuPanel(
             }
         } else {
             //add species units
-            val units = getSpeciesUnits(player.species)
+            val units = this.units ?: getSpeciesUnits(player.species)
             for (unit in units) {
                 if (unit.cShop != null)
                     addB(unit, unit.cShop?.price ?: 999999)

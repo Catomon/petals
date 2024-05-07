@@ -9,6 +9,7 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.Const
+import ctmn.petals.Const.IS_RELEASE
 import ctmn.petals.PetalsGame
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.*
@@ -76,7 +77,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
                     statusImage.setDrawable(VisUI.getSkin().newDrawable("unlocked_level"))
                 }
 
-                else -> isDisabled = true
+                else -> if (!IS_RELEASE) isDisabled = true
             }
             addActorBefore(children.first(), statusImage)
         }

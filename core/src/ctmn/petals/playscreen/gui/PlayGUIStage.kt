@@ -53,7 +53,7 @@ class PlayGUIStage(
     private val dialogTable = VisTable()
     val turnIconTable = VisTable()
     val abilityChooseDialogTable = VisTable()
-    val buyMenuPanelTable = VisTable()
+    val buyMenu = BuyMenu()
 
     //panels and windows and stuff
     private val unitPanel = UnitPanel(this)
@@ -229,8 +229,7 @@ class PlayGUIStage(
         abilityChooseDialogTable.setFillParent(true)
         addActor(abilityChooseDialogTable)
 
-        buyMenuPanelTable.setFillParent(true)
-        addActor(buyMenuPanelTable)
+        addActor(buyMenu)
 
         addActor(unitMiniMenu)
 
@@ -565,7 +564,7 @@ class PlayGUIStage(
                         && tile.cPlayerId?.playerId == localPlayer.id
                         && currentState == myTurn
                     )
-                        buyMenuPanelTable.add(BuyMenuPanel(this, it.tile, localPlayer))
+                        buyMenu.show(it.tile, localPlayer)
                 }
             }
 

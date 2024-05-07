@@ -2,6 +2,8 @@ package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.player.SpeciesUnitNotFoundExc
+import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
@@ -18,6 +20,8 @@ import ctmn.petals.story.Scenario
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.actors.FairyAxe
 
 class Level3 : Scenario("lv_3", "level_capture") {
 
@@ -60,32 +64,15 @@ class Level3 : Scenario("lv_3", "level_capture") {
     override fun makeScenario(playScreen: PlayScreen) {
         super.makeScenario(playScreen)
 
+        val player = player!!
+
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
         playScreen.fogOfWarManager.drawFog = true
+        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {
+            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_AXE } ?: throw SpeciesUnitNotFoundExc())
+        }
 
         playScreen {
-            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Kill enemy units")).addOnCompleteTrigger {
-                //gameOverSuccess()
-            }
-
-            //addTask(task)
-
-            addTurnCycleTrigger(2).onTrigger {
-                queueAddUnitAction(enemyUnits.pop())
-            }
-            addTurnCycleTrigger(3).onTrigger {
-                queueAddUnitAction(enemyUnits.pop())
-            }
-            addTurnCycleTrigger(4).onTrigger {
-                queueAddUnitAction(enemyUnits.pop())
-            }
-            addTurnCycleTrigger(5).onTrigger {
-                queueAddUnitAction(enemyUnits.pop())
-            }
-            addTurnCycleTrigger(6).onTrigger {
-                enemyUnits.forEach { queueAddUnitAction(it) }
-            }
-
             addTrigger(PlayerHasNoUnits(players[0])).onTrigger {
                 gameEndCondition.lose()
             }
@@ -95,6 +82,29 @@ class Level3 : Scenario("lv_3", "level_capture") {
                     gameEndCondition.win()
                 else
                     gameEndCondition.lose()
+            }
+
+            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Kill enemy units")).addOnCompleteTrigger {
+                //gameOverSuccess()
+            }
+
+            //addTask(task)
+
+            // don't copy this
+            addTurnCycleTrigger(2).onTrigger {
+                queueAddUnitAction(enemyUnits.last { it.stage == null })
+            }
+            addTurnCycleTrigger(3).onTrigger {
+                queueAddUnitAction(enemyUnits.last { it.stage == null })
+            }
+            addTurnCycleTrigger(4).onTrigger {
+                queueAddUnitAction(enemyUnits.last { it.stage == null })
+            }
+            addTurnCycleTrigger(5).onTrigger {
+                queueAddUnitAction(enemyUnits.last { it.stage == null })
+            }
+            addTurnCycleTrigger(6).onTrigger {
+                enemyUnits.filter { it.stage == null }.forEach { queueAddUnitAction(it) }
             }
         }
     }

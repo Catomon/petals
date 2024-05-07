@@ -175,6 +175,8 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
         }
     var overtimeRoundsLeft = 3
 
+    val ignorePlayers = mutableListOf<Int>() //todo for all condition classes
+
     override fun check(playScreen: PlayScreen): Boolean {
         val fUnit = playScreen.playStage.getUnits().firstOrNull()
 
@@ -262,6 +264,8 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
     }
 
     override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
+        if (ignorePlayers.any { it == player.id }) return false
+
         if (!playScreen.playStage.getUnitsOfPlayer(player).isEmpty)
             return false
 

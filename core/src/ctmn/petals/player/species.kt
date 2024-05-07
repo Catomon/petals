@@ -76,3 +76,5 @@ fun UnitActor.cost(value: Int): UnitActor {
 
     return this
 }
+
+class SpeciesUnitNotFoundExc : Exception()
