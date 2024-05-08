@@ -39,7 +39,7 @@ class QuickplayScreen(
         guiStage.playStageCamera.zoom = PLAY_CAMERA_ZOOM_STORY
         playStageCameraController.maxZoomOut = 0f //PLAY_CAMERA_ZOOM_OUT_MAX_STORY
         playStageCameraController.lockToPlayerUnitArea = false
-        guiStage.creditsLabel.isVisible = true
+        guiStage.showCredits = true
 
         guiStage.abilitiesPanel.rememberUnit = true
 

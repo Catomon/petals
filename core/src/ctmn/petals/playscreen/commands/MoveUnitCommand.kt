@@ -4,8 +4,11 @@ import ctmn.petals.Const
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.unit.*
 import ctmn.petals.playscreen.queueAction
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.seqactions.MoveUnitAction
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.TileData
 import ctmn.petals.unit.UnitActor
 
 class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Command() {
@@ -29,10 +32,28 @@ class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Comm
         //move action
         playScreen.queueAction(MoveUnitAction(unit, unit.tiledX, unit.tiledY, tileX, tileY))
 
+        if (unit.selfName == UnitIds.HUNTER || unit.selfName == UnitIds.GOBLIN_GIANT)
+            playScreen.queueAction {
+                playScreen.playStage.getTile(tileX, tileY)?.let {
+                    if (it.terrain == "forest") {
+                        it.remove()
+
+                        playScreen.playStage.addActor(
+                            TileActor(
+                                TileData.get("fallen_forest")!!,
+                                it.layer,
+                                it.tiledX,
+                                it.tiledY
+                            )
+                        )
+                    }
+                }
+            }
+
         //change tiled position
         unit.tiledX = tileX
         unit.tiledY = tileY
-        
+
         return true
     }
 }

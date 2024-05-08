@@ -52,11 +52,13 @@ import ctmn.petals.screens.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
+import ctmn.petals.tile.components.ActionCooldown
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BonusFieldComponent
-import ctmn.petals.unit.component.LavaComponent
+import ctmn.petals.unit.component.BurningComponent
+import ctmn.petals.unit.component.TileEffectComponent
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.newLabel
 import kotlin.random.Random
@@ -156,12 +158,20 @@ open class PlayScreen(
         playStage.addListener {
             if (it is UnitMovedEvent) {
                 val unit = it.unit
-                if (!unit.isAir) {
-                    if (playStage.getTile(unit.tiledX, unit.tiledY)?.terrain == TerrainNames.lava) {
-                        unit.dealDamage(75, playScreen = this@PlayScreen)
-                        unit.add(LavaComponent(turnManager.currentPlayer.id))
-                    } else {
-                        unit.del(LavaComponent::class.java)
+                val tile = playStage.getTile(unit.tiledX, unit.tiledY)
+                if (!unit.isAir && tile != null) {
+                    when {
+                        tile.terrain == TerrainNames.lava -> {
+                            unit.dealDamage(Damage.LAVA, playScreen = this@PlayScreen)
+                            unit.add(TileEffectComponent(turnManager.currentPlayer.id))
+                        }
+
+                        tile.isBurning -> {
+                            unit.dealDamage(Damage.BURN, playScreen = this@PlayScreen)
+                            unit.add(BurningComponent(turnManager.currentPlayer.id))
+                        }
+
+                        else -> unit.del(TileEffectComponent::class.java)
                     }
                 }
             }
@@ -590,6 +600,17 @@ open class PlayScreen(
             }
 
             for (unit in playStage.getUnits()) {
+                unit.get(BurningComponent::class.java)?.let {
+                    it.duration -= turnCycleEvent.turnCycleTime
+                    if (it.playerId == turnCycleEvent.nextPlayer.id)
+                        unit.dealDamage(Damage.BURN, playScreen = this@PlayScreen)
+                    if (playStage.getTile(unit.tiledX, unit.tiledY)?.isBurning == true)
+                        it.duration = Damage.BURN_DURATION
+                    if (it.duration <= 0) {
+                        unit.del(it)
+                    }
+                }
+
                 //update buffs duration
                 val iterator = unit.buffs.iterator()
                 while (iterator.hasNext()) {
@@ -643,6 +664,11 @@ open class PlayScreen(
                         tile.components.remove(CapturingComponent::class.java)
                     }
                 }
+
+                // remove cooldown
+                if (tile.isBase) {
+                    tile.del(ActionCooldown::class.java)
+                }
             }
 
             //summoner component
@@ -672,12 +698,12 @@ open class PlayScreen(
 
             playStage.getUnits().forEach { unit ->
                 if (!unit.isAir) {
-                    val cLava = unit.get(LavaComponent::class.java)
+                    val cLava = unit.get(TileEffectComponent::class.java)
                     if (cLava != null && cLava.playerId == turnCycleEvent.nextPlayer.id) {
                         if (playStage.getTile(unit.tiledX, unit.tiledY)?.terrain == TerrainNames.lava) {
-                            unit.dealDamage(75, playScreen = this@PlayScreen)
+                            unit.dealDamage(Damage.LAVA, playScreen = this@PlayScreen)
                         } else {
-                            unit.del(LavaComponent::class.java)
+                            unit.del(TileEffectComponent::class.java)
                         }
                     }
                 }

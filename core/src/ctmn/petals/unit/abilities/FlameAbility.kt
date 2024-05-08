@@ -1,14 +1,12 @@
 package ctmn.petals.unit.abilities
 
 import ctmn.petals.Const
-import ctmn.petals.unit.UnitActor
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.playStage
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.actors.newBurningForestTile
-import ctmn.petals.unit.Ability
-import ctmn.petals.unit.dealDamage
-import ctmn.petals.unit.isAlly
+import ctmn.petals.unit.*
+import ctmn.petals.unit.component.BurningComponent
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.utils.unTiled
 
@@ -21,7 +19,7 @@ class FlameAbility : Ability(
     1,
 ) {
 
-    private val damage: Int get() =  15 + 5 * level
+    private val damage: Int get() =  Damage.BURN + 5 * level
 
     override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
         val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)
@@ -32,6 +30,7 @@ class FlameAbility : Ability(
             if (!playScreen.friendlyFire && actor.isAlly(unitCaster)) continue
 
             unit.dealDamage(damage, unitCaster, playScreen)
+            unit.add(BurningComponent(unitCaster.playerId))
         }
 
         val playStage = actors.first().playStage

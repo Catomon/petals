@@ -216,6 +216,18 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
                 doubleTileSize
             )
         }
+        val burning = get(BurningComponent::class.java)
+        if (burning != null) {
+            val burningFrame = Animations.burning.currentFrame
+            val doubleTileSize = Const.TILE_SIZE * 2f
+            batch.draw(
+                burningFrame,
+                centerX - doubleTileSize / 2,
+                centerY - doubleTileSize / 2,
+                doubleTileSize,
+                doubleTileSize
+            )
+        }
     }
 
     fun setPosition(x: Int, y: Int) {

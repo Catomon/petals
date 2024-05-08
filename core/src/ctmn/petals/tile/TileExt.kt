@@ -30,6 +30,10 @@ val TileActor.isWaterBase: Boolean
         val backTerrain = playStage.getTile(tiledX, tiledY, layer - 1)?.terrain
         return backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater || backTerrain == TerrainNames.lava
     }
+val TileActor.isBurning: Boolean
+    get() {
+        return selfName == Tiles.BURNING_FOREST
+    }
 
 fun TileActor.isPassableAndFree(): Boolean {
     return !isOccupied && terrain != TerrainNames.impassable

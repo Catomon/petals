@@ -22,7 +22,10 @@ import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.tile.isWaterBase
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.utils.addClickListener
+import ctmn.petals.utils.removeCover
 import ctmn.petals.utils.setPosByCenter
+import ctmn.petals.widgets.StageCover
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
@@ -40,11 +43,13 @@ class BuyMenu : VisTable() {
     fun show(base: TileActor, player: Player) {
         check(stage != null)
 
-        addActor(BuyMenuWindow(guiStage, base, player, availableUnits[player.id]))
+        clear()
+        add(BuyMenuWindow(guiStage, base, player, availableUnits[player.id]))
+            .size(320f, 460f).center()
     }
 }
 
-class BuyMenuWindow(
+private class BuyMenuWindow(
     private val guiStage: PlayGUIStage,
     var baseTile: TileActor,
     val player: Player? = null,
@@ -86,7 +91,7 @@ class BuyMenuWindow(
         FADE_TIME = 0f
         isMovable = false
         isResizable = false
-        setSize(250f, 400f)
+        setSize(340f, 400f)
         setCenterOnAdd(true)
 
         val playStage = baseTile.playStageOrNull ?: throw IllegalStateException("Base tile in not on the stage.")
@@ -117,12 +122,10 @@ class BuyMenuWindow(
             }
         }
 
-
         //scroll pane
-        //scrollPane.setScrollingDisabled(true, false)
-        add(scrollPane).size(340f, 360f).padLeft(18f)
-        row()
-        add(newIconButton("cancel").addChangeListener { fadeOut() }).padTop(24f)
+        scrollPane.setScrollingDisabled(true, false)
+        gridGroup.setFillParent(true)
+        add(scrollPane).size(340f, 400f).padRight(14f)
     }
 
     private fun GridGroup.addButton(unitButton: UnitButton) {
@@ -161,11 +164,13 @@ class BuyMenuWindow(
 
     override fun setStage(stage: Stage?) {
         if (stage != null) {
+            stage.root.addActorBefore(parent, StageCover(0.5f).addClickListener {
+                fadeOut()
+            })
             fadeIn()
-
-            stage.addCaptureListener(captureListener)
+            //stage.addCaptureListener(captureListener)
         } else
-            this.stage?.removeCaptureListener(captureListener)
+            this.stage?.removeCover()
 
         super.setStage(stage)
     }

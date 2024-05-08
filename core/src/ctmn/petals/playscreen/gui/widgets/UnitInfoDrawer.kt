@@ -11,6 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
 import ctmn.petals.newPlaySprite
+import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.tile.components.ActionCooldown
+import ctmn.petals.tile.isBase
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.BarrierComponent
 import ctmn.petals.utils.centerX
@@ -68,6 +71,17 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
+
+        if (guiStage.playScreen.turnManager.currentPlayer == guiStage.localPlayer) {
+            actionPointsAnimation.setFrames(greenFrames)
+            actionPointsSprite.setRegion(actionPointsAnimation.currentFrame)
+            for (capturable in guiStage.playStage.getCapturablesOf(guiStage.localPlayer)) {
+                if (capturable.isBase && !capturable.has(ActionCooldown::class.java)) {
+                    actionPointsSprite.setPosition(capturable.x - 2f, capturable.y + 4f)
+                    actionPointsSprite.draw(batch)
+                }
+            }
+        }
 
         for (unit in guiStage.playStage.getUnits()) {
             if (!unit.isVisible)

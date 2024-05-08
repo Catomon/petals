@@ -15,15 +15,16 @@ object Animations {
 
     val barrier = RegionAnimation(0.35f, assets.textureAtlas.findRegions("effects/barrier"))
     val waterWaves = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, assets.textureAtlas.findRegions("effects/unit_water"))
+    val burning = RegionAnimation(0.4f, assets.textureAtlas.findRegions("effects/burning"))
 
     fun update(delta: Float) {
         barrier.update(delta)
         waterWaves.update(delta)
+        burning.update(delta)
     }
 }
 
 object CreateEffect {
-
 
     val summon get() = AnimationEffect(
         assets.textureAtlas.findRegions("effects/doll_summon"),

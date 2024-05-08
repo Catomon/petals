@@ -20,7 +20,7 @@ class BorderDrawer(color: Color?  = null, val guiStage: PlayGUIStage) : Actor() 
     private val animation = RegionAnimation(0.1f, guiStage.assets.textureAtlas.findRegions("gui/animated/tile_sel"))
     private val borders = HashMap<Pair<Int, Int>, Border>()
 
-    var borderName = "tile_selection_border"
+    private var borderName = "tile_selection_border"
 
     var drawOnlyBorder = false
 

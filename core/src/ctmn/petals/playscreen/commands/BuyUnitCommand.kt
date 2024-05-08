@@ -4,6 +4,8 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.UnitBoughtEvent
 import ctmn.petals.unit.*
 import com.badlogic.gdx.Gdx
+import ctmn.petals.tile.components.ActionCooldown
+import ctmn.petals.tile.isBase
 
 class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int = -1, val tileX: Int, val tileY: Int, val leaderId: Int = -1) : Command() {
 
@@ -45,6 +47,11 @@ class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int
         unitActor.actionPoints = 0
         unitActor.setPosition(tileX, tileY)
         playScreen.playStage.addActor(unitActor)
+
+        val tile = playScreen.playStage.getTile(tileX, tileY)
+        if (tile?.isBase == true) {
+            tile.add(ActionCooldown())
+        }
 
         //sent event to the PlayStage
         playScreen.playStage.root.fire(UnitBoughtEvent(unitActor))

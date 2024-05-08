@@ -53,6 +53,8 @@ open class TileActor(
 
     val animation: RegionAnimation? get() = tileViewComponent?.animation
 
+    constructor(tileData: Tile, layer: Int, tileX: Int, tileY: Int): this(tileData.name, tileData.terrain, layer, tileX, tileY)
+
     init {
         components.add(TileComponent(tileName, terrain, layer, tiledX, tiledY))
 
@@ -82,7 +84,11 @@ open class TileActor(
 
         // make animation
         if (textures.size > 1) {
-            val animation = RegionAnimation(0.4f, textures)
+            val frameDuration = when (terrain) {
+                "forest" -> 0.5f
+                else -> 0.4f
+            }
+            val animation = RegionAnimation(frameDuration, textures)
             add(TileViewComponent(Sprite(animation.currentFrame), animation))
         } else {
             if (terrain != TerrainNames.roads) {
@@ -159,7 +165,6 @@ open class TileActor(
         //tileComponent.name = json.get("name").asString
         name = json.get("id")?.asString ?: name
 
-        //todo
         for ((name, value) in json.entrySet()) {
             when (name) {
                 "TileComponent" -> components.add(gson.fromJson(value, TileComponent::class.java))
@@ -167,6 +172,7 @@ open class TileActor(
                 "LifeTimeComponent" -> components.add(gson.fromJson(value, LifeTimeComponent::class.java))
                 "PlayerIdComponent" -> components.add(gson.fromJson(value, PlayerIdComponent::class.java))
                 "ReplaceWithComponent" -> components.add(gson.fromJson(value, ReplaceWithComponent::class.java))
+                "ActionCooldown" -> components.add(gson.fromJson(value, ActionCooldown::class.java))
             }
         }
 

@@ -16,7 +16,7 @@ object Components {
         BuffsComponent::class.java,
         FollowerComponent::class.java,
         InvisibilityComponent::class.java,
-        LavaComponent::class.java,
+        TileEffectComponent::class.java,
         LeaderComponent::class.java,
         LevelComponent::class.java,
         RoamingPosition::class.java,

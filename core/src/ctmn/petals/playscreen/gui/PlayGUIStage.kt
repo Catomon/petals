@@ -62,9 +62,17 @@ class PlayGUIStage(
     private val turnIcon = TurnIcon()
 
     //labels
-    val creditsLabel =
-        newLabel("Credits: ${localPlayer.credits}", "font_5").apply {
+    var showCredits: Boolean
+        get() = creditsLabel.isVisible && creditsIcon.isVisible
+        set(value) {
+            creditsIcon.isVisible = value
+            creditsLabel.isVisible = value
+        }
+    private val creditsIcon = VisImage("credits")
+    private val creditsLabel =
+        newLabel("${localPlayer.credits}", "font_5").apply {
             isVisible = playScreen.gameMode == GameMode.CRYSTALS || playScreen.gameMode == GameMode.CRYSTALS_LEADERS
+            creditsIcon.isVisible = isVisible
         }
     private val fpsLabel = VisLabel().apply {
         isVisible = Const.SHOW_FPS
@@ -139,14 +147,8 @@ class PlayGUIStage(
 
             //hide borders on exit
             when {
-                field !is UnitSelectedCL && value is UnitSelectedCL -> {
-
-                }
-
-                field is UnitSelectedCL && value !is UnitSelectedCL -> {
-                    // fire event
-                    AudioManager.sound("unit_deselect")
-                    prevSelectedUnit = null
+                field is ConfirmAbilityCL && value !is ConfirmAbilityCL -> {
+                    abilityActivationRangeBorder.isVisible = false
                 }
 
                 field is UseAbilityCL && value !is UseAbilityCL -> {
@@ -156,14 +158,16 @@ class PlayGUIStage(
                     (abilitiesPanel.cells.firstOrNull { it.actor is SummonAbilityButton }?.actor as SummonAbilityButton?)?.hidePane()
                 }
 
-                field is ConfirmAbilityCL && value !is ConfirmAbilityCL -> {
-                    abilityActivationRangeBorder.isVisible = false
+                field is UnitSelectedCL && (value is SelectUnitCL || value is SeeInfoCL) -> {
+                    // fire event
+                    AudioManager.sound("unit_deselect")
+                    prevSelectedUnit = null
                 }
             }
 
             when (value) {
                 is UnitSelectedCL -> {
-                    if (selectedUnit != null ) {
+                    if (selectedUnit != null) {
                         if (prevSelectedUnit != selectedUnit) {
                             AudioManager.sound("unit_select")
                         } else {
@@ -615,8 +619,9 @@ class PlayGUIStage(
         //listeners
         playStage.addListener {
             when (it) {
-                is UnitBoughtEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
-                is NextTurnEvent -> creditsLabel.setText("Crystals: ${localPlayer.credits}")
+                is UnitBoughtEvent -> creditsLabel.setText("${localPlayer.credits}")
+                is ActionCompletedEvent -> creditsLabel.setText("${localPlayer.credits}")
+                is NextTurnEvent -> creditsLabel.setText("${localPlayer.credits}")
             }
 
             false
@@ -694,8 +699,9 @@ class PlayGUIStage(
 
         with(createTable()) {
             top().right().padRight(1f * 3f).padTop(1f * 3f)
-            add(fpsLabel).top().right().height(10f * 3f).padRight(20f)
-            add(creditsLabel).top().right().height(10f * 3f).padRight(1f * 3f)
+            add(fpsLabel).top().right().padRight(20f)
+            add(creditsIcon).right().top().padTop(4f)
+            add(creditsLabel).top().right().padRight(1f * 3f).padTop(6f)
             add(topRightButtonsTable).top().right()
         }
 
