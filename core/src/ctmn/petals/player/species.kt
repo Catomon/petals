@@ -52,7 +52,7 @@ val fairyUnits = object : SpeciesUnits {
 val goblinUnits = object : SpeciesUnits {
     override val species: String = goblin
     override val units: Array<UnitActor> = Array<UnitActor>().apply {
-        add(GoblinScout().cost(50))
+        //add(GoblinScout().cost(50))
         add(GoblinSword().cost(100))
         add(GoblinPike().cost(200))
         add(GoblinBow().cost(300))

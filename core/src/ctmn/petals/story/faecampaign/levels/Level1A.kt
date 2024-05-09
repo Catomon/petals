@@ -11,6 +11,7 @@ import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
 
+@Deprecated("just an example")
 class Level1A : Scenario("lv_1a", "level_2") {
 
     private val task by lazy { KeepPlayerUnitsAlive(players[1]) }

@@ -116,7 +116,7 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
         val unit = unit
         isVisible = unit != null
                 && guiStage.playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)
-                //&& guiStage.mapClickListener == guiStage.seeInfoCL || guiStage.mapClickListener == guiStage.unitSelectedCL
+                && guiStage.mapClickListener == guiStage.seeInfoCL || guiStage.mapClickListener == guiStage.unitSelectedCL
                 && !guiStage.playScreen.actionManager.hasActions || guiStage.playScreen.actionManager.currentAction is AttackAction
     }
 

@@ -56,17 +56,19 @@ class StoryGameOverMenu(val result: Int, val playScreen: StoryPlayScreen) : Widg
                 goToLevelSelect()
             })
             row()
-            add(newTextButton("Restart").addChangeListener {
+            add(newTextButton(if (result == 0) "Try Again" else "Restart").addChangeListener {
                 game.startLevel(playScreen.story, playScreen.story.getScenario(playScreen.currentScenario.id))
             })
-            row()
-            add(newTextButton("Continue").addChangeListener {
-                val nextSc = playScreen.story.createNextUndoneScenario()
-                if (nextSc == null)
-                    goToLevelSelect()
-                else
-                    game.startLevel(playScreen.story, nextSc)
-            })
+            if (result > 0) {
+                row()
+                add(newTextButton("Continue").addChangeListener {
+                    val nextSc = playScreen.story.createNextUndoneScenario()
+                    if (nextSc == null)
+                        goToLevelSelect()
+                    else
+                        game.startLevel(playScreen.story, nextSc)
+                })
+            }
         }
 
         addActor(StageCover(0.5f))

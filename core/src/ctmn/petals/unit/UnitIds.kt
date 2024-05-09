@@ -21,6 +21,7 @@ object UnitIds {
     const val DOLL_BOW = "doll_bow"
     const val DOLL_CANNON = "doll_cannon"
     const val DOLL_BOMBER = "doll_bomber"
+    const val DOLL_HEALER = "doll_healer"
     const val HUNTER = "hunter"
     const val CUCUMBER = "cucumber"
     const val WATERPLANT = "waterplant"

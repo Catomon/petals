@@ -3,11 +3,12 @@ package ctmn.petals.unit.actors
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.UnitIds.DOLL_HEALER
 import ctmn.petals.unit.component.*
 
 class FairyHealer : UnitActor(
     UnitComponent(
-     "doll_healer",
+        DOLL_HEALER,
     100,
     0,
     4,

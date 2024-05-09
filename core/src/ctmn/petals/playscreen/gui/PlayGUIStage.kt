@@ -700,7 +700,7 @@ class PlayGUIStage(
         with(createTable()) {
             top().right().padRight(1f * 3f).padTop(1f * 3f)
             add(fpsLabel).top().right().padRight(20f)
-            add(creditsIcon).right().top().padTop(4f)
+            add(creditsIcon).right().top().padTop(3f)
             add(creditsLabel).top().right().padRight(1f * 3f).padTop(6f)
             add(topRightButtonsTable).top().right()
         }
