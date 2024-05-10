@@ -239,7 +239,10 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
         playStageOrNull?.let { playStage ->
             val terrain = playStage.getTile(x, y)?.terrain
-            isWater = terrain == TerrainNames.water || terrain == TerrainNames.deepwater
+            isWater = terrain == TerrainNames.water
+                    || terrain == TerrainNames.deepwater
+                    || terrain == TerrainNames.lava
+                    || terrain == TerrainNames.swamp
         }
     }
 

@@ -14,7 +14,7 @@ abstract class Scenario(
     val mapFileName: String,
 ) {
 
-    var result = 1
+    var result = 0
 
     val map by lazy {
         if (mapFileName.isNotEmpty())
@@ -34,7 +34,7 @@ abstract class Scenario(
     }
 
     open fun evaluateResult() {
-
+        result = 1
     }
 
     open fun saveTo(storySaveGson: StorySaveGson) {

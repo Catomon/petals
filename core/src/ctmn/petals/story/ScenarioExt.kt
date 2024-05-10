@@ -8,12 +8,12 @@ import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
 import ctmn.petals.unit.actors.Alice
 
 fun PlayScreen.gameOverSuccess() {
-    gameEndCondition.result = GameEndCondition.Result.WIN
+    gameEndCondition.win()
     gameOver()
 }
 
 fun PlayScreen.gameOverFailure() {
-    gameEndCondition.result = GameEndCondition.Result.LOSE
+    gameEndCondition.lose()
     gameOver()
 }
 

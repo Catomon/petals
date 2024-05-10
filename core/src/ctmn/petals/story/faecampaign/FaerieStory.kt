@@ -21,5 +21,7 @@ class FaerieStory(storySave: FaerieStorySave = FaerieStorySave()) : Story(
         scenarios["lv_3"] = Level3::class.java
         scenarios["lv_4"] = Level4::class.java
         scenarios["lv_5"] = Level5::class.java
+        scenarios["lv_6"] = Level6::class.java
+        scenarios["lv_7"] = Level7::class.java
     }
 }

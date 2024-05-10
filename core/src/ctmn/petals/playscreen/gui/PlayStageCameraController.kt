@@ -33,6 +33,8 @@ class PlayStageCameraController(val playStage: PlayStage) {
     var maxZoomOut = 320f //if 0f map sized zoom out
     var maxZoomIn = 240f
 
+    private val rumble = Rumble()
+
     fun update(delta: Float) {
         if (!lock) {
             movement.acceleration.setZero()
@@ -52,7 +54,13 @@ class PlayStageCameraController(val playStage: PlayStage) {
 
         limitPosition()
 
+        camera.setPosition(camera.position.x + rumble.pos.x, camera.position.y + rumble.pos.y)
+
         camera.update()
+    }
+
+    fun shake(power: Float = 3f, duration: Float = 0.5f) {
+        rumble.rumble(power, duration)
     }
 
     fun limitPosition() {

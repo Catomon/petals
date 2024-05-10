@@ -4,15 +4,16 @@ import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.UnitIds.DOLL_SCOUT
 import ctmn.petals.unit.component.*
 
 
 class FairyScout : UnitActor(
     UnitComponent(
-        "doll_scout",
+        DOLL_SCOUT,
         100,
         5,
-        6,
+        5,
         7
     )
 ) {
@@ -32,6 +33,8 @@ class FairyScout : UnitActor(
             get(TerrainNames.skyscraper).mv(2)
             get(TerrainNames.water).mv(0)
             get(TerrainNames.deepwater).mv(0)
+            get(TerrainNames.lava).mv(0)
+            get(TerrainNames.swamp).mv(0)
         }))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.CUCUMBER] = Pair(15, 0)

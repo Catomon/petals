@@ -42,6 +42,8 @@ abstract class GameEndCondition(val id: String) {
 
     var winners = mutableListOf<Int>()
 
+    val ignorePlayers = mutableListOf<Int>()
+
     var end = false
 
     open fun check(playScreen: PlayScreen): Boolean = end
@@ -79,7 +81,7 @@ class NoEnd : GameEndCondition("endless") {
     }
 }
 
-class Manual : GameEndCondition("endless")
+class Manual : GameEndCondition("manual")
 
 class EliminateEnemyUnits : GameEndCondition("eliminate_enemy_units") {
 
@@ -131,16 +133,17 @@ class CaptureBases : GameEndCondition("capture_bases") {
     val teamStandId get() = mTeamStandId
 
     override fun check(playScreen: PlayScreen): Boolean {
-        for (player in playScreen.turnManager.players) {
+        val players = playScreen.turnManager.players.filter { player -> ignorePlayers.none { it == player.id } }
+        for (player in players) {
             if (!player.isOutOfGame) {
-                for (player2 in playScreen.turnManager.players) {
+                for (player2 in players) {
                     if (player2 != player && !player2.isOutOfGame && !player.isAlly(player2.teamId))
                         return false
                 }
 
                 mTeamStandId = player.teamId
                 result = Result.HAS_WINNER
-                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                players.filter { it.teamId == mTeamStandId }.forEach {
                     winners.add(it.id)
                 }
                 return true
@@ -154,6 +157,8 @@ class CaptureBases : GameEndCondition("capture_bases") {
     }
 
     override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
+        if (ignorePlayers.any { it == player.id }) return false
+
         for (base in playScreen.playStage.getCapturablesOf(player).filter { it.isBase }) {
             if (!base.isOccupied || playScreen.playStage.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
                 return false
@@ -175,10 +180,9 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
         }
     var overtimeRoundsLeft = 3
 
-    val ignorePlayers = mutableListOf<Int>() //todo for all condition classes
-
     override fun check(playScreen: PlayScreen): Boolean {
         val fUnit = playScreen.playStage.getUnits().firstOrNull()
+        val players = playScreen.turnManager.players.filter { player -> ignorePlayers.none { it == player.id } }
 
 //        if (fUnit == null) {
 //            mTeamStandId = Team.NONE
@@ -191,7 +195,7 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
             if (overtimeRoundsLeft <= 0) {
                 mTeamStandId = overtimeTeamId
                 result = Result.HAS_WINNER
-                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                players.filter { it.teamId == mTeamStandId }.forEach {
                     winners.add(it.id)
                 }
                 return true
@@ -199,7 +203,7 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
         }
 
         // if player has more than 75% bases
-        for (player in playScreen.turnManager.players) {
+        for (player in players) {
             if (!player.isOutOfGame) {
                 if (checkOvertime(player, playScreen)) {
                     if (overtimeTeamId != player.teamId) {
@@ -235,16 +239,16 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
         }
 
         // return true if one player left
-        for (player in playScreen.turnManager.players) {
+        for (player in players) {
             if (!player.isOutOfGame) {
-                for (player2 in playScreen.turnManager.players) {
+                for (player2 in players) {
                     if (player2 != player && !player2.isOutOfGame && !player.isAlly(player2.teamId))
                         return false
                 }
 
                 mTeamStandId = player.teamId
                 result = Result.HAS_WINNER
-                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                players.filter { it.teamId == mTeamStandId }.forEach {
                     winners.add(it.id)
                 }
                 return true

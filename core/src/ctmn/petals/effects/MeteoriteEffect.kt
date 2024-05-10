@@ -3,8 +3,12 @@ package ctmn.petals.effects
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.Stage
 import ctmn.petals.Const
+import ctmn.petals.actors.actions.CameraShakeAction
+import ctmn.petals.actors.actions.UpdateAction
 import ctmn.petals.assets
 import ctmn.petals.newPlaySprite
+import ctmn.petals.playscreen.playStage
+import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.utils.Movement
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.setPosByCenter
@@ -49,6 +53,8 @@ class MeteoriteEffect : EffectActor() {
             stage.addActor(particles)
 
             lifeTime = 0f
+
+            playStageOrNull?.addAction(CameraShakeAction())
 
             isExploded = true
         }

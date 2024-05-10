@@ -77,7 +77,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
                     statusImage.setDrawable(VisUI.getSkin().newDrawable("unlocked_level"))
                 }
 
-                else -> if (!IS_RELEASE) isDisabled = true
+                else -> if (IS_RELEASE) isDisabled = true
             }
             addActorBefore(children.first(), statusImage)
         }
