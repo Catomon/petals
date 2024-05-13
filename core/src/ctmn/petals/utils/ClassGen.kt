@@ -63,18 +63,22 @@ object ClassGen {
         resourcesClass.bufferedWriter().use { writer ->
             writer.appendLine("package ctmn.petals.unit")
             writer.appendLine()
-            writer.appendLine("import ctmn.petals.player.Player\n" +
-                                    "import ctmn.petals.playscreen.selfName\n" +
-                                    "import ctmn.petals.unit.actors.*\n" +
-                                    "import java.util.*\n" +
-                                    "import kotlin.collections.HashMap\n" +
-                                    "import kotlin.reflect.KClass")
+            writer.appendLine(
+                "import ctmn.petals.player.Player\n" +
+                        "import ctmn.petals.playscreen.selfName\n" +
+                        "import ctmn.petals.unit.actors.*\n" +
+                        "import java.util.*\n" +
+                        "import kotlin.collections.HashMap\n" +
+                        "import kotlin.reflect.KClass"
+            )
             writer.appendLine()
             writer.appendWarningMessage()
             writer.appendLine()
             writer.appendLine("object Units {")
-            writer.appendLine("    private val map = HashMap<String, KClass<out UnitActor>>()\n" +
-                                    "     val names = ArrayList<String>()")
+            writer.appendLine(
+                "    private val map = HashMap<String, KClass<out UnitActor>>()\n" +
+                        "     val names = ArrayList<String>()"
+            )
             writer.appendLine()
             writer.appendLine("    init {")
 
@@ -83,24 +87,35 @@ object ClassGen {
             }
 
             writer.appendLine("    }")
-            writer.appendLine("\n" +
-                                    "    fun add(unit: UnitActor) : UnitActor {\n" +
-                                    "        val unitName = unit.selfName\n" +
-                                    "        map[unitName] = unit::class\n" +
-                                    "        names.add(unitName)\n" +
-                                    "        return unit\n" +
-                                    "    }\n" +
-                                    "\n" +
-                                    "    fun get(name: String, player: Player? = null) : UnitActor {\n" +
-                                    "        if (map[name] == null)\n" +
-                                    "            throw IllegalArgumentException(\"Unit with name '\$name' is not found.\")\n" +
-                                    "\n" +
-                                    "        val unitActor = map[name]!!.java.constructors.first().newInstance() as UnitActor\n" +
-                                    "        unitActor.playerId = player?.id ?: -1\n" +
-                                    "        unitActor.teamId = player?.teamId ?: -1\n" +
-                                    "\n" +
-                                    "        return unitActor\n" +
-                                    "    }"
+            writer.appendLine(
+                "\n" +
+                        "    fun add(unit: UnitActor) : UnitActor {\n" +
+                        "        val unitName = unit.selfName\n" +
+                        "        map[unitName] = unit::class\n" +
+                        "        names.add(unitName)\n" +
+                        "        return unit\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    fun find(name: String, player: Player? = null) : UnitActor? {\n" +
+                        "        if (map[name] == null) return null\n" +
+                        "\n" +
+                        "        val unitActor = map[name]!!.java.constructors.first().newInstance() as UnitActor\n" +
+                        "        unitActor.playerId = player?.id ?: -1\n" +
+                        "        unitActor.teamId = player?.teamId ?: -1\n" +
+                        "\n" +
+                        "        return unitActor\n" +
+                        "    }" +
+                        "\n" +
+                        "    fun get(name: String, player: Player? = null) : UnitActor {\n" +
+                        "        if (map[name] == null)\n" +
+                        "            throw IllegalArgumentException(\"Unit with name '\$name' is not found.\")\n" +
+                        "\n" +
+                        "        val unitActor = map[name]!!.java.constructors.first().newInstance() as UnitActor\n" +
+                        "        unitActor.playerId = player?.id ?: -1\n" +
+                        "        unitActor.teamId = player?.teamId ?: -1\n" +
+                        "\n" +
+                        "        return unitActor\n" +
+                        "    }"
             )
             writer.appendLine("}")
         }
@@ -121,9 +136,11 @@ object ClassGen {
         resourcesClass.bufferedWriter().use { writer ->
             writer.appendLine("package ctmn.petals.unit")
             writer.appendLine()
-            writer.appendLine("import com.badlogic.gdx.utils.ArrayMap\n" +
-                    "import kotlin.reflect.KClass\n" +
-                    "import ctmn.petals.unit.abilities.*")
+            writer.appendLine(
+                "import com.badlogic.gdx.utils.ArrayMap\n" +
+                        "import kotlin.reflect.KClass\n" +
+                        "import ctmn.petals.unit.abilities.*"
+            )
             writer.appendLine()
             writer.appendWarningMessage()
             writer.appendLine()
@@ -136,23 +153,26 @@ object ClassGen {
             }
 
             writer.appendLine("    }")
-            writer.appendLine("\n" +
-                    "    private fun add(ability: Ability) {\n" +
-                    "        put(ability.name, ability::class)\n" +
-                    "    }" +
-                    "\n" +
-                    "    fun getAbility(name: String): Ability {\n" +
-                    "        return get(name).java.constructors.first().newInstance() as Ability\n" +
-                    "    }"
+            writer.appendLine(
+                "\n" +
+                        "    private fun add(ability: Ability) {\n" +
+                        "        put(ability.name, ability::class)\n" +
+                        "    }" +
+                        "\n" +
+                        "    fun getAbility(name: String): Ability {\n" +
+                        "        return get(name).java.constructors.first().newInstance() as Ability\n" +
+                        "    }"
             )
             writer.appendLine("}")
         }
     }
 
     private fun BufferedWriter.appendWarningMessage() {
-        appendLine("/**\n" +
-                " * This class is auto-generated.\n" +
-                " * [ctmn.petals.utils.ClassGen.generateUnitsClass]\n" +
-                " */")
+        appendLine(
+            "/**\n" +
+                    " * This class is auto-generated.\n" +
+                    " * [ctmn.petals.utils.ClassGen.generateUnitsClass]\n" +
+                    " */"
+        )
     }
 }

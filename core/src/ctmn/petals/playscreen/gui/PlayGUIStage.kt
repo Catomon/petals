@@ -26,9 +26,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
+import ctmn.petals.Const.ACTION_POINTS_MOVE_MIN
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
+import ctmn.petals.tile.components.ActionCooldown
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newLabel
@@ -211,6 +213,8 @@ class PlayGUIStage(
 
     var mapClickDisabled = false
 
+    private val autoEndTurnEnabled get() = GamePref.autoEndTurn ?: false
+
     var forceMyTurnEnd = false
 
     val inputManager = InputManager(this)
@@ -291,14 +295,7 @@ class PlayGUIStage(
 
         endTurnButton.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                for (task in playScreen.taskManager.getTasks()) {
-                    if (task.isForcePlayerToComplete)
-                        return
-                }
-
-                if (playScreen.actionManager.hasActions) return
-
-                playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
+                endTurn()
             }
         })
 
@@ -503,7 +500,9 @@ class PlayGUIStage(
                 }
 
                 is ActionCompletedEvent -> {
-                    if (!playScreen.actionManager.hasActions && playScreen.turnManager.currentPlayer == localPlayer)
+                    if (playScreen.turnManager.currentPlayer == localPlayer
+                        && !playScreen.actionManager.hasActions
+                    )
                         endTurnButton.isDisabled = false
                 }
 
@@ -593,6 +592,42 @@ class PlayGUIStage(
 
             false
         }
+
+        //autoEndTurn
+        addListener { event ->
+            if (!autoEndTurnEnabled) return@addListener false
+            if (playScreen.turnManager.currentPlayer != localPlayer) return@addListener false
+            if (playScreen.actionManager.hasActions) return@addListener false
+            if (event is CommandExecutedEvent || event is ActionCompletedEvent) {
+                var actionAvailable = false
+                playStage.getUnitsOfPlayer(localPlayer.id).forEach { myUnit ->
+                    if (myUnit.actionPoints >= ACTION_POINTS_MOVE_MIN) {
+                        actionAvailable = true
+                    } else if (playStage.getUnitsOfEnemyOf(localPlayer).any { myUnit.canAttack(it) })
+                        actionAvailable = true
+                }
+                if (
+                    playStage.getCapturablesOf(localPlayer)
+                        .any { it.isBase && !it.has(ActionCooldown::class.java) }
+                )
+                    actionAvailable = true
+
+                if (!actionAvailable) endTurn()
+            }
+
+            false
+        }
+    }
+
+    private fun endTurn() {
+        for (task in playScreen.taskManager.getTasks()) {
+            if (task.isForcePlayerToComplete)
+                return
+        }
+
+        if (playScreen.actionManager.hasActions) return
+
+        playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
     }
 
     private fun setupPlayStage() {

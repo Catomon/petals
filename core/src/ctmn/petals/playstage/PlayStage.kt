@@ -69,6 +69,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
     val border = Border(this)
 
     private val background = Background()
+    private val cloudShadowDrawer = CloudShadowDrawer()
 
     init {
         addActor(background)
@@ -77,6 +78,8 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
             addActor(layer.value)
 
         addActor(unitsLayer)
+
+        addActor(cloudShadowDrawer)
 
         addListener {
             if (it is CommandExecutedEvent || it is ActionCompletedEvent) {
@@ -95,6 +98,8 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         val batch = batch
         batch.projectionMatrix = camera.combined
         batch.begin()
+
+        border.draw(batch)
 
         /** [Background] is a PlayStageGroup btw */
 
@@ -117,8 +122,6 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
                     actor.draw(batch, actor.color.a)
             }
         }
-
-        border.draw(batch)
 
         batch.end()
     }

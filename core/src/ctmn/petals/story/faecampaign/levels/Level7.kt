@@ -71,7 +71,7 @@ class Level7 : Scenario("lv_7", "alice_slime") {
             simpleAI.permaAgro = false
             simpleAI.roamingMaxRange = 3
         })
-        playScreen.fogOfWarManager.drawFog = true
+        playScreen.fogOfWarManager.drawFog = false
 
         //        gameEndCondition.win()
         //                else

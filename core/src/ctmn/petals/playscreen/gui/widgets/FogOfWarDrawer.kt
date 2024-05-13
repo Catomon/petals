@@ -126,9 +126,9 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
             }
         }
 
-        for (tile in playStage.getTiles())
-            if (tile.selfName == Tiles.EDGE)
-                maxOfView[tile.tiledX][tile.tiledY] = 1
+//        for (tile in playStage.getTiles())
+//            if (tile.selfName == Tiles.EDGE)
+//                maxOfView[tile.tiledX][tile.tiledY] = 1
 
         for ((i, _) in maxOfView.withIndex()) {
             for ((j, _) in maxOfView[i].withIndex()) {

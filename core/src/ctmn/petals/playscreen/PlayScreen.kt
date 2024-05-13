@@ -16,13 +16,10 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.LogLevel
 import com.strongjoshua.console.annotation.ConsoleDoc
-import ctmn.petals.Const
+import ctmn.petals.*
 import ctmn.petals.screens.MenuScreen
-import ctmn.petals.PetalsGame
-import ctmn.petals.Rich
 import ctmn.petals.bot.BotManager
 import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.discordRich
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.map.*
 import ctmn.petals.multiplayer.ClientPlayScreen
@@ -749,6 +746,10 @@ open class PlayScreen(
 
     @Suppress("unused")
     inner class PlayCslCommandExc : CommandExecutor() {
+        fun autoEndTurn() {
+            GamePref.autoEndTurn = !(GamePref.autoEndTurn ?: false)
+        }
+
         fun win() {
             gameOverSuccess()
         }

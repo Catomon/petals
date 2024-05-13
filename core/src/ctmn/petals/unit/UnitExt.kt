@@ -699,5 +699,6 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is SlimeLing -> 4
         is SlimeBig -> 4
         is SlimeHuge -> 4
+        is SlimeTiny -> 4
         else -> 4
     }

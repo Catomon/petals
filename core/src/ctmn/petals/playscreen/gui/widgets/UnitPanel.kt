@@ -50,8 +50,8 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
 
         name = "unit_panel"
 
-        add(unitName).top().left().padBottom(6f * 3f).padTop(1f * 3f).padRight(1f * 3f).padLeft(1f * 3f)
-        row()
+//        add(unitName).top().left().padBottom(6f * 3f).padTop(1f * 3f).padRight(1f * 3f).padLeft(1f * 3f)
+//        row()
         add(VisTable().apply {
             add(hpIcon).left().size(5f * 3f).padBottom(1f * 3f).padRight(2f * 3f)
             add(hp).left().bottom().width(15f * 3f)

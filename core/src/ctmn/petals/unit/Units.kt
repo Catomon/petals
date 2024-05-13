@@ -74,6 +74,7 @@ object Units {
         add(SlimeBig())
         add(SlimeHuge())
         add(SlimeLing())
+        add(SlimeTiny())
         add(Spearman())
         add(Swordman())
         add(VillageSpearman())

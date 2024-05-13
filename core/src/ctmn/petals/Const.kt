@@ -82,7 +82,7 @@ object Const {
 
     // Effects
     const val UNIT_ANIMATION_FRAME_DURATION = 0.5f
-    const val TALKING_ANIMATION_DURATION = 1f
+    const val TALKING_ANIMATION_DURATION = 3f
 
     const val UNIT_MOVE_SPEED: Float = 200f
     const val UNIT_SHAKE_POWER = 3f
