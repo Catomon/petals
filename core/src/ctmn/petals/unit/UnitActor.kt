@@ -56,6 +56,11 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         this.add(MatchUpBonusComponent())
     }
 
+    fun setIdleAnimation(name: String) {
+        val regions = findUnitTextures(selfName, playerId)
+        defaultAnimation = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, regions)
+    }
+
     // should be called after setting up actor's playerID
     open fun initView(assets: Assets) {
         val regions = findUnitTextures(selfName, playerId)

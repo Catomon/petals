@@ -608,7 +608,7 @@ class PlayGUIStage(
                 }
                 if (
                     playStage.getCapturablesOf(localPlayer)
-                        .any { it.isBase && !it.has(ActionCooldown::class.java) }
+                        .any { it.isBase && !it.has(ActionCooldown::class.java) } && localPlayer.credits >= 50
                 )
                     actionAvailable = true
 

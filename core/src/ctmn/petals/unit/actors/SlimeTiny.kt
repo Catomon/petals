@@ -6,7 +6,7 @@ import ctmn.petals.unit.component.*
 class SlimeTiny : UnitActor(
     UnitComponent(
         "slime_tiny",
-        75,
+        50,
         0,
         4,
         5
@@ -17,8 +17,8 @@ class SlimeTiny : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                0,
                 5,
+                10,
                 1
             )
         )

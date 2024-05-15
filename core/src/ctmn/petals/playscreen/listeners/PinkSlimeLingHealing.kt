@@ -11,7 +11,7 @@ class PinkSlimeLingHealing : EventListener {
 
     override fun handle(event: Event): Boolean {
         if (event is UnitDiedEvent) {
-            if (event.unit.selfName == UnitIds.PINK_SLIME_LING) {
+            if (event.unit.selfName == UnitIds.PINK_SLIME_LING && event.killer != event.unit) {
                 event.killer?.heal(35)
             }
         }

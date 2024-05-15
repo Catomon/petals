@@ -1,5 +1,7 @@
 package ctmn.petals.unit.actors
 
+import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.*
 
@@ -13,6 +15,8 @@ class SlimeLing : UnitActor(
     )
 ) {
 
+    var item: TextureRegion? = null
+
     init {
         add(FollowerComponent())
         add(
@@ -25,5 +29,14 @@ class SlimeLing : UnitActor(
         add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 1.5f))
+    }
+
+    override fun draw(batch: Batch, parentAlpha: Float) {
+        if (item != null) {
+            if (cAnimationView?.animation == defaultAnimation)
+                batch.draw(item, x - 8f, y - 8f, 32f, 32f)
+        }
+
+        super.draw(batch, parentAlpha)
     }
 }

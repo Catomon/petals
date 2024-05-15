@@ -7,13 +7,17 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.isAlive
 
 class EliminateAllEnemyUnitsTask(
-    private val enemyUnits: Array<UnitActor>? = null,
+    private val enemyUnits: Array<UnitActor>? = null, private val atLeast: Int = -1,
 ) : Task() {
 
     override var description: String? = "Eliminate all enemy units"
 
     override fun update(delta: Float) {
-        isCompleted =
-            enemyUnits?.none { it.isAlive() } ?: playScreen.playStage.getUnitsOfEnemyOf(playScreen.localPlayer).isEmpty
+        isCompleted = if (enemyUnits != null) {
+            if (atLeast < 0) enemyUnits.none { it.isAlive() }
+            else enemyUnits.count { !it.isAlive() } >= atLeast
+        } else {
+            playScreen.playStage.getUnitsOfEnemyOf(playScreen.localPlayer).isEmpty
+        }
     }
 }

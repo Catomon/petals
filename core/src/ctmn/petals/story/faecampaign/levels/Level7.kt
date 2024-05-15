@@ -1,15 +1,16 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.assets
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.bot.SimpleBot
 import ctmn.petals.player.*
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.commands.AttackCommand
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
+import ctmn.petals.playscreen.gui.widgets.said
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
-import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
-import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
-import ctmn.petals.playscreen.tasks.Task
+import ctmn.petals.playscreen.tasks.*
 import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
 import ctmn.petals.playscreen.triggers.TurnCycleTrigger
 import ctmn.petals.playscreen.triggers.UnitPosRectTrigger
@@ -19,12 +20,15 @@ import ctmn.petals.playstage.getUnit
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.alice
+import ctmn.petals.story.alissa.CreateUnit.alice
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
-import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds
+import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.TileData
+import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.FairyAxe
-import ctmn.petals.unit.tiledY
+import ctmn.petals.unit.actors.SlimeLing
+import ctmn.petals.unit.actors.SlimeTiny
 
 class Level7 : Scenario("lv_7", "alice_slime") {
 
@@ -43,7 +47,7 @@ class Level7 : Scenario("lv_7", "alice_slime") {
     override fun createLevel(playScreen: PlayScreen) {
         super.createLevel(playScreen)
 
-        playScreen.gameMode = GameMode.CRYSTALS
+        playScreen.gameMode = GameMode.STORY
     }
 
     override fun evaluateResult() {
@@ -77,10 +81,88 @@ class Level7 : Scenario("lv_7", "alice_slime") {
         //                else
         //                    gameEndCondition.lose()
 
+        val alice = playScreen.alice()
+        val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange, alice.tiledY)
+        playStage.addActor(stick)
+        playStage.addActor(SlimeTiny().player(players[2]).position(stick.tiledX + 1, stick.tiledY))
+
+        val slimeLing = playStage.getUnit<SlimeLing>()!!
+        slimeLing.item = assets.tilesAtlas.findRegion("items/book")
+
         playScreen {
-            queueDialogAction(alice(),
-                StoryDialog.Quote("Hello!"),
+            queueDialogAction(
+                StoryDialog(
+                    "Welcome to Alice story - a story about young magician." said null,
+                    "You start in the meadow as Alice is doing her hobby - fighting slimes" said null,
+                    "I would use a stick though." said alice,
+                    "What?" said null,
+                    "Usually I find a good stick, like, I can't fight with bare hands." said alice,
+                    "I know. But you are not supposed to talk to me." said null,
+                    "Sorry-sorry keep going." said alice,
+                    "Sigh, what is the point of a narrator then. Where are we..." said null,
+                    "Look I spot a good stick over there!" said alice,
+                )
             )
+
+//            queueTask(
+//                MoveUnitTask(
+//                    alice,
+//                    alice.tiledX + alice.movingRange,
+//                    alice.tiledY,
+//                    true
+//                ).description("Select Alice and press marked position to move her there")
+//            )
+
+//            queueTask(ExecuteCommandTask(AttackCommand::class, true).description("Press a slime to fight it")).addOnCompleteTrigger {
+//                queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
+//                    queueTask(ExecuteCommandTask(AttackCommand::class, true).description("Press a slime to fight it")).addOnCompleteTrigger {
+//                        queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
+//
+//                        }
+//                    }
+//                }
+//            }
+
+            queueTask(
+                MoveUnitTask(
+                    alice,
+                    stick.tiledX,
+                    stick.tiledY,
+                    true
+                ).description("Select Alice and press a tile to move to.")
+            ).addOnCompleteTrigger {
+                stick.remove()
+                alice.attackAnimation = alice.stickAttackAni
+                alice.setAnimation(alice.pickUpAni)
+                queueTask(
+                    ExecuteCommandTask(AttackCommand::class, true).description(
+                        "Press a slime to fight it"
+                    )
+                ).addOnCompleteTrigger {
+                    queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
+                        val threeSlimes = Array<UnitActor>().apply {
+                            playStage.getUnitsOfPlayer(players[2].id).forEach { add(it) }
+                        }
+                        queueTask(EliminateAllEnemyUnitsTask(threeSlimes, 3).description("Kill at least 3 slimes"))
+                    }
+                }
+            }
+
+//            addTrigger(UnitPosRectTrigger(alice, playStage.tiledWidth / 2).expandTop().expandRight()).onTrigger {
+//                queueDialogAction(
+//                    StoryDialog.Quote("")
+//                )
+//            }
+
+            addTrigger(UnitsDiedTrigger(slimeLing)).onTrigger {
+                queueDialogAction(
+                    StoryDialog.Quote("Something dropped out of this one!", alice),
+                    StoryDialog.Quote("A book, and it's not even damaged. What is this language?", alice),
+                    StoryDialog.Quote("Cannot know.", null),
+                    StoryDialog.Quote("Look at the drawings, some winged creatures", alice),
+                    StoryDialog.Quote("Faeries, perhaps", null),
+                )
+            }
         }
     }
 }

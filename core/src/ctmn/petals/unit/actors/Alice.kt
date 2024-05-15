@@ -9,6 +9,7 @@ import ctmn.petals.unit.UnitIds.ALICE_ID
 import ctmn.petals.unit.UnitIds.DOLL_PIKE
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.unit.component.*
+import ctmn.petals.utils.RegionAnimation
 
 class Alice : UnitActor(
     UnitComponent(
@@ -21,6 +22,16 @@ class Alice : UnitActor(
         teamID = Team.BLUE
     )
 ) {
+
+    val pickUpAni = createAnimation("alice_picking", 0.25f)
+    val stickAttackAni = createAnimation("alice_stick_attack", 0.25f)
+    lateinit var _attackAni: RegionAnimation
+
+    override fun loadAnimations() {
+        super.loadAnimations()
+
+        _attackAni = attackAnimation!!
+    }
 
     init {
         abilityCastAnimation = createAnimation("alice_casting")
@@ -39,7 +50,7 @@ class Alice : UnitActor(
         add(
             AttackComponent(
                 25,
-                35,
+                30,
                 1
             )
         )

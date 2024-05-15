@@ -18,6 +18,8 @@ import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.widgets.*
 
+public infix fun <A, B> A.said(that: B): Pair<A, B> = Pair(this, that)
+
 class StoryDialog(
     val quotes: Array<Quote>,
 ) : VisTable() {
@@ -44,6 +46,7 @@ class StoryDialog(
 
     var cameraMove = true
 
+    var addOkayButton = false
     private val okayButton = newIconButton("confirm").addChangeListener {
         guiStage.nextDialogButton.press()
     }
@@ -96,7 +99,8 @@ class StoryDialog(
     private fun updateDialog(quote: Quote) {
         if (quote.unit == null) {
             setBackground("dialog")
-            add(okayButton).right()
+            if (addOkayButton)
+                add(okayButton).right()
         } else {
             setBackground("quote")
 

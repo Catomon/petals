@@ -97,7 +97,6 @@ object Units {
 
         return unitActor
     }
-
     fun get(name: String, player: Player? = null) : UnitActor {
         if (map[name] == null)
             throw IllegalArgumentException("Unit with name '$name' is not found.")
