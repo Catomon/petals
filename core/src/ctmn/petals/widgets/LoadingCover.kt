@@ -14,9 +14,9 @@ import ctmn.petals.utils.setPositionByCenter
 
 class LoadingCover(labelText: String = "") : Widget() {
 
-    private val cover = Sprite(assets.textureAtlas.findRegion("gui/white"))
+    private val cover = Sprite(assets.atlases.findRegion("gui/white"))
     //private val icon = Sprite(assets.textureAtlas.findRegion("gui/loading"))
-    private val animation = RegionAnimation(0.25f, assets.textureAtlas.findRegions("gui/animated/loading"))
+    private val animation = RegionAnimation(0.25f, assets.atlases.findRegions("gui/animated/loading"))
     private val loadingAni = Sprite(animation.currentFrame)
     private val label = newLabel(labelText)
 

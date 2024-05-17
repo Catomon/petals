@@ -17,10 +17,10 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 
 class TurnIcon : Actor() {
 
-    private val yourTurnIcon = assets.textureAtlas.findRegions("gui/animated/your_turn")
-    private val enemyTurnIcon = assets.textureAtlas.findRegions("gui/animated/enemy_turn")
-    private val allyTurnIcon = assets.textureAtlas.findRegions("gui/animated/ally_turn")
-    private val neutralTurnIcon = assets.textureAtlas.findRegions("gui/animated/neutral_turn")
+    private val yourTurnIcon = assets.atlases.findRegions("gui/animated/your_turn")
+    private val enemyTurnIcon = assets.atlases.findRegions("gui/animated/enemy_turn")
+    private val allyTurnIcon = assets.atlases.findRegions("gui/animated/ally_turn")
+    private val neutralTurnIcon = assets.atlases.findRegions("gui/animated/neutral_turn")
 
     private val animation = RegionAnimation(0.2f, yourTurnIcon)
 

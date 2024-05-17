@@ -19,9 +19,9 @@ import ctmn.petals.tile.isPassableAndFree
 
 class TileHighlighter(val gui: PlayGUIStage) : Actor() {
 
-    val green = gui.assets.textureAtlas.findRegion("gui/green_tile_highlight")
-    val yellow = gui.assets.textureAtlas.findRegion("gui/yellow_tile_highlight")
-    val red = gui.assets.textureAtlas.findRegion("gui/red_tile_highlight")
+    val green = gui.assets.atlases.getRegion("gui/green_tile_highlight")
+    val yellow = gui.assets.atlases.getRegion("gui/yellow_tile_highlight")
+    val red = gui.assets.atlases.getRegion("gui/red_tile_highlight")
 
     private val sprite = newPlaySprite(green)
 

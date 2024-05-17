@@ -85,22 +85,22 @@ class AbilitiesSelectTable(
 
     private inner class AbilityButton(val ability: Ability, locked: Boolean = false) : VisImageButton("ability_item") {
 
-        private val sprite = Sprite(assets.textureAtlas.findRegion("gui/icons/${ability.name.toLowerCase(Locale.ROOT)}")
-            ?: assets.textureAtlas.findRegion("gui/icons/no_icon"))
+        private val sprite = Sprite(assets.atlases.findRegion("gui/icons/${ability.name.toLowerCase(Locale.ROOT)}")
+            ?: assets.atlases.findRegion("gui/icons/no_icon"))
 
         init {
             userObject = ability
 
             if (locked) {
-                sprite.setRegion(assets.textureAtlas.findRegion("gui/icons/locked"))
+                sprite.setRegion(assets.atlases.findRegion("gui/icons/locked"))
             } else {
                 unlock()
             }
         }
 
         fun unlock() {
-            sprite.setRegion(assets.textureAtlas.findRegion("gui/icons/${ability.name.toLowerCase(Locale.ROOT)}")
-                ?: assets.textureAtlas.findRegion("gui/icons/no_icon"))
+            sprite.setRegion(assets.atlases.findRegion("gui/icons/${ability.name.toLowerCase(Locale.ROOT)}")
+                ?: assets.atlases.findRegion("gui/icons/no_icon"))
 
             buttonChangeListener?.let {
                 addListener(it)

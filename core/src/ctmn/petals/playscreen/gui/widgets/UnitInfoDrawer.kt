@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
+import ctmn.petals.newPlayPuiSprite
 import ctmn.petals.newPlaySprite
 import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.tile.components.ActionCooldown
@@ -20,6 +21,7 @@ import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.setPositionByCenter
 
+//todo move this class to pui stage
 class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
 
     var drawHealthByText = false //if true draw health as text else as heart icon
@@ -27,18 +29,18 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
     var hideIfFullHealth = true
 
     //health heart
-    private val heartRegions = guiStage.assets.textureAtlas.findRegions("gui/unit_heart")
-    private val heartGlassRegions = guiStage.assets.textureAtlas.findRegions("gui/unit_heart_glass")
+    private val heartRegions = guiStage.assets.atlases.findRegions("gui/unit_heart")
+    private val heartGlassRegions = guiStage.assets.atlases.findRegions("gui/unit_heart_glass")
 
-    private val heartSprite = newPlaySprite(heartRegions.first())
-    private val heartGlassSprite = newPlaySprite(heartGlassRegions.first())
+    private val heartSprite = newPlayPuiSprite(heartRegions.first())
+    private val heartGlassSprite = newPlayPuiSprite(heartGlassRegions.first())
 
-    private val greenFrames = guiStage.assets.textureAtlas.findRegions("gui/action_points_available")
-    private val redFrames = guiStage.assets.textureAtlas.findRegions("gui/action_points_available_red")
-    private val blueFrames = guiStage.assets.textureAtlas.findRegions("gui/action_points_available_blue")
+    private val greenFrames = guiStage.assets.atlases.findRegions("gui/action_points_available")
+    private val redFrames = guiStage.assets.atlases.findRegions("gui/action_points_available_red")
+    private val blueFrames = guiStage.assets.atlases.findRegions("gui/action_points_available_blue")
 
     private val actionPointsAnimation = RegionAnimation(0.6f, greenFrames)
-    private val actionPointsSprite = newPlaySprite(actionPointsAnimation.currentFrame)
+    private val actionPointsSprite = newPlayPuiSprite(actionPointsAnimation.currentFrame)
 
     private val heartGlassAni = RegionAnimation(0.05f, heartGlassRegions)
     private val heartGlassAniDelay = 1.5f

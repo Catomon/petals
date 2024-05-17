@@ -65,7 +65,7 @@ open class TileActor(
 
     fun initView() {
         // load tile texture
-        var textures = assets.textureAtlas.findRegions("tiles/$tileName")
+        var textures = assets.atlases.findRegions("tiles/$tileName")
 
         var nameNoSuffix = tileName.toLowerCase(Locale.ROOT)
         "abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
@@ -73,10 +73,10 @@ open class TileActor(
         // if tile texture is not found, try to find it in terrain folder
         // if not found, try to remove last letter from tile name that indicates combination
         if (textures.isEmpty) {
-            textures = assets.textureAtlas.findRegions("tiles/${terrain}/" + tileName)
+            textures = assets.atlases.findRegions("tiles/${terrain}/" + tileName)
 
             if (textures.isEmpty) {
-                textures = assets.textureAtlas.findRegions("tiles/$nameNoSuffix")
+                textures = assets.atlases.findRegions("tiles/$nameNoSuffix")
 
                 if (textures.isEmpty) throw FileNotFoundException("Tile texture not found: $nameNoSuffix")
             }
@@ -93,7 +93,7 @@ open class TileActor(
         } else {
             if (terrain != TerrainNames.roads) {
                 fun findRegAndAdd(suffix: String) {
-                    assets.textureAtlas.findRegion("tiles/${terrain}/" + nameNoSuffix + suffix)?.let {
+                    assets.atlases.findRegion("tiles/${terrain}/" + nameNoSuffix + suffix)?.let {
                         textures.add(it)
                     }
                 }

@@ -10,7 +10,7 @@ import ctmn.petals.newPlaySprite
 class Border(val playStage: PlayStage) {
 
     private val borders = Array<BorderTile>()
-    private val borderSprite = newPlaySprite(assets.textureAtlas.findRegion("map_frame"))
+    private val borderSprite = newPlaySprite(assets.atlases.getRegion("map_frame"))
 
     fun draw(batch: Batch) {
         for (border in borders) {
@@ -74,7 +74,7 @@ class Border(val playStage: PlayStage) {
 
                 if (border.id != "") border.id = "_${border.id}"
 
-                border.texture = assets.textureAtlas.findRegion("map_frame${border.id}")
+                border.texture = assets.atlases.findRegion("map_frame${border.id}")
                     ?: throw IllegalArgumentException("no such texture: map_frame${border.id}")
             }
 

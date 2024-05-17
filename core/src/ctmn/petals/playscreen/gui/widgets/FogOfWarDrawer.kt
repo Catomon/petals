@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.Const.BASE_RANGE_OF_VIEW
 import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playstage.*
-import ctmn.petals.tile.Tiles
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isBase
 import ctmn.petals.unit.*
@@ -21,7 +20,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
 
     private val playStage = playScreen.playStage
 
-    private val fogOfWarSprite: Sprite = Sprite(playScreen.assets.textureAtlas.findRegion("gui/tile_black"))
+    private val fogOfWarSprite: Sprite = Sprite(playScreen.assets.atlases.findRegion("gui/tile_black"))
 
     var fogMap: KArray<IntArray>? = null
 

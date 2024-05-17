@@ -16,7 +16,7 @@ import ctmn.petals.playstage.getUnits
 
 class AttackIconsDrawer(private val guiStage: PlayGUIStage) : Actor() {
 
-    private val attackSprite: Sprite = newPlaySprite(guiStage.assets.textureAtlas.findRegion("gui/attack_icon"))
+    private val attackSprite: Sprite = newPlaySprite(guiStage.assets.atlases.getRegion("gui/attack_icon"))
 
     init {
         attackSprite.setSize(Const.TILE_SIZE.toFloat() / 2, Const.TILE_SIZE.toFloat() / 2)

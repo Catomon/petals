@@ -12,7 +12,7 @@ import ctmn.petals.newPlaySprite
 
 class HealingEffect(private val vectors: Array<Vector2>, val assets: Assets) : ctmn.petals.effects.EffectActor() {
     init {
-        animation = RegionAnimation(0.075f, assets.textureAtlas.findRegions("effects/ability_healing"))
+        animation = RegionAnimation(0.075f, assets.atlases.findRegions("effects/ability_healing"))
         lifeTime = animation!!.animationDuration
 
         sprite = newPlaySprite(animation!!.currentFrame)

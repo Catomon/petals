@@ -8,7 +8,7 @@ import ctmn.petals.newPlaySprite
 
 class UnitDeathExplosionEffect(val assets: Assets) : EffectActor() {
     init {
-        animation = RegionAnimation(0.05f, assets.textureAtlas.findRegions("effects/unit_death"))
+        animation = RegionAnimation(0.05f, assets.atlases.findRegions("effects/unit_death"))
         sprite = newPlaySprite(animation!!.currentFrame)
         lifeTime = animation!!.animationDuration
         if (sprite.width < Const.TILE_SIZE)

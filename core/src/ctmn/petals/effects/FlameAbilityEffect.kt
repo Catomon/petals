@@ -19,7 +19,7 @@ class FlameAbilityEffect(val range: Int, val tileX: Int, val tileY: Int, assets:
     private val vectors = Array<Vector2>()
 
     init {
-        animation = RegionAnimation(0.10f, assets.textureAtlas.findRegions("effects/ability_fireball"))
+        animation = RegionAnimation(0.10f, assets.atlases.findRegions("effects/ability_fireball"))
         lifeTime = animation!!.animationDuration
 
         sprite = newPlaySprite(animation!!.currentFrame)

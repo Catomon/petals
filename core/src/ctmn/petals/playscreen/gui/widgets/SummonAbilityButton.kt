@@ -10,7 +10,6 @@ import ctmn.petals.unit.actors.*
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.newLabel
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -21,11 +20,9 @@ import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.assets
-import ctmn.petals.playscreen.selfName
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.addFocusBorder
 import ctmn.petals.widgets.newIconButton
-import java.io.FileNotFoundException
 
 class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) : VisImageButton("summon") {
 
@@ -174,7 +171,7 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
         val button = newIconButton("doll")
 
         //
-        val iconRegion = assets.textureAtlas.findRegion("gui/icons/$unitName")
+        val iconRegion = assets.atlases.findRegion("gui/icons/$unitName")
         val unitRegion = findUnitTextures(unitName, caster?.playerId ?: 1).firstOrNull()
 
         val icon = Image(

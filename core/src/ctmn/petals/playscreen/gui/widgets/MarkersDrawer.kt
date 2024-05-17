@@ -16,8 +16,8 @@ import ctmn.petals.playscreen.tasks.MoveUnitTask
 
 class MarkersDrawer : Actor() {
 
-    private val waypointMark = assets.textureAtlas.findRegion("gui/waypoint_mark")
-    private val waypointAnimation = RegionAnimation(0.1f, assets.textureAtlas.findRegions("gui/animated/waypoint_mark"))
+    private val waypointMark = assets.atlases.getRegion("gui/waypoint_mark")
+    private val waypointAnimation = RegionAnimation(0.1f, assets.atlases.findRegions("gui/animated/waypoint_mark"))
     private val sprite = newPlaySprite(waypointMark)
 
     private val listener = EventListener {

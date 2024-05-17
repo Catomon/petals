@@ -5,7 +5,6 @@ import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.unit.UnitActor
 import com.badlogic.gdx.scenes.scene2d.Actor
-import ctmn.petals.newPlaySprite
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
@@ -13,9 +12,9 @@ import ctmn.petals.utils.centerY
 
 object Animations {
 
-    val barrier = RegionAnimation(0.35f, assets.textureAtlas.findRegions("effects/barrier"))
-    val waterWaves = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, assets.textureAtlas.findRegions("effects/unit_water"))
-    val burning = RegionAnimation(0.4f, assets.textureAtlas.findRegions("effects/burning"))
+    val barrier = RegionAnimation(0.35f, assets.atlases.findRegions("effects/barrier"))
+    val waterWaves = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, assets.atlases.findRegions("effects/unit_water"))
+    val burning = RegionAnimation(0.4f, assets.atlases.findRegions("effects/burning"))
 
     fun update(delta: Float) {
         barrier.update(delta)
@@ -27,44 +26,44 @@ object Animations {
 object CreateEffect {
 
     val summon get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/doll_summon"),
+        assets.atlases.findRegions("effects/doll_summon"),
         0.10f
     )
     val lightning get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/ability_lightning"),
+        assets.atlases.findRegions("effects/ability_lightning"),
         0.2f
     )
     val lightningDot get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/ability_lightning_dot"),
+        assets.atlases.findRegions("effects/ability_lightning_dot"),
         0.2f
     )
     val freeze get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/ability_freeze"),
+        assets.atlases.findRegions("effects/ability_freeze"),
         0.1f
     )
     val teleport get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/tp_puff"),
+        assets.atlases.findRegions("effects/tp_puff"),
         0.1f
     )
     val earthcrack get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/tp_puff"),
+        assets.atlases.findRegions("effects/tp_puff"),
         0.1f
     )
     val meteorite get() = MeteoriteEffect()
     val fog get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/tp_puff"),
+        assets.atlases.findRegions("effects/tp_puff"),
         0.1f
     )
     val inspiration get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/tp_puff"),
+        assets.atlases.findRegions("effects/tp_puff"),
         0.1f
     )
     val exhaust get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/tp_puff"),
+        assets.atlases.findRegions("effects/tp_puff"),
         0.1f
     )
     val invisibility get() = AnimationEffect(
-        assets.textureAtlas.findRegions("effects/tp_puff"),
+        assets.atlases.findRegions("effects/tp_puff"),
         0.1f
     )
 

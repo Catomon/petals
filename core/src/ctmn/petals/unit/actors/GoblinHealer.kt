@@ -16,7 +16,7 @@ class GoblinHealer : UnitActor(
 ) {
 
     init {
-        add(BonusFieldComponent(range = 1, healing = 10))
+        add(BonusFieldComponent(range = 1, healing = 15))
         add(AbilitiesComponent())
         add(SummonableComponent(30))
         add(FollowerComponent())

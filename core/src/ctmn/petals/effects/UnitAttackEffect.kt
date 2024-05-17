@@ -8,7 +8,7 @@ import ctmn.petals.newPlaySprite
 
 class UnitAttackEffect(val assets: Assets) : ctmn.petals.effects.EffectActor() {
     init {
-        animation = RegionAnimation(0.015f, assets.textureAtlas.findRegions("effects/units_attack"))
+        animation = RegionAnimation(0.015f, assets.atlases.findRegions("effects/units_attack"))
         sprite = newPlaySprite(animation!!.currentFrame)
         lifeTime = animation!!.animationDuration
         if (sprite.width < Const.TILE_SIZE)

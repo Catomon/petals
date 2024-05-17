@@ -19,15 +19,15 @@ import ctmn.petals.unit.UnitActor
 class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
 
 
-    private val selectedSprite = Sprite(guiStage.assets.textureAtlas.findRegion("gui/selected_tile"))
-    private val selectTexture = guiStage.assets.textureAtlas.findRegion("gui/hovering_select")
-    private val attackUnitTexture = guiStage.assets.textureAtlas.findRegion("gui/hovering_attack")
-    private val moveUnitTexture = guiStage.assets.textureAtlas.findRegion("gui/hovering_move")
-    private val abilityTexture = guiStage.assets.textureAtlas.findRegion("gui/hovering_magic")
-    private val summonDollTexture = guiStage.assets.textureAtlas.findRegion("gui/hovering_magic")
-    private val cancelTexture = guiStage.assets.textureAtlas.findRegion("gui/hovering_cancel")
+    private val selectedSprite = Sprite(guiStage.assets.atlases.getRegion("gui/selected_tile"))
+    private val selectTexture = guiStage.assets.atlases.getRegion("gui/hovering_select")
+    private val attackUnitTexture = guiStage.assets.atlases.getRegion("gui/hovering_attack")
+    private val moveUnitTexture = guiStage.assets.atlases.getRegion("gui/hovering_move")
+    private val abilityTexture = guiStage.assets.atlases.getRegion("gui/hovering_magic")
+    private val summonDollTexture = guiStage.assets.atlases.getRegion("gui/hovering_magic")
+    private val cancelTexture = guiStage.assets.atlases.getRegion("gui/hovering_cancel")
 
-    private val moveUnitIconTexture = guiStage.assets.textureAtlas.findRegion("gui/hovering_move_icon")
+    private val moveUnitIconTexture = guiStage.assets.atlases.getRegion("gui/hovering_move_icon")
 
     val hoveringSprite: Sprite = newPlaySprite(selectTexture)
 

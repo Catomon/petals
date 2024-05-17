@@ -26,7 +26,6 @@ import ctmn.petals.utils.addClickListener
 import ctmn.petals.utils.removeCover
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.StageCover
-import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
 
@@ -181,7 +180,7 @@ private class BuyMenuWindow(
         private val labelCost = newLabel(cost.toString())
 
         init {
-            val icon = assets.textureAtlas.findRegion("gui/icons/${unit.selfName}")
+            val icon = assets.atlases.findRegion("gui/icons/${unit.selfName}")
             val region = findUnitTextures(unit.selfName, unit.playerId).firstOrNull()
 
             button.style.imageUp =

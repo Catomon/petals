@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.utils.Array
@@ -25,14 +24,49 @@ class Assets : AssetManager() {
         const val soundsFolderName = "sounds"
         const val musicFolderName = "music"
 
-        const val TEXTURE_ATLAS = "textures.atlas"
         const val UNITS_ATLAS = "units.atlas"
         const val TILES_ATLAS = "tiles.atlas"
+        const val EFFECTS_ATLAS = "effects.atlas"
+        const val MISC_ATLAS = "misc.atlas"
     }
 
-    val textureAtlas get() = get<TextureAtlas>(TEXTURE_ATLAS)
-    val unitsAtlas get() = get<TextureAtlas>(UNITS_ATLAS)
-    val tilesAtlas get() = get<TextureAtlas>(TILES_ATLAS) //todo remove and do som else in TileData
+    val atlases by lazy { Atlases() }
+    lateinit var unitsAtlas: TextureAtlas
+    lateinit var tilesAtlas: TextureAtlas
+    lateinit var effectsAtlas: TextureAtlas
+    lateinit var miscAtlas: TextureAtlas
+    lateinit var guiAtlas: TextureAtlas
+
+    inner class Atlases {
+        val textures
+            get() = Array<Texture>().apply {
+                arrayOf(
+                    unitsAtlas,
+                    effectsAtlas,
+                    tilesAtlas,
+                    guiAtlas,
+                    miscAtlas
+                ).forEach { it.textures.forEach { add(it) } }
+            }
+
+        fun getRegion(name: String) = findRegion(name) ?: throw IllegalArgumentException("Region $name not found")
+
+        fun findRegion(name: String) = findRegions(name).firstOrNull()
+
+        fun findRegions(name: String): Array<TextureAtlas.AtlasRegion> {
+            val folder = name.split("/").firstOrNull()
+            val regionName = name.substringAfter("/")
+
+            return when (folder) {
+                "units" -> unitsAtlas.findRegions(regionName)
+                "effects" -> effectsAtlas.findRegions(regionName)
+                "tiles" -> tilesAtlas.findRegions(regionName)
+                "gui" -> guiAtlas.findRegions(regionName)
+                "misc" -> miscAtlas.findRegions(regionName)
+                else -> miscAtlas.findRegions(regionName) //throw IllegalArgumentException("No atlas found for $name")
+            }
+        }
+    }
 
     override fun update(): Boolean {
         val done = super.update()
@@ -48,11 +82,17 @@ class Assets : AssetManager() {
     private var finishedLoading = false
 
     private fun onFinishLoading() {
+        unitsAtlas = get(UNITS_ATLAS)
+        tilesAtlas = get(TILES_ATLAS)
+        effectsAtlas = get(EFFECTS_ATLAS)
+        miscAtlas = get(MISC_ATLAS)
+        guiAtlas = VisUI.getSkin().atlas
+
         addUnitAtlases()
 
         //..
-        for (texture in textureAtlas.textures)
-            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+//        for (texture in atlases.textures)
+//            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
         TileData.parseTiles()
     }
@@ -107,9 +147,10 @@ class Assets : AssetManager() {
         Gdx.app.debug(Assets::class.simpleName, "Loading textures...")
 
         //texture atlas
-        load(TEXTURE_ATLAS, TextureAtlas::class.java)
         load(UNITS_ATLAS, TextureAtlas::class.java)
         load(TILES_ATLAS, TextureAtlas::class.java)
+        load(EFFECTS_ATLAS, TextureAtlas::class.java)
+        load(MISC_ATLAS, TextureAtlas::class.java)
 
         // images
         load("sky.png", Texture::class.java)
@@ -163,8 +204,8 @@ class Assets : AssetManager() {
 
     fun getTexture(name: String): Texture = get(name, Texture::class.java)
 
-    fun findAtlasRegion(name: String): TextureAtlas.AtlasRegion = textureAtlas.findRegion(name)
-    fun findAtlasRegions(name: String): Array<TextureAtlas.AtlasRegion> = textureAtlas.findRegions(name)
+    fun findAtlasRegion(name: String): TextureAtlas.AtlasRegion = atlases.findRegion(name)!!
+    fun findAtlasRegions(name: String): Array<TextureAtlas.AtlasRegion> = atlases.findRegions(name)!!
 
     fun getSound(name: String): Sound = get("$soundsFolderName/$name")
 

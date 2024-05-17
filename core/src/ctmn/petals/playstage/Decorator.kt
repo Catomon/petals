@@ -62,12 +62,12 @@ class Decorator {
 
             // if swamp_lrtb not found else just swamp
             if (suff == "_lrtb") {
-                if (assets.textureAtlas.findRegion("tiles/${terrain}/" + combinedName) == null)
+                if (assets.atlases.findRegion("tiles/${terrain}/" + combinedName) == null)
                     combinedName = combinedName.removeSuffix(suff)
             }
 
             // find texture for combined option, else, try flipping existing texture and throw exception if no textures found
-            if (assets.textureAtlas.findRegion("tiles/${terrain}/" + combinedName) != null) {
+            if (assets.atlases.findRegion("tiles/${terrain}/" + combinedName) != null) {
                 tileComponent.name = combinedName
                 initView()
             } else {
@@ -88,7 +88,7 @@ class Decorator {
                             else -> return // "swamp" with no neighbours I guess
                         }
 
-                if (assets.textureAtlas.findRegion("tiles/${terrain}/" + cheapCombinedName) == null) {
+                if (assets.atlases.findRegion("tiles/${terrain}/" + cheapCombinedName) == null) {
                     Gdx.app.error(
                         this@Decorator::class.simpleName,
                         "Combining: Tile texture not found ${"tiles/${terrain}/" + cheapCombinedName}"
@@ -117,7 +117,7 @@ class Decorator {
             }
 
             // if there are "_back" texture, put a tile with it to layer 0
-            val backTexture = assets.textureAtlas.findRegion("tiles/$terrain/${nameNoSuff}_back")
+            val backTexture = assets.atlases.findRegion("tiles/$terrain/${nameNoSuff}_back")
             if (backTexture != null && suff != "_lrtb") {
 
                 //getTile(tiledX, tiledY, 0)?.remove()
@@ -148,7 +148,7 @@ class Decorator {
         //"abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
 
         combinableSuffixes.forEach {
-            if (assets.textureAtlas.findRegion("tiles/${terrain}/" + selfName + "_$it") != null)
+            if (assets.atlases.findRegion("tiles/${terrain}/" + selfName + "_$it") != null)
                 return true
         }
 

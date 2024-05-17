@@ -22,9 +22,10 @@ public class RunTexturePacker {
             settings.maxWidth = 4096;
             settings.scale = new float[]{4F};
             settings.scaleResampling = new TexturePacker.Resampling[]{TexturePacker.Resampling.nearest};
-            TexturePacker.process(settings, "textures", "./", "textures");
             TexturePacker.process(settings, "textures/tiles", "./", "tiles");
             TexturePacker.process(settings, "textures/units", "./", "units");
+            TexturePacker.process(settings, "textures/effects", "./", "effects");
+            TexturePacker.process(settings, "textures/misc", "./", "misc");
             settings.scale = new float[]{3F};
             TexturePacker.process(settings, "textures/gui", "./skin", "wafer-ui");
             System.out.println(RunTexturePacker.class.getSimpleName() + "Done.");

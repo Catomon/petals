@@ -16,8 +16,8 @@ import ctmn.petals.playstage.getTiles
 
 class BorderDrawer(color: Color?  = null, val guiStage: PlayGUIStage) : Actor() {
 
-    val sprite = Sprite(guiStage.assets.textureAtlas.findRegion("gui/tile_available_mark"))
-    private val animation = RegionAnimation(0.1f, guiStage.assets.textureAtlas.findRegions("gui/animated/tile_sel"))
+    val sprite = Sprite(guiStage.assets.atlases.findRegion("gui/tile_available_mark"))
+    private val animation = RegionAnimation(0.1f, guiStage.assets.atlases.findRegions("gui/animated/tile_sel"))
     private val borders = HashMap<Pair<Int, Int>, Border>()
 
     private var borderName = "tile_selection_border"
@@ -96,7 +96,7 @@ class BorderDrawer(color: Color?  = null, val guiStage: PlayGUIStage) : Actor() 
                 else -> "a"
             }
 
-            sprite.setRegion(guiStage.assets.textureAtlas.findRegion("gui/$tileSelectionBorderName"))
+            sprite.setRegion(guiStage.assets.atlases.findRegion("gui/$tileSelectionBorderName"))
             sprite.draw(batch)
         }
     }

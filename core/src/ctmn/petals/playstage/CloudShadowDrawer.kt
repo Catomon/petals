@@ -18,7 +18,7 @@ class CloudShadowDrawer : Actor() {
     private var timeToSpawn = 200f // see setStage
     private var timePassed = Random.nextInt(timeToSpawn.toInt() / 2, timeToSpawn.toInt()).toFloat()
 
-    private val shadowRegions = assets.textureAtlas.findRegions("cloud_shadow")
+    private val shadowRegions = assets.atlases.findRegions("cloud_shadow")
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         super.draw(batch, parentAlpha)

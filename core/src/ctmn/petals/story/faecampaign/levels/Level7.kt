@@ -92,36 +92,10 @@ class Level7 : Scenario("lv_7", "alice_slime") {
         playScreen {
             queueDialogAction(
                 StoryDialog(
-                    "Welcome to Alice story - a story about young magician." said null,
-                    "You start in the meadow as Alice is doing her hobby - fighting slimes" said null,
-                    "I would use a stick though." said alice,
-                    "What?" said null,
-                    "Usually I find a good stick, like, I can't fight with bare hands." said alice,
-                    "I know. But you are not supposed to talk to me." said null,
-                    "Sorry-sorry keep going." said alice,
-                    "Sigh, what is the point of a narrator then. Where are we..." said null,
+                    "Alice story." said null,
                     "Look I spot a good stick over there!" said alice,
                 )
             )
-
-//            queueTask(
-//                MoveUnitTask(
-//                    alice,
-//                    alice.tiledX + alice.movingRange,
-//                    alice.tiledY,
-//                    true
-//                ).description("Select Alice and press marked position to move her there")
-//            )
-
-//            queueTask(ExecuteCommandTask(AttackCommand::class, true).description("Press a slime to fight it")).addOnCompleteTrigger {
-//                queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
-//                    queueTask(ExecuteCommandTask(AttackCommand::class, true).description("Press a slime to fight it")).addOnCompleteTrigger {
-//                        queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
-//
-//                        }
-//                    }
-//                }
-//            }
 
             queueTask(
                 MoveUnitTask(
@@ -148,19 +122,9 @@ class Level7 : Scenario("lv_7", "alice_slime") {
                 }
             }
 
-//            addTrigger(UnitPosRectTrigger(alice, playStage.tiledWidth / 2).expandTop().expandRight()).onTrigger {
-//                queueDialogAction(
-//                    StoryDialog.Quote("")
-//                )
-//            }
-
             addTrigger(UnitsDiedTrigger(slimeLing)).onTrigger {
                 queueDialogAction(
-                    StoryDialog.Quote("Something dropped out of this one!", alice),
-                    StoryDialog.Quote("A book, and it's not even damaged. What is this language?", alice),
-                    StoryDialog.Quote("Cannot know.", null),
-                    StoryDialog.Quote("Look at the drawings, some winged creatures", alice),
-                    StoryDialog.Quote("Faeries, perhaps", null),
+                    StoryDialog.Quote("book", alice),
                 )
             }
         }

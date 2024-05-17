@@ -601,10 +601,14 @@ class PlayGUIStage(
             if (event is CommandExecutedEvent || event is ActionCompletedEvent) {
                 var actionAvailable = false
                 playStage.getUnitsOfPlayer(localPlayer.id).forEach { myUnit ->
-                    if (myUnit.actionPoints >= ACTION_POINTS_MOVE_MIN) {
-                        actionAvailable = true
-                    } else if (playStage.getUnitsOfEnemyOf(localPlayer).any { myUnit.canAttack(it) })
-                        actionAvailable = true
+                    if (myUnit.actionPoints > 0) {
+                        if (myUnit.actionPoints >= ACTION_POINTS_MOVE_MIN) {
+                            actionAvailable = true
+                        } else if (playStage.getUnitsOfEnemyOf(localPlayer).any { myUnit.canAttack(it) })
+                            actionAvailable = true
+                        else if (playStage.getTile(myUnit.tiledX, myUnit.tiledY)?.let { myUnit.canCapture(it) } == true)
+                            actionAvailable = true
+                    }
                 }
                 if (
                     playStage.getCapturablesOf(localPlayer)

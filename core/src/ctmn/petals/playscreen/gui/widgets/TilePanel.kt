@@ -14,7 +14,7 @@ import ctmn.petals.widgets.newLabel
 
 class TilePanel(val guiStage: PlayGUIStage) : VisTable() {
 
-    private val tileIconDrawable = TextureRegionDrawable(assets.textureAtlas.findRegion("tiles/grass/grass"))
+    private val tileIconDrawable = TextureRegionDrawable(assets.atlases.findRegion("tiles/grass/grass"))
     private val tileIcon = VisImage(tileIconDrawable)
 
     private val atkIcon = VisImage(VisUI.getSkin().getDrawable("sword_icon"))

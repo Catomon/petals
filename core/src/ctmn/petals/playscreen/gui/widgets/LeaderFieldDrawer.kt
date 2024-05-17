@@ -19,7 +19,7 @@ import ctmn.petals.unit.UnitActor
 
 class LeaderFieldDrawer(private val guiStage: PlayGUIStage) : Actor() {
 
-    val sprite = Sprite(guiStage.assets.textureAtlas.findRegion("gui/leader_field"))
+    val sprite = Sprite(guiStage.assets.atlases.findRegion("gui/leader_field"))
     private val borders = Array<Pair<Int, Int>>()
 
     init {

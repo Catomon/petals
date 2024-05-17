@@ -11,7 +11,7 @@ import ctmn.petals.actors.actions.OneAction
 
 class StageCover(alpha: Float = 1f) : Widget() {
 
-    private val sprite = Sprite(assets.textureAtlas.findRegion("gui/white"))
+    private val sprite = Sprite(assets.atlases.findRegion("gui/white"))
 
     private var afterFadeOutTime = 0f
 

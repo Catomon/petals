@@ -4,10 +4,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.Stage
 import ctmn.petals.Const
 import ctmn.petals.actors.actions.CameraShakeAction
-import ctmn.petals.actors.actions.UpdateAction
 import ctmn.petals.assets
 import ctmn.petals.newPlaySprite
-import ctmn.petals.playscreen.playStage
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.utils.Movement
 import ctmn.petals.utils.RegionAnimation
@@ -31,7 +29,7 @@ class MeteoriteEffect : EffectActor() {
     private var isExploded = false
 
     init {
-        animation = RegionAnimation(0.25f, assets.textureAtlas.findRegions("effects/meteorite"))
+        animation = RegionAnimation(0.25f, assets.atlases.findRegions("effects/meteorite"))
         sprite = newPlaySprite(animation!!.currentFrame)
 
         lifeTime = 10f

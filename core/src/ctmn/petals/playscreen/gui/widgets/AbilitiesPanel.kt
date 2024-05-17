@@ -172,7 +172,7 @@ class AbilitiesPanel(val guiStage: PlayGUIStage) : VisTable() {
 
                 //find drawable
                 VisUI.getSkin().getDrawable(
-                    guiStage.assets.textureAtlas.findRegion(
+                    guiStage.assets.atlases.findRegion(
                         "gui/icons/${value.name.toLowerCase(Locale.ROOT)}")?.let {
                         "icons/${value.name.toLowerCase(Locale.ROOT)}"
                     } ?: "icons/no_icon")
