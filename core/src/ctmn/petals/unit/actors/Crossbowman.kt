@@ -23,7 +23,8 @@ class Crossbowman : UnitActor(
             AttackComponent(
                 50,
                 60,
-                3
+                3,
+                attackType = ATTACK_TYPE_ALL
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))

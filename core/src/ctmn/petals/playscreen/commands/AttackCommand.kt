@@ -7,6 +7,7 @@ import ctmn.petals.playscreen.*
 import ctmn.petals.unit.*
 import ctmn.petals.playscreen.seqactions.AttackAction
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
 
 class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Command() {
@@ -25,7 +26,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
         if (attackerUnit.isAlly(targetUnit)) return false
 
-        if (!attackerUnit.canAttack(targetUnit)) return false
+        if (!attackerUnit.canAttackNow(targetUnit)) return false
 
         return attackerUnit.actionPoints >= Const.ACTION_POINTS_ATTACK_MIN
     }
@@ -70,7 +71,9 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         }
 
         //take damage if in target attack range
-        if (attackerUnit.isUnitNear(targetUnit, 1)
+        val attackTypeNotOk = targetUnit.isAir && targetUnit.cAttack?.attackType == ATTACK_TYPE_GROUND
+        if (!attackTypeNotOk && targetUnit.canAttack(attackerUnit)
+            && attackerUnit.isUnitNear(targetUnit, 1)
             && targetUnit.cAttack!!.attackRangeBlocked <= 0
             && ((!attackerUnit.isAir || (attackerUnit.isAir && targetUnit.isAir)) || targetUnit.attackRange > 1)
         ) {

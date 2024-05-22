@@ -604,7 +604,7 @@ class PlayGUIStage(
                     if (myUnit.actionPoints > 0) {
                         if (myUnit.actionPoints >= ACTION_POINTS_MOVE_MIN) {
                             actionAvailable = true
-                        } else if (playStage.getUnitsOfEnemyOf(localPlayer).any { myUnit.canAttack(it) })
+                        } else if (playStage.getUnitsOfEnemyOf(localPlayer).any { myUnit.canAttackNow(it) })
                             actionAvailable = true
                         else if (playStage.getTile(myUnit.tiledX, myUnit.tiledY)?.let { myUnit.canCapture(it) } == true)
                             actionAvailable = true

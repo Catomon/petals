@@ -102,7 +102,7 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         game.screen = ps
     }
 
-    private val unitsAtlasRandom = assets.findUnitAtlas(Random.nextInt(1, 9)).textures.first()
+    private val unitsAtlasRandom = assets.findUnitAtlas(Random.nextInt(1, 9)).textures.firstOrNull()
 
     override fun render(delta: Float) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
@@ -117,8 +117,10 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         blackThingy.setSize(300f, height)
         blackThingy.draw(batch, root.color.a)
 
-        val scr = screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
-        batch.draw(unitsAtlasRandom, scr.x - unitsAtlasRandom.width / 2f, scr.y - unitsAtlasRandom.height / 2f)
+        if (unitsAtlasRandom != null) {
+            val scr = screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+            batch.draw(unitsAtlasRandom, scr.x - unitsAtlasRandom.width / 2f, scr.y - unitsAtlasRandom.height / 2f)
+        }
 
         batch.end()
 

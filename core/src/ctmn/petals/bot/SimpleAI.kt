@@ -124,8 +124,8 @@ class SimpleAI(
 
     /** returns command for unit with not leader **/
     private fun single(unit: UnitActor) : Command? {
-        if (unit.canAttack()) {
-            val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttack(it) }
+        if (unit.canAttackNow()) {
+            val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttackNow(it) }
             if ((enemyUnit != null)) {
                 val command = AttackCommand(unit, enemyUnit)
                 if (command.canExecute(playScreen)) return command
@@ -176,8 +176,8 @@ class SimpleAI(
 
 
             // attack if can
-            if (unit.canAttack()) {
-                val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttack(it) }
+            if (unit.canAttackNow()) {
+                val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttackNow(it) }
                 if ((enemyUnit != null)) {
                     val command = AttackCommand(unit, enemyUnit)
                     if (command.canExecute(playScreen)) return command
@@ -199,8 +199,8 @@ class SimpleAI(
         }
 
         //if unit can attack
-        if (unit.canAttack()) {
-            val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttack(it) }
+        if (unit.canAttackNow()) {
+            val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttackNow(it) }
             if ((enemyUnit != null)) {
                 val command = AttackCommand(unit, enemyUnit)
                 if (command.canExecute(playScreen)) return command
@@ -218,8 +218,8 @@ class SimpleAI(
         //attack if unit will have at least 15 health
         // and enemyDamage will not be higher than leaderDamage by more than 15
         // or if enemy dies
-        if (unit.canAttack()) {
-            val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttack(it) }
+        if (unit.canAttackNow()) {
+            val enemyUnit = playStage.getUnitsOfEnemyOf(aiPlayer).firstOrNull { unit.canAttackNow(it) }
             if (enemyUnit != null) {
                 val command = AttackCommand(unit, enemyUnit)
                 if (command.canExecute(playScreen)) {

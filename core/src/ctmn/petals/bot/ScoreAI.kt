@@ -80,7 +80,7 @@ class ScoreAI(
                     commands.add(MoveUnitCommand(unit, tile.tiledX, tile.tiledY))
 
             for (eUnit in playScreen.playStage.getUnitsOfEnemyOf(aiPlayer)) {
-                if (unit.canAttack(eUnit))
+                if (unit.canAttackNow(eUnit))
                     commands.add(AttackCommand(unit, eUnit))
             }
         }

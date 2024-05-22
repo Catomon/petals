@@ -60,7 +60,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
 
             when {
                 levelProgress != null && levelProgress.state > 0 -> {
-                    statusImage.setDrawable(VisUI.getSkin().newDrawable("completed_level"))
+                    statusImage.drawable = VisUI.getSkin().newDrawable("completed_level")
 
                     addActorBefore(
                         label, VisImage(
@@ -108,9 +108,9 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
                 var curCol = 0
                 for (i in 0 until story.size) {
                     val levelType = when {
-                        i <= 8 -> "forest_level"
-                        i <= 16 -> "road_level"
-                        else -> "mountain_level"
+                        i <= 6 -> "forest_level"
+                        i <= 12 -> "mountain_level"
+                        else -> "road_level"
                     }
                     add(LevelButton(i + 1, levelType).addChangeListener {
                         game.startLevel(story, story.getScenario(i))

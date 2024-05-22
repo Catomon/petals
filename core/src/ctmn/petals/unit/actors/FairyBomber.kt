@@ -23,7 +23,8 @@ class FairyBomber : UnitActor(
             AttackComponent(
                 40,
                 60,
-                1
+                1,
+                attackType = ATTACK_TYPE_GROUND
             )
         )
 

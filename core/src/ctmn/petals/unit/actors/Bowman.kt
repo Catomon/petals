@@ -22,7 +22,8 @@ class Bowman : UnitActor(
             AttackComponent(
                 40,
                 50,
-                3
+                3,
+                attackType = ATTACK_TYPE_ALL
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().also {

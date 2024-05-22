@@ -24,7 +24,8 @@ class FairyScout : UnitActor(
             AttackComponent(
                 40,
                 60,
-                1
+                1,
+                attackType = ATTACK_TYPE_ALL
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().apply {

@@ -107,7 +107,7 @@ class TileSelectionDrawer(private val guiStage: PlayGUIStage) : Actor() {
                     is UnitActor -> {
                         if (hoveringActor != guiStage.selectedUnit
                             && !guiStage.selectedUnit!!.isAlly((hoveringActor as UnitActor))
-                            && guiStage.selectedUnit!!.canAttack(hoveringActor as UnitActor)) {
+                            && guiStage.selectedUnit!!.canAttackNow(hoveringActor as UnitActor)) {
                             hoveringSprite.setRegion(attackUnitTexture)
                         } else {
                             if (hoveringActor == guiStage.selectedUnit)

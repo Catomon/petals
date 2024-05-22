@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
 import ctmn.petals.newPlayPuiSprite
-import ctmn.petals.newPlaySprite
 import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.tile.components.ActionCooldown
 import ctmn.petals.tile.isBase
@@ -107,7 +106,7 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
                         actionPointsSprite.setRegion(actionPointsAnimation.currentFrame)
                         actionPointsSprite.draw(batch)
                     }
-                    unit.canAttack() -> {
+                    unit.canAttackNow() -> {
                         actionPointsSprite.setRegion(actionPointsAnimation.keyFrames[0])
                         actionPointsSprite.draw(batch)
                     }

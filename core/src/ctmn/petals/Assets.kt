@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.playerColorName
+import ctmn.petals.utils.log
 import ctmn.petals.utils.replaceColor
 
 lateinit var assets: Assets
@@ -97,6 +98,7 @@ class Assets : AssetManager() {
         TileData.parseTiles()
     }
 
+    //what color of standard(blue player) replace to other color
     private val redPlayerColors = arrayOf(
         // faerie
         -10763539 to -1221769, // bright blue
@@ -108,10 +110,11 @@ class Assets : AssetManager() {
     )
 
     fun findUnitAtlas(playerColor: String): TextureAtlas {
-        println("trying " + playerColor)
         val assetName = "units_$playerColor.atlas"
-        if (!contains(assetName)) return unitsAtlas
-        println("found " + assetName)
+        if (!contains(assetName)) {
+            log("Unit colors for player id not found: $playerColor")
+            return unitsAtlas
+        }
         return get(assetName)
     }
 

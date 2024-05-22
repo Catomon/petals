@@ -26,7 +26,6 @@ import ctmn.petals.playscreen.seqactions.KillUnitAction
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
-import ctmn.petals.unit.actors.AngryOwl
 import ctmn.petals.unit.actors.FairyBomber
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
@@ -236,13 +235,27 @@ fun UnitActor.haveActionPoints(): Boolean {
 }
 
 /** @return true if unit has enough AP to attack and has no Debuffs that are blocking it */
-fun UnitActor.canAttack(): Boolean {
+fun UnitActor.canAttackNow(): Boolean {
     return actionPoints > 0 && !buffs.any { it.name == "freeze" }
 }
 
+fun UnitActor.canAttackNow(unit: UnitActor): Boolean {
+    //if (!isAir && unit.isAir && attackRange < 2) return false
+    when {
+        cAttack?.attackType == ATTACK_TYPE_AIR && !unit.isAir -> return false
+        cAttack?.attackType == ATTACK_TYPE_GROUND && unit.isAir -> return false
+    }
+    return canAttackNow() && isInAttackArea(unit) && canAttack(unit)
+}
+
 fun UnitActor.canAttack(unit: UnitActor): Boolean {
-    if (!isAir && unit.isAir && attackRange < 2) return false
-    return canAttack() && isInAttackArea(unit)
+    when {
+        cAttack?.attackType == ATTACK_TYPE_AIR && !unit.isAir -> return false
+        cAttack?.attackType == ATTACK_TYPE_GROUND && unit.isAir -> return false
+        //cAttack?.attackType == ATTACK_TYPE_ALL && isAir && unit.isAir &&  -> return false
+    }
+
+    return true
 }
 
 /** @return true if player has enough AP to move and has no Debuffs that are blocking it */

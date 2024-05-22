@@ -191,7 +191,7 @@ class EvilTreeBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
     private fun attackCommand() : Boolean {
         for (unit in unitsAwaitingOrders) {
             for (enemyUnit in enemyUnits) {
-                if (unit.canAttack()) {
+                if (unit.canAttackNow()) {
                     if (unit.inAttackRange(enemyUnit.tiledX, enemyUnit.tiledY)) {
                         val command = AttackCommand(unit, enemyUnit)
 

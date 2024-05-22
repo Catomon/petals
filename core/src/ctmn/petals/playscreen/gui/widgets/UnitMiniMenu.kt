@@ -119,7 +119,7 @@ class UnitMiniMenu(val guiStage: PlayGUIStage) : VerticalGroup() {
         if (unit.canMove())
             addActor(moveButton)
 
-        if (unit.canAttack())
+        if (unit.canAttackNow())
             addActor(attackButton)
 
         if (unit.cAbilities != null)

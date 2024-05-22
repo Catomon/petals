@@ -38,7 +38,7 @@ class AttackIconsDrawer(private val guiStage: PlayGUIStage) : Actor() {
         if (!guiStage.isUnitSelected)
             return
 
-        if (guiStage.selectedUnit?.canAttack() == true) {
+        if (guiStage.selectedUnit?.canAttackNow() == true) {
             for (unit in guiStage.playStage.getUnits()) {
                 if (unit.isAlly(guiStage.selectedUnit!!) || !unit.isVisible)
                     continue

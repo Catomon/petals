@@ -24,7 +24,8 @@ class GoblinBow : UnitActor(
             AttackComponent(
                 30,
                 40,
-                3
+                3,
+                attackType = ATTACK_TYPE_ALL
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot.also {
