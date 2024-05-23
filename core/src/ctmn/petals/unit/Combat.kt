@@ -17,6 +17,20 @@ fun PlayScreen.randomDamage(min: Int, max: Int): Int {
     return random.nextInt(modMinDamage, modMaxDamage + 1)
 }
 
+/** up to 50% damage and 25% defense reducing depending on health */
+val UnitActor.combatDamageHpMod: Float
+    get() {
+        val modifierHealth: Float = health.toFloat() / unitComponent.baseHealth.toFloat()
+        return modifierHealth / 2 + 0.5f
+    }
+
+/** up to 50% damage and 25% defense reducing depending on health */
+val UnitActor.combatDefenseHpMod: Float
+    get() {
+        val modifierHealth: Float = health.toFloat() / unitComponent.baseHealth.toFloat()
+        return modifierHealth / 4 + 0.75f
+    }
+
 fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, Int> {
     val playStage = unit.playStageOrNull
 
@@ -93,11 +107,8 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
         }
     }
 
-    //up to 50% damage and 25% defense reducing depending on health
-    val modifierHealth: Float = unit.health.toFloat() / unit.unitComponent.baseHealth.toFloat()
-
-    val damageMod = modifierHealth / 2 + 0.5
-    val defenseMod = modifierHealth / 4 + 0.75
+    val damageMod = unit.combatDamageHpMod
+    val defenseMod = unit.combatDefenseHpMod
 
     minDMG = (minDMG * damageMod).toInt()
     maxDMG = (maxDMG * damageMod).toInt()

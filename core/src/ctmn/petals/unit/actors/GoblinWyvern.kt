@@ -20,7 +20,7 @@ class GoblinWyvern : UnitActor(
     init {
         add(
             AttackComponent(
-                40,
+                45,
                 60,
                 1
             )

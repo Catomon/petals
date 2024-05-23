@@ -657,9 +657,8 @@ open class PlayScreen(
                     if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
                         unitOnTile.captureBase(tile, turnManager.getPlayerById(unitOnTile.playerId))
                         playStage.root.fire(BaseCapturedEvent(tile))
-                    } else {
-                        tile.components.remove(CapturingComponent::class.java)
                     }
+                    tile.components.remove(CapturingComponent::class.java)
                 }
 
                 // remove cooldown

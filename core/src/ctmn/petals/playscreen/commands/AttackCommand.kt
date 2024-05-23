@@ -9,6 +9,8 @@ import ctmn.petals.playscreen.seqactions.AttackAction
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
+import ctmn.petals.utils.getSurroundingUnits
+import ctmn.petals.utils.getUnitsInRange
 
 class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Command() {
 
@@ -68,6 +70,26 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
             val isUnitDefenderDie = targetUnit.health <= 0
             if (isUnitDefenderDie) targetUnit.killedBy(attackerUnit, playScreen)
+
+            //splash damage
+            val attackerAttackC = attackerUnit.cAttack
+            if (attackerAttackC != null && attackerAttackC.attackSplashRange > 0) {
+                val unitsInRange = playScreen.playStage.getUnitsInRange(
+                    targetUnit.tiledX,
+                    targetUnit.tiledY,
+                    attackerAttackC.attackSplashRange
+                )
+                unitsInRange.forEach {
+                    if ((it.tiledX != targetUnit.tiledX || it.tiledY != targetUnit.tiledY) && !it.isAlly(attackerUnit)) {
+                        it.dealDamage(
+                            (attackerAttackC.attackSplashDamage * attackerUnit.combatDamageHpMod).toInt(),
+                            attackerUnit,
+                            playScreen,
+                            true
+                        )
+                    }
+                }
+            }
         }
 
         //take damage if in target attack range

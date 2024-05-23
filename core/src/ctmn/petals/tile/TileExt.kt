@@ -34,6 +34,10 @@ val TileActor.isBurning: Boolean
     get() {
         return selfName == Tiles.BURNING_FOREST
     }
+val TileActor.isFluid get() = terrain == TerrainNames.water
+        || terrain == TerrainNames.deepwater
+        || terrain == TerrainNames.lava
+        || terrain == TerrainNames.swamp
 
 fun TileActor.isPassableAndFree(): Boolean {
     return !isOccupied && terrain != TerrainNames.impassable

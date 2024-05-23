@@ -13,6 +13,8 @@ data class AttackComponent(
     var maxDamage: Int = 0,
     var attackRange: Int = 0, //attack range end
     var attackRangeBlocked: Int = 0, //attack range start
+    var attackSplashDamage: Int = 0,
+    var attackSplashRange: Int = 0, // 0 - no splash
     var attackType: String = ATTACK_TYPE_GROUND
 ) : Component, CopyableComponent {
 

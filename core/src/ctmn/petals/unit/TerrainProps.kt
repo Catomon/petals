@@ -1,5 +1,6 @@
 package ctmn.petals.unit
 
+import ctmn.petals.tile.TerrainNames.land_capturable
 import ctmn.petals.tile.TerrainNames.base
 import ctmn.petals.tile.TerrainNames.chasm
 import ctmn.petals.tile.TerrainNames.crystals
@@ -216,7 +217,7 @@ object TerrainPropsPack {
         put(impassable, UNREACHABLE)
         put(indoors, UNREACHABLE)
         put(highwall, UNREACHABLE)
-        put(base, 1) //TODO prevent moving on land bases
+        put(base, 1)
         put(hills, UNREACHABLE)
         put(earthcrack, UNREACHABLE)
         put(tower, UNREACHABLE)
@@ -225,6 +226,7 @@ object TerrainPropsPack {
         put(skyscraper, UNREACHABLE)
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
+        put(land_capturable, UNREACHABLE)
     }
 
     val slime = TerrainProps().apply {

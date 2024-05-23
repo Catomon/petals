@@ -1,25 +1,23 @@
 package ctmn.petals.unit
 
 import com.badlogic.ashley.core.Component
-import ctmn.petals.Assets
-import ctmn.petals.Const
-import ctmn.petals.unit.component.*
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.google.gson.JsonObject
+import ctmn.petals.Assets
+import ctmn.petals.Const
 import ctmn.petals.effects.Animations
 import ctmn.petals.newPlaySprite
 import ctmn.petals.playscreen.playStageOrNull
-import ctmn.petals.playstage.GameActor
 import ctmn.petals.playscreen.selfName
+import ctmn.petals.playstage.GameActor
 import ctmn.petals.tile.TerrainNames
+import ctmn.petals.tile.isFluid
+import ctmn.petals.unit.component.*
 import ctmn.petals.utils.*
 import ctmn.petals.utils.serialization.Jsonable
-import java.util.*
 
 open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsonable {
 
@@ -243,11 +241,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         if (!::viewComponent.isInitialized) return
 
         playStageOrNull?.let { playStage ->
-            val terrain = playStage.getTile(x, y)?.terrain
-            isWater = terrain == TerrainNames.water
-                    || terrain == TerrainNames.deepwater
-                    || terrain == TerrainNames.lava
-                    || terrain == TerrainNames.swamp
+            isWater = playStage.getTile(x, y)?.isFluid == true
         }
     }
 

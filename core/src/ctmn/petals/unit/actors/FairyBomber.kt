@@ -21,9 +21,11 @@ class FairyBomber : UnitActor(
     init {
         add(
             AttackComponent(
-                40,
-                60,
+                35,
+                55,
                 1,
+                attackSplashDamage = 20,
+                attackSplashRange = 1,
                 attackType = ATTACK_TYPE_GROUND
             )
         )
@@ -39,6 +41,6 @@ class FairyBomber : UnitActor(
         super.loadAnimations()
 
         attackAnimation?.frameDuration = 0.175f
-        animationProps.attackFrame = 10f / 11f
+        animationProps.attackFrame = 10f / 12f
     }
 }

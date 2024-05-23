@@ -2,6 +2,7 @@ package ctmn.petals
 
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import ctmn.petals.utils.AnimatedSprite
 
 /** creates a sprite and makes it 4 times smaller */
 fun newPlaySprite(region: TextureRegion) : Sprite {
@@ -12,3 +13,5 @@ fun newPlaySprite(region: TextureRegion) : Sprite {
 fun newPlayPuiSprite(region: TextureRegion) : Sprite {
     return Sprite(region).apply { setSize(width / 3, height / 3); setOriginCenter() }
 }
+
+fun AnimatedSprite.resizeFromPui() = this.apply { setSize(width / 3, height / 3); setOriginCenter() }

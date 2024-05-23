@@ -277,12 +277,20 @@ fun UnitActor.canMove(tileX: Int, tileY: Int): Boolean {
             && playStage.getTile(tileX, tileY)?.isPassableAndFree() ?: false
 }
 
+fun UnitActor.addAttackDamage(amount: Int) {
+    cAttack?.apply {
+        minDamage += amount
+        maxDamage += amount
+    }
+}
+
 fun UnitActor.canCapture(): Boolean {
     return (selfName != UnitIds.GOBLIN_GIANT
             && selfName != UnitIds.HUNTER
             && selfName != UnitIds.GOBLIN_SCOUT
             && selfName != UnitIds.PIXIE
-            //&& !isAir
+            && !isLeader
+            && !(isAir && cAttack?.attackType == ATTACK_TYPE_GROUND)
             )
 }
 

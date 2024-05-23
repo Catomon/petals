@@ -108,6 +108,7 @@ class Level7 : Scenario("lv_7", "alice_slime") {
                 stick.remove()
                 alice.attackAnimation = alice.stickAttackAni
                 alice.setAnimation(alice.pickUpAni)
+                alice.addAttackDamage(10)
                 queueTask(
                     ExecuteCommandTask(AttackCommand::class, true).description(
                         "Press a slime to fight it"

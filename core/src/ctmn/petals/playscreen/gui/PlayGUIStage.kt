@@ -98,6 +98,7 @@ class PlayGUIStage(
     //not widgets
     val tileSelectionDrawer = TileSelectionDrawer(this)
     private val attackIconsDrawer = AttackIconsDrawer(this).also { it.isVisible = true }
+    private val iconsDrawer = IconsDrawer(this)
     private val leaderFieldDrawer = LeaderFieldDrawer(this)
     private val unitInfoDrawer = UnitInfoDrawer(this)
     private val animationsUpdater = AnimationsUpdater(this)
@@ -338,9 +339,9 @@ class PlayGUIStage(
                     return@addListener false
                 }
 
-                if (unit.canCapture(tile)) return@addListener false
+                captureButton.isDisabled = !unit.canCapture(tile)
 
-                captureButton.isDisabled = false
+                //if (unit.canCapture(tile)) return@addListener false
             }
 
             false
@@ -648,6 +649,7 @@ class PlayGUIStage(
         playStage.addActor(attackIconsDrawer)
         playStage.addActor(tileHighlighter)
         playStage.addActor(tileSelectionDrawer)
+        playStage.addActor(iconsDrawer)
         playStage.addActor(unitInfoDrawer)
         playStage.addActor(movementCostDrawer)
         playStage.addActorAfterTiles(movementBorder)

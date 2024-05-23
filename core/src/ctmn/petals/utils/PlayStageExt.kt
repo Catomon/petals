@@ -10,7 +10,7 @@ import ctmn.petals.unit.tiledY
 import kotlin.math.max
 
 fun PlayStage.getUnitsInRange(tileX: Int, tileY: Int, range: Int) : Array<UnitActor> {
-    return getUnits().apply { removeAll { it.isInRange(tileX, tileY, range) } }
+    return getUnits().apply { removeAll { !it.isInRange(tileX, tileY, range) } }
 }
 
 fun PlayStage.getTilesInRange(tileX: Int, tileY: Int, range: Int, removeMid: Boolean = false) : Array<TileActor> {

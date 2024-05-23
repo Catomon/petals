@@ -49,8 +49,8 @@ class Alice : UnitActor(
         )
         add(
             AttackComponent(
-                25,
-                30,
+                10,
+                15,
                 1
             )
         )
