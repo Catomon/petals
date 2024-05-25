@@ -189,6 +189,9 @@ private class BuyMenuWindow(
                 else
                     TextureRegionDrawable(region)
 
+            button.style.imageUp.minWidth = 64f
+            button.style.imageUp.minHeight = 64f
+
             labelCost.setPosByCenter(32f + labelCost.width / 2, 84f)
 
             addActor(button)

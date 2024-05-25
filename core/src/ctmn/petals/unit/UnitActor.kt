@@ -5,11 +5,12 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.scenes.scene2d.Action
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.google.gson.JsonObject
-import ctmn.petals.Assets
-import ctmn.petals.Const
+import ctmn.petals.*
 import ctmn.petals.effects.Animations
-import ctmn.petals.newPlaySprite
+import ctmn.petals.effects.MissileActor
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.GameActor
@@ -31,6 +32,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     var talkingAnimation: RegionAnimation? = null
     var airborneAnimation: RegionAnimation? = null
     var postAirborneAnimation: RegionAnimation? = null
+    
+    open val attackEffect: MissileActor? = null
 
     private var currentAnimationDuration = 0f
 
@@ -38,6 +41,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     class AnimationProps {
         var attackFrame = 1f
+        var subAttackFrame = 0f
     }
 
     init {
@@ -75,10 +79,10 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             isViewInitialized = true
         }
 
-        if (sprite!!.width < Const.TILE_SIZE)
-            sprite!!.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
-        if (sprite!!.width > Const.TILE_SIZE * 2)
-            sprite!!.setSize(Const.TILE_SIZE * 2f, Const.TILE_SIZE * 2f)
+//        if (sprite!!.width < Const.TILE_SIZE)
+//            sprite!!.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
+//        if (sprite!!.width > Const.TILE_SIZE * 2)
+//            sprite!!.setSize(Const.TILE_SIZE * 2f, Const.TILE_SIZE * 2f)
 
         sprite?.setOriginCenter()
 
@@ -92,6 +96,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     }
 
     protected open fun loadAnimations() {
+        attackAnimation = findAnimation("${selfName}_attack", 0.25f)
         attackAnimation = findAnimation("${selfName}_attack", 0.25f)
     }
 
@@ -176,6 +181,12 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         viewComponent.update(delta)
     }
 
+//    private fun adjustSpriteSize() {
+//        val sprite = sprite ?: return
+//        if (sprite.regionHeight)
+//        sprite.setSize(sprite.width, (sprite.regionHeight).toFloat())
+//    }
+
     private var isWater = false
     private var waterSprite = newPlaySprite(Animations.waterWaves.currentFrame)
 
@@ -187,18 +198,36 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         sprite.setAlpha(color.a)
 
         if (isWater) {
-            sprite.regionHeight -= 48
+            sprite.regionHeight -= 12.toPlayScale()
             sprite.regionY -= 0
 
-            viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2 + 5)
+            viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2 + 10.toPlayScale())
 
-            waterSprite.setPosition(sprite.x, sprite.y - 7 - 4)
+            waterSprite.setPosition(sprite.x, sprite.y - 12.toPlayScale())
+
+            if (sprite.width > 32) {
+                sprite.setSize(32f, 32f - 12f)
+            } else {
+                sprite.setSize(sprite.width, sprite.height - 12f)
+            }
         } else {
             if (actions.isEmpty)
                 viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2)
+
+            if (sprite.width > 32) {
+                sprite.setSize(32f, 32f)
+            } else {
+                sprite.setSize(32f, 32f)
+            }
         }
 
-        sprite.setSize(sprite.width, (sprite.regionHeight / 4).toFloat())
+//        sprite.setSize(sprite.width, (sprite.regionHeight).toFloat())
+//
+//        if (sprite.width > 32) {
+//            sprite.setSize(32f, sprite.height)
+//            if (sprite.height > 32f)
+//                sprite.setSize()
+//        }
 
         viewComponent.draw(batch as SpriteBatch)
 

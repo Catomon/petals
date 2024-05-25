@@ -1,52 +1,64 @@
 package ctmn.petals.story.faecampaign.levels
 
-import com.badlogic.gdx.scenes.scene2d.Event
-import com.badlogic.gdx.scenes.scene2d.EventListener
+import com.badlogic.gdx.utils.Array
+import ctmn.petals.assets
 import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.player.newBluePlayer
-import ctmn.petals.player.newRedPlayer
+import ctmn.petals.bot.SimpleBot
+import ctmn.petals.player.*
 import ctmn.petals.playscreen.*
-import ctmn.petals.playscreen.events.ActionCompletedEvent
-import ctmn.petals.playscreen.events.GameOverEvent
-import ctmn.petals.playscreen.events.UnitDiedEvent
-import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
-import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
-import ctmn.petals.playscreen.tasks.Task
+import ctmn.petals.playscreen.commands.AttackCommand
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
+import ctmn.petals.playscreen.gui.widgets.said
+import ctmn.petals.playscreen.listeners.TurnsCycleListener
+import ctmn.petals.playscreen.tasks.*
+import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
+import ctmn.petals.playscreen.triggers.TurnCycleTrigger
+import ctmn.petals.playscreen.triggers.UnitPosRectTrigger
+import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
+import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.playstage.getUnit
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
+import ctmn.petals.story.alice
+import ctmn.petals.story.alissa.CreateUnit.alice
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
-import ctmn.petals.unit.playerId
-import ctmn.petals.utils.log
+import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.TileData
+import ctmn.petals.unit.*
+import ctmn.petals.unit.actors.FairyAxe
+import ctmn.petals.unit.actors.SlimeLing
+import ctmn.petals.unit.actors.SlimeTiny
 
-class Level1 : Scenario("lv_1", "level_1") {
-
-    private val task by lazy { KeepPlayerUnitsAlive(players[1]) }
+class Level1 : Scenario("lv_1", "alice_slime") {
 
     init {
         players.addAll(
             newBluePlayer,
             newRedPlayer,
+            Player("Slimes", 4, 4)
         )
 
         player = players.first()
 
-        gameEndCondition = EliminateEnemyUnits()
+        gameEndCondition = Manual().apply { ignorePlayers.add(players[2].id) }
     }
-
-    private var initialUnits = 0
 
     override fun createLevel(playScreen: PlayScreen) {
         super.createLevel(playScreen)
 
-        initialUnits = playStage.getUnitsOfPlayer(players[0]).size
+        playScreen.gameMode = GameMode.STORY
     }
 
     override fun evaluateResult() {
-        //playScreen.taskManager.getTasks().all { it.state == Task.State.SUCCEEDED }
+        if (!gameEndCondition.winners.contains(player!!.id)) {
+            result = 0
+            return
+        }
+
         result = when {
-            task.state == Task.State.SUCCEEDED -> 3
-            playScreen.playStage.getUnitsOfPlayer(players[0]).size >= initialUnits / 2 -> 2
+            playScreen.turnManager.round <= 10 -> 3
+            playScreen.turnManager.round <= 15 -> 2
             else -> 1
         }
     }
@@ -54,14 +66,68 @@ class Level1 : Scenario("lv_1", "level_1") {
     override fun makeScenario(playScreen: PlayScreen) {
         super.makeScenario(playScreen)
 
+        val player = player!!
+
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
+            simpleAI.roamingIfNoAgro = true
+            simpleAI.agroRange = 3
+            simpleAI.permaAgro = false
+            simpleAI.roamingMaxRange = 3
+        })
+        playScreen.fogOfWarManager.drawFog = false
+
+        //        gameEndCondition.win()
+        //                else
+        //                    gameEndCondition.lose()
+
+        val alice = playScreen.alice()
+        val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange, alice.tiledY)
+        playStage.addActor(stick)
+        playStage.addActor(SlimeTiny().player(players[2]).position(stick.tiledX + 1, stick.tiledY))
+
+        val slimeLing = playStage.getUnit<SlimeLing>()!!
+        slimeLing.item = assets.tilesAtlas.findRegion("items/book")
 
         playScreen {
-            addTask(EliminateAllEnemyUnitsTask().description("Kill enemy units")).addOnCompleteTrigger {
-                //gameOverSuccess()
+            queueDialogAction(
+                StoryDialog(
+                    "Alice story." said null,
+                    "Look I spot a good stick over there!" said alice,
+                )
+            )
+
+            queueTask(
+                MoveUnitTask(
+                    alice,
+                    stick.tiledX,
+                    stick.tiledY,
+                    true
+                ).description("Select Alice and press a tile to move to.")
+            ).addOnCompleteTrigger {
+                stick.remove()
+                alice.attackAnimation = alice.stickAttackAni
+                alice.setAnimation(alice.pickUpAni)
+                alice.addAttackDamage(10)
+                queueTask(
+                    ExecuteCommandTask(AttackCommand::class, true).description(
+                        "Press a slime to fight it"
+                    )
+                ).addOnCompleteTrigger {
+                    queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
+                        val threeSlimes = Array<UnitActor>().apply {
+                            playStage.getUnitsOfPlayer(players[2].id).forEach { add(it) }
+                        }
+                        queueTask(EliminateAllEnemyUnitsTask(threeSlimes, 3).description("Kill at least 3 slimes"))
+                    }
+                }
             }
 
-            addTask(task)
+            addTrigger(UnitsDiedTrigger(slimeLing)).onTrigger {
+                queueDialogAction(
+                    StoryDialog.Quote("book", alice),
+                )
+            }
         }
     }
 }

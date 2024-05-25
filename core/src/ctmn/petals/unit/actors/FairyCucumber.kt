@@ -1,10 +1,13 @@
 package ctmn.petals.unit.actors
 
+import ctmn.petals.effects.MissileActor
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.CUCUMBER
 import ctmn.petals.unit.component.*
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
 
 class FairyCucumber : UnitActor(
     UnitComponent(
@@ -16,6 +19,12 @@ class FairyCucumber : UnitActor(
         UNIT_TYPE_WATER
     )
 ) {
+
+    override val attackEffect: MissileActor
+        get() = MissileActor(
+            "cucumber_missile",
+            "cucumber_explosion"
+        ).also { it.setStart(centerX, centerY + 5) }
 
     init {
         add(SummonableComponent(50))

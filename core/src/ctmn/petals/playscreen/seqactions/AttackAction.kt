@@ -1,12 +1,16 @@
 package ctmn.petals.playscreen.seqactions
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.Const
+import ctmn.petals.effects.MissileActor
 import ctmn.petals.effects.UnitAttackEffect
 import ctmn.petals.effects.UnitShakeAction
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.cAnimationView
 import ctmn.petals.unit.tiledX
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
 
 class AttackAction(
     val attackerUnit: UnitActor,
@@ -22,10 +26,22 @@ class AttackAction(
     private var attackerAttacked = false
     private var defenderAttacked = false
 
+    private var attackMissile: MissileActor? = null
+
     override fun update(deltaTime: Float) {
+        if (attackMissile != null) {
+            if (attackMissile!!.stage == null)
+                attackMissile = null
+            else {
+                if (attackerUnit.animationProps.subAttackFrame == 0f && attackMissile!!.isLanded)
+                    attackMissile = null
+            }
+        }
+
         if (!attackerAttacked) {
-            if (attackerUnit.animationProps.attackFrame <= (attackerUnit.attackAnimation?.progressLast
+            if ((attackerUnit.animationProps.attackFrame <= (attackerUnit.attackAnimation?.progressLast
                     ?: 0f) || attackerUnit.cAnimationView?.animation != attackerUnit.attackAnimation
+                        ) && attackMissile == null
             ) {
 
                 damageTarget()
@@ -74,6 +90,14 @@ class AttackAction(
         }
 
         attackerUnit.viewComponent.flipX = targetUnit.tiledX < attackerUnit.tiledX
+
+        if (attackerUnit.attackEffect != null) {
+            attackMissile = attackerUnit.attackEffect
+            val attackMissile = attackMissile as MissileActor
+            //attackMissile.setPosition(attackerUnit.centerX, attackerUnit.centerY)
+            attackMissile.setTarget(targetUnit.centerX, targetUnit.centerY)
+            playScreen.playStage.addActor(attackMissile)
+        }
 
         return true
     }

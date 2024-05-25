@@ -1,16 +1,14 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.assets
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.bot.SimpleBot
 import ctmn.petals.player.*
 import ctmn.petals.playscreen.*
-import ctmn.petals.playscreen.commands.AttackCommand
-import ctmn.petals.playscreen.gui.widgets.StoryDialog
-import ctmn.petals.playscreen.gui.widgets.said
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
-import ctmn.petals.playscreen.tasks.*
+import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
+import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
+import ctmn.petals.playscreen.tasks.Task
 import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
 import ctmn.petals.playscreen.triggers.TurnCycleTrigger
 import ctmn.petals.playscreen.triggers.UnitPosRectTrigger
@@ -19,18 +17,14 @@ import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.playstage.getUnit
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
-import ctmn.petals.story.alice
-import ctmn.petals.story.alissa.CreateUnit.alice
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
-import ctmn.petals.tile.TileActor
-import ctmn.petals.tile.TileData
-import ctmn.petals.unit.*
+import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.actors.FairyAxe
-import ctmn.petals.unit.actors.SlimeLing
-import ctmn.petals.unit.actors.SlimeTiny
+import ctmn.petals.unit.tiledY
 
-class Level7 : Scenario("lv_7", "alice_slime") {
+class Level7 : Scenario("lv_7", "level_swamp") {
 
     init {
         players.addAll(
@@ -41,13 +35,13 @@ class Level7 : Scenario("lv_7", "alice_slime") {
 
         player = players.first()
 
-        gameEndCondition = Manual().apply { ignorePlayers.add(players[2].id) }
+        gameEndCondition = CaptureBases().apply { ignorePlayers.add(players[2].id) }
     }
 
     override fun createLevel(playScreen: PlayScreen) {
         super.createLevel(playScreen)
 
-        playScreen.gameMode = GameMode.STORY
+        playScreen.gameMode = GameMode.CRYSTALS
     }
 
     override fun evaluateResult() {
@@ -57,8 +51,8 @@ class Level7 : Scenario("lv_7", "alice_slime") {
         }
 
         result = when {
-            playScreen.turnManager.round <= 10 -> 3
-            playScreen.turnManager.round <= 15 -> 2
+            playScreen.turnManager.round <= 20 -> 3
+            playScreen.turnManager.round <= 25 -> 2
             else -> 1
         }
     }
@@ -71,63 +65,28 @@ class Level7 : Scenario("lv_7", "alice_slime") {
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 3
+            simpleAI.agroRange = 1
             simpleAI.permaAgro = false
             simpleAI.roamingMaxRange = 3
         })
-        playScreen.fogOfWarManager.drawFog = false
 
-        //        gameEndCondition.win()
-        //                else
-        //                    gameEndCondition.lose()
+        playScreen.fogOfWarManager.drawFog = true
+        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {units ->
+            fairyUnits.units.filter { unit ->
+                unit.selfName == UnitIds.DOLL_AXE
+                        || unit.selfName == UnitIds.DOLL_SWORD
+                        || unit.selfName == UnitIds.DOLL_PIKE
+                        || unit.selfName == UnitIds.DOLL_BOW
+                        || unit.selfName == UnitIds.DOLL_SCOUT
+            }.forEach {
+                units.add(it)
+            }
 
-        val alice = playScreen.alice()
-        val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange, alice.tiledY)
-        playStage.addActor(stick)
-        playStage.addActor(SlimeTiny().player(players[2]).position(stick.tiledX + 1, stick.tiledY))
-
-        val slimeLing = playStage.getUnit<SlimeLing>()!!
-        slimeLing.item = assets.tilesAtlas.findRegion("items/book")
+            check(!units.isEmpty)
+        }
 
         playScreen {
-            queueDialogAction(
-                StoryDialog(
-                    "Alice story." said null,
-                    "Look I spot a good stick over there!" said alice,
-                )
-            )
 
-            queueTask(
-                MoveUnitTask(
-                    alice,
-                    stick.tiledX,
-                    stick.tiledY,
-                    true
-                ).description("Select Alice and press a tile to move to.")
-            ).addOnCompleteTrigger {
-                stick.remove()
-                alice.attackAnimation = alice.stickAttackAni
-                alice.setAnimation(alice.pickUpAni)
-                alice.addAttackDamage(10)
-                queueTask(
-                    ExecuteCommandTask(AttackCommand::class, true).description(
-                        "Press a slime to fight it"
-                    )
-                ).addOnCompleteTrigger {
-                    queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
-                        val threeSlimes = Array<UnitActor>().apply {
-                            playStage.getUnitsOfPlayer(players[2].id).forEach { add(it) }
-                        }
-                        queueTask(EliminateAllEnemyUnitsTask(threeSlimes, 3).description("Kill at least 3 slimes"))
-                    }
-                }
-            }
-
-            addTrigger(UnitsDiedTrigger(slimeLing)).onTrigger {
-                queueDialogAction(
-                    StoryDialog.Quote("book", alice),
-                )
-            }
         }
     }
 }

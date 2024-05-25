@@ -33,7 +33,7 @@ class JumpAction(
         setStart(startX, startY)
     }
 
-    private fun setStart(startX: Float, startY: Float) {
+    fun setStart(startX: Float, startY: Float) {
         x = startX
         y = startY
 

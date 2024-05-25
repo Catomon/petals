@@ -20,7 +20,7 @@ public class RunTexturePacker {
             settings.duplicatePadding = true;
             settings.maxHeight = 4096;
             settings.maxWidth = 4096;
-            settings.scale = new float[]{4F};
+            //settings.scale = new float[]{4F};
             settings.scaleResampling = new TexturePacker.Resampling[]{TexturePacker.Resampling.nearest};
             TexturePacker.process(settings, "textures/tiles", "./", "tiles");
             TexturePacker.process(settings, "textures/units", "./", "units");

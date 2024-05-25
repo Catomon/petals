@@ -2,8 +2,10 @@ package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.bot.SimpleBot
-import ctmn.petals.player.*
+import ctmn.petals.player.SpeciesUnitNotFoundExc
+import ctmn.petals.player.fairyUnits
+import ctmn.petals.player.newBluePlayer
+import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
@@ -24,18 +26,17 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.actors.FairyAxe
 import ctmn.petals.unit.tiledY
 
-class Level6 : Scenario("lv_6", "level_swamp") {
+class Level6 : Scenario("lv_6", "level_bases") {
 
     init {
         players.addAll(
             newBluePlayer,
-            newRedPlayer,
-            Player("Slimes", 4, 4)
+            newRedPlayer
         )
 
         player = players.first()
 
-        gameEndCondition = CaptureBases().apply { ignorePlayers.add(players[2].id) }
+        gameEndCondition = CaptureBases()
     }
 
     override fun createLevel(playScreen: PlayScreen) {
@@ -51,8 +52,8 @@ class Level6 : Scenario("lv_6", "level_swamp") {
         }
 
         result = when {
-            playScreen.turnManager.round <= 20 -> 3
-            playScreen.turnManager.round <= 25 -> 2
+            playScreen.turnManager.round <= 15 -> 3
+            playScreen.turnManager.round <= 20 -> 2
             else -> 1
         }
     }
@@ -63,13 +64,6 @@ class Level6 : Scenario("lv_6", "level_swamp") {
         val player = player!!
 
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
-        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 1
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 3
-        })
-
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {units ->
             fairyUnits.units.filter { unit ->
@@ -77,7 +71,6 @@ class Level6 : Scenario("lv_6", "level_swamp") {
                         || unit.selfName == UnitIds.DOLL_SWORD
                         || unit.selfName == UnitIds.DOLL_PIKE
                         || unit.selfName == UnitIds.DOLL_BOW
-                        || unit.selfName == UnitIds.DOLL_SCOUT
             }.forEach {
                 units.add(it)
             }

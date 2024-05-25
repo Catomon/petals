@@ -1,11 +1,14 @@
 package ctmn.petals.unit.actors
 
+import ctmn.petals.effects.MissileActor
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_CANNON
 import ctmn.petals.unit.component.*
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
 
 class FairyCannon : UnitActor(
     UnitComponent(
@@ -17,6 +20,8 @@ class FairyCannon : UnitActor(
     )
 ) {
 
+    override val attackEffect: MissileActor get() = MissileActor().also { it.setStart(centerX, centerY + 5) }
+
     companion object Stat : UnitStat(
         DOLL_CANNON,
         100,
@@ -27,6 +32,8 @@ class FairyCannon : UnitActor(
     }
 
     init {
+        animationProps.subAttackFrame = 0f
+
         add(SummonableComponent(50))
         add(FollowerComponent())
         add(

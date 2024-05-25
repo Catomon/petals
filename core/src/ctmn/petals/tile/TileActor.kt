@@ -125,6 +125,9 @@ open class TileActor(
         if (sprite.width == 128f)
             sprite.setSize(TILE_SIZE * 2f, TILE_SIZE * 2f)
 
+        if (sprite.width == 48f)
+            sprite.setSize(32f, 32f)
+
         sprite.setOriginCenter()
 
         setPosition(tiledX, tiledY)
