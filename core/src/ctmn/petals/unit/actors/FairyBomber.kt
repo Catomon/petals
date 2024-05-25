@@ -1,10 +1,12 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.tile.TerrainNames
+import ctmn.petals.effects.MissileActor
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds.DOLL_BOMBER
 import ctmn.petals.unit.component.*
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
 
 
 class FairyBomber : UnitActor(
@@ -18,7 +20,16 @@ class FairyBomber : UnitActor(
     )
 ) {
 
+    override val attackEffect: MissileActor
+        get() = MissileActor(
+            "cucumber_missile",
+            "cucumber_explode",
+            power = 75f
+        ).also { it.setStart(centerX, centerY) }
+
     init {
+        animationProps.attackEffectFrame = 0.5f
+
         add(
             AttackComponent(
                 35,
@@ -40,7 +51,7 @@ class FairyBomber : UnitActor(
     override fun loadAnimations() {
         super.loadAnimations()
 
-        attackAnimation?.frameDuration = 0.175f
-        animationProps.attackFrame = 10f / 12f
+        attackAnimation?.frameDuration = 0.4f
+        //animationProps.attackFrame = 10f / 12f
     }
 }

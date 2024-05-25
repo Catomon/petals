@@ -27,21 +27,21 @@ class FairyCannon : UnitActor(
         100,
         60,
         70
-    ) {
-
-    }
+    )
 
     init {
-        animationProps.subAttackFrame = 0f
+        animationProps.attackEffectFrame = 0f
 
         add(SummonableComponent(50))
         add(FollowerComponent())
         add(
             AttackComponent(
+                50,
                 60,
-                70,
                 5,
-                2
+                2,
+                attackSplashDamage = 15,
+                attackSplashRange = 1,
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().apply {

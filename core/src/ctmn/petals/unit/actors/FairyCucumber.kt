@@ -20,11 +20,7 @@ class FairyCucumber : UnitActor(
     )
 ) {
 
-    override val attackEffect: MissileActor
-        get() = MissileActor(
-            "cucumber_missile",
-            "cucumber_explosion"
-        ).also { it.setStart(centerX, centerY + 5) }
+    override val attackEffect: MissileActor get() = MissileActor().also { it.setStart(centerX, centerY + 5) }
 
     init {
         add(SummonableComponent(50))

@@ -1,6 +1,5 @@
 package ctmn.petals.playscreen.seqactions
 
-import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.Const
 import ctmn.petals.effects.MissileActor
 import ctmn.petals.effects.UnitAttackEffect
@@ -33,8 +32,11 @@ class AttackAction(
             if (attackMissile!!.stage == null)
                 attackMissile = null
             else {
-                if (attackerUnit.animationProps.subAttackFrame == 0f && attackMissile!!.isLanded)
-                    attackMissile = null
+                when (attackerUnit.animationProps.attackEffectFrame) {
+                    0f -> if (attackMissile!!.isLanded) attackMissile = null
+                    0.5f -> if (attackerUnit.animationProps.attackEffectFrame <= attackMissile!!.explosionSprite.animation.progressLast) attackMissile =
+                        null
+                }
             }
         }
 

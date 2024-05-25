@@ -18,14 +18,15 @@ class MissileActor(
     explosionName: String = "catapult_explosion",
     targetX: Float = 0f,
     targetY: Float = 0f,
+    power: Float = 200f
 ) : Actor() {
 
-    private val missileSprite = AnimatedSprite(assets.effectsAtlas.findRegions(missileName))
-    private val explosionSprite = AnimatedSprite(assets.effectsAtlas.findRegions(explosionName), 0.25f).apply {
+    val missileSprite = AnimatedSprite(assets.effectsAtlas.findRegions(missileName))
+    val explosionSprite = AnimatedSprite(assets.effectsAtlas.findRegions(explosionName), 0.1f).apply {
         animation.playMode = Animation.PlayMode.NORMAL
     }
     private var currentSprite = missileSprite
-    private val jumpAction = JumpAction(targetX, targetY)
+    val jumpAction = JumpAction(targetX, targetY, power = power)
 
     var isLanded = false
 

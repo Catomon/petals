@@ -11,6 +11,9 @@ import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
 import ctmn.petals.utils.getSurroundingUnits
 import ctmn.petals.utils.getUnitsInRange
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.random.Random
 
 class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Command() {
 
@@ -80,9 +83,18 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
                     attackerAttackC.attackSplashRange
                 )
                 unitsInRange.forEach {
-                    if ((it.tiledX != targetUnit.tiledX || it.tiledY != targetUnit.tiledY) && !it.isAlly(attackerUnit)) {
+                    //splash damage will not apply if canAttack is false
+                    if ((it.tiledX != targetUnit.tiledX || it.tiledY != targetUnit.tiledY) && !it.isAlly(attackerUnit)
+                        && attackerUnit.canAttack(it)
+                    ) {
                         it.dealDamage(
-                            (attackerAttackC.attackSplashDamage * attackerUnit.combatDamageHpMod).toInt(),
+                            // randomize splash damage down to -5 (min damage is 1)
+                            (max(
+                                Random.nextInt(
+                                    attackerAttackC.attackSplashDamage - 5,
+                                    attackerAttackC.attackSplashDamage
+                                ), 1
+                            ) * attackerUnit.combatDamageHpMod).toInt(),
                             attackerUnit,
                             playScreen,
                             true

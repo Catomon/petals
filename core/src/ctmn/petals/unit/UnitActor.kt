@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.scenes.scene2d.Action
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.google.gson.JsonObject
 import ctmn.petals.*
 import ctmn.petals.effects.Animations
@@ -14,7 +12,6 @@ import ctmn.petals.effects.MissileActor
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.GameActor
-import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.isFluid
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.*
@@ -41,7 +38,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     class AnimationProps {
         var attackFrame = 1f
-        var subAttackFrame = 0f
+        var attackEffectFrame = 0f
     }
 
     init {
