@@ -23,6 +23,8 @@ class GoblinCatapult : UnitActor(
     override val attackEffect: MissileActor get() = MissileActor().also { it.setStart(centerX, centerY + 5) }
 
     init {
+        actionPointsMove = 2
+
         add(FollowerComponent())
         add(
             AttackComponent(

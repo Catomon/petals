@@ -30,6 +30,7 @@ class FairyCannon : UnitActor(
     )
 
     init {
+        actionPointsMove = 2
         animationProps.attackEffectFrame = 0f
 
         add(SummonableComponent(50))

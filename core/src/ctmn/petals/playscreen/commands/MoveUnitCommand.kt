@@ -27,7 +27,7 @@ class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Comm
     override fun execute(playScreen: PlayScreen): Boolean {
         val unit = playScreen.playStage.findUnit(unitId) ?: return false
 
-        unit.actionPoints -= Const.ACTION_POINTS_MOVE
+        unit.actionPoints -= unit.actionPointsMove
 
         //move action
         playScreen.queueAction(MoveUnitAction(unit, unit.tiledX, unit.tiledY, tileX, tileY))

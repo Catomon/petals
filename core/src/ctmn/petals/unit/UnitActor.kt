@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.google.gson.JsonObject
 import ctmn.petals.*
+import ctmn.petals.Const.ACTION_POINTS_MOVE
 import ctmn.petals.effects.Animations
 import ctmn.petals.effects.MissileActor
 import ctmn.petals.playscreen.playStageOrNull
@@ -35,6 +36,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     private var currentAnimationDuration = 0f
 
     val animationProps = AnimationProps()
+
+    var actionPointsMove = ACTION_POINTS_MOVE
 
     class AnimationProps {
         var attackFrame = 1f
