@@ -46,6 +46,11 @@ class AttackAction(
                         ) && attackMissile == null
             ) {
 
+                if (!targetIsShaking) {
+                    targetUnit.addAction(UnitShakeAction(Const.UNIT_SHAKE_POWER, Const.UNIT_SHAKE_DURATION))
+                    targetIsShaking = true
+                }
+
                 damageTarget()
 
                 attackEffect = UnitAttackEffect(playScreen.assets)
@@ -69,15 +74,15 @@ class AttackAction(
 
         isDone = attackerAttacked && defenderAttacked
 
-        if (!isDone) {
-            if (attackerUnit.cAnimationView?.animation == attackerUnit.attackAnimation) {
-                if (attackerUnit.cAnimationView!!.animation.stateTime >= attackerUnit.cAnimationView!!.animation.animationDuration)
-                    if (!targetIsShaking) {
-                        targetUnit.addAction(UnitShakeAction(Const.UNIT_SHAKE_POWER, Const.UNIT_SHAKE_DURATION))
-                        targetIsShaking = true
-                    }
-            }
-        }
+//        if (!isDone) {
+//            if (attackerUnit.cAnimationView?.animation == attackerUnit.attackAnimation) {
+//                if (attackerUnit.cAnimationView!!.animation.stateTime >= attackerUnit.cAnimationView!!.animation.animationDuration)
+//                    if (!targetIsShaking) {
+//                        targetUnit.addAction(UnitShakeAction(Const.UNIT_SHAKE_POWER, Const.UNIT_SHAKE_DURATION))
+//                        targetIsShaking = true
+//                    }
+//            }
+//        }
     }
 
     override fun onStart(playScreen: PlayScreen): Boolean {

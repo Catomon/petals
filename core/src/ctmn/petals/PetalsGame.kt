@@ -67,11 +67,8 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
     }
 
     override fun render() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             when {
-                GameConsole.isVisible -> {
-                    showHideConsole()
-                }
                 Const.IS_RELEASE -> setScreen(MenuScreen(this))
                 else -> setScreen(DevScreen(this))
             }

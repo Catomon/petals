@@ -289,6 +289,9 @@ fun UnitActor.canCapture(): Boolean {
             && selfName != UnitIds.HUNTER
             && selfName != UnitIds.GOBLIN_SCOUT
             && selfName != UnitIds.PIXIE
+            && selfName != UnitIds.CUCUMBER
+            && selfName != UnitIds.GOBLIN_CATAPULT
+            && selfName != UnitIds.DOLL_CANNON
             && !isLeader
             && !(isAir && cAttack?.attackType == ATTACK_TYPE_GROUND)
             )

@@ -769,6 +769,17 @@ class PlayGUIStage(
         })
     }
 
+    override fun keyDown(keyCode: Int): Boolean {
+        if (keyCode == Input.Keys.ESCAPE) {
+            if (root.findActor<InGameMenu>("game_menu")?.remove() == null)
+                addActor(InGameMenu(playScreen))
+
+            return true
+        }
+
+        return super.keyDown(keyCode)
+    }
+
     override fun act(delta: Float) {
         super.act(delta)
 

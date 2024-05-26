@@ -14,6 +14,8 @@ class InGameMenu(val playScreen: PlayScreen) : WidgetGroup() {
     val menuTable = VisTable()
 
     init {
+        name = "game_menu"
+
         setFillParent(true)
 
         with(menuTable) {
