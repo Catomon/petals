@@ -23,6 +23,7 @@ object Units {
         add(BigEvilTree())
         add(BigToad())
         add(Bowman())
+        add(Bulgy())
         add(Catapult())
         add(Cavalry())
         add(CentaurSpear())

@@ -229,7 +229,7 @@ fun PlayStage.getMovementGrid(
                 for (y in moveCostGrid[x].indices) {
                     val tile = getTile(x, y) ?: continue
                     if (getTile(x, y, tile.layer - 1)
-                            ?.isFluid == false && tile.terrain == TerrainNames.crystals || tile.terrain == TerrainNames.base
+                            ?.isFluid == false && (tile.terrain == TerrainNames.crystals || tile.terrain == TerrainNames.base)
                     )
                         moveCostGrid[x][y] = UNREACHABLE
                 }

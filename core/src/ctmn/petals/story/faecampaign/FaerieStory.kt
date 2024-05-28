@@ -30,10 +30,10 @@ class FaerieStory(storySave: FaerieStorySave = FaerieStorySave()) : Story(
         scenarios["lv_13"] = Level13::class.java
         scenarios["lv_14"] = Level14::class.java
         scenarios["lv_15"] = Level15::class.java
-//        scenarios["lv_16"] = Level16::class.java
-        //        scenarios["lv_17"] = Level16::class.java
-        //        scenarios["lv_18"] = Level16::class.java
-        //        scenarios["lv_19"] = Level16::class.java
-        //        scenarios["lv_20"] = Level16::class.java
+        scenarios["lv_16"] = Level16::class.java
+                scenarios["lv_17"] = Level17::class.java
+        //        scenarios["lv_18"] = Level18::class.java
+        //        scenarios["lv_19"] = Level19::class.java
+        //        scenarios["lv_20"] = Level20::class.java
     }
 }

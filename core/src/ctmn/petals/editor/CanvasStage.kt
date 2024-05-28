@@ -30,8 +30,8 @@ class CanvasStage(
             highlightLayer = if (value == null) null else getLayer(value)
         }
 
-    private val outlineColor = Color.WHITE.cpy().apply { a = 0.5f }
-    private val outlineColorHighlighted = Color.GREEN.cpy().apply { a = 0.5f }
+    private val outlineColor = Color.WHITE.cpy().apply { a = 0.20f }
+    private val outlineColorHighlighted = Color.GREEN.cpy().apply { a = 0.20f }
 
     private val sizeLabel = VisLabel("0")
 

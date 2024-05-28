@@ -22,7 +22,8 @@ class GoblinWyvern : UnitActor(
             AttackComponent(
                 45,
                 60,
-                1
+                1,
+                attackType = ATTACK_TYPE_ALL
             )
         )
 

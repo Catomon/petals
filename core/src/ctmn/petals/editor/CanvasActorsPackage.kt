@@ -19,7 +19,7 @@ class CanvasActorsPackage {
     val canvasActors = Array<CanvasActor>()
     val canvasActorsFiltered = Array<CanvasActor>()
 
-    var minTileSize = 64f
+    var minTileSize = 16f
 
     lateinit var missingTilePlaceholder: CanvasActor
 

@@ -38,10 +38,10 @@ class FairyScout : UnitActor(
             get(TerrainNames.swamp).mv(0)
         }))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.CUCUMBER] = Pair(15, 0)
-            bonuses[UnitIds.CATAPULT] = Pair(15, 0)
-            bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(15, 0)
-            bonuses[UnitIds.DOLL_BOW] = Pair(15, 0)
+            bonuses[UnitIds.CUCUMBER] = Pair(20, 0)
+            bonuses[UnitIds.CATAPULT] = Pair(20, 0)
+            bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(20, 0)
+            bonuses[UnitIds.DOLL_BOW] = Pair(20, 0)
         })
     }
 }

@@ -187,6 +187,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 //        sprite.setSize(sprite.width, (sprite.regionHeight).toFloat())
 //    }
 
+    protected var showWaterEffect = true
     private var isWater = false
     private var waterSprite = newPlaySprite(Animations.waterWaves.currentFrame)
 
@@ -231,7 +232,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
         viewComponent.draw(batch as SpriteBatch)
 
-        if (isWater) {
+        if (isWater && showWaterEffect) {
             waterSprite.setRegion(Animations.waterWaves.currentFrame)
             waterSprite.draw(batch)
         }

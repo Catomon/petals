@@ -211,7 +211,7 @@ open class TileActor(
     }
 
     override fun toString(): String {
-        return "TileActor[nm: $tileName, terrain: $terrain, x: $tiledX, y: $tiledY]"
+        return "TileActor[nm: $tileName, terrain: $terrain, x: $tiledX, y: $tiledY, l: $layer]"
     }
 
     fun makeCopy() : TileActor {

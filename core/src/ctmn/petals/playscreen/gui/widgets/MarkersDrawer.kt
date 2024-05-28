@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import ctmn.petals.assets
+import ctmn.petals.newPlayPuiSprite
 import ctmn.petals.newPlaySprite
 import ctmn.petals.playscreen.events.TaskBeginEvent
 import ctmn.petals.playscreen.events.TaskCompletedEvent
@@ -18,7 +19,7 @@ class MarkersDrawer : Actor() {
 
     private val waypointMark = assets.atlases.getRegion("gui/waypoint_mark")
     private val waypointAnimation = RegionAnimation(0.1f, assets.atlases.findRegions("gui/animated/waypoint_mark"))
-    private val sprite = newPlaySprite(waypointMark)
+    private val sprite = newPlayPuiSprite(waypointMark)
 
     private val listener = EventListener {
         when (it) {

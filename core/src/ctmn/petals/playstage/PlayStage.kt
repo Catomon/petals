@@ -1,5 +1,7 @@
 package ctmn.petals.playstage
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
@@ -7,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.ArrayMap
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ctmn.petals.assets
 import ctmn.petals.map.label.LabelActor
@@ -18,6 +21,7 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.TintShader
+import ctmn.petals.utils.log
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.tiledY
 
@@ -197,7 +201,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         }
 
         if (actor is UnitActor && actor.cLevel != null) {
-            //actor.levelUp() // todo: this causes problem when loading from game state snapshot, fix it
+            //actor.levelUp() todo
         }
 
         when (actor) {
@@ -210,11 +214,13 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
                 if (initView && actor.tileViewComponent == null)
                     actor.initView()
 
-                getTile(actor.tiledX, actor.tiledY, actor.layer)?.remove()
-
-                addTile(actor)
-
                 actor.setPosition(actor.tiledX, actor.tiledY)
+
+                log(" > " + actor.tiledX + ":" + actor.tiledY + actor)
+                val oldTile = getTile(actor.tiledX, actor.tiledY, actor.layer)
+                log(" = " + oldTile + " ? " + oldTile?.remove() + "${actor.layer}")
+                //getTile(actor.tiledX, actor.tiledY, actor.layer)?.remove()
+                addTile(actor)
             }
 
             is UnitActor -> {
@@ -243,6 +249,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
                 tile.remove()
             }
             layer.value.clear()
+            layer.value.tilesGrid.clear()
         }
     }
 
@@ -282,22 +289,20 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
     }
 
     fun getTile(x: Int, y: Int): TileActor? {
-        for (tile in getTiles()) {
-            if (tile.tiledX == x && tile.tiledY == y) {
-                return tile
-            }
-        }
-        return null
+        if (tilesLayer1.tilesGrid.size == 0) return null
+        if (x < 0 || y < 0) return null
+        if (x >= tilesLayer1.tilesGrid.size || tilesLayer1.tilesGrid[x] == null || y >= tilesLayer1.tilesGrid[x].size) return null
+
+        return tilesLayer1.tilesGrid.get(x)?.get(y)
     }
 
-    fun getTile(x: Int, y: Int, layer: Int): TileActor? {
-        for (tile in (tileLayers.get(layer) ?: return null).children) {
-            tile as TileActor
-            if (tile.tiledX == x && tile.tiledY == y) {
-                return tile
-            }
-        }
-        return null
+    fun getTile(x: Int, y: Int, layerId: Int): TileActor? {
+        val layer = tileLayers.get(layerId) ?: return null
+        if (layer.tilesGrid.size == 0) return null
+        if (x < 0 || y < 0) return null
+        if (x >= layer.tilesGrid.size || layer.tilesGrid[x] == null || y >= layer.tilesGrid[x].size) return null
+
+        return layer.tilesGrid.get(x)?.get(y)
     }
 
     override fun addListener(listener: EventListener): Boolean {
@@ -316,14 +321,50 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         override fun draw(batch: Batch, parentAlpha: Float) {
             for (tile in tilesLayer1.children) {
                 backTile.setPosition(tile.tiledX, tile.tiledY)
-                backTile.draw(batch, parentAlpha)
+                //backTile.draw(batch, parentAlpha)
             }
         }
     }
 
     open inner class PlayStageGroup : Group() {
 
+        val tilesGrid = Array<Array<TileActor?>>(64)
+
+        override fun draw(batch: Batch, parentAlpha: Float) {
+            if (Gdx.input.isKeyPressed(Input.Keys.F3))
+                if (tileLayers[-1] != this) return
+
+            if (Gdx.input.isKeyPressed(Input.Keys.F4)) {
+                println(tileLayers[0].children.size)
+                if (tileLayers[0] != this) return
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.F5))
+                if (tileLayers[1] != this) return
+
+            if (Gdx.input.isKeyPressed(Input.Keys.F6))
+                if (tileLayers[2] != this) return
+
+            if (Gdx.input.isKeyPressed(Input.Keys.F7))
+                if (tileLayers[3] != this) return
+
+            super.draw(batch, parentAlpha)
+        }
+
         override fun addActor(actor: Actor) {
+            if (actor is TileActor) {
+                if (tilesGrid.size <= actor.tiledX)
+                    tilesGrid.setSize(actor.tiledX + 1)
+
+                if (tilesGrid[actor.tiledX] == null)
+                    tilesGrid[actor.tiledX] = Array<TileActor?>(64)
+
+                if (tilesGrid[actor.tiledX].size <= actor.tiledY)
+                    tilesGrid[actor.tiledX].setSize(actor.tiledY + 1)
+
+                tilesGrid[actor.tiledX][actor.tiledY] = actor
+            }
+
             if (actor.name != null)
                 actorIdsMap[actor.name] = actor
 
@@ -332,13 +373,19 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
             super.addActor(actor)
         }
 
-        override fun removeActor(actor: Actor): Boolean {
+        override fun removeActor(actor: Actor, unfocus: Boolean): Boolean {
+            if (actor is TileActor)
+                if (actor.tiledX >= 0 && actor.tiledY >= 0 && actor.tiledX < tilesGrid.size && actor.tiledY < tilesGrid[actor.tiledX].size) {
+                    if (actor == tilesGrid[actor.tiledX][actor.tiledY])
+                        tilesGrid[actor.tiledX][actor.tiledY] = null
+                }
+
             if (actor.name != null)
                 actorIdsMap.remove(actor.name)
 
             updateCaches()
 
-            return super.removeActor(actor)
+            return super.removeActor(actor, unfocus)
         }
     }
 }

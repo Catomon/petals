@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.utils.Array.ArrayIterator
 import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.LogLevel
 import com.strongjoshua.console.annotation.ConsoleDoc
@@ -651,7 +652,7 @@ open class PlayScreen(
             }
 
             //update bases capturing
-            for (tile in playStage.getTiles()) {
+            for (tile in ArrayIterator(playStage.getTiles())) {
                 if (tile.isCapturable && tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id) {
                     val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
                     if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {

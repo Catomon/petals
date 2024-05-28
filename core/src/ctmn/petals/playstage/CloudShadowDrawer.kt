@@ -25,7 +25,7 @@ class CloudShadowDrawer : Actor() {
 
         shadows.forEach {
             val texture = shadowRegions[it.index]
-            batch.draw(texture, it.x, it.y, texture.regionWidth / 4f, texture.regionHeight / 4f)
+            batch.draw(texture, it.x, it.y, texture.regionWidth.toFloat(), texture.regionHeight.toFloat())
         }
     }
 
@@ -34,7 +34,7 @@ class CloudShadowDrawer : Actor() {
 
         shadows.forEach {
             it.x -= 2f * delta
-            if (it.x <= -shadowRegions[it.index].regionWidth / 4f)
+            if (it.x <= -shadowRegions[it.index].regionWidth)
                 shadows.removeValue(it, false)
         }
 
@@ -70,7 +70,7 @@ class CloudShadowDrawer : Actor() {
                 timeToSpawn = maxOf(200f * (playStage.tiledHeight() / 14f), 200f)
                 spawn()
                 shadows.first().x = Random.nextInt(
-                    0 - shadowRegions.first().regionWidth / 4 / 2,
+                    0 - shadowRegions.first().regionWidth / 2,
                     playStage.mapWidth().toInt()
                 ).toFloat()
             })

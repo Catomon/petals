@@ -21,7 +21,8 @@ class AngryOwl : UnitActor(
             AttackComponent(
                 15,
                 20,
-                1
+                1,
+                attackType = ATTACK_TYPE_ALL
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.flier))

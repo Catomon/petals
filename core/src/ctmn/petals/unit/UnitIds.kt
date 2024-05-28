@@ -59,4 +59,6 @@ object UnitIds {
 
     const val ROOT_TREE = "root_tree"
     const val ANGRY_OWL = "angry_owl"
+
+    const val BULGY = "bulgy"
 }
