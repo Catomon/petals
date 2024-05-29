@@ -28,7 +28,11 @@ import ctmn.petals.utils.tiledY
 /** The stage of the game.
  * Do not use clear() for removing tiles and units. It's removing all layer groups as well as actors for drawing gui.
  * Use clearGameActors() for that. */
-class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
+class PlayStage(
+    batch: Batch,
+    var tiledWidth: Int = 0, //specify only if map is very large (>64)
+    var tiledHeight: Int = 0,
+) : Stage(ExtendViewport(400f, 240f), batch) {
 
     var initView = true
 
@@ -48,9 +52,6 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
     var idCounter = 0
     private val newId get() = "%06d".format(idCounter++)
 
-    var tiledWidth = 0
-    var tiledHeight = 0
-
     var timeOfDay = DayTime.DAY
         set(value) {
             field = value
@@ -69,7 +70,8 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
     }
 
     private val actorIdsMap = HashMap<String, Actor>()
-    private val unitPositionsMap = Array(64) { Array<UnitActor?>(64) { null } }
+    private val unitPositionsMap =
+        Array(if (tiledWidth == 0) 64 else tiledWidth) { Array<UnitActor?>(if (tiledHeight == 0) 64 else tiledHeight) { null } }
     val border = Border(this)
 
     private val background = Background()
@@ -321,14 +323,15 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
         override fun draw(batch: Batch, parentAlpha: Float) {
             for (tile in tilesLayer1.children) {
                 backTile.setPosition(tile.tiledX, tile.tiledY)
-                //backTile.draw(batch, parentAlpha)
+                //todo remove when fix map generator
+                backTile.draw(batch, parentAlpha)
             }
         }
     }
 
     open inner class PlayStageGroup : Group() {
 
-        val tilesGrid = Array<Array<TileActor?>>(64)
+        val tilesGrid = Array<Array<TileActor?>>(if (tiledWidth == 0) 64 else tiledWidth)
 
         override fun draw(batch: Batch, parentAlpha: Float) {
             if (Gdx.input.isKeyPressed(Input.Keys.F3))
@@ -357,7 +360,7 @@ class PlayStage(batch: Batch) : Stage(ExtendViewport(400f, 240f), batch) {
                     tilesGrid.setSize(actor.tiledX + 1)
 
                 if (tilesGrid[actor.tiledX] == null)
-                    tilesGrid[actor.tiledX] = Array<TileActor?>(64)
+                    tilesGrid[actor.tiledX] = Array<TileActor?>(if (tiledHeight == 0) 64 else tiledHeight)
 
                 if (tilesGrid[actor.tiledX].size <= actor.tiledY)
                     tilesGrid[actor.tiledX].setSize(actor.tiledY + 1)

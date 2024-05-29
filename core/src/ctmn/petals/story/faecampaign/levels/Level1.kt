@@ -11,26 +11,22 @@ import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.gui.widgets.said
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
 import ctmn.petals.playscreen.tasks.*
-import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
-import ctmn.petals.playscreen.triggers.TurnCycleTrigger
-import ctmn.petals.playscreen.triggers.UnitPosRectTrigger
-import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
+import ctmn.petals.playscreen.triggers.*
 import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.playstage.getUnit
+import ctmn.petals.playstage.getUnitsOfEnemyOf
 import ctmn.petals.playstage.getUnitsOfPlayer
-import ctmn.petals.story.Scenario
-import ctmn.petals.story.alice
+import ctmn.petals.story.*
 import ctmn.petals.story.alissa.CreateUnit.alice
-import ctmn.petals.story.gameOverSuccess
-import ctmn.petals.story.playScreen
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
+import ctmn.petals.unit.abilities.HealthPotionAbility
 import ctmn.petals.unit.actors.FairyAxe
 import ctmn.petals.unit.actors.SlimeLing
 import ctmn.petals.unit.actors.SlimeTiny
 
-class Level1 : Scenario("lv_1", "alice_slime") {
+class Level1 : Scenario("lv_1", "alice_slime2") {
 
     init {
         players.addAll(
@@ -57,8 +53,8 @@ class Level1 : Scenario("lv_1", "alice_slime") {
         }
 
         result = when {
-            playScreen.turnManager.round <= 10 -> 3
-            playScreen.turnManager.round <= 15 -> 2
+            playScreen.turnManager.round <= 14 -> 3
+            playScreen.turnManager.round <= 17 -> 2
             else -> 1
         }
     }
@@ -90,12 +86,27 @@ class Level1 : Scenario("lv_1", "alice_slime") {
         slimeLing.item = assets.tilesAtlas.findRegion("items/book")
 
         playScreen {
-            queueDialogAction(
-                StoryDialog(
-                    "Alice story." said null,
-                    "Look I spot a good stick over there!" said alice,
+//            queueDialogAction(
+//                StoryDialog(
+//                    "Alice story." said null,
+//                    "Look I spot a good stick over there!" said alice,
+//                )
+//            )
+
+            addAliceDiedGameOverTrigger()
+
+            addTrigger(UnitsDiedTrigger(playStage.getUnitsOfEnemyOf(player))).onTrigger {
+                gameEndCondition.win()
+            }
+
+            addTrigger(object : Trigger() {
+                override fun check(delta: Float): Boolean = alice.health <= 50 && turnManager.currentPlayer == player
+            }).onTrigger {
+                alice.abilities.add(HealthPotionAbility().also { it.level = 1; it.cooldown = 3 })
+                queueTask(
+                    UseAbilityTask(alice.abilities.first(), true).description("Use an ability to heal up Alice")
                 )
-            )
+            }
 
             queueTask(
                 MoveUnitTask(
@@ -118,15 +129,15 @@ class Level1 : Scenario("lv_1", "alice_slime") {
                         val threeSlimes = Array<UnitActor>().apply {
                             playStage.getUnitsOfPlayer(players[2].id).forEach { add(it) }
                         }
-                        queueTask(EliminateAllEnemyUnitsTask(threeSlimes, 3).description("Kill at least 3 slimes"))
+                        addTask(EliminateAllEnemyUnitsTask(threeSlimes).description("Kill all slimes"))
                     }
                 }
             }
 
             addTrigger(UnitsDiedTrigger(slimeLing)).onTrigger {
-                queueDialogAction(
-                    StoryDialog.Quote("book", alice),
-                )
+//                queueDialogAction(
+//                    StoryDialog.Quote("book", alice),
+//                )
             }
         }
     }

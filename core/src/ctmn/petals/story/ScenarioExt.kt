@@ -9,12 +9,12 @@ import ctmn.petals.unit.actors.Alice
 
 fun PlayScreen.gameOverSuccess() {
     gameEndCondition.win()
-    gameOver()
+    //gameOver()
 }
 
 fun PlayScreen.gameOverFailure() {
     gameEndCondition.lose()
-    gameOver()
+    //gameOver()
 }
 
 fun PlayScreen.addAliceDiedGameOverTrigger(alice: Alice? = null) {
