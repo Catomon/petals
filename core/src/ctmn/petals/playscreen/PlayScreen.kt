@@ -21,6 +21,7 @@ import ctmn.petals.*
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.bot.BotManager
 import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.editor.IS_PORTRAIT
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.map.*
 import ctmn.petals.multiplayer.ClientPlayScreen

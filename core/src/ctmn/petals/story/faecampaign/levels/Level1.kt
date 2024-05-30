@@ -100,7 +100,7 @@ class Level1 : Scenario("lv_1", "alice_slime2") {
             }
 
             addTrigger(object : Trigger() {
-                override fun check(delta: Float): Boolean = alice.health <= 50 && turnManager.currentPlayer == player
+                override fun check(delta: Float): Boolean = alice.health <= 50 && turnManager.currentPlayer == player && alice.actionPoints == 2
             }).onTrigger {
                 alice.abilities.add(HealthPotionAbility().also { it.level = 1; it.cooldown = 3 })
                 queueTask(

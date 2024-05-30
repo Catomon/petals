@@ -669,7 +669,7 @@ fun UnitActor.findAnimation(
     }
 }
 
-fun xpToLevelUp(curLvl: Int) = Const.EXP_MOD_LEVEL_UP * curLvl
+fun xpToLevelUp(curLvl: Int) = if (Const.NEED_MORE_EXP_PER_LVL) Const.EXP_TO_LEVEL_UP * curLvl else Const.EXP_TO_LEVEL_UP
 
 fun findUnitTextures(unitName: String, playerId: Int): Array<TextureAtlas.AtlasRegion> {
     val unitAtlas = assets.findUnitAtlas(playerId)

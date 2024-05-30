@@ -9,7 +9,7 @@ object Const {
     // App:
     const val APP_NAME = "Petals - F&GCC"
     const val APP_VER_NAME = "0.1.0-alpha"
-    const val IS_RELEASE = false
+    const val IS_RELEASE = true
     const val USER_FOLDER = "Documents/Petals - F&GCC/"
 
     const val CONSOLE_ENABLED = !IS_RELEASE
@@ -21,6 +21,7 @@ object Const {
 
     // Multiplayer:
     const val SERVER_PORT = 7396
+
     //JmDNS
     const val SERVICE_TYPE = "_alissagame._upd.local."
     const val SERVICE_NAME = "AlissaGameService"
@@ -35,27 +36,37 @@ object Const {
     private const val GUI_SCALE_MOBILE_LANDSCAPE = 1.25f
     private const val GUI_SCALE_MOBILE_PORTRAIT = 1.5f
     private const val GUI_SCALE_PC = 1f
-    val GUI_SCALE get() =
-        if (IS_MOBILE)
-            if (Gdx.graphics.width < Gdx.graphics.height)
-                GUI_SCALE_MOBILE_PORTRAIT
-            else GUI_SCALE_MOBILE_LANDSCAPE
-        else GUI_SCALE_PC
+    val GUI_SCALE
+        get() =
+            if (IS_MOBILE)
+                if (Gdx.graphics.width < Gdx.graphics.height)
+                    GUI_SCALE_MOBILE_PORTRAIT
+                else GUI_SCALE_MOBILE_LANDSCAPE
+            else GUI_SCALE_PC
 
     val PLAY_GUI_VIEWPORT_WIDTH get() = round(Gdx.app.graphics.width / GUI_SCALE)
     val PLAY_GUI_VIEWPORT_HEIGHT get() = round(Gdx.app.graphics.height / GUI_SCALE)
 
     private const val PC_PLAY_CAMERA_ZOOM = 0.9f
-    private const val MOBILE_PLAY_CAMERA_ZOOM = 0.6f
+    private val MOBILE_PLAY_CAMERA_ZOOM get() = if (IS_PORTRAIT) 0.3f else 0.6f
 
-    val PLAY_CAMERA_ZOOM get() =
-        if (Gdx.app.type == Application.ApplicationType.Android) {
-            MOBILE_PLAY_CAMERA_ZOOM
-        } else {
-            PC_PLAY_CAMERA_ZOOM
-        }
+    val PLAY_CAMERA_ZOOM
+        get() =
+            if (Gdx.app.type == Application.ApplicationType.Android) {
+                MOBILE_PLAY_CAMERA_ZOOM
+            } else {
+                PC_PLAY_CAMERA_ZOOM
+            }
 
-    val PLAY_CAMERA_ZOOM_STORY get() = if (Gdx.app.type == Application.ApplicationType.Android) 0.6f else 0.9f
+    val PLAY_CAMERA_ZOOM_STORY
+        get() =
+            if (Gdx.app.type == Application.ApplicationType.Android)
+                if (IS_PORTRAIT)
+                    0.3f
+                else
+                    0.6f
+            else
+                0.9f
     const val PLAY_CAMERA_ZOOM_OUT_MAX_STORY = 320f
 
     // Gameplay:
@@ -69,9 +80,10 @@ object Const {
 
     // UnitActor
     const val MAX_LVL = 10
-    const val EXP_GAIN = 10
-    const val EXP_GAIN_LEADER = 25
-    const val EXP_MOD_LEVEL_UP = 250
+    const val EXP_GAIN = 25 //10
+    const val EXP_GAIN_LEADER = 25 //100
+    const val EXP_TO_LEVEL_UP = 250
+    const val NEED_MORE_EXP_PER_LVL = false
 
     const val ACTION_POINTS = 2
     const val ACTION_POINTS_MOVE = 1

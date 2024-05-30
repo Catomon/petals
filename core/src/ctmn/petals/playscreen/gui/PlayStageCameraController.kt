@@ -138,6 +138,8 @@ class PlayStageCameraController(val playStage: PlayStage) {
     }
 
     fun zoomUp(z: Float) {
+
+        println(z)
         camera.zoom += z
 
         val offset = 12 * camera.zoom + 32

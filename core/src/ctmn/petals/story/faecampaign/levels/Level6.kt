@@ -24,6 +24,7 @@ import ctmn.petals.story.playScreen
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.actors.FairyAxe
+import ctmn.petals.unit.isAlly
 import ctmn.petals.unit.tiledY
 
 class Level6 : Scenario("lv_6", "level_bases") {
@@ -79,7 +80,16 @@ class Level6 : Scenario("lv_6", "level_bases") {
         }
 
         playScreen {
+            queueTask(object : Task() {
+                override var description: String? = "Capture all enemy bases"
 
+                override fun update(delta: Float) {
+                    if (playStage.getCapturablesOf(players[1])
+                            .none { playStage.getUnit(it.tiledX, it.tiledY)?.isAlly(player) != true }
+                    )
+                        complete()
+                }
+            })
         }
     }
 }

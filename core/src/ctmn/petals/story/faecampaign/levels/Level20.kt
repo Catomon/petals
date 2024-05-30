@@ -48,8 +48,8 @@ class Level20 : Scenario("lv_20", "level_wall") {
         }
 
         result = when {
-            playScreen.turnManager.round <= 30 -> 3
-            playScreen.turnManager.round <= 35 -> 2
+            playScreen.turnManager.round <= 39 -> 3
+            playScreen.turnManager.round <= 45 -> 2
             else -> 1
         }
     }
