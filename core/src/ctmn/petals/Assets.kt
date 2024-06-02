@@ -106,7 +106,11 @@ class Assets : AssetManager() {
         -13865041 to -5296852, // dark line blue
         -16765819 to -8055040 // very dark line blue
         //goblin
+    )
 
+    private val bluePlayerColors = arrayOf(
+        -9230787 to -13865041,
+        -11203807 to -16561522,
     )
 
     fun findUnitAtlas(playerColor: String): TextureAtlas {
@@ -121,6 +125,7 @@ class Assets : AssetManager() {
     fun findUnitAtlas(playerId: Int): TextureAtlas = findUnitAtlas(playerColorName(playerId))
 
     private fun addUnitAtlases() {
+        addAsset("units_blue.atlas", TextureAtlas::class.java, createUnitsAtlas(bluePlayerColors))
         addAsset("units_red.atlas", TextureAtlas::class.java, createUnitsAtlas(redPlayerColors))
     }
 

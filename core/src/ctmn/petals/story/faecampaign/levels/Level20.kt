@@ -68,20 +68,6 @@ class Level20 : Scenario("lv_20", "level_wall") {
         })
 
         playScreen.fogOfWarManager.drawFog = true
-//        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {units ->
-//            fairyUnits.units.filter { unit ->
-//                unit.selfName == UnitIds.DOLL_AXE
-//                        || unit.selfName == UnitIds.DOLL_SWORD
-//                        || unit.selfName == UnitIds.DOLL_PIKE
-//                        || unit.selfName == UnitIds.DOLL_BOW
-//                        || unit.selfName == UnitIds.DOLL_SCOUT
-//                        || unit.selfName == UnitIds.DOLL_BOMBER
-//            }.forEach {
-//                units.add(it)
-//            }
-//
-//            check(!units.isEmpty)
-//        }
 
         playScreen {
             playStage.getUnitsOfPlayer(players[1]).forEach { it.cUnit.movingRange = 0 }

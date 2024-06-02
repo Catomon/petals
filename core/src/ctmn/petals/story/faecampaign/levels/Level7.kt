@@ -78,6 +78,7 @@ class Level7 : Scenario("lv_7", "level_swamp") {
                         || unit.selfName == UnitIds.DOLL_PIKE
                         || unit.selfName == UnitIds.DOLL_BOW
                         || unit.selfName == UnitIds.DOLL_SCOUT
+                        || unit.selfName == UnitIds.DOLL_HEALER
             }.forEach {
                 units.add(it)
             }

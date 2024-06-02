@@ -7,35 +7,38 @@ public class RunTexturePacker {
         pack();
     }
 
-    public static int pack() {
+    public static void pack() {
+        System.out.println(RunTexturePacker.class.getSimpleName() + "Packing...");
+        TexturePacker.Settings settings = new TexturePacker.Settings();
+        settings.pot = true;
+        settings.fast = true;
+        settings.combineSubdirectories = true;
+        settings.paddingX = 2;
+        settings.paddingY = 2;
+        settings.edgePadding = true;
+        settings.duplicatePadding = true;
+        settings.maxHeight = 4096;
+        settings.maxWidth = 4096;
+        settings.scaleResampling = new TexturePacker.Resampling[]{TexturePacker.Resampling.nearest};
+
+        //settings.scale = new float[]{4F};
+        process(settings, "textures/tiles", "./", "tiles");
+
+        process(settings, "textures/units", "./", "units");
+
+        process(settings, "textures/effects", "./", "effects");
+
+        process(settings, "textures/misc", "./", "misc");
+
+        settings.scale = new float[]{3F};
+        process(settings, "textures/gui", "./skin", "wafer-ui");
+    }
+
+    private static void process(TexturePacker.Settings settings, String input, String output, String packFileName) {
         try {
-            System.out.println(RunTexturePacker.class.getSimpleName() + "Running...");
-            TexturePacker.Settings settings = new TexturePacker.Settings();
-            settings.pot = true;
-            settings.fast = true;
-            settings.combineSubdirectories = true;
-            settings.paddingX = 2;
-            settings.paddingY = 2;
-            settings.edgePadding = true;
-            settings.duplicatePadding = true;
-            settings.maxHeight = 4096;
-            settings.maxWidth = 4096;
-            //settings.scale = new float[]{4F};
-            settings.scaleResampling = new TexturePacker.Resampling[]{TexturePacker.Resampling.nearest};
-            TexturePacker.process(settings, "textures/tiles", "./", "tiles");
-            TexturePacker.process(settings, "textures/units", "./", "units");
-            TexturePacker.process(settings, "textures/effects", "./", "effects");
-            TexturePacker.process(settings, "textures/misc", "./", "misc");
-            settings.scale = new float[]{3F};
-            TexturePacker.process(settings, "textures/gui", "./skin", "wafer-ui");
-            System.out.println(RunTexturePacker.class.getSimpleName() + "Done.");
+            TexturePacker.process(settings, input, output, packFileName);
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(RunTexturePacker.class.getSimpleName() + "Fail.");
-
-            return -1;
+            System.out.println("Error processing " + packFileName + ". " + e.getMessage());
         }
-
-        return 1;
     }
 }

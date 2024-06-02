@@ -72,6 +72,7 @@ class Level6 : Scenario("lv_6", "level_bases") {
                         || unit.selfName == UnitIds.DOLL_SWORD
                         || unit.selfName == UnitIds.DOLL_PIKE
                         || unit.selfName == UnitIds.DOLL_BOW
+                        || unit.selfName == UnitIds.DOLL_HEALER
             }.forEach {
                 units.add(it)
             }

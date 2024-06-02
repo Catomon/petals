@@ -217,11 +217,6 @@ class PlayStage(
                     actor.initView()
 
                 actor.setPosition(actor.tiledX, actor.tiledY)
-
-                log(" > " + actor.tiledX + ":" + actor.tiledY + actor)
-                val oldTile = getTile(actor.tiledX, actor.tiledY, actor.layer)
-                log(" = " + oldTile + " ? " + oldTile?.remove() + "${actor.layer}")
-                //getTile(actor.tiledX, actor.tiledY, actor.layer)?.remove()
                 addTile(actor)
             }
 
@@ -338,7 +333,6 @@ class PlayStage(
                 if (tileLayers[-1] != this) return
 
             if (Gdx.input.isKeyPressed(Input.Keys.F4)) {
-                println(tileLayers[0].children.size)
                 if (tileLayers[0] != this) return
             }
 

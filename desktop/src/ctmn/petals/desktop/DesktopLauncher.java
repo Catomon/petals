@@ -10,9 +10,12 @@ import ctmn.petals.PetalsGame;
 public class DesktopLauncher {
     public static void main(String[] arg) {
 
-        if (!Const.IS_RELEASE && false)
+        boolean packAndExit = arg.length == 1 && arg[0].equals("packTextures");
+
+        if (packAndExit) {
             RunTexturePacker.pack();
-        else System.out.println(DesktopLauncher.class.getSimpleName() + " RunTexturePacker.pack() canceled");
+            return;
+        }
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.preferencesDirectory = "Documents/Petals - F&GCC";

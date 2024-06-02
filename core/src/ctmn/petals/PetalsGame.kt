@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.utils.Logger
+import ctmn.petals.Const.IS_RELEASE
 import ctmn.petals.GamePref.fullscreen
 import ctmn.petals.GamePref.musicVolume
 import ctmn.petals.GamePref.targetFps
@@ -67,11 +68,8 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
     }
 
     override fun render() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-            when {
-                Const.IS_RELEASE -> setScreen(MenuScreen(this))
-                else -> setScreen(DevScreen(this))
-            }
+        if (!IS_RELEASE && Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+            setScreen(DevScreen(this))
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {

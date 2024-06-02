@@ -4,6 +4,7 @@ import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
 import ctmn.petals.playscreen.tasks.Task
@@ -51,6 +52,10 @@ class Level3 : Scenario("lv_3", "level_2") {
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
 
         playScreen {
+            queueDialogAction(
+                StoryDialog.Quote("Each unit type has its own match up bonuses\n" +
+                        "use pikes to take down riders"))
+
             addTask(EliminateAllEnemyUnitsTask().description("Kill enemy units")).addOnCompleteTrigger {
                 //gameOverSuccess()
             }

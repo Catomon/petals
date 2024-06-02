@@ -7,6 +7,7 @@ import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
@@ -84,6 +85,10 @@ class Level4 : Scenario("lv_4", "level_healer") {
         }
 
         playScreen {
+            queueDialogAction(
+                StoryDialog.Quote("You got a healer unit.\n" +
+                        "Keep your units close to him to heal them up"))
+
             addTrigger(PlayerHasNoUnits(players[0])).onTrigger {
                 gameEndCondition.lose()
             }

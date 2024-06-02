@@ -9,7 +9,7 @@ object Const {
     // App:
     const val APP_NAME = "Petals - F&GCC"
     const val APP_VER_NAME = "0.1.0-alpha"
-    const val IS_RELEASE = true
+    const val IS_RELEASE = false
     const val USER_FOLDER = "Documents/Petals - F&GCC/"
 
     const val CONSOLE_ENABLED = !IS_RELEASE

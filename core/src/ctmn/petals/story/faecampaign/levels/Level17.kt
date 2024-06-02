@@ -65,20 +65,6 @@ class Level17 : Scenario("lv_17", "level_islands") {
         })
 
         playScreen.fogOfWarManager.drawFog = true
-//        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {units ->
-//            fairyUnits.units.filter { unit ->
-//                unit.selfName == UnitIds.DOLL_AXE
-//                        || unit.selfName == UnitIds.DOLL_SWORD
-//                        || unit.selfName == UnitIds.DOLL_PIKE
-//                        || unit.selfName == UnitIds.DOLL_BOW
-//                        || unit.selfName == UnitIds.DOLL_SCOUT
-//                        || unit.selfName == UnitIds.DOLL_BOMBER
-//            }.forEach {
-//                units.add(it)
-//            }
-//
-//            check(!units.isEmpty)
-//        }
 
         playScreen {
             if (aliceOrNull() == null) {

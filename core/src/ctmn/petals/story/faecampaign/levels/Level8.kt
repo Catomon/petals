@@ -1,13 +1,18 @@
 package ctmn.petals.story.faecampaign.levels
 
+import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.CaptureBases
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
+import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds
 
 class Level8 : Scenario("lv_8", "level_mountainy") {
 
@@ -49,20 +54,23 @@ class Level8 : Scenario("lv_8", "level_mountainy") {
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
 
         playScreen.fogOfWarManager.drawFog = true
-//        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {units ->
-//            fairyUnits.units.filter { unit ->
-//                unit.selfName == UnitIds.DOLL_AXE
-//                        || unit.selfName == UnitIds.DOLL_SWORD
-//                        || unit.selfName == UnitIds.DOLL_PIKE
-//                        || unit.selfName == UnitIds.DOLL_BOW
-//                        || unit.selfName == UnitIds.DOLL_SCOUT
-//                        || unit.selfName == UnitIds.DOLL_BOMBER
-//            }.forEach {
-//                units.add(it)
-//            }
-//
-//            check(!units.isEmpty)
-//        }
+        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also { units ->
+            fairyUnits.units.filter { unit ->
+                unit.selfName == UnitIds.DOLL_AXE
+                        || unit.selfName == UnitIds.DOLL_SWORD
+                        || unit.selfName == UnitIds.DOLL_PIKE
+                        || unit.selfName == UnitIds.DOLL_BOW
+                        || unit.selfName == UnitIds.DOLL_SCOUT
+                        || unit.selfName == UnitIds.DOLL_BOMBER
+                        || unit.selfName == UnitIds.DOLL_HEALER
+                        || unit.selfName == UnitIds.DOLL_SHIELD
+                        || unit.selfName == UnitIds.PIXIE
+            }.forEach {
+                units.add(it)
+            }
+
+            check(!units.isEmpty)
+        }
 
         playScreen {
 

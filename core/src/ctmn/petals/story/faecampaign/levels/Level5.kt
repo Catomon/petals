@@ -7,6 +7,7 @@ import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
@@ -73,6 +74,13 @@ class Level5 : Scenario("lv_5", "level_capture") {
         }
 
         playScreen {
+            queueDialogAction(
+                StoryDialog.Quote("When you capture crystal tiles,\n" +
+                        "they give you some amount of crystals each turn."))
+            queueDialogAction(
+                StoryDialog.Quote("Upon capturing a green crystal tile,\n" +
+                        "you claim a base where you can get units."))
+
             addTrigger(PlayerHasNoUnits(players[0])).onTrigger {
                 gameEndCondition.lose()
             }

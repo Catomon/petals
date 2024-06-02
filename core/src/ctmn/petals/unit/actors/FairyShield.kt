@@ -3,11 +3,12 @@ package ctmn.petals.unit.actors
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.UnitIds.DOLL_SHIELD
 import ctmn.petals.unit.component.*
 
 class FairyShield : UnitActor(
     UnitComponent(
-     "doll_shield",
+     DOLL_SHIELD,
     100,
     20,
     3,

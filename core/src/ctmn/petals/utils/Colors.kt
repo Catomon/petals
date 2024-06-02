@@ -19,17 +19,15 @@ fun Pixmap.replaceColor(replaceColorArgb8888: Int, newColorArgb8888: Int) {
     pixmap.blending = Pixmap.Blending.None
     pixmap.filter = Pixmap.Filter.NearestNeighbour
 
-    val replaceColorIntBits = replaceColor.toIntBits()
-    val newColorIntBits = newColor.toIntBits()
+    val newColorRgba8888 = Color.rgba8888(newColor)
     val pixelColor = Color()
     for (x in 0 until pixmap.width) {
         for (y in 0 until pixmap.height) {
             val pixel = pixmap.getPixel(x, y)
-
             Color.rgba8888ToColor(pixelColor, pixel)
-            if (pixelColor.toIntBits() == replaceColorIntBits) {
-                pixmap.drawPixel(x, y, newColorIntBits)
-            }
+
+            if (replaceColor == pixelColor)
+                pixmap.drawPixel(x, y, newColorRgba8888)
         }
     }
 }

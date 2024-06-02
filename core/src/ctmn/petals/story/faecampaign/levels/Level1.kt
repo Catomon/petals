@@ -103,6 +103,7 @@ class Level1 : Scenario("lv_1", "alice_slime2") {
                 override fun check(delta: Float): Boolean = alice.health <= 50 && turnManager.currentPlayer == player && alice.actionPoints == 2
             }).onTrigger {
                 alice.abilities.add(HealthPotionAbility().also { it.level = 1; it.cooldown = 3 })
+                guiStage.abilitiesPanel.updateAbilities()
                 queueTask(
                     UseAbilityTask(alice.abilities.first(), true).description("Use an ability to heal up Alice")
                 )
@@ -120,7 +121,7 @@ class Level1 : Scenario("lv_1", "alice_slime2") {
                 alice.attackAnimation = alice.stickAttackAni
                 alice.setAnimation(alice.pickUpAni)
                 alice.addAttackDamage(10)
-                queueTask(
+                addTask(
                     ExecuteCommandTask(AttackCommand::class, true).description(
                         "Press a slime to fight it"
                     )
