@@ -855,8 +855,8 @@ class PlayGUIStage(
     fun onMapClicked(clickX: Float, clickY: Float) {
         if (mapClickDisabled) return
 
-        val tiledX: Int = clickX.toInt() / TILE_SIZE
-        val tiledY: Int = clickY.toInt() / TILE_SIZE
+        val tiledX: Int = (clickX / TILE_SIZE).toInt()
+        val tiledY: Int = (clickY / TILE_SIZE).toInt()
 
         var clickedUnit: UnitActor? = null
         var clickedTile: TileActor? = null

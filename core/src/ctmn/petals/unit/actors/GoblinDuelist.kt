@@ -28,10 +28,10 @@ class GoblinDuelist : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.CUCUMBER] = Pair(15, 15)
-            bonuses[UnitIds.CATAPULT] = Pair(15, 15)
-            bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(15, 15)
-            bonuses[UnitIds.DOLL_BOW] = Pair(15, 15)
+            bonuses[UnitIds.CUCUMBER] = Pair(20, 15)
+            bonuses[UnitIds.CATAPULT] = Pair(20, 15)
+            bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(20, 15)
+            bonuses[UnitIds.DOLL_BOW] = Pair(20, 15)
         })
     }
 }

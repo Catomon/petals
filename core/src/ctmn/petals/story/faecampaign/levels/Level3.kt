@@ -7,14 +7,13 @@ import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
-import ctmn.petals.playscreen.tasks.Task
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
 
 class Level3 : Scenario("lv_3", "level_2") {
 
-    private val task by lazy { KeepPlayerUnitsAlive(players[1]) }
+    private val task by lazy { KeepPlayerUnitsAlive(players[1]).apply { description = null } }
 
     init {
         players.addAll(
@@ -40,7 +39,8 @@ class Level3 : Scenario("lv_3", "level_2") {
     override fun evaluateResult() {
         //playScreen.taskManager.getTasks().all { it.state == Task.State.SUCCEEDED }
         result = when {
-            task.state == Task.State.SUCCEEDED -> 3
+            //task.state == Task.State.SUCCEEDED -> 3
+            playScreen.playStage.getUnitsOfPlayer(players[0]).size >= initialUnits - 1 -> 3
             playScreen.playStage.getUnitsOfPlayer(players[0]).size >= initialUnits / 2 -> 2
             else -> 1
         }

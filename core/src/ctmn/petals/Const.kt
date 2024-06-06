@@ -8,7 +8,7 @@ object Const {
 
     // App:
     const val APP_NAME = "Petals - F&GCC"
-    const val APP_VER_NAME = "0.1.0-alpha"
+    const val APP_VER_NAME = "0.1.1-alpha"
     const val IS_RELEASE = false
     const val USER_FOLDER = "Documents/Petals - F&GCC/"
 
@@ -70,7 +70,8 @@ object Const {
     const val PLAY_CAMERA_ZOOM_OUT_MAX_STORY = 320f
 
     // Gameplay:
-    const val TILE_SIZE: Int = 16
+    const val TILE_SIZE: Float = 16f
+    const val TILE_SIZE_X2: Float = TILE_SIZE * 2f
 
     // Alice
     const val ALICE_LEADER_ID = 13404

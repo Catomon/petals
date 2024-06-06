@@ -21,7 +21,6 @@ import ctmn.petals.*
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.bot.BotManager
 import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.editor.IS_PORTRAIT
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.map.*
 import ctmn.petals.multiplayer.ClientPlayScreen
@@ -168,6 +167,11 @@ open class PlayScreen(
                         tile.isBurning -> {
                             unit.dealDamage(Damage.BURN, playScreen = this@PlayScreen)
                             unit.add(BurningComponent(turnManager.currentPlayer.id))
+                        }
+
+                        tile.terrain == TerrainNames.chasm -> {
+                            unit.dealDamage(Damage.CHASM, playScreen = this@PlayScreen)
+                            unit.add(TileEffectComponent(turnManager.currentPlayer.id))
                         }
 
                         else -> unit.del(TileEffectComponent::class.java)
@@ -696,12 +700,20 @@ open class PlayScreen(
 
             playStage.getUnits().forEach { unit ->
                 if (!unit.isAir) {
-                    val cLava = unit.get(TileEffectComponent::class.java)
-                    if (cLava != null && cLava.playerId == turnCycleEvent.nextPlayer.id) {
-                        if (playStage.getTile(unit.tiledX, unit.tiledY)?.terrain == TerrainNames.lava) {
-                            unit.dealDamage(Damage.LAVA, playScreen = this@PlayScreen)
-                        } else {
-                            unit.del(TileEffectComponent::class.java)
+                    val cTileEff = unit.get(TileEffectComponent::class.java)
+                    if (cTileEff != null && cTileEff.playerId == turnCycleEvent.nextPlayer.id) {
+                        when (playStage.getTile(unit.tiledX, unit.tiledY)?.terrain) {
+                            TerrainNames.lava -> {
+                                unit.dealDamage(Damage.LAVA, playScreen = this@PlayScreen)
+                            }
+
+                            TerrainNames.chasm -> {
+                                unit.dealDamage(Damage.CHASM, playScreen = this@PlayScreen)
+                            }
+
+                            else -> {
+                                unit.del(TileEffectComponent::class.java)
+                            }
                         }
                     }
                 }
@@ -963,7 +975,12 @@ open class PlayScreen(
                 Input.Keys.T -> {
                     if (dummiesLeft > 0) {
                         val pos =
-                            playStage.screenToStageCoordinates(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
+                            playStage.screenToStageCoordinates(
+                                Vector2(
+                                    Gdx.input.x.toFloat(),
+                                    Gdx.input.y.toFloat()
+                                )
+                            )
                         Dummy().addToStage(playStage).position(pos.x.tiled(), pos.y.tiled())
 
                         dummiesLeft--

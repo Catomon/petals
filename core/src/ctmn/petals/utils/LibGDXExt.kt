@@ -228,7 +228,7 @@ fun Camera.setPosition(x: Float, y: Float) {
 fun OrthographicCamera.cornerX(): Float = position.x - viewportWidth * zoom / 2
 fun OrthographicCamera.cornerY(): Float = position.y - viewportHeight * zoom / 2
 
-fun Float.tiled(): Int = toInt() / TILE_SIZE
+fun Float.tiled(): Int = (this / TILE_SIZE).toInt()
 fun Int.unTiled(): Float = toFloat() * TILE_SIZE
 
 fun Sprite.centerX(): Float = x + width / 2

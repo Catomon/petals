@@ -18,7 +18,6 @@ class GoblinBow : UnitActor(
 ) {
 
     init {
-        add(SummonableComponent(20))
         add(FollowerComponent())
         add(
             AttackComponent(

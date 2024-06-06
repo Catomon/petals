@@ -13,17 +13,8 @@ object FairyWaterplantStat : UnitStat(
     health = 100,
     minDamage = 45,
     maxDamage = 60,
-) {
-    init {
-        //todo add to some sort of global pool
-    }
-}
+)
 
-// name: Trash
-// health: 12   -> 
-// damage: 12
-
-//todo move
 abstract class UnitStat(
     var id: String,
     var health: Int = 100,
@@ -33,6 +24,9 @@ abstract class UnitStat(
     var viewRange: Int = 0
 ) {
 
+    init {
+        //storeSomewhere
+    }
 }
 
 class FairyWaterplant : UnitActor(

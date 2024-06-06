@@ -17,6 +17,7 @@ import ctmn.petals.tile.TerrainNames.forest
 import ctmn.petals.tile.TerrainNames.fortress
 import ctmn.petals.tile.TerrainNames.hills
 import ctmn.petals.tile.TerrainNames.lava
+import ctmn.petals.tile.TerrainNames.mud
 import ctmn.petals.tile.TerrainNames.skyscraper
 import ctmn.petals.tile.TerrainNames.swamp
 import ctmn.petals.tile.TerrainNames.tower
@@ -138,7 +139,7 @@ object TerrainPropsPack {
         put(grass, 0, 0, 0)
         put(forest, 2, 0, 5)
         put(mountains, 3, 0, 10)
-        put(water, 3, -5, -5)
+        put(water, 3, -15, -15)
         put(roads, 0, 0, 0)
         put(walls, 999, 0, 0)
         put(impassable, 999, 0, 0)
@@ -154,9 +155,10 @@ object TerrainPropsPack {
         put(hills, 1, 10, 0)
         put(crystals, 1)
         put(deepwater, UNREACHABLE, -30, -15)
-        put(skyscraper, UNREACHABLE, -15, 10)
+        put(skyscraper, UNREACHABLE, -30, 15)
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
+        put(mud, 1, -5, -5)
     }
 
     val foot = TerrainProps().apply {
@@ -182,6 +184,7 @@ object TerrainPropsPack {
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
+        put(mud, 1, -5, -5)
     }
 
     val flier = TerrainProps().apply {
@@ -202,6 +205,7 @@ object TerrainPropsPack {
         put(skyscraper, 1, 0, 15)
         put(chasm, 0)
         put(lava, 0)
+        put(mud, 0)
     }
 
     //todo swimmer
@@ -227,6 +231,7 @@ object TerrainPropsPack {
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
         put(land_capturable, UNREACHABLE)
+        put(mud, UNREACHABLE)
     }
 
     val slime = TerrainProps().apply {
@@ -252,6 +257,7 @@ object TerrainPropsPack {
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
+        put(mud, 0, 5, 5)
     }
 
     val giant = TerrainProps().apply {
@@ -277,5 +283,6 @@ object TerrainPropsPack {
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
+        put(mud, 1, -5, -5)
     }
 }

@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.google.gson.JsonObject
 import ctmn.petals.*
 import ctmn.petals.Const.ACTION_POINTS_MOVE
+import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Const.TILE_SIZE_X2
 import ctmn.petals.effects.Animations
 import ctmn.petals.effects.MissileActor
 import ctmn.petals.playscreen.playStageOrNull
@@ -30,7 +32,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     var talkingAnimation: RegionAnimation? = null
     var airborneAnimation: RegionAnimation? = null
     var postAirborneAnimation: RegionAnimation? = null
-    
+
     open val attackEffect: MissileActor? = null
 
     private var currentAnimationDuration = 0f
@@ -79,14 +81,11 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             isViewInitialized = true
         }
 
-//        if (sprite!!.width < Const.TILE_SIZE)
-//            sprite!!.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
-//        if (sprite!!.width > Const.TILE_SIZE * 2)
-//            sprite!!.setSize(Const.TILE_SIZE * 2f, Const.TILE_SIZE * 2f)
+        sprite!!.setSize(TILE_SIZE_X2, TILE_SIZE_X2)
 
         sprite?.setOriginCenter()
 
-        setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
+        setSize(TILE_SIZE, TILE_SIZE)
 
         positionChanged()
 
@@ -190,6 +189,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     protected var showWaterEffect = true
     private var isWater = false
     private var waterSprite = newPlaySprite(Animations.waterWaves.currentFrame)
+    private var underWaterOffset = 12f
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
@@ -202,7 +202,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             sprite.regionHeight -= 12.toPlayScale()
             sprite.regionY -= 0
 
-            viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2 + 10.toPlayScale())
+            viewComponent.setPosition(x + TILE_SIZE / 2, y + TILE_SIZE / 2 + 10.toPlayScale())
 
             waterSprite.setPosition(sprite.x, sprite.y - 12.toPlayScale())
 
@@ -213,7 +213,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
             }
         } else {
             if (actions.isEmpty)
-                viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2)
+                viewComponent.setPosition(x + TILE_SIZE / 2, y + TILE_SIZE / 2)
 
             if (sprite.width > 32) {
                 sprite.setSize(32f, 32f)
@@ -240,7 +240,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         val barrier = cBarrierMapper.get(components)
         if (barrier != null) {
             val barrierFrame = Animations.barrier.currentFrame
-            val doubleTileSize = Const.TILE_SIZE * 2f
+            val doubleTileSize = TILE_SIZE * 2f
             batch.draw(
                 barrierFrame,
                 centerX - doubleTileSize / 2,
@@ -252,7 +252,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         val burning = get(BurningComponent::class.java)
         if (burning != null) {
             val burningFrame = Animations.burning.currentFrame
-            val doubleTileSize = Const.TILE_SIZE * 2f
+            val doubleTileSize = TILE_SIZE * 2f
             batch.draw(
                 burningFrame,
                 centerX - doubleTileSize / 2,
@@ -264,7 +264,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     }
 
     fun setPosition(x: Int, y: Int) {
-        setPosition((x * Const.TILE_SIZE).toFloat(), (y * Const.TILE_SIZE).toFloat())
+        setPosition((x * TILE_SIZE).toFloat(), (y * TILE_SIZE).toFloat())
         tiledX = x
         tiledY = y
 
@@ -279,7 +279,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         super.positionChanged()
 
         if (::viewComponent.isInitialized)
-            viewComponent.setPosition(x + Const.TILE_SIZE / 2, y + Const.TILE_SIZE / 2)
+            viewComponent.setPosition(x + TILE_SIZE / 2, y + TILE_SIZE / 2)
     }
 
     override fun toString(): String {

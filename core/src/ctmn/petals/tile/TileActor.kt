@@ -197,8 +197,8 @@ open class TileActor(
     override fun positionChanged() {
         super.positionChanged()
 
-        tiledX = x.toInt() / TILE_SIZE
-        tiledY = y.toInt() / TILE_SIZE
+        tiledX = (x / TILE_SIZE).toInt()
+        tiledY = (y / TILE_SIZE).toInt()
 
         if (tileViewComponent != null) {
             sprite.setPositionByCenter(x + TILE_SIZE / 2, y + TILE_SIZE / 2)

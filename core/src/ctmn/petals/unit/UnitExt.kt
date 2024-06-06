@@ -698,6 +698,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is FairyShield -> 1
         is FairySword -> 1
         is FairyWaterplant -> 1
+        is FairyGlaive -> 1
 
         is Goblin -> 2
         is GoblinBoar -> 2

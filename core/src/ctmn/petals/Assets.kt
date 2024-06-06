@@ -99,103 +99,6 @@ class Assets : AssetManager() {
         TileData.parseTiles()
     }
 
-    //what color of standard(blue player) replace to other color
-    private val redPlayerColors = arrayOf(
-        // faerie
-        Color().rgba(91, 194, 237) to Color().rgba(237, 91, 119), // bright blue
-        Color().rgba(72, 139, 212) to Color().rgba(212, 77, 72), // shadow blue
-        Color().rgba(44, 111, 175) to Color().rgba(175, 45, 44), // dark line blue
-        Color().rgba(0, 48, 100) to Color().rgba(133, 23, 0) // very dark line blue
-        //goblin x
-    )
-
-    private val bluePlayerColors = arrayOf(
-        //faerie x
-        //goblin
-        Color().rgba(115, 38, 61) to Color().rgba(44, 111, 175), // light red
-        Color().rgba(91, 26, 45) to Color().rgba(26, 62, 91), // darker red
-        Color().rgba(85, 11, 33) to Color().rgba(3, 74, 172), // dark red
-        Color().rgba(40, 29, 43) to Color().rgba(13, 8, 44), // very dark red
-    )
-
-    private val greenPlayerColors = arrayOf(
-        //faerie
-        Color().rgba(91, 194, 237) to Color().rgba(91, 237, 140), // bright blue
-        Color().rgba(72, 139, 212) to Color().rgba(44, 189, 129), // shadow blue
-        Color().rgba(44, 111, 175) to Color().rgba(175, 45, 44), // dark line blue
-        Color().rgba(0, 48, 100) to Color().rgba(0, 64, 38), // very dark line blue
-        //goblin
-        Color().rgba(115, 38, 61) to Color().rgba(38, 115, 84), // light red
-        Color().rgba(91, 26, 45) to Color().rgba(26, 91, 65), // darker red
-        Color().rgba(85, 11, 33) to Color().rgba(11, 85, 56), // dark red
-        Color().rgba(40, 29, 43) to Color().rgba(19, 44, 8), // very dark red
-    )
-
-    private val purplePlayerColors = arrayOf(
-        //faerie
-        Color().rgba(91, 194, 237) to Color().rgba(193, 91, 237), // bright blue
-        Color().rgba(72, 139, 212) to Color().rgba(146, 72, 212), // shadow blue
-        Color().rgba(44, 111, 175) to Color().rgba(125, 44, 175), // dark line blue
-        Color().rgba(0, 48, 100) to Color().rgba(64, 0, 100), // very dark line blue
-        //goblin
-        Color().rgba(115, 38, 61) to Color().rgba(104, 38, 115), // light red
-        Color().rgba(91, 26, 45) to Color().rgba(77, 26, 91), // darker red
-        Color().rgba(85, 11, 33) to Color().rgba(60, 11, 85), // dark red
-        Color().rgba(40, 29, 43) to Color().rgba(37, 8, 44), // very dark red
-    )
-
-    private val yellowPlayerColors = arrayOf(
-        //faerie
-        Color().rgba(91, 194, 237) to Color().rgba(237, 229, 91), // bright blue
-        Color().rgba(72, 139, 212) to Color().rgba(212, 179, 72), // shadow blue
-        Color().rgba(44, 111, 175) to Color().rgba(192, 134, 46), // dark line blue
-        Color().rgba(0, 48, 100) to Color().rgba(100, 60, 0), // very dark line blue
-        //goblin
-        Color().rgba(115, 38, 61) to Color().rgba(115, 115, 38), // light red
-        Color().rgba(91, 26, 45) to Color().rgba(91, 82, 26), // darker red
-        Color().rgba(85, 11, 33) to Color().rgba(85, 60, 11), // dark red
-        Color().rgba(40, 29, 43) to Color().rgba(44, 29, 8), // very dark red
-    )
-
-    private val orangePlayerColors = arrayOf(
-        //faerie
-        Color().rgba(91, 194, 237) to Color().rgba(237, 147, 91), // bright blue
-        Color().rgba(72, 139, 212) to Color().rgba(212, 107, 72), // shadow blue
-        Color().rgba(44, 111, 175) to Color().rgba(148, 56, 19), // dark line blue
-        Color().rgba(0, 48, 100) to Color().rgba(100, 0, 4), // very dark line blue
-        //goblin
-        Color().rgba(115, 38, 61) to Color().rgba(133, 48, 0), // light red
-        Color().rgba(91, 26, 45) to Color().rgba(112, 28, 0), // darker red
-        Color().rgba(85, 11, 33) to Color().rgba(97, 6, 0), // dark red
-        Color().rgba(40, 29, 43) to Color().rgba(70, 0, 0), // very dark red
-    )
-
-    private val pinkPlayerColors = arrayOf(
-        //faerie
-        Color().rgba(91, 194, 237) to Color().rgba(237, 91, 213), // bright blue
-        Color().rgba(72, 139, 212) to Color().rgba(212, 72, 158), // shadow blue
-        Color().rgba(44, 111, 175) to Color().rgba(148, 19, 98), // dark line blue
-        Color().rgba(0, 48, 100) to Color().rgba(100, 0, 61), // very dark line blue
-        //goblin
-        Color().rgba(115, 38, 61) to Color().rgba(153, 0, 99), // light red
-        Color().rgba(91, 26, 45) to Color().rgba(117, 0, 76), // darker red
-        Color().rgba(85, 11, 33) to Color().rgba(96, 0, 62), // dark red
-        Color().rgba(40, 29, 43) to Color().rgba(52, 0, 34), // very dark red
-    )
-
-    private val brownPlayerColors = arrayOf(
-        //faerie
-        Color().rgba(91, 194, 237) to Color().rgba(209, 153, 118), // bright blue
-        Color().rgba(72, 139, 212) to Color().rgba(199, 129, 85), // shadow blue
-        Color().rgba(44, 111, 175) to Color().rgba(125, 74, 42), // dark line blue
-        Color().rgba(0, 48, 100) to Color().rgba(75, 44, 25), // very dark line blue
-        //goblin
-        Color().rgba(115, 38, 61) to Color().rgba(115, 68, 38), // light red
-        Color().rgba(91, 26, 45) to Color().rgba(88, 52, 29), // darker red
-        Color().rgba(85, 11, 33) to Color().rgba(72, 42, 24), // dark red
-        Color().rgba(40, 29, 43) to Color().rgba(39, 23, 13), // very dark red
-    )
-
     fun findUnitAtlas(playerColor: String): TextureAtlas {
         val assetName = "units_$playerColor.atlas"
         if (!contains(assetName)) {
@@ -216,28 +119,6 @@ class Assets : AssetManager() {
         addAsset("units_orange.atlas", TextureAtlas::class.java, createUnitsAtlas(orangePlayerColors))
         addAsset("units_pink.atlas", TextureAtlas::class.java, createUnitsAtlas(pinkPlayerColors))
         addAsset("units_brown.atlas", TextureAtlas::class.java, createUnitsAtlas(brownPlayerColors))
-    }
-
-    private fun createUnitsAtlas(colors: kotlin.Array<Pair<Color, Color>>): TextureAtlas {
-        val atl = TextureAtlas(UNITS_ATLAS)
-        val texture = atl.textures.first()
-        texture.textureData.prepare()
-        val pixmap = texture.textureData.consumePixmap()
-
-        colors.forEach {
-            pixmap.replaceColor(it.first, it.second)
-        }
-
-        val modifiedTexture = Texture(pixmap)
-
-        atl.textures.remove(texture)
-        atl.textures.add(modifiedTexture)
-        atl.regions.forEach { it.texture = modifiedTexture }
-
-        texture.dispose()
-        pixmap.dispose()
-
-        return atl
     }
 
     fun beginLoadingAll() {
@@ -323,6 +204,129 @@ class Assets : AssetManager() {
         generator.dispose()
         return font
     }
+
+    /// /// /// /// /// // /// /// //
+    ///
+    ///////// // // // /  // / / / /
+
+    private fun createUnitsAtlas(colors: kotlin.Array<Pair<Color, Color>>): TextureAtlas {
+        val atl = TextureAtlas(UNITS_ATLAS)
+        val texture = atl.textures.first()
+        texture.textureData.prepare()
+        val pixmap = texture.textureData.consumePixmap()
+
+        colors.forEach {
+            pixmap.replaceColor(it.first, it.second)
+        }
+
+        val modifiedTexture = Texture(pixmap)
+
+        atl.textures.remove(texture)
+        atl.textures.add(modifiedTexture)
+        atl.regions.forEach { it.texture = modifiedTexture }
+
+        texture.dispose()
+        pixmap.dispose()
+
+        return atl
+    }
+
+    //what color of standard(blue player) replace to other color
+    private val redPlayerColors = arrayOf(
+        // faerie
+        Color().rgba(91, 194, 237) to Color().rgba(237, 91, 119), // bright blue
+        Color().rgba(72, 139, 212) to Color().rgba(212, 77, 72), // shadow blue
+        Color().rgba(44, 111, 175) to Color().rgba(175, 45, 44), // dark line blue
+        Color().rgba(0, 48, 100) to Color().rgba(133, 23, 0) // very dark line blue
+        //goblin x
+    )
+
+    private val bluePlayerColors = arrayOf(
+        //faerie x
+        //goblin
+        Color().rgba(115, 38, 61) to Color().rgba(44, 111, 175), // light red
+        Color().rgba(91, 26, 45) to Color().rgba(26, 62, 91), // darker red
+        Color().rgba(85, 11, 33) to Color().rgba(3, 74, 172), // dark red
+        Color().rgba(40, 29, 43) to Color().rgba(13, 8, 44), // very dark red
+    )
+
+    private val greenPlayerColors = arrayOf(
+        //faerie
+        Color().rgba(91, 194, 237) to Color().rgba(91, 237, 140), // bright blue
+        Color().rgba(72, 139, 212) to Color().rgba(44, 189, 129), // shadow blue
+        Color().rgba(44, 111, 175) to Color().rgba(19, 148, 34), // dark line blue
+        Color().rgba(0, 48, 100) to Color().rgba(0, 64, 38), // very dark line blue
+        //goblin
+        Color().rgba(115, 38, 61) to Color().rgba(38, 115, 84), // light red
+        Color().rgba(91, 26, 45) to Color().rgba(26, 91, 65), // darker red
+        Color().rgba(85, 11, 33) to Color().rgba(11, 85, 56), // dark red
+        Color().rgba(40, 29, 43) to Color().rgba(19, 44, 8), // very dark red
+    )
+
+    private val purplePlayerColors = arrayOf(
+        //faerie
+        Color().rgba(91, 194, 237) to Color().rgba(193, 91, 237), // bright blue
+        Color().rgba(72, 139, 212) to Color().rgba(146, 72, 212), // shadow blue
+        Color().rgba(44, 111, 175) to Color().rgba(125, 44, 175), // dark line blue
+        Color().rgba(0, 48, 100) to Color().rgba(64, 0, 100), // very dark line blue
+        //goblin
+        Color().rgba(115, 38, 61) to Color().rgba(104, 38, 115), // light red
+        Color().rgba(91, 26, 45) to Color().rgba(77, 26, 91), // darker red
+        Color().rgba(85, 11, 33) to Color().rgba(60, 11, 85), // dark red
+        Color().rgba(40, 29, 43) to Color().rgba(37, 8, 44), // very dark red
+    )
+
+    private val yellowPlayerColors = arrayOf(
+        //faerie
+        Color().rgba(91, 194, 237) to Color().rgba(237, 229, 91), // bright blue
+        Color().rgba(72, 139, 212) to Color().rgba(212, 179, 72), // shadow blue
+        Color().rgba(44, 111, 175) to Color().rgba(192, 134, 46), // dark line blue
+        Color().rgba(0, 48, 100) to Color().rgba(100, 60, 0), // very dark line blue
+        //goblin
+        Color().rgba(115, 38, 61) to Color().rgba(115, 115, 38), // light red
+        Color().rgba(91, 26, 45) to Color().rgba(91, 82, 26), // darker red
+        Color().rgba(85, 11, 33) to Color().rgba(85, 60, 11), // dark red
+        Color().rgba(40, 29, 43) to Color().rgba(44, 29, 8), // very dark red
+    )
+
+    private val orangePlayerColors = arrayOf(
+        //faerie
+        Color().rgba(91, 194, 237) to Color().rgba(237, 147, 91), // bright blue
+        Color().rgba(72, 139, 212) to Color().rgba(212, 107, 72), // shadow blue
+        Color().rgba(44, 111, 175) to Color().rgba(148, 56, 19), // dark line blue
+        Color().rgba(0, 48, 100) to Color().rgba(100, 0, 4), // very dark line blue
+        //goblin
+        Color().rgba(115, 38, 61) to Color().rgba(133, 48, 0), // light red
+        Color().rgba(91, 26, 45) to Color().rgba(112, 28, 0), // darker red
+        Color().rgba(85, 11, 33) to Color().rgba(97, 6, 0), // dark red
+        Color().rgba(40, 29, 43) to Color().rgba(70, 0, 0), // very dark red
+    )
+
+    private val pinkPlayerColors = arrayOf(
+        //faerie
+        Color().rgba(91, 194, 237) to Color().rgba(237, 91, 213), // bright blue
+        Color().rgba(72, 139, 212) to Color().rgba(212, 72, 158), // shadow blue
+        Color().rgba(44, 111, 175) to Color().rgba(148, 19, 98), // dark line blue
+        Color().rgba(0, 48, 100) to Color().rgba(100, 0, 61), // very dark line blue
+        //goblin
+        Color().rgba(115, 38, 61) to Color().rgba(153, 0, 99), // light red
+        Color().rgba(91, 26, 45) to Color().rgba(117, 0, 76), // darker red
+        Color().rgba(85, 11, 33) to Color().rgba(96, 0, 62), // dark red
+        Color().rgba(40, 29, 43) to Color().rgba(52, 0, 34), // very dark red
+    )
+
+    private val brownPlayerColors = arrayOf(
+        //faerie
+        Color().rgba(91, 194, 237) to Color().rgba(209, 153, 118), // bright blue
+        Color().rgba(72, 139, 212) to Color().rgba(199, 129, 85), // shadow blue
+        Color().rgba(44, 111, 175) to Color().rgba(125, 74, 42), // dark line blue
+        Color().rgba(0, 48, 100) to Color().rgba(75, 44, 25), // very dark line blue
+        //goblin
+        Color().rgba(115, 38, 61) to Color().rgba(115, 68, 38), // light red
+        Color().rgba(91, 26, 45) to Color().rgba(88, 52, 29), // darker red
+        Color().rgba(85, 11, 33) to Color().rgba(72, 42, 24), // dark red
+        Color().rgba(40, 29, 43) to Color().rgba(39, 23, 13), // very dark red
+    )
 }
 
 object AudioManager {

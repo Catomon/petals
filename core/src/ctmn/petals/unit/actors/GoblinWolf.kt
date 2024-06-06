@@ -27,7 +27,7 @@ class GoblinWolf : UnitActor(
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.horse.copy().apply {
-            get(TerrainNames.forest).mv(1)
+            get(TerrainNames.forest).mv(1).ad(15, 5)
             get(TerrainNames.mountains).mv(2)
         }))
         add(MatchUpBonusComponent().apply {

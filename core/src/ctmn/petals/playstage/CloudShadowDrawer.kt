@@ -50,7 +50,7 @@ class CloudShadowDrawer : Actor() {
 
         val height =
             if (playStage.mapHeight() < 14f * TILE_SIZE)
-                Random.nextInt(-48, 14 * TILE_SIZE).toFloat()
+                Random.nextInt(-48, 14 * TILE_SIZE.toInt()).toFloat()
             else
                 Random.nextInt(-48, playStage.mapHeight().toInt() - 48).toFloat()
         shadows.add(
