@@ -73,8 +73,8 @@ class Level20 : Scenario("lv_20", "level_wall") {
             playStage.getUnitsOfPlayer(players[1]).forEach { it.cUnit.movingRange = 0 }
 
             if (aliceOrNull() == null) {
-                val base = playStage.getCapturablesOf(player).filter { it.isBase }.first()
-                playStage.addActor(Alice().player(player).position(base.tiledX, base.tiledY))
+//                val base = playStage.getCapturablesOf(player).filter { it.isBase }.first()
+//                playStage.addActor(Alice().player(player).position(base.tiledX, base.tiledY))
 
                 val enemyBase = playStage.getCapturablesOf(players[1]).filter { it.isBase }.first()
                 playStage.addActor(GoblinSword().player(players[1]).position(enemyBase.tiledX, enemyBase.tiledY))
