@@ -6,8 +6,6 @@ import kotlin.reflect.KClass
 
 class ExecuteCommandTask(val commandClass: KClass<out Command>, forcePlayerToComplete: Boolean = false) : Task() {
 
-    override var description: String? = "Press the End Turn button"
-
     private var commandPassed = false
 
     init {

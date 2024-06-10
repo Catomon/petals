@@ -4,32 +4,31 @@ import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const
 import ctmn.petals.assets
+import ctmn.petals.effects.CreateEffect
+import ctmn.petals.effects.FloatingLabelAnimation
 import ctmn.petals.effects.HealthChangeEffect
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
-import ctmn.petals.unit.abilities.SummonAbility
-import ctmn.petals.unit.actors.*
-import ctmn.petals.unit.component.*
-import ctmn.petals.utils.tiled
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.utils.Array
-import ctmn.petals.effects.CreateEffect
-import ctmn.petals.effects.FloatingLabelAnimation
 import ctmn.petals.playscreen.events.UnitDiedEvent
 import ctmn.petals.playscreen.events.UnitLevelUpEvent
 import ctmn.petals.playscreen.seqactions.KillUnitAction
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
-import ctmn.petals.unit.actors.FairyBomber
+import ctmn.petals.unit.abilities.SummonAbility
+import ctmn.petals.unit.actors.*
+import ctmn.petals.unit.component.*
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
+import ctmn.petals.utils.tiled
 import java.util.*
 
 val cUnitMapper: ComponentMapper<UnitComponent> = ComponentMapper.getFor(UnitComponent::class.java)
@@ -284,7 +283,38 @@ fun UnitActor.addAttackDamage(amount: Int) {
     }
 }
 
+fun UnitActor.canBuildBase(): Boolean {
+    return (selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE)
+}
+
+fun UnitActor.canBuildBase(tile: TileActor): Boolean {
+    return canBuildBase() && tile.terrain == TerrainNames.grass
+}
+
+fun UnitActor.canDestroy(tile: TileActor): Boolean {
+    return canDestroy()
+}
+
+fun UnitActor.canDestroy(): Boolean {
+    return (selfName != UnitIds.DOLL_SOWER
+            && selfName != UnitIds.GOBLIN_PICKAXE
+            && selfName != UnitIds.GOBLIN_GIANT
+            && selfName != UnitIds.HUNTER
+            && selfName != UnitIds.GOBLIN_SCOUT
+            && selfName != UnitIds.PIXIE
+            && selfName != UnitIds.CUCUMBER
+            && selfName != UnitIds.GOBLIN_CATAPULT
+            && selfName != UnitIds.DOLL_CANNON
+            && !isLeader
+            && !(isAir && cAttack?.attackType == ATTACK_TYPE_GROUND)
+            )
+}
+
 fun UnitActor.canCapture(): Boolean {
+    if (Const.EXPERIMENTAL) {
+        return selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
+    }
+
     return (selfName != UnitIds.GOBLIN_GIANT
             && selfName != UnitIds.HUNTER
             && selfName != UnitIds.GOBLIN_SCOUT
@@ -551,6 +581,8 @@ fun UnitActor.captureBase(base: TileActor, player: Player? = null) {
     setPlayerForCapturableTile(base, playerId, player?.species)
 }
 
+val Terrain.atkPlusDf get() = attackBonus + defenseBonus
+
 fun UnitActor.getClosestTileInMoveRange(
     destX: Int,
     destY: Int,
@@ -669,7 +701,8 @@ fun UnitActor.findAnimation(
     }
 }
 
-fun xpToLevelUp(curLvl: Int) = if (Const.NEED_MORE_EXP_PER_LVL) Const.EXP_TO_LEVEL_UP * curLvl else Const.EXP_TO_LEVEL_UP
+fun xpToLevelUp(curLvl: Int) =
+    if (Const.NEED_MORE_EXP_PER_LVL) Const.EXP_TO_LEVEL_UP * curLvl else Const.EXP_TO_LEVEL_UP
 
 fun findUnitTextures(unitName: String, playerId: Int): Array<TextureAtlas.AtlasRegion> {
     val unitAtlas = assets.findUnitAtlas(playerId)
@@ -699,6 +732,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is FairySword -> 1
         is FairyWaterplant -> 1
         is FairyGlaive -> 1
+        is FairySower -> 1
 
         is Goblin -> 2
         is GoblinBoar -> 2
@@ -715,6 +749,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is GoblinSword -> 2
         is GoblinWolf -> 2
         is GoblinWyvern -> 2
+        is GoblinPickaxe -> 2
 
         is Cherie -> 3
         is CherieSpearman -> 3
@@ -725,5 +760,5 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is SlimeBig -> 4
         is SlimeHuge -> 4
         is SlimeTiny -> 4
-        else -> 4
+        else -> if (unit.playerId == Player.NONE) 4 else unit.playerId
     }

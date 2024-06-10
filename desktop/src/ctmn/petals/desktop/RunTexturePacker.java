@@ -17,6 +17,8 @@ public class RunTexturePacker {
         settings.paddingY = 2;
         settings.edgePadding = true;
         settings.duplicatePadding = true;
+        settings.minHeight = 640;
+        settings.minWidth = 640;
         settings.maxHeight = 4096;
         settings.maxWidth = 4096;
         settings.scaleResampling = new TexturePacker.Resampling[]{TexturePacker.Resampling.nearest};

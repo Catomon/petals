@@ -1,38 +1,48 @@
 package ctmn.petals.playscreen.gui
 
-import ctmn.petals.*
-import ctmn.petals.Const.PLAY_GUI_VIEWPORT_HEIGHT
-import ctmn.petals.Const.PLAY_GUI_VIEWPORT_WIDTH
-import ctmn.petals.Const.TILE_SIZE
-import ctmn.petals.player.Player
-import ctmn.petals.playscreen.*
-import ctmn.petals.playscreen.seqactions.CameraMoveAction
-import ctmn.petals.playscreen.commands.*
-import ctmn.petals.playscreen.events.*
-import ctmn.petals.playscreen.gui.widgets.*
-import ctmn.petals.playscreen.tasks.DialogTask
-import ctmn.petals.story.aliceOrNull
-import ctmn.petals.unit.*
-import ctmn.petals.unit.abilities.SummonAbility
-import ctmn.petals.utils.*
-import ctmn.petals.widgets.newIconButton
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.Action
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.VisUI
-import com.kotcrab.vis.ui.widget.*
+import com.kotcrab.vis.ui.widget.VisImage
+import com.kotcrab.vis.ui.widget.VisImageButton
+import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisTable
+import ctmn.petals.AudioManager
+import ctmn.petals.Const
 import ctmn.petals.Const.ACTION_POINTS_MOVE_MIN
+import ctmn.petals.Const.BASE_BUILD_COST
+import ctmn.petals.Const.PLAY_GUI_VIEWPORT_HEIGHT
+import ctmn.petals.Const.PLAY_GUI_VIEWPORT_WIDTH
+import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.GamePref
+import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.multiplayer.ClientPlayScreen
+import ctmn.petals.player.Player
+import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.commands.*
+import ctmn.petals.playscreen.events.*
+import ctmn.petals.playscreen.gui.widgets.*
+import ctmn.petals.playscreen.seqactions.CameraMoveAction
+import ctmn.petals.playscreen.tasks.DialogTask
 import ctmn.petals.playstage.*
+import ctmn.petals.story.aliceOrNull
 import ctmn.petals.tile.*
 import ctmn.petals.tile.components.ActionCooldown
-import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.*
+import ctmn.petals.unit.abilities.SummonAbility
+import ctmn.petals.utils.*
 import ctmn.petals.widgets.addChangeListener
+import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
 
 
@@ -76,6 +86,7 @@ class PlayGUIStage(
             isVisible = playScreen.gameMode == GameMode.CRYSTALS || playScreen.gameMode == GameMode.CRYSTALS_LEADERS
             creditsIcon.isVisible = isVisible
         }
+    private val creditsLabelTooltip = addTooltip(creditsLabel, "()", Align.bottom)
     private val fpsLabel = VisLabel().apply {
         isVisible = Const.SHOW_FPS
     }
@@ -94,6 +105,8 @@ class PlayGUIStage(
     private val unitMiniMenu = UnitMiniMenu(this)
     val nextDialogButton = StoryDialog.NextDialogButton(this)
     private val captureButton = newIconButton("capture").apply { isVisible = false }
+    private val buildBaseButton = newIconButton("build_base").apply { isVisible = false }
+    private val destroyTileButton = newIconButton("destroy_tile").apply { isVisible = false }
 
     //not widgets
     val tileSelectionDrawer = TileSelectionDrawer(this)
@@ -312,8 +325,42 @@ class PlayGUIStage(
                 }
             }
 
-            //captureButton.isDisabled = true
             captureButton.isVisible = false
+        }
+
+        destroyTileButton.addChangeListener {
+            selectedUnit?.let { unit ->
+                if (unit.isPlayerUnit(localPlayer)) {
+                    val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addChangeListener
+                    if (!tile.isBase || tile.cPlayerId?.playerId == unit.playerId || playScreen.turnManager.getPlayerById(
+                            tile.cPlayerId?.playerId ?: -1
+                        )?.isAlly(unit.playerId) == true
+                    ) return@addChangeListener
+                    val buildCommand = DestroyTileCommand(unit.name, tile.name)
+                    if (!buildCommand.canExecute(playScreen)) return@addChangeListener
+
+                    playScreen.queueCommand(buildCommand)
+                }
+            }
+
+            destroyTileButton.isVisible = false
+        }
+
+        buildBaseButton.addChangeListener {
+            selectedUnit?.let { unit ->
+                if (unit.isPlayerUnit(localPlayer)) {
+                    val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addChangeListener
+                    if (tile.terrain != TerrainNames.grass) return@addChangeListener
+                    val buildCommand = BuildBaseCommand(unit.name, tile.name)
+                    if (!buildCommand.canExecute(playScreen)) return@addChangeListener
+
+                    playScreen.queueCommand(buildCommand)
+
+                    creditsLabel.setText("${localPlayer.credits}")
+                }
+            }
+
+            buildBaseButton.isVisible = false
         }
 
         addListener {
@@ -324,11 +371,20 @@ class PlayGUIStage(
             }
 
             captureButton.isVisible = false
+            buildBaseButton.isVisible = false
+            destroyTileButton.isVisible = false
 
             unit ?: return@addListener false
 
             if (unit.isPlayerUnit(localPlayer) && unit.actionPoints > 0) {
                 val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addListener false
+
+                buildBaseButton.isVisible = true
+                buildBaseButton.isDisabled = !unit.canBuildBase(tile) || localPlayer.credits < BASE_BUILD_COST
+
+                destroyTileButton.isVisible = true
+                destroyTileButton.isDisabled = !unit.canDestroy(tile)
+
                 if (!tile.isCapturable) return@addListener false
 
                 captureButton.isVisible = true
@@ -659,10 +715,12 @@ class PlayGUIStage(
 
         //listeners
         playStage.addListener {
-            when (it) {
-                is UnitBoughtEvent -> creditsLabel.setText("${localPlayer.credits}")
-                is ActionCompletedEvent -> creditsLabel.setText("${localPlayer.credits}")
-                is NextTurnEvent -> creditsLabel.setText("${localPlayer.credits}")
+            if (it is UnitBoughtEvent
+                || it is ActionCompletedEvent
+                || it is NextTurnEvent
+            ) {
+                creditsLabel.setText("${localPlayer.credits}")
+                creditsLabelTooltip.setText("+${localPlayer.income(playScreen)}")
             }
 
             false
@@ -748,7 +806,11 @@ class PlayGUIStage(
 
         with(createTable()) {
             bottom()
-            add(captureButton)
+            add(VisTable().apply {
+                add(captureButton)
+                add(buildBaseButton)
+                add(destroyTileButton)
+            })
             row()
             add(abilitiesPanel)
         }

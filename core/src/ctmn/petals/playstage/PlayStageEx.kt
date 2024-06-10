@@ -358,6 +358,18 @@ fun PlayStage.getEffects(): Array<ctmn.petals.effects.EffectActor> {
     return effects
 }
 
+fun PlayStage.getBases(player: Player): Array<TileActor> {
+    val bases = Array<TileActor>()
+
+    for (tile in getTiles()) {
+        if (tile.isBase)
+            if (tile.cPlayerId?.playerId == player.id)
+                bases.add(tile)
+    }
+
+    return bases
+}
+
 /** get capturable tiles owned by player */
 fun PlayStage.getCapturablesOf(player: Player): Array<TileActor> {
     val bases = Array<TileActor>()
@@ -561,4 +573,21 @@ fun sortTiles(tiles: List<TileActor>): Array<TileActor> {
     }
 
     return Array<TileActor>().apply { addAll(groundTiles); addAll(sortedTiles) }
+}
+
+fun PlayStage.shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
+    val tilesToShift = Array<TileActor>()
+    tileLayers.values.forEach {
+        if (it != null && tileX in 0 until it.tilesGrid.size && tileY in 0 until (it.tilesGrid[0]?.size ?: 0)) {
+            it.tilesGrid[tileX][tileY]?.let { tile ->
+                tilesToShift.add(tile)
+            }
+        }
+    }
+
+    tilesToShift.forEach { tile ->
+        tile.layer += shiftAmount
+        tile.remove()
+        addActor(tile)
+    }
 }

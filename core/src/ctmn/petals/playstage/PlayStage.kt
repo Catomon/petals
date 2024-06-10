@@ -319,7 +319,7 @@ class PlayStage(
             for (tile in tilesLayer1.children) {
                 backTile.setPosition(tile.tiledX, tile.tiledY)
                 //todo remove when fix map generator
-                backTile.draw(batch, parentAlpha)
+                //backTile.draw(batch, parentAlpha)
             }
         }
     }

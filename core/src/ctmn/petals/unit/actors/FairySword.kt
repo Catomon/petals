@@ -33,8 +33,8 @@ class FairySword : UnitActor(
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.SLIME] = Pair(10, 0)
-            bonuses["slime_ling"] = Pair(10, 0)
-            bonuses["slime_huge"] = Pair(10, 0)
+            bonuses[UnitIds.SLIME_LING] = Pair(10, 0)
+            bonuses[UnitIds.SLIME_HUGE] = Pair(10, 0)
             bonuses[FALLEN_SPEARMAN] = 10 to 0
         })
     }

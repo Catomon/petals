@@ -22,6 +22,8 @@ val TileActor.cPlayerId get() = get(PlayerIdComponent::class.java)
 val TileActor.cReplaceWith get() = get(ReplaceWithComponent::class.java)
 val TileActor.cLifeTime get() = get(LifeTimeComponent::class.java)
 val TileActor.cCapturing get() = get(CapturingComponent::class.java)
+val TileActor.cBaseBuilding get() = get(BaseBuildingComponent::class.java)
+val TileActor.cDestroying get() = get(DestroyingComponent::class.java)
 val TileActor.isOccupied get() = (stage as PlayStage).getUnit(tiledX, tiledY) != null
 val TileActor.isWaterBase: Boolean
     get() {

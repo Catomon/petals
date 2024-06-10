@@ -1,27 +1,29 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.playscreen.gui.PlayGUIStage
-import ctmn.petals.tile.TileActor
-import ctmn.petals.playscreen.commands.BuyUnitCommand
-import ctmn.petals.playstage.getUnitsOfPlayer
-import ctmn.petals.unit.*
-import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.Event
+import com.badlogic.gdx.scenes.scene2d.EventListener
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.assets
 import ctmn.petals.player.Player
 import ctmn.petals.player.getSpeciesUnits
+import ctmn.petals.playscreen.commands.BuyUnitCommand
+import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
+import ctmn.petals.playstage.getUnitsOfPlayer
+import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.isWaterBase
-import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.*
 import ctmn.petals.utils.addClickListener
 import ctmn.petals.utils.removeCover
 import ctmn.petals.utils.setPosByCenter
@@ -43,23 +45,23 @@ class BuyMenu : VisTable() {
         check(stage != null)
 
         clear()
-        add(BuyMenuWindow(guiStage, base, player, availableUnits[player.id]))
-            .size(320f, 460f).center()
+        add(BuyMenuPane(guiStage, base, player, availableUnits[player.id]))
+            .size(325f, 460f).center()
     }
 }
 
-private class BuyMenuWindow(
+private class BuyMenuPane(
     private val guiStage: PlayGUIStage,
     var baseTile: TileActor,
     val player: Player? = null,
     val units: Array<UnitActor>? = null,
-) : VisWindow("Buy Menu") {
+) : VisTable() {
 
     companion object {
-        private const val ICON_SIZE = 64f
+        private const val ICON_SIZE = 92f
     }
 
-    private val gridGroup = GridGroup(ICON_SIZE, 32f)
+    private val gridGroup = GridGroup(ICON_SIZE)
     private val scrollPane = VisScrollPane(gridGroup)
 
     var unitLeaderId = -1
@@ -68,13 +70,13 @@ private class BuyMenuWindow(
         override fun handle(event: Event?): Boolean {
             if (isVisible && event is InputEvent) {
 
-                if (event.target.isDescendantOf(this@BuyMenuWindow)) {
+                if (event.target.isDescendantOf(this@BuyMenuPane)) {
                     if (event.type == InputEvent.Type.touchDragged)
                         event.stop()
                 } else {
                     if (event.type == InputEvent.Type.touchDown) {
                         event.stop()
-                        fadeOut()
+                        remove()
                     }
                 }
 
@@ -86,12 +88,8 @@ private class BuyMenuWindow(
     }
 
     init {
-        //window
-        FADE_TIME = 0f
-        isMovable = false
-        isResizable = false
-        setSize(340f, 400f)
-        setCenterOnAdd(true)
+        background = VisUI.getSkin().getDrawable("background")
+        // setSize(340f, 400f)
 
         val playStage = baseTile.playStageOrNull ?: throw IllegalStateException("Base tile in not on the stage.")
         val isWater = baseTile.isWaterBase
@@ -123,8 +121,10 @@ private class BuyMenuWindow(
 
         //scroll pane
         scrollPane.setScrollingDisabled(true, false)
-        gridGroup.setFillParent(true)
-        add(scrollPane).size(340f, 400f).padRight(14f)
+        guiStage.scrollFocus = scrollPane
+        add(VisLabel("Buy Menu")).center()
+        row()
+        add(scrollPane).fill().expand()
     }
 
     private fun GridGroup.addButton(unitButton: UnitButton) {
@@ -156,7 +156,7 @@ private class BuyMenuWindow(
                         guiStage.playScreen.commandManager.queueCommand(buyCommand)
                 }
 
-                fadeOut()
+                this@BuyMenuPane.remove()
             }
         })
     }
@@ -164,9 +164,10 @@ private class BuyMenuWindow(
     override fun setStage(stage: Stage?) {
         if (stage != null) {
             stage.root.addActorBefore(parent, StageCover(0.5f).addClickListener {
-                fadeOut()
+                remove()
             })
-            fadeIn()
+
+            //fadeIn()
             //stage.addCaptureListener(captureListener)
         } else
             this.stage?.removeCover()

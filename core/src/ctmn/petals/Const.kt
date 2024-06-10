@@ -70,6 +70,7 @@ object Const {
     const val PLAY_CAMERA_ZOOM_OUT_MAX_STORY = 320f
 
     // Gameplay:
+    const val EXPERIMENTAL: Boolean = true
     const val TILE_SIZE: Float = 16f
     const val TILE_SIZE_X2: Float = TILE_SIZE * 2f
 
@@ -104,6 +105,7 @@ object Const {
     const val IS_ROUND_HEALTH_CHANGE_LABEL = false
 
     // Other logic
+    const val BASE_BUILD_COST = 300
     const val BASE_RANGE_OF_VIEW = 2
     const val GOLD_PER_BASE = 100
     const val HEALING_AMOUNT_NEAR_LEADER = 10

@@ -18,16 +18,18 @@ import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.LogLevel
 import com.strongjoshua.console.annotation.ConsoleDoc
 import ctmn.petals.*
-import ctmn.petals.screens.MenuScreen
 import ctmn.petals.bot.BotManager
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.effects.FloatingUpLabel
-import ctmn.petals.map.*
+import ctmn.petals.map.MapConverted
+import ctmn.petals.map.labels
+import ctmn.petals.map.tiles
+import ctmn.petals.map.units
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.multiplayer.HostPlayScreen
-import ctmn.petals.multiplayer.json.GameStateSnapshot
 import ctmn.petals.multiplayer.applyGameStateToPlayScreen
 import ctmn.petals.multiplayer.createSnapshot
+import ctmn.petals.multiplayer.json.GameStateSnapshot
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.commands.CommandManager
@@ -46,12 +48,15 @@ import ctmn.petals.playscreen.seqactions.SeqActionManager
 import ctmn.petals.playscreen.tasks.TaskManager
 import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
 import ctmn.petals.tile.components.ActionCooldown
+import ctmn.petals.tile.components.BaseBuildingComponent
 import ctmn.petals.tile.components.CapturingComponent
+import ctmn.petals.tile.components.DestroyingComponent
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BonusFieldComponent
@@ -98,8 +103,9 @@ open class PlayScreen(
 
     var friendlyFire = false
 
-    var creditsPerBase = 100 //TODO GameState
-    var creditsPerCluster = 75
+    var creditsPassiveIncome = 100
+    var creditsPerBase = 100
+    var creditsPerCluster = 100 //classic 75
 
     var gameType = GameType.STORY
     var gameMode = GameMode.STORY
@@ -253,6 +259,18 @@ open class PlayScreen(
             }
         }
 
+        val bluCrystals = mutableListOf<TileActor>()
+        tiles.removeAll {
+            val isLifeCrystal = it.selfName == Tiles.LIFE_CRYSTAL
+            if (isLifeCrystal) {
+                bluCrystals.add(TileActor(TileData.get(Tiles.CRYSTAL)!!, it.layer, it.tiledX, it.tiledY))
+            }
+
+            isLifeCrystal
+        }
+
+        tiles.addAll(bluCrystals)
+
         // re-add tiles to create missing layers
         playStage.clearTiles()
         tiles.forEach { playStage.addActor(it) }
@@ -261,6 +279,7 @@ open class PlayScreen(
     fun levelCreated() {
         playStage.border.make()
         fogOfWarManager.updateGridMap()
+        botManager.botPlayers.forEach { it.levelCreated(playStage) }
     }
 
     private var isReady = false
@@ -295,7 +314,7 @@ open class PlayScreen(
         // give first turn player gold for all bases
         val currentPlayer = turnManager.currentPlayer
         for (base in playStage.getCapturablesOf(currentPlayer))
-            currentPlayer.credits += Const.GOLD_PER_BASE
+            currentPlayer.credits += creditsPerBase
 
         // ready to show the screen
         isReady = true
@@ -583,9 +602,12 @@ open class PlayScreen(
             // give next player gold for every base
             val nextPlayer = turnCycleEvent.nextPlayer
             if (!nextPlayer.isOutOfGame) {
+                nextPlayer.credits += 100
                 for (base in playStage.getCapturablesOf(nextPlayer)) {
                     if (base.isBase)
-                        nextPlayer.credits += creditsPerBase
+                        also {
+                            //nextPlayer.credits += creditsPerBase
+                        }
                     else
                         nextPlayer.credits += creditsPerCluster
                 }
@@ -662,9 +684,57 @@ open class PlayScreen(
                     val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
                     if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
                         unitOnTile.captureBase(tile, turnManager.getPlayerById(unitOnTile.playerId))
+                        unitOnTile.remove()
+
                         playStage.root.fire(BaseCapturedEvent(tile))
                     }
                     tile.components.remove(CapturingComponent::class.java)
+                }
+
+                if (tile.cBaseBuilding?.playerId == turnCycleEvent.nextPlayer.id) {
+                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    if (unitOnTile != null && tile.cBaseBuilding!!.playerId == unitOnTile.playerId) {
+                        val newBase =
+                            TileActor(TileData.get(Tiles.PIXIE_NEST_BLUE)!!, tile.layer, tile.tiledX, tile.tiledY)
+                        tile.layer -= 1
+                        val tile2 = playStage.getTile(tile.tiledX, tile.tiledY, tile.layer)
+                        if (tile2 != null) {
+                            tile2.layer -= 1
+                            tile2.remove()
+                            playStage.addActor(tile2)
+                        }
+                        tile.remove()
+                        playStage.addActor(tile)
+                        playStage.addActor(newBase)
+                        unitOnTile.captureBase(newBase, turnManager.getPlayerById(unitOnTile.playerId))
+                        unitOnTile.remove()
+                        //playStage.root.fire(BaseBuilt(tile))
+                    }
+                    tile.components.remove(BaseBuildingComponent::class.java)
+                }
+
+                if (tile.cDestroying?.playerId == turnCycleEvent.nextPlayer.id) {
+                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    if (unitOnTile != null && tile.cDestroying!!.playerId == unitOnTile.playerId) {
+                        playStage.shiftLayerAt(tile.tiledX, tile.tiledY, 1)
+
+                        if (playStage.getTile(tile.tiledX, tile.tiledY) == null) {
+                            err("No back tile; added a grass tile then")
+                            playStage.addActor(
+                                TileActor(
+                                    TileData.get("grass")!!,
+                                    1,
+                                    tile.tiledX,
+                                    tile.tiledY
+                                )
+                            )
+
+                        }
+
+                        tile.remove()
+                        //todo debris
+                    }
+                    tile.components.remove(DestroyingComponent::class.java)
                 }
 
                 // remove cooldown

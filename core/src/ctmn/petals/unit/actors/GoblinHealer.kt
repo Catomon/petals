@@ -2,17 +2,17 @@ package ctmn.petals.unit.actors
 
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.UnitIds.GOBLIN_HEALER
 import ctmn.petals.unit.component.*
 
 class GoblinHealer : UnitActor(
     UnitComponent(
-     "goblin_healer",
-    100,
-    0,
-    4,
-    5
-)
+        GOBLIN_HEALER,
+        100,
+        0,
+        4,
+        5
+    )
 ) {
 
     init {

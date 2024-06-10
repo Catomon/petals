@@ -2,6 +2,7 @@ package ctmn.petals.bot
 
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.player.Player
+import ctmn.petals.playstage.PlayStage
 
 abstract class Bot(val player: Player, val playScreen: PlayScreen) {
 
@@ -9,20 +10,24 @@ abstract class Bot(val player: Player, val playScreen: PlayScreen) {
 
     var isDone: Boolean = false
 
+    open fun levelCreated(playStage: PlayStage) {
+
+    }
+
     /** update if [isDone] != true */
     abstract fun update(delta: Float)
 
-    /** on Bot turn start */
+    /** Called on Bot turn start */
     open fun onStart() {
         isDone = false
     }
 
-    /** on Bot turn end */
+    /** Called on Bot turn end */
     open fun onEnd() {
         isDone = true
     }
 
-    /** called by Bot when it's done */
+    /** Should be called by Bot when it's done */
     fun done() {
         isDone = true
     }

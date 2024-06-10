@@ -41,7 +41,7 @@ abstract class Task {
             this.state = State.SUCCEEDED
     }
 
-    fun description(string: String) : Task {
+    fun description(string: String? = null) : Task {
         description = string
 
         return this

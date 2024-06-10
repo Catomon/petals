@@ -28,7 +28,7 @@ object UnitIds {
     const val CUCUMBER = "cucumber"
     const val WATERPLANT = "waterplant"
     const val DOLL_GLAIVE = "doll_glaive"
-    const val DOLL_SOWER = "doll_glaive"
+    const val DOLL_SOWER = "doll_sower"
 
     const val SLIME = "slime"
     const val SLIME_BIG = "slime_big"
@@ -61,6 +61,7 @@ object UnitIds {
     const val GOBLIN_DUELIST = "goblin_duelist"
     const val GOBLIN_CROSSBOW = "goblin_crossbow"
     const val GOBLIN_PICKAXE = "goblin_pickaxe"
+    const val GOBLIN_HEALER = "goblin_healer"
 
     const val ROOT_TREE = "root_tree"
     const val ANGRY_OWL = "angry_owl"

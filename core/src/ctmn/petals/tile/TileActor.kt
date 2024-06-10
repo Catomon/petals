@@ -178,6 +178,8 @@ open class TileActor(
                 "PlayerIdComponent" -> components.add(gson.fromJson(value, PlayerIdComponent::class.java))
                 "ReplaceWithComponent" -> components.add(gson.fromJson(value, ReplaceWithComponent::class.java))
                 "ActionCooldown" -> components.add(gson.fromJson(value, ActionCooldown::class.java))
+                "BaseBuildingComponent" -> components.add(gson.fromJson(value, BaseBuildingComponent::class.java))
+                "DestroyingComponent" -> components.add(gson.fromJson(value, DestroyingComponent::class.java))
             }
         }
 
@@ -224,6 +226,8 @@ open class TileActor(
                 is LifeTimeComponent -> component.copy()
                 is PlayerIdComponent -> component.copy()
                 is ReplaceWithComponent -> component.copy()
+                is BaseBuildingComponent -> component.copy()
+                is DestroyingComponent -> component.copy()
                 else -> continue
             })
         }

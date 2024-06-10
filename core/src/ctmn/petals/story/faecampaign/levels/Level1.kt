@@ -1,32 +1,29 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.assets
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.bot.SimpleBot
-import ctmn.petals.player.*
+import ctmn.petals.player.Player
+import ctmn.petals.player.newBluePlayer
+import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.AttackCommand
-import ctmn.petals.playscreen.gui.widgets.StoryDialog
-import ctmn.petals.playscreen.gui.widgets.said
-import ctmn.petals.playscreen.listeners.TurnsCycleListener
-import ctmn.petals.playscreen.tasks.*
-import ctmn.petals.playscreen.triggers.*
-import ctmn.petals.playstage.getCapturablesOf
-import ctmn.petals.playstage.getUnit
+import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
+import ctmn.petals.playscreen.tasks.EndTurnTask
+import ctmn.petals.playscreen.tasks.ExecuteCommandTask
+import ctmn.petals.playscreen.tasks.MoveUnitTask
+import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
 import ctmn.petals.playstage.getUnitsOfEnemyOf
 import ctmn.petals.playstage.getUnitsOfPlayer
-import ctmn.petals.story.*
-import ctmn.petals.story.alissa.CreateUnit.alice
+import ctmn.petals.story.Scenario
+import ctmn.petals.story.playScreen
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
-import ctmn.petals.unit.abilities.HealthPotionAbility
-import ctmn.petals.unit.actors.FairyAxe
-import ctmn.petals.unit.actors.SlimeLing
+import ctmn.petals.unit.actors.FairySword
 import ctmn.petals.unit.actors.SlimeTiny
 
-class Level1 : Scenario("lv_1", "alice_slime2") {
+class Level1 : Scenario("lv_1", "level_0") {
 
     init {
         players.addAll(
@@ -37,7 +34,7 @@ class Level1 : Scenario("lv_1", "alice_slime2") {
 
         player = players.first()
 
-        gameEndCondition = Manual().apply { ignorePlayers.add(players[2].id) }
+        gameEndCondition = EliminateEnemyUnits().apply { ignorePlayers.add(players[2].id) }
     }
 
     override fun createLevel(playScreen: PlayScreen) {
@@ -77,36 +74,23 @@ class Level1 : Scenario("lv_1", "alice_slime2") {
         //                else
         //                    gameEndCondition.lose()
 
-        val alice = playScreen.alice()
+        val swordFaerie = playScreen.playStage.getUnitsOfPlayer(players[0]).first()
+        val swordFaerie2 = FairySword()
+        playStage.addActor(swordFaerie2)
+        swordFaerie2.position(swordFaerie.tiledX, swordFaerie.tiledY)
+        swordFaerie2.player(players[0])
+        val alice = swordFaerie
+
         val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange, alice.tiledY)
         playStage.addActor(stick)
         playStage.addActor(SlimeTiny().player(players[2]).position(stick.tiledX + 1, stick.tiledY))
 
-        val slimeLing = playStage.getUnit<SlimeLing>()!!
-        slimeLing.item = assets.tilesAtlas.findRegion("items/book")
+//        val slimeLing = playStage.getUnit<SlimeLing>()!!
 
         playScreen {
-//            queueDialogAction(
-//                StoryDialog(
-//                    "Alice story." said null,
-//                    "Look I spot a good stick over there!" said alice,
-//                )
-//            )
-
-            addAliceDiedGameOverTrigger()
 
             addTrigger(UnitsDiedTrigger(playStage.getUnitsOfEnemyOf(player))).onTrigger {
                 gameEndCondition.win()
-            }
-
-            addTrigger(object : Trigger() {
-                override fun check(delta: Float): Boolean = alice.health <= 50 && turnManager.currentPlayer == player && alice.actionPoints == 2
-            }).onTrigger {
-                alice.abilities.add(HealthPotionAbility().also { it.level = 1; it.cooldown = 3 })
-                guiStage.abilitiesPanel.updateAbilities()
-                queueTask(
-                    UseAbilityTask(alice.abilities.first(), true).description("Use an ability to heal up Alice")
-                )
             }
 
             queueTask(
@@ -115,12 +99,8 @@ class Level1 : Scenario("lv_1", "alice_slime2") {
                     stick.tiledX,
                     stick.tiledY,
                     true
-                ).description("Select Alice and press a tile to move to.")
+                ).description("Select unit and press a tile to move to.")
             ).addOnCompleteTrigger {
-                stick.remove()
-                alice.attackAnimation = alice.stickAttackAni
-                alice.setAnimation(alice.pickUpAni)
-                alice.addAttackDamage(10)
                 addTask(
                     ExecuteCommandTask(AttackCommand::class, true).description(
                         "Press a slime to fight it"
@@ -133,12 +113,6 @@ class Level1 : Scenario("lv_1", "alice_slime2") {
                         addTask(EliminateAllEnemyUnitsTask(threeSlimes).description("Kill all slimes"))
                     }
                 }
-            }
-
-            addTrigger(UnitsDiedTrigger(slimeLing)).onTrigger {
-//                queueDialogAction(
-//                    StoryDialog.Quote("book", alice),
-//                )
             }
         }
     }

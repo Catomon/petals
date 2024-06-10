@@ -6,6 +6,7 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.isInRange
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.playstage.*
+import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
 import kotlin.math.max
 
@@ -26,6 +27,10 @@ fun PlayStage.getTilesInRange(tileX: Int, tileY: Int, range: Int, removeMid: Boo
     }
 
     return tiles
+}
+
+fun PlayStage.getTile(unitActor: UnitActor): TileActor? {
+    return getTile(unitActor.tiledX, unitActor.tiledY)
 }
 
 fun PlayStage.getSurroundingTiles(tileX: Int, tileY: Int, isPassableAndFree: Boolean = false) : Array<TileActor> {

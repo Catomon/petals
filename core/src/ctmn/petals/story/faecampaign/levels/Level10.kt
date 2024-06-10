@@ -1,18 +1,13 @@
 package ctmn.petals.story.faecampaign.levels
 
-import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.CaptureBases
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.selfName
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
-import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds
 
 class Level10 : Scenario("lv_10", "level_road") {
 

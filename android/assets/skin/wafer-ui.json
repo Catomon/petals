@@ -453,6 +453,20 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		up: capture_button
 		focusBorder: capture_button_border
 	}
+	build_base: {
+		disabled: build_base_button_disabled
+		down: build_base_button_pressed
+		up: build_base_button
+        focusBorder: build_base_button_border
+	}
+
+	destroy_tile: {
+        disabled: destroy_tile_button_disabled
+        down: destroy_tile_button_pressed
+        up: destroy_tile_button
+	    focusBorder: destroy_tile_button_border
+    }
+
 	ability: {
 		down: ability_btn_pressed
 		up: ability_btn

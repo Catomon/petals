@@ -12,7 +12,8 @@ class GoblinPickaxe : UnitActor(
         0,
         3,
         4,
-        playerID = 2
+        playerID = 2,
+        teamID = 2
     )
 ) {
 
@@ -20,8 +21,8 @@ class GoblinPickaxe : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                5,
-                15,
+                0,
+                10,
                 1
             )
         )

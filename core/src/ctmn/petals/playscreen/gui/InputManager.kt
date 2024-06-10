@@ -8,6 +8,8 @@ import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
+import ctmn.petals.utils.removeCover
+import ctmn.petals.widgets.StageCover
 import kotlin.math.abs
 
 class InputManager(val guiStage: PlayGUIStage) {
@@ -102,6 +104,9 @@ class InputManager(val guiStage: PlayGUIStage) {
     inner class PlayScreenInputProcessor : InputProcessor {
 
         var isStopped = false
+            get() {
+                return field || guiStage.actors.find { it is StageCover } != null
+            }
 
         var wasdKeysUp = 0
 

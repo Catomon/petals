@@ -2,11 +2,12 @@ package ctmn.petals.unit.actors
 
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds.GOBLIN_SWORD
 import ctmn.petals.unit.component.*
 
 class GoblinSword : UnitActor(
     UnitComponent(
-        "goblin_sword",
+        GOBLIN_SWORD,
         100,
         5,
         4,

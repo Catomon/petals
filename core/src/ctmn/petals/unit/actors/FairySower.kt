@@ -11,7 +11,7 @@ class FairySower : UnitActor(
         100,
         0,
         3,
-        4,
+        5,
         playerID = 1
     )
 ) {
@@ -22,7 +22,7 @@ class FairySower : UnitActor(
             AttackComponent(
                 5,
                 15,
-                1
+                0
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))

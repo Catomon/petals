@@ -3,7 +3,10 @@ package ctmn.petals.playscreen.gui
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.kotcrab.vis.ui.widget.VisTable
+import ctmn.petals.game
+import ctmn.petals.menu.startLevel
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.story.StoryPlayScreen
 import ctmn.petals.widgets.StageCover
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newLabel
@@ -26,6 +29,12 @@ class InGameMenu(val playScreen: PlayScreen) : WidgetGroup() {
                 this@InGameMenu.remove()
             })
             row()
+            if (playScreen is StoryPlayScreen) {
+                add(newTextButton("Restart").addChangeListener {
+                    game.startLevel(playScreen.story, playScreen.story.getScenario(playScreen.currentScenario.id))
+                })
+                row()
+            }
             add(newTextButton("Settings").apply { isDisabled = true })
             row()
             add(newTextButton("End game").addChangeListener {
