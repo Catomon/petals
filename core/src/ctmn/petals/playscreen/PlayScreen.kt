@@ -366,6 +366,14 @@ open class PlayScreen(
             } else {
                 setPlayerForCapturableTile(base, -1)
             }
+
+            if (gameType != GameType.STORY) {
+                if (base.selfName == Tiles.LIFE_CRYSTAL) {
+                    base.remove()
+                    val bluTile = TileActor(TileData.get(Tiles.CRYSTAL)!!, base.layer, base.tiledX, base.tiledY)
+                    playStage.addActor(bluTile)
+                }
+            }
         }
 
         //        when (gameMode) {

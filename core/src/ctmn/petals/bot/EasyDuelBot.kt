@@ -405,20 +405,21 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                     (unit.cTerrainProps?.get(
                         playScreen.playStage.getTile(closestTileX, closestTileY)?.terrain ?: ""
                     )?.atkPlusDf ?: 0)
-                )
+                ) {
                     log("(MoveTClosestUnit) HE HAS BETTER TERRAIN IM NOT MOVING !!!")
-                return false
-            } else {
+                    return false
+                } else {
 
-                val moveCommand = MoveUnitCommand(unit, closestTileX, closestTileY)
+                    val moveCommand = MoveUnitCommand(unit, closestTileX, closestTileY)
 
-                if (moveCommand.canExecute(playScreen)) {
-                    if (moveCamera)
-                        playScreen.actionManager.queueAction(CameraMoveAction(unit.centerX, unit.centerY))
-                    playScreen.commandManager.queueCommand(moveCommand, playerID)
+                    if (moveCommand.canExecute(playScreen)) {
+                        if (moveCamera)
+                            playScreen.actionManager.queueAction(CameraMoveAction(unit.centerX, unit.centerY))
+                        playScreen.commandManager.queueCommand(moveCommand, playerID)
 
-                    currentCommand = moveCommand
-                    return true
+                        currentCommand = moveCommand
+                        return true
+                    }
                 }
             }
         }
@@ -670,20 +671,21 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                 (unit.cTerrainProps?.get(
                     playScreen.playStage.getTile(closestTileX, closestTileY)?.terrain ?: ""
                 )?.atkPlusDf ?: 0)
-            )
+            ) {
                 log("(MoveNDestroyBase) HE HAS BETTER TERRAIN IM NOT MOVING !!!")
-            return false
-        } else {
+                return false
+            } else {
 
-            val moveCommand = MoveUnitCommand(unit, closestTileX, closestTileY)
+                val moveCommand = MoveUnitCommand(unit, closestTileX, closestTileY)
 
-            if (moveCommand.canExecute(playScreen)) {
-                if (moveCamera)
-                    playScreen.actionManager.queueAction(CameraMoveAction(unit.centerX, unit.centerY))
-                playScreen.commandManager.queueCommand(moveCommand, playerID)
+                if (moveCommand.canExecute(playScreen)) {
+                    if (moveCamera)
+                        playScreen.actionManager.queueAction(CameraMoveAction(unit.centerX, unit.centerY))
+                    playScreen.commandManager.queueCommand(moveCommand, playerID)
 
-                currentCommand = moveCommand
-                return true
+                    currentCommand = moveCommand
+                    return true
+                }
             }
         }
 

@@ -32,9 +32,6 @@ class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
             return false
         }
 
-        if (tile.terrain != TerrainNames.grass)
-            throw IllegalArgumentException("Cannot build on terrain other than 'grass'")
-
         return true
     }
 

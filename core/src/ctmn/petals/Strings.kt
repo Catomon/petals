@@ -32,7 +32,7 @@ class Strings {
 
     class Menu {
         val story = "Story"
-        val levels = "Levels"
+        val levels = "Campaign"
         val quickplay = "Quickplay"
         val match = "Match"
         val vsBot = "Vs Bot"

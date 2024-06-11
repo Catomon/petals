@@ -36,8 +36,11 @@ import ctmn.petals.playscreen.seqactions.CameraMoveAction
 import ctmn.petals.playscreen.tasks.DialogTask
 import ctmn.petals.playstage.*
 import ctmn.petals.story.aliceOrNull
-import ctmn.petals.tile.*
+import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.ActionCooldown
+import ctmn.petals.tile.isBase
+import ctmn.petals.tile.isCapturable
 import ctmn.petals.unit.*
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.utils.*
@@ -105,7 +108,10 @@ class PlayGUIStage(
     private val unitMiniMenu = UnitMiniMenu(this)
     val nextDialogButton = StoryDialog.NextDialogButton(this)
     private val captureButton = newIconButton("capture").apply { isVisible = false }
-    private val buildBaseButton = newIconButton("build_base").apply { isVisible = false }
+    private val buildBaseButton = newIconButton("build_base").apply {
+        isVisible = false
+        add(VisTable().apply { add(VisLabel(BASE_BUILD_COST.toString())) })
+    }
     private val destroyTileButton = newIconButton("destroy_tile").apply { isVisible = false }
 
     //not widgets
@@ -350,13 +356,11 @@ class PlayGUIStage(
             selectedUnit?.let { unit ->
                 if (unit.isPlayerUnit(localPlayer)) {
                     val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addChangeListener
-                    if (tile.terrain != TerrainNames.grass) return@addChangeListener
+                    if (!unit.canBuildBase(tile)) return@addChangeListener
                     val buildCommand = BuildBaseCommand(unit.name, tile.name)
                     if (!buildCommand.canExecute(playScreen)) return@addChangeListener
 
                     playScreen.queueCommand(buildCommand)
-
-                    creditsLabel.setText("${localPlayer.credits}")
                 }
             }
 
@@ -379,15 +383,21 @@ class PlayGUIStage(
             if (unit.isPlayerUnit(localPlayer) && unit.actionPoints > 0) {
                 val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addListener false
 
-                buildBaseButton.isVisible = true
+                buildBaseButton.isVisible = unit.canBuildBase()
                 buildBaseButton.isDisabled = !unit.canBuildBase(tile) || localPlayer.credits < BASE_BUILD_COST
 
-                destroyTileButton.isVisible = true
-                destroyTileButton.isDisabled = !unit.canDestroy(tile)
+                destroyTileButton.isVisible = unit.canDestroy(
+                    tile,
+                    playScreen.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId
+                )
+                destroyTileButton.isDisabled = !unit.canDestroy(
+                    tile,
+                    playScreen.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId
+                )
 
                 if (!tile.isCapturable) return@addListener false
 
-                captureButton.isVisible = true
+                captureButton.isVisible = unit.canCapture()
 
                 if (tile.cPlayerId?.playerId == localPlayer.id) {
                     //captureButton.isDisabled = true
@@ -715,10 +725,7 @@ class PlayGUIStage(
 
         //listeners
         playStage.addListener {
-            if (it is UnitBoughtEvent
-                || it is ActionCompletedEvent
-                || it is NextTurnEvent
-            ) {
+            if (it is CommandExecutedEvent || it is NextTurnEvent) {
                 creditsLabel.setText("${localPlayer.credits}")
                 creditsLabelTooltip.setText("+${localPlayer.income(playScreen)}")
             }

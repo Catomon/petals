@@ -288,11 +288,11 @@ fun UnitActor.canBuildBase(): Boolean {
 }
 
 fun UnitActor.canBuildBase(tile: TileActor): Boolean {
-    return canBuildBase() && tile.terrain == TerrainNames.grass
+    return canBuildBase() && tile.terrain == TerrainNames.grass || tile.terrain == TerrainNames.water
 }
 
-fun UnitActor.canDestroy(tile: TileActor): Boolean {
-    return canDestroy()
+fun UnitActor.canDestroy(tile: TileActor, tileTeamId: Int? = null): Boolean {
+    return canDestroy() && tile.isBase && tile.cPlayerId?.playerId != playerId && this.teamId != tileTeamId
 }
 
 fun UnitActor.canDestroy(): Boolean {

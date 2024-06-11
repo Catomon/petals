@@ -8,8 +8,8 @@ object Const {
 
     // App:
     const val APP_NAME = "Petals - F&GCC"
-    const val APP_VER_NAME = "0.1.1-alpha"
-    const val IS_RELEASE = false
+    const val APP_VER_NAME = "0.2.0-alpha"
+    const val IS_RELEASE = true
     const val USER_FOLDER = "Documents/Petals - F&GCC/"
 
     const val CONSOLE_ENABLED = !IS_RELEASE
@@ -105,7 +105,7 @@ object Const {
     const val IS_ROUND_HEALTH_CHANGE_LABEL = false
 
     // Other logic
-    const val BASE_BUILD_COST = 300
+    const val BASE_BUILD_COST = 200
     const val BASE_RANGE_OF_VIEW = 2
     const val GOLD_PER_BASE = 100
     const val HEALING_AMOUNT_NEAR_LEADER = 10
