@@ -34,6 +34,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
 
     private val showAttachRangeCB = VisCheckBox("Show attack range\nborder")
     private val autoEndTurnCB = VisCheckBox("Auto End Turn")
+    private val showTerrainBonusCB = VisCheckBox("Show terrain bonus")
 
     private val languageSelectBox = LanguageSelectBox()
     private var langLast = GamePref.locale
@@ -92,6 +93,8 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
                 row()
                 add(autoEndTurnCB).left()
                 row()
+                add(showTerrainBonusCB).left()
+                row()
             }).apply {
                 setScrollingDisabled(true, false)
             }).expandY()
@@ -130,6 +133,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
 
                     showAttachRangeCB.isChecked = GamePref.drawUnitAttackRange ?: false
                     autoEndTurnCB.isChecked = GamePref.autoEndTurn ?: false
+                    showTerrainBonusCB.isChecked = GamePref.showTerrainBonus ?: false
 
                     languageSelectBox.items.forEach {
                         if (it.second == GamePref.locale)
@@ -157,6 +161,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
         GamePref.targetFps = targetFpsSelectBox.selected
         GamePref.drawUnitAttackRange = showAttachRangeCB.isChecked
         GamePref.autoEndTurn = autoEndTurnCB.isChecked
+        GamePref.showTerrainBonus = showTerrainBonusCB.isChecked
         GamePref.locale = languageSelectBox.selected.second
         GamePref.soundVolume = soundSlider.value
         GamePref.musicVolume = musicSlider.value

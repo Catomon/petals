@@ -67,8 +67,11 @@ class Decorator {
             }
 
             // find texture for combined option, else, try flipping existing texture and throw exception if no textures found
-            if (assets.atlases.findRegion("tiles/${terrain}/" + combinedName) != null) {
-                tileComponent.name = combinedName
+            if (assets.atlases.findRegion("tiles/${terrain}/" + combinedName) != null || suff == "_") {
+                if (suff == "_")
+                    tileComponent.name += "_n"
+                else
+                    tileComponent.name = combinedName
                 initView()
             } else {
                 // option if im too lazy to make all textures but have some that can be flipped or rotated

@@ -16,6 +16,7 @@ import ctmn.petals.tile.TerrainNames.roads
 import ctmn.petals.tile.TerrainNames.forest
 import ctmn.petals.tile.TerrainNames.fortress
 import ctmn.petals.tile.TerrainNames.hills
+import ctmn.petals.tile.TerrainNames.ice
 import ctmn.petals.tile.TerrainNames.lava
 import ctmn.petals.tile.TerrainNames.mud
 import ctmn.petals.tile.TerrainNames.skyscraper
@@ -138,7 +139,7 @@ object TerrainPropsPack {
     val horse = TerrainProps().apply {
         put(grass, 0, 0, 0)
         put(forest, 2, 0, 5)
-        put(mountains, 3, 0, 10)
+        put(mountains, 3, 5, 10)
         put(water, 3, -15, -15)
         put(roads, 0, 0, 0)
         put(walls, 999, 0, 0)
@@ -152,13 +153,14 @@ object TerrainPropsPack {
         put(fortress, 1, 0, 15)
         put(fallenforest, 3, 0, -5)
         put(swamp, 3, -10, -10)
-        put(hills, 1, 10, 0)
+        put(hills, 1, 15, 0)
         put(crystals, 1)
         put(deepwater, UNREACHABLE, -30, -15)
         put(skyscraper, UNREACHABLE, -30, 15)
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
         put(mud, 1, -5, -5)
+        put(ice, 1, -10, -5)
     }
 
     val foot = TerrainProps().apply {
@@ -173,7 +175,7 @@ object TerrainPropsPack {
         put(highwall, 999, 0, 0)
         put(base, 1, 0, 10)
         put(unwalkable, 999, 0, 0)
-        put(hills, 1, 10, 0)
+        put(hills, 1, 10, 5)
         put(earthcrack, 2, 0, -5)
         put(tower, 1, 5, 10)
         put(fortress, 1, 5, 15)
@@ -185,6 +187,7 @@ object TerrainPropsPack {
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
         put(mud, 1, -5, -5)
+        put(ice, 0, -5, -5)
     }
 
     val flier = TerrainProps().apply {
@@ -206,6 +209,7 @@ object TerrainPropsPack {
         put(chasm, 0)
         put(lava, 0)
         put(mud, 0)
+        put(ice, 0)
     }
 
     //todo swimmer
@@ -232,6 +236,7 @@ object TerrainPropsPack {
         put(lava, ONE_TILE)
         put(land_capturable, UNREACHABLE)
         put(mud, UNREACHABLE)
+        put(ice, UNREACHABLE)
     }
 
     val slime = TerrainProps().apply {
@@ -258,6 +263,7 @@ object TerrainPropsPack {
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
         put(mud, 0, 5, 5)
+        put(ice, 1, 5, 5)
     }
 
     val giant = TerrainProps().apply {
@@ -284,5 +290,6 @@ object TerrainPropsPack {
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
         put(mud, 1, -5, -5)
+        put(ice, 1, -10, -5)
     }
 }

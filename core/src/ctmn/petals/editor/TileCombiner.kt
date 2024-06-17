@@ -23,7 +23,8 @@ class TileCombiner(val actorsPackage: CanvasActorsPackage) {
                 "rt",
                 "rtb",
                 "t",
-                "tb"
+                "tb",
+                "n"
             )
 
         fun hasCombinationSuffix(name: String): Boolean {
@@ -87,9 +88,13 @@ class TileCombiner(val actorsPackage: CanvasActorsPackage) {
             }
 
             // find texture for combined option, else, try flipping existing texture and throw exception if no textures found
-            if (actorsPackage.find(combinedName) != null) {
-                tile.name = combinedName
-                tile.sprite.set(actorsPackage.get(combinedName).sprite)
+
+            if (actorsPackage.find(combinedName) != null || suff == "_") {
+                if (suff == "_")
+                    tile.name += "_n"
+                else
+                    tile.name = combinedName
+                tile.sprite.set(actorsPackage.get(tile.name).sprite)
             } else {
                 // option if im too lazy to make all textures but have some that can be flipped or rotated
                 val cheapCombinedName = tile.name +

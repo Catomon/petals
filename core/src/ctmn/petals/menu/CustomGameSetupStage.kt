@@ -43,6 +43,7 @@ import ctmn.petals.playscreen.*
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.PlayScreenTemplate
+import ctmn.petals.tile.TileActor
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.*
 import io.netty.channel.ChannelFuture
@@ -64,6 +65,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
     private val fogOfWarCheckbox = VisCheckBox("Fog Of War")
     private val daytimeButton = newTextButton("Daytime")
+    private val seasonButton = newTextButton("Season")
 
     private val roomProblemDrawable = VisUI.getSkin().getDrawable("room_status_problem")
     private val roomOkDrawable = VisUI.getSkin().getDrawable("room_status_ok")
@@ -336,6 +338,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 add(VisTable().apply {
                     add(daytimeButton).colspan(2).width(300f)
                     row()
+                    add(seasonButton).colspan(2).width(300f)
+                    row()
                     add(fogOfWarCheckbox).colspan(2)
                 }).width(300f)
             })).width(300f)
@@ -391,6 +395,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
             server?.shutdown()
 
+            assets.tilesAtlas = assets.tilesSummerAtlas
+
             menuScreen.stage = menuScreen.menuStage
         }
 
@@ -408,6 +414,27 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             }
 
             it.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+
+            serverManager.sendLobbyState()
+        }
+
+        seasonButton.userObject = Season.SUMMER
+        seasonButton.setText("Season: " + (seasonButton.userObject as Season).name)
+        seasonButton.addChangeListener {
+            seasonButton.userObject = when ((seasonButton.userObject as Season)) {
+                Season.SUMMER -> Season.WINTER
+                Season.WINTER -> Season.SUMMER
+                else -> Season.SUMMER
+            }
+
+            it.setText("Season: " + (seasonButton.userObject as Season).name)
+
+            assets.tilesAtlas = when (seasonButton.userObject) {
+                Season.WINTER -> assets.tilesWinterAtlas
+                else -> assets.tilesSummerAtlas
+            }
+
+            mapPreview.map?.actors?.forEach { if (it is TileActor) it.initView() }
 
             serverManager.sendLobbyState()
         }
@@ -529,9 +556,25 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         gameMode = state.gameMode
 
         fogOfWarCheckbox.isChecked = state.fogOfWar
-        daytimeButton.userObject = state.daytime
-        daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name) //todo fun updateWidgets
 
+        //todo fun updateWidgets
+
+        daytimeButton.userObject = state.daytime
+        daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+
+        //set season
+        if (seasonButton.userObject != state.season) {
+            assets.tilesAtlas = when (seasonButton.userObject) {
+                Season.WINTER -> assets.tilesWinterAtlas
+                else -> assets.tilesSummerAtlas
+            }
+            mapPreview.map?.actors?.forEach { if (it is TileActor) it.initView() }
+        }
+
+        seasonButton.userObject = state.season
+        seasonButton.setText("Season: " + (seasonButton.userObject as Season).name)
+
+        //..
         if (state.state == LobbyState.State.PLAYING)
             addLoadingCoverAndStartGame()
     }
@@ -548,6 +591,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
             fogOfWar = fogOfWarCheckbox.isChecked
             daytime = daytimeButton.userObject as PlayStage.DayTime
+            season = seasonButton.userObject as Season
             gameMode = this@CustomGameSetupStage.gameMode
 
             state = this@CustomGameSetupStage.state
@@ -593,6 +637,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 LobbyType.CLIENT -> ClientPlayScreen(client!!)
                 LobbyType.LOCAL -> PlayScreen()
             }
+
+        playScreen.season = seasonButton.userObject as Season
 
         val ps = PlayScreenTemplate.pvp(
             menuScreen.game,
@@ -695,6 +741,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         confirmButton.isDisabled =
             playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
         daytimeButton.isDisabled = !isHost
+        seasonButton.isDisabled = !isHost
         fogOfWarCheckbox.isDisabled = !isHost
     }
 

@@ -15,7 +15,7 @@ import ctmn.petals.utils.unTiled
 class HealthPotionAbility : Ability(
     "health_potion",
     Target.ALLY_UNIT,
-    10,
+    2,
     5,
     1,
     0,

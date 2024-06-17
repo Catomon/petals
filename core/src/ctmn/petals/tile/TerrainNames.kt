@@ -1,6 +1,7 @@
 package ctmn.petals.tile
 
 object TerrainNames {
+    const val ice = "ice"
     const val base = "base"
     const val castle = "castle"
     const val impassable = "impassable"

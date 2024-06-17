@@ -25,6 +25,7 @@ public class RunTexturePacker {
 
         //settings.scale = new float[]{4F};
         process(settings, "textures/tiles", "./", "tiles");
+        process(settings, "textures/tiles_winter", "./", "tiles_winter");
 
         process(settings, "textures/units", "./", "units");
 

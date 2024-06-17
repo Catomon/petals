@@ -15,4 +15,8 @@ class OneAction(val action: Action.() -> Unit) : Action() {
 
         return true
     }
+
+    override fun restart() {
+        isDone = false
+    }
 }

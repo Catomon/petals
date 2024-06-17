@@ -8,15 +8,17 @@ import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.CaptureBases
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.aliceOrNull
 import ctmn.petals.story.playScreen
 import ctmn.petals.tile.isBase
+import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Alice
 import ctmn.petals.unit.actors.GoblinSword
-import ctmn.petals.unit.player
-import ctmn.petals.unit.position
+import ctmn.petals.utils.getSurroundingUnits
 
 class Level18 : Scenario("lv_18", "level_slimeroad") {
 
@@ -73,6 +75,13 @@ class Level18 : Scenario("lv_18", "level_slimeroad") {
 
                 val enemyBase = playStage.getCapturablesOf(players[1]).filter { it.isBase }.first()
                 playStage.addActor(GoblinSword().player(players[1]).position(enemyBase.tiledX, enemyBase.tiledY))
+            }
+
+            var leaderId = 123
+            for (slime in playStage.getUnitsOfPlayer(players[2]).filter { it.selfName == UnitIds.SLIME_LING }) {
+                slime.leader(leaderId)
+                playStage.getSurroundingUnits(slime).forEach { it.followerOf(slime) }
+                leaderId++
             }
         }
     }

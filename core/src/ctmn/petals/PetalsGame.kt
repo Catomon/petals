@@ -1,9 +1,6 @@
 package ctmn.petals
 
-import com.badlogic.gdx.Application
-import com.badlogic.gdx.Game
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
+import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.utils.Logger
 import ctmn.petals.Const.IS_RELEASE
@@ -13,6 +10,7 @@ import ctmn.petals.GamePref.targetFps
 import ctmn.petals.GamePref.vSync
 import ctmn.petals.GamePref.soundVolume
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.Season
 import ctmn.petals.screens.DevScreen
 import ctmn.petals.screens.LoadingScreen
 import ctmn.petals.screens.MenuScreen
@@ -99,6 +97,15 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
                 GameConsole.commandExecutor = screen.PlayCslCommandExc()
             }
         }
+    }
+
+    override fun setScreen(screen: Screen?) {
+        //MARK: season tiles atlas reset to tilesSummerAtlas
+        if (this.screen is PlayScreen && screen !is PlayScreen) {
+            assets.tilesAtlas = assets.tilesSummerAtlas
+        }
+
+        super.setScreen(screen)
     }
 
     override fun resize(width: Int, height: Int) {

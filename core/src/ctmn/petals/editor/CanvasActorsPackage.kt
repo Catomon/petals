@@ -48,6 +48,10 @@ class CanvasActorsPackage {
             canvasActors.add(tile)
 
             when {
+                arrayOf("ice").find { tile.name.startsWith(it) && terrain == TerrainNames.ice } != null -> {
+                    tile.favouriteLayer = GROUND_LAYER
+                }
+
                 arrayOf("mud").find { tile.name.startsWith(it) && terrain == TerrainNames.mud } != null -> {
                     tile.favouriteLayer = GROUND_LAYER
                 }

@@ -40,17 +40,20 @@ class Assets : AssetManager() {
     lateinit var miscAtlas: TextureAtlas
     lateinit var guiAtlas: TextureAtlas
 
+    lateinit var tilesSummerAtlas: TextureAtlas
+    lateinit var tilesWinterAtlas: TextureAtlas
+
     inner class Atlases {
-        val textures
-            get() = Array<Texture>().apply {
-                arrayOf(
-                    unitsAtlas,
-                    effectsAtlas,
-                    tilesAtlas,
-                    guiAtlas,
-                    miscAtlas
-                ).forEach { it.textures.forEach { add(it) } }
-            }
+//        val textures
+//            get() = Array<Texture>().apply {
+//                arrayOf(
+//                    unitsAtlas,
+//                    effectsAtlas,
+//                    tilesAtlas,
+//                    guiAtlas,
+//                    miscAtlas
+//                ).forEach { it.textures.forEach { add(it) } }
+//            }
 
         fun getRegion(name: String) = findRegion(name) ?: throw IllegalArgumentException("Region $name not found")
 
@@ -74,22 +77,25 @@ class Assets : AssetManager() {
     override fun update(): Boolean {
         val done = super.update()
 
-        if (done && !finishedLoading) {
-            onFinishLoading()
-            finishedLoading = true
-        }
+//        if (done && !finishedLoading) {
+//            onFinishLoading()
+//            finishedLoading = true
+//        }
 
         return done
     }
 
     private var finishedLoading = false
 
-    private fun onFinishLoading() {
+    fun onFinishLoading() {
         unitsAtlas = get(UNITS_ATLAS)
-        tilesAtlas = get(TILES_ATLAS)
+        tilesAtlas = get(TILES_ATLAS) //get("tiles_winter.atlas")
         effectsAtlas = get(EFFECTS_ATLAS)
         miscAtlas = get(MISC_ATLAS)
         guiAtlas = VisUI.getSkin().atlas
+
+        tilesSummerAtlas = get(TILES_ATLAS)
+        tilesWinterAtlas = get("tiles_winter.atlas")
 
         addUnitAtlases()
 
@@ -130,6 +136,8 @@ class Assets : AssetManager() {
         load(TILES_ATLAS, TextureAtlas::class.java)
         load(EFFECTS_ATLAS, TextureAtlas::class.java)
         load(MISC_ATLAS, TextureAtlas::class.java)
+
+        load("tiles_winter.atlas", TextureAtlas::class.java)
 
         // images
         load("sky.png", Texture::class.java)
@@ -211,7 +219,21 @@ class Assets : AssetManager() {
     ///////// // // // /  // / / / /
 
     private fun createUnitsAtlas(colors: kotlin.Array<Pair<Color, Color>>): TextureAtlas {
-        val atl = TextureAtlas(UNITS_ATLAS)
+        var atlOrNull: TextureAtlas? = null
+        Gdx.app.postRunnable {
+            try {
+                atlOrNull = TextureAtlas(UNITS_ATLAS)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Gdx.app.exit()
+            }
+        }
+
+        while (atlOrNull == null) {
+            Thread.sleep(50)
+        }
+        val atl = atlOrNull!!
+
         val texture = atl.textures.first()
         texture.textureData.prepare()
         val pixmap = texture.textureData.consumePixmap()
@@ -220,13 +242,34 @@ class Assets : AssetManager() {
             pixmap.replaceColor(it.first, it.second)
         }
 
-        val modifiedTexture = Texture(pixmap)
+        var modifiedTextureOrNull: Texture? = null
+        Gdx.app.postRunnable {
+            try {
+                modifiedTextureOrNull = Texture(pixmap)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Gdx.app.exit()
+            }
+        }
+
+        while (modifiedTextureOrNull == null) {
+            Thread.sleep(50)
+        }
+        val modifiedTexture = modifiedTextureOrNull!!
 
         atl.textures.remove(texture)
         atl.textures.add(modifiedTexture)
         atl.regions.forEach { it.texture = modifiedTexture }
 
-        texture.dispose()
+        Gdx.app.postRunnable {
+            try {
+                texture.dispose()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Gdx.app.exit()
+            }
+        }
+
         pixmap.dispose()
 
         return atl

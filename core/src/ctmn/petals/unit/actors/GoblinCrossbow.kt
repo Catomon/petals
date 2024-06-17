@@ -29,7 +29,7 @@ class GoblinCrossbow : UnitActor(
                 attackType = ATTACK_TYPE_ALL
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot.also {
+        add(TerrainPropComponent(TerrainPropsPack.foot.copy().also {
             it[TerrainNames.hills].ad(15, 0)
             it[TerrainNames.mountains].ad(15, 5)
             it[TerrainNames.tower].ad(15,10)

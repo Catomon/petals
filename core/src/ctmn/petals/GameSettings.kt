@@ -95,6 +95,12 @@ object GamePref {
             prefs.putBoolean(SHOW_AI_GUI, value)
         }
 
+    var showTerrainBonus: Boolean
+        get() = prefs.getBoolean("show_terrain_bonus", true)
+        set(value) {
+            prefs.putBoolean("show_terrain_bonus", value)
+        }
+
     var player: UserSave
         get() {
             return try {

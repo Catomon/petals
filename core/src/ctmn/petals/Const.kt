@@ -7,8 +7,8 @@ import kotlin.math.round
 object Const {
 
     // App:
-    const val APP_NAME = "Petals - F&GCC"
-    const val APP_VER_NAME = "0.2.0-alpha"
+    const val APP_NAME = "Fae's Feisty Fray"
+    const val APP_VER_NAME = "0.2.2-alpha"
     const val IS_RELEASE = true
     const val USER_FOLDER = "Documents/Petals - F&GCC/"
 

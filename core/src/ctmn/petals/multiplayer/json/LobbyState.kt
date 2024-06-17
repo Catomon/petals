@@ -2,6 +2,7 @@ package ctmn.petals.multiplayer.json
 
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.GameMode
+import ctmn.petals.playscreen.Season
 import ctmn.petals.playstage.PlayStage
 
 class LobbyState {
@@ -13,6 +14,8 @@ class LobbyState {
     var fogOfWar = true
 
     var daytime = PlayStage.DayTime.DAY
+
+    var season = Season.SUMMER
 
     var gameMode = GameMode.CRYSTALS
 

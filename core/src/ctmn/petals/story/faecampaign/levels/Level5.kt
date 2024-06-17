@@ -80,11 +80,11 @@ class Level5 : Scenario("lv_5", "level_capture") {
         playScreen {
             queueDialogAction(
                 StoryDialog.Quote(
-                    "To get units, you need to set a base using Sower Fairy"
+                    "To get units, you need to claim a base using Sower Fairy"
                 ),
                 StoryDialog.Quote(
                     "Move Sower Fairy to marked position\n" +
-                            "and set a base"
+                            "and claim a base"
                 )
             )
 
@@ -97,11 +97,11 @@ class Level5 : Scenario("lv_5", "level_capture") {
                     true
                 ).description("Move Fairy Sower")
             ).addOnCompleteTrigger {
-                queueTask(ExecuteCommandTask(BuildBaseCommand::class, true).description("Set a base"))
+                queueTask(ExecuteCommandTask(BuildBaseCommand::class, true).description("Claim a base"))
                 addTrigger(TurnStartTrigger(players[0])).onTrigger {
                     queueDialogAction(
                         StoryDialog.Quote(
-                            "Buy Sower Fairies to set bases and capture crystal tiles"
+                            "Buy Sower Fairies to claim bases and capture crystal tiles"
                         ),
                         StoryDialog.Quote(
                             "When you capture crystal tiles,\n" +
@@ -111,8 +111,7 @@ class Level5 : Scenario("lv_5", "level_capture") {
                             "Use them to buy more units"
                         )
                     )
-                }.onTrigger {
-                    addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Kill enemy units")).addOnCompleteTrigger {
+                    addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Prepare for the enemy's attack")).addOnCompleteTrigger {
                         //gameOverSuccess()
                     }
                 }

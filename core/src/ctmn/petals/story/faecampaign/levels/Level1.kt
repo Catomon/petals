@@ -1,6 +1,7 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.Const.APP_NAME
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.bot.SimpleBot
 import ctmn.petals.player.Player
@@ -8,6 +9,7 @@ import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.AttackCommand
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.EndTurnTask
 import ctmn.petals.playscreen.tasks.ExecuteCommandTask
@@ -81,13 +83,20 @@ class Level1 : Scenario("lv_1", "level_0") {
         swordFaerie2.player(players[0])
         val alice = swordFaerie
 
-        val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange, alice.tiledY)
+        val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange - 4, alice.tiledY - 4)
         playStage.addActor(stick)
-        playStage.addActor(SlimeTiny().player(players[2]).position(stick.tiledX + 1, stick.tiledY))
+        playStage.addActor(SlimeTiny().player(players[2]).position(alice.tiledX + alice.movingRange + 1, alice.tiledY))
 
 //        val slimeLing = playStage.getUnit<SlimeLing>()!!
 
         playScreen {
+
+            queueDialogAction(
+                StoryDialog.Quote(
+                    "Welcome to the $APP_NAME. Lets look into the basics first." +
+                            "\nFollow the tasks on the top of the screen"
+                )
+            )
 
             addTrigger(UnitsDiedTrigger(playStage.getUnitsOfEnemyOf(player))).onTrigger {
                 gameEndCondition.win()
@@ -96,14 +105,14 @@ class Level1 : Scenario("lv_1", "level_0") {
             queueTask(
                 MoveUnitTask(
                     alice,
-                    stick.tiledX,
-                    stick.tiledY,
+                    alice.tiledX + alice.movingRange,
+                    alice.tiledY,
                     true
-                ).description("Select unit and press a tile to move to.")
+                ).description("Select unit and press the marked tile to move to.")
             ).addOnCompleteTrigger {
                 addTask(
                     ExecuteCommandTask(AttackCommand::class, true).description(
-                        "Press a slime to fight it"
+                        "Press a slime to fight"
                     )
                 ).addOnCompleteTrigger {
                     queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {

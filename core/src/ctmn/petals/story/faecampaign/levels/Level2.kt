@@ -50,8 +50,9 @@ class Level2 : Scenario("lv_2", "level_1") {
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
 
         playScreen {
-            queueDialogAction(StoryDialog.Quote("Terrain gives bonuses depending on unit type,\n" +
-                    "use it to your advantage"))
+            queueDialogAction(StoryDialog.Quote("The numbers you see on the tiles are attack/defense bonuses units can get on these tiles.\n" +
+                    "The bonuses vary depending on the unit type"))
+            queueDialogAction(StoryDialog.Quote("You can toggle visibility of terrain bonuses in the settings"))
 
             addTask(EliminateAllEnemyUnitsTask().description("Kill enemy units")).addOnCompleteTrigger {
                 //gameOverSuccess()

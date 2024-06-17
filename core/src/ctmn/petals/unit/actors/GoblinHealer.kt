@@ -3,6 +3,7 @@ package ctmn.petals.unit.actors
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds.GOBLIN_HEALER
+import ctmn.petals.unit.abilities.HealthPotionAbility
 import ctmn.petals.unit.component.*
 
 class GoblinHealer : UnitActor(
@@ -17,7 +18,7 @@ class GoblinHealer : UnitActor(
 
     init {
         add(BonusFieldComponent(range = 1, healing = 15))
-        add(AbilitiesComponent())
+        add(AbilitiesComponent(20, HealthPotionAbility()))
         add(SummonableComponent(30))
         add(FollowerComponent())
         add(

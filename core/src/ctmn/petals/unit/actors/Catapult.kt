@@ -31,7 +31,7 @@ class Catapult : UnitActor(
                 2
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.foot.also {
+        add(TerrainPropComponent(TerrainPropsPack.foot.copy().also {
             it[TerrainNames.mountains].ad(10, 0)
         }))
         add(MatchUpBonusComponent())

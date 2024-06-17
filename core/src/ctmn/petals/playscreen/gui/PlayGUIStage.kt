@@ -122,15 +122,13 @@ class PlayGUIStage(
     private val unitInfoDrawer = UnitInfoDrawer(this)
     private val animationsUpdater = AnimationsUpdater(this)
     private val movementCostDrawer = MovementCostDrawer(this)
+    private val terrainBonusDrawer = TerrainBonusDrawer(this)
     val tileHighlighter = TileHighlighter(this)
 
     //ability and movement borders (playStage)
     private val movementBorder = AttackMovementRangeDrawer(this)
     val abilityRangeBorder = BorderDrawer(Color.VIOLET, this)
     val abilityActivationRangeBorder = BorderDrawer(Color.VIOLET, this)
-
-    //other
-    private val mapFrame = VisImage(VisUI.getSkin().getPatch("map_frame"))
 
     //state
     val myTurn = State("myTurn")
@@ -718,6 +716,7 @@ class PlayGUIStage(
         playStage.addActor(iconsDrawer)
         playStage.addActor(unitInfoDrawer)
         playStage.addActor(movementCostDrawer)
+        playStage.addActor(terrainBonusDrawer)
         playStage.addActorAfterTiles(movementBorder)
         playStage.addActorAfterTiles(abilityRangeBorder)
         playStage.addActorAfterTiles(abilityActivationRangeBorder)
@@ -726,7 +725,7 @@ class PlayGUIStage(
         //listeners
         playStage.addListener {
             if (it is CommandExecutedEvent || it is NextTurnEvent) {
-                creditsLabel.setText("${localPlayer.credits}")
+                creditsLabel.setText("${localPlayer.credits} (+${localPlayer.income(playScreen)})")
                 creditsLabelTooltip.setText("+${localPlayer.income(playScreen)}")
             }
 

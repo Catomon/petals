@@ -19,8 +19,8 @@ class AngryOwl : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                15,
                 20,
+                25,
                 1,
                 attackType = ATTACK_TYPE_ALL
             )

@@ -4,6 +4,7 @@ import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_HEALER
+import ctmn.petals.unit.abilities.HealingTouchAbility
 import ctmn.petals.unit.component.*
 
 class FairyHealer : UnitActor(
@@ -18,7 +19,7 @@ class FairyHealer : UnitActor(
 
     init {
         add(BonusFieldComponent(range = 1, healing = 15))
-        add(AbilitiesComponent())
+        add(AbilitiesComponent(15, HealingTouchAbility()))
         add(SummonableComponent(30))
         add(FollowerComponent())
         add(

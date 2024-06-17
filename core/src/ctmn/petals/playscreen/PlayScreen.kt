@@ -107,6 +107,7 @@ open class PlayScreen(
     var creditsPerBase = 100
     var creditsPerCluster = 100 //classic 75
 
+    var season = Season.SUMMER
     var gameType = GameType.STORY
     var gameMode = GameMode.STORY
     var gameEndCondition: GameEndCondition = CaptureBases()
@@ -208,6 +209,11 @@ open class PlayScreen(
     }
 
     fun setLevel(map: MapConverted) {
+        assets.tilesAtlas = when (season) {
+            Season.WINTER -> assets.tilesWinterAtlas
+            else -> assets.tilesSummerAtlas
+        }
+
         this.map = map
         this.levelId = map.mapId
 
