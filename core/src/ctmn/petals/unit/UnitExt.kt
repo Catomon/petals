@@ -298,8 +298,8 @@ fun UnitActor.canDestroy(tile: TileActor, tileTeamId: Int? = null): Boolean {
 fun UnitActor.canDestroy(): Boolean {
     return (selfName != UnitIds.DOLL_SOWER
             && selfName != UnitIds.GOBLIN_PICKAXE
-            && selfName != UnitIds.GOBLIN_GIANT
-            && selfName != UnitIds.HUNTER
+//            && selfName != UnitIds.GOBLIN_GIANT
+//            && selfName != UnitIds.HUNTER
             && selfName != UnitIds.GOBLIN_SCOUT
             && selfName != UnitIds.PIXIE
             && selfName != UnitIds.CUCUMBER

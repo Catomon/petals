@@ -11,32 +11,51 @@ import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.Const
 import ctmn.petals.PetalsGame
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.TimeAction
-import ctmn.petals.utils.*
+import ctmn.petals.actors.actions.UpdateAction
+import ctmn.petals.utils.err
 import kotlin.concurrent.thread
 
 class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen {
 
     val assets = game.assets
 
-    private val background = VisImage(Texture("loading_screen.png"))
-    private val bunnyImage = VisImage(Texture("bunny.png"))
+    private val bunnyImage = VisImage(Texture("sleepy.png"))
     private val loadingLabel = VisLabel("...%")
+    private val msg = VisLabel("Loading...")
+    private var timePast = 0f
 
     private var isDone = false
 
-    private var progress = 0
+    companion object {
+        var progress = 0
+    }
 
     init {
-        addActor(background)
-        bunnyImage.setSize(64f, 64f)
-        addActor(bunnyImage)
+        progress = 0
 
-        loadingLabel.setFontScale(1f)
-        addActor(loadingLabel)
+        addActor(VisTable().apply {
+            setFillParent(true)
+            add(bunnyImage).padTop(12f).size(256f)
+            row()
+            add(msg).padTop(32f)
+        })
+
+        //msg.isVisible = false
+        msg.addAction(UpdateAction {
+            timePast += it
+            if (timePast >= 15) {
+                msg.setText("Almost done...")
+                msg.pack()
+                msg.isVisible = true
+                return@UpdateAction true
+            }
+            false
+        })
 
         assets.beginLoadingAll()
 
@@ -71,13 +90,13 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
 
     override fun act(delta: Float) {
         super.act(delta)
-
         if (isDone) {
-            if (progress >= 100)
+            if (progress >= 100) {
                 if (Const.IS_RELEASE)
                     game.screen = MenuScreen(game)
                 else
                     game.screen = DevScreen(game)
+            }
 
             progress = 100
         }
@@ -106,19 +125,6 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
             }
 
         viewport.update(width, height)
-
-        background.setPosition(
-            viewport.worldWidth / 2 - background.width / 2,
-            viewport.worldHeight / 2 - background.height / 2
-        )
-        bunnyImage.setPosition(
-            viewport.worldWidth / 2 - bunnyImage.width / 2,
-            viewport.worldHeight / 2 - bunnyImage.height / 2 + viewport.worldHeight / 4
-        )
-        loadingLabel.setPosition(
-            viewport.worldWidth / 2 - loadingLabel.width / 2,
-            viewport.worldHeight / 2 - loadingLabel.height / 2
-        )
     }
 
     override fun pause() {

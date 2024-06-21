@@ -2,16 +2,17 @@ package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Const.ACTION_POINTS_ATTACK
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.playstage.shiftLayerAt
 import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.TileData
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.DestroyingComponent
 import ctmn.petals.tile.isCapturable
-import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.actionPoints
-import ctmn.petals.unit.canDestroy
+import ctmn.petals.unit.*
 import ctmn.petals.unit.component.InvisibilityComponent
-import ctmn.petals.unit.playerId
+import ctmn.petals.utils.err
 
 class DestroyTileCommand(val unitId: String, val baseId: String) : Command() {
 
@@ -40,7 +41,28 @@ class DestroyTileCommand(val unitId: String, val baseId: String) : Command() {
 
         unit.del(InvisibilityComponent::class.java)
 
-        tile.add(DestroyingComponent(unit.playerId))
+        val playStage = playScreen.playStage
+        if (unit.selfName == UnitIds.HUNTER || unit.selfName == UnitIds.GOBLIN_GIANT) {
+            playStage.shiftLayerAt(tile.tiledX, tile.tiledY, 1)
+
+            if (playStage.getTile(tile.tiledX, tile.tiledY) == null) {
+                err("No back tile; added a grass tile then")
+                playStage.addActor(
+                    TileActor(
+                        TileData.get("grass")!!,
+                        1,
+                        tile.tiledX,
+                        tile.tiledY
+                    )
+                )
+
+            }
+
+            tile.remove()
+            //todo debris
+        } else {
+            tile.add(DestroyingComponent(unit.playerId))
+        }
 
         return true
     }

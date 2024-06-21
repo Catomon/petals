@@ -23,11 +23,22 @@ object GamePref {
 
     var prefs: Preferences = Gdx.app.getPreferences(PREF_FILE_NAME)
     val savesFolder =
-        (if (IS_MOBILE)
-            Gdx.files.local("saves/")
-        else
-            Gdx.files.external(Const.USER_FOLDER + "/saves/"))
-            .apply { mkdirs() }
+        when {
+            IS_MOBILE -> {
+                Gdx.files.local("saves/")
+            }
+
+            Gdx.files.external(Const.LEGACY_USER_FOLDER + "/saves/").exists() -> {
+                Gdx.files.external(Const.LEGACY_USER_FOLDER + "/saves/")
+                    .apply { mkdirs() }
+            }
+
+            else -> {
+                Gdx.files.external(Const.USER_FOLDER + "/saves/")
+                    .apply { mkdirs() }
+            }
+        }
+
 
     // always set random if it is not release build (for testing)
     val clientId: String =

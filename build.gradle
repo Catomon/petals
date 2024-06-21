@@ -18,9 +18,9 @@ buildscript {
 allprojects {
     apply plugin: "eclipse"
 
-    version = '0.2.2'
+    version = '0.2.3'
     ext {
-        appName = "Petals F&GCC"
+        appName = "Fae's Feisty Fray"
         gdxVersion = '1.12.1'
         roboVMVersion = '2.3.10'
         box2DLightsVersion = '1.4'

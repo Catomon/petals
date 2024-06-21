@@ -110,7 +110,9 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
                     val levelType = when {
                         i <= 6 -> "forest_level"
                         i <= 12 -> "mountain_level"
-                        else -> "road_level"
+                        i <= 19 -> "road_level"
+                        i <= 30 -> "winter_forest_level"
+                        else -> "winter_mountain_level"
                     }
                     add(LevelButton(i + 1, levelType).addChangeListener {
                         game.startLevel(story, story.getScenario(i))

@@ -18,6 +18,7 @@ import ctmn.petals.unit.abilities.HealthPotionAbility
 import ctmn.petals.unit.actors.SlimeHuge
 import ctmn.petals.utils.*
 import ctmn.petals.utils.tiledX
+import kotlin.concurrent.thread
 import kotlin.math.min
 
 class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
@@ -77,7 +78,60 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
 
     private var lastActionTile = 0f
 
+    private var isThinking = false
+    private var isCommandExecuted = false
+
+    private val thinkingThread get() = thread(false) {
+        isThinking = true
+        try {
+            isCommandExecuted = nextCommand()
+        } catch (e: Exception) {
+            err("Bot exception nextCommand() " + e.message)
+        }
+        isThinking = false
+    }
+
     override fun update(delta: Float) {
+        if (isThinking) return
+
+        curTime += delta
+        lastActionTile += min(delta, 0.25f)
+
+        if (playScreen.actionManager.hasActions) {
+            if (!didISayWaiting) {
+                Gdx.app.log(this::class.simpleName, "Waiting for action complete...")
+
+                didISayWaiting = true
+            }
+
+            lastActionTile = 0f
+            curTime = 0f
+            return
+        }
+
+        if (curTime < idleTime) return
+
+        if (!didISayNext) {
+            Gdx.app.log(this::class.simpleName, "Next Command...")
+            didISayNext = true
+        }
+
+        thinkingThread.start()
+
+        if (isCommandExecuted && lastActionTile < 5f) {
+            onCommand()
+
+            didISayWaiting = false
+            didISayNext = false
+        } else {
+            if (lastActionTile >= 5f)
+                err("nextCommand returns true ban no commands executed")
+        }
+
+        isDone = curTime > 1 && playScreen.actionManager.isQueueEmpty
+    }
+
+    private fun doStuff(delta: Float) {
         //Gdx.app.log(this::class.simpleName, "Update...")
         curTime += delta
         lastActionTile += min(delta, 0.25f)
@@ -221,7 +275,12 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
     }
 
     private fun PlayScreen.moveCameraToAction(x: Float, y: Float) {
-        if (moveCamera && fogOfWarManager.isVisible(x.tiled(), y.tiled())) actionManager.queueAction(CameraMoveAction(x, y))
+        if (moveCamera && fogOfWarManager.isVisible(x.tiled(), y.tiled())) actionManager.queueAction(
+            CameraMoveAction(
+                x,
+                y
+            )
+        )
     }
 
     private fun buyCommand(): Boolean {

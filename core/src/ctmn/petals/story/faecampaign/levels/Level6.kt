@@ -7,6 +7,7 @@ import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
@@ -82,8 +83,11 @@ class Level6 : Scenario("lv_6", "level_bases") {
         }
 
         playScreen {
+            queueDialogAction(StoryDialog.Quote("Enemy bases can be destroyed by most ground units"))
+            queueDialogAction(StoryDialog.Quote("Get your units on top of enemy base and destroy it"))
+
             queueTask(object : Task() {
-                override var description: String? = "Capture all enemy bases"
+                override var description: String? = "Destroy all enemy bases"
 
                 override fun update(delta: Float) {
                     if (playStage.getCapturablesOf(players[1])
