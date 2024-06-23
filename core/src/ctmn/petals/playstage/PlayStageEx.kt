@@ -13,6 +13,7 @@ import ctmn.petals.Const.PLAY_CAMERA_ZOOM
 import ctmn.petals.tile.*
 import ctmn.petals.tile.TerrainNames.land_capturable
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.utils.err
 import ctmn.petals.utils.getSurroundingUnits
 import kotlin.math.max
 import kotlin.Array as KArray
@@ -590,4 +591,23 @@ fun PlayStage.shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
         tile.remove()
         addActor(tile)
     }
+}
+
+fun PlayStage.removeTileSafely(tile: TileActor) {
+    shiftLayerAt(tile.tiledX, tile.tiledY, 1)
+
+    if (getTile(tile.tiledX, tile.tiledY) == null) {
+        err("No back tile; added a grass tile then")
+        addActor(
+            TileActor(
+                TileData.get("grass")!!,
+                1,
+                tile.tiledX,
+                tile.tiledY
+            )
+        )
+
+    }
+
+    tile.remove()
 }

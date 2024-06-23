@@ -4,6 +4,7 @@ import ctmn.petals.Const.ACTION_POINTS_ATTACK
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.playstage.removeTileSafely
 import ctmn.petals.playstage.shiftLayerAt
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
@@ -43,22 +44,7 @@ class DestroyTileCommand(val unitId: String, val baseId: String) : Command() {
 
         val playStage = playScreen.playStage
         if (unit.selfName == UnitIds.HUNTER || unit.selfName == UnitIds.GOBLIN_GIANT) {
-            playStage.shiftLayerAt(tile.tiledX, tile.tiledY, 1)
-
-            if (playStage.getTile(tile.tiledX, tile.tiledY) == null) {
-                err("No back tile; added a grass tile then")
-                playStage.addActor(
-                    TileActor(
-                        TileData.get("grass")!!,
-                        1,
-                        tile.tiledX,
-                        tile.tiledY
-                    )
-                )
-
-            }
-
-            tile.remove()
+            playStage.removeTileSafely(tile)
             //todo debris
         } else {
             tile.add(DestroyingComponent(unit.playerId))

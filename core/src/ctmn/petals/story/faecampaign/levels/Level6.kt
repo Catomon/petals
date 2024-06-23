@@ -22,6 +22,7 @@ import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
+import ctmn.petals.tile.isBase
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.actors.FairyAxe
@@ -90,9 +91,7 @@ class Level6 : Scenario("lv_6", "level_bases") {
                 override var description: String? = "Destroy all enemy bases"
 
                 override fun update(delta: Float) {
-                    if (playStage.getCapturablesOf(players[1])
-                            .none { playStage.getUnit(it.tiledX, it.tiledY)?.isAlly(player) != true }
-                    )
+                    if (playStage.getCapturablesOf(players[1]).none { it.isBase })
                         complete()
                 }
             })

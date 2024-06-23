@@ -552,6 +552,18 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		disabled: confirm_button_disabled
 		focusBorder: image_button_border
 	}
+	next: {
+		down: next_button_pressed
+		up: next_button
+		disabled: next_button_disabled
+		focusBorder: image_button_border
+	}
+	enter: {
+		down: enter_button_pressed
+		up: enter_button
+		disabled: enter_button_disabled
+		focusBorder: image_button_border
+	}
 	add: {
 		down: add_button_pressed
 		up: add_button
@@ -591,6 +603,7 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 	buy_unit: {
 		down: buy_unit_button_pressed
 		up: buy_unit_button
+		disabled: buy_unit_button_disabled
 		pressedOffsetY: -1
 		focusBorder: buy_unit_button_border
 	}

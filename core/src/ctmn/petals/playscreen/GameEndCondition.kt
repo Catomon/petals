@@ -160,7 +160,7 @@ class CaptureBases : GameEndCondition("capture_bases") {
         if (ignorePlayers.any { it == player.id }) return false
 
         for (base in playScreen.playStage.getCapturablesOf(player).filter { it.isBase }) {
-            if (!base.isOccupied || playScreen.playStage.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
+            //if (!base.isOccupied || playScreen.playStage.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
                 return false
         }
 

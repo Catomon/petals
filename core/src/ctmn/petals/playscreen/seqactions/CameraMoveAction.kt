@@ -17,7 +17,7 @@ class CameraMoveAction(
 
     private lateinit var camera: OrthographicCamera
 
-    private var stopRange: Float = 125f
+    private var stopRange: Float = 64f
 
     override fun update(deltaTime: Float) {
         if (lastX != camera.position.x)
@@ -52,7 +52,7 @@ class CameraMoveAction(
         lastX = camera.position.x
         lastY = camera.position.y
 
-        stopRange = 15f * (playScreen.playStage.camera as OrthographicCamera).zoom
+        stopRange *= (playScreen.playStage.camera as OrthographicCamera).zoom
 
         playScreen.playStageCameraController.lock = true
 

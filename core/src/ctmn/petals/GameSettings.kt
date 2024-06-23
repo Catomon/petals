@@ -86,22 +86,20 @@ object GamePref {
             prefs.putFloat("music_volume", value)
         }
 
-    var drawUnitAttackRange: Boolean?
-        get() = prefs.getBoolean(DRAW_UNIT_ATK_RANGE)
+    var drawUnitAttackRange: Boolean
+        get() = prefs.getBoolean(DRAW_UNIT_ATK_RANGE, true)
         set(value) {
-            if (value == null) throw IllegalArgumentException()
             prefs.putBoolean(DRAW_UNIT_ATK_RANGE, value)
         }
 
-    var autoEndTurn: Boolean?
-        get() = prefs.getBoolean("auto_end_turn")
+    var autoEndTurn: Boolean
+        get() = prefs.getBoolean("auto_end_turn", false)
         set(value) {
-            if (value == null) throw IllegalArgumentException()
             prefs.putBoolean("auto_end_turn", value)
         }
 
     var showBotGui: Boolean
-        get() = prefs.getBoolean(SHOW_AI_GUI)
+        get() = prefs.getBoolean(SHOW_AI_GUI, true) //todo
         set(value) {
             prefs.putBoolean(SHOW_AI_GUI, value)
         }

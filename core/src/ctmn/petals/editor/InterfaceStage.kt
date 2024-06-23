@@ -664,6 +664,19 @@ class InterfaceStage(
             for (map in maps[MapItem.Type.DEFAULT] ?: emptyList()) {
                 mapsTable.newMapButton(map)
             }
+
+            if (!Const.IS_RELEASE) {
+                mapsTable.add(VisLabel("- SCENARIOS -")).row()
+                for (map in ArrayList<MapItem>().apply {
+                    val files = Gdx.files.local("maps/scenario")
+                    for (path in files.list()) {
+                        if (path.isDirectory) continue
+                        add(MapItem(path, MapItem.Type.DEFAULT))
+                    }
+                }) {
+                    mapsTable.newMapButton(map)
+                }
+            }
         }
     }
 }

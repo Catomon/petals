@@ -3,7 +3,6 @@ package ctmn.petals.story.faecampaign.levels
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const.APP_NAME
 import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.bot.SimpleBot
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
@@ -23,7 +22,7 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.FairySword
-import ctmn.petals.unit.actors.SlimeTiny
+import ctmn.petals.unit.actors.GoblinSword
 
 class Level1 : Scenario("lv_1", "level_0") {
 
@@ -51,9 +50,9 @@ class Level1 : Scenario("lv_1", "level_0") {
             return
         }
 
-        result = when {
-            playScreen.turnManager.round <= 14 -> 3
-            playScreen.turnManager.round <= 17 -> 2
+        result = when (playScreen.playStage.getUnitsOfPlayer(players[0]).size) {
+            2 -> 3
+            1 -> 2
             else -> 1
         }
     }
@@ -63,13 +62,8 @@ class Level1 : Scenario("lv_1", "level_0") {
 
         val player = player!!
 
+        playScreen.guiStage.showCredits = false
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
-        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 3
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 3
-        })
         playScreen.fogOfWarManager.drawFog = false
 
         //        gameEndCondition.win()
@@ -81,47 +75,49 @@ class Level1 : Scenario("lv_1", "level_0") {
         playStage.addActor(swordFaerie2)
         swordFaerie2.position(swordFaerie.tiledX, swordFaerie.tiledY)
         swordFaerie2.player(players[0])
-        val alice = swordFaerie
+        val taskUnit = swordFaerie
 
-        val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange - 4, alice.tiledY - 4)
+        val stick =
+            TileActor(TileData.get("stick")!!, 10, taskUnit.tiledX + taskUnit.movingRange - 4, taskUnit.tiledY - 4)
         playStage.addActor(stick)
-        playStage.addActor(SlimeTiny().player(players[2]).position(alice.tiledX + alice.movingRange + 1, alice.tiledY))
+        playStage.addActor(
+            GoblinSword().player(players[1]).position(taskUnit.tiledX + taskUnit.movingRange + 1, taskUnit.tiledY)
+        )
 
 //        val slimeLing = playStage.getUnit<SlimeLing>()!!
 
         playScreen {
-
             queueDialogAction(
                 StoryDialog.Quote(
                     "Welcome to the $APP_NAME. Lets look into the basics first." +
                             "\nFollow the tasks on the top of the screen"
                 )
-            )
+            ).addOnCompleteTrigger {
+                queueTask(
+                    MoveUnitTask(
+                        taskUnit,
+                        taskUnit.tiledX + taskUnit.movingRange,
+                        taskUnit.tiledY,
+                        true
+                    ).description("Select unit and press the marked tile to move to.")
+                ).addOnCompleteTrigger {
+                    addTask(
+                        ExecuteCommandTask(AttackCommand::class, true).description(
+                            "Press nearby enemy to attack"
+                        )
+                    ).addOnCompleteTrigger {
+                        queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
+                            val threeSlimes = Array<UnitActor>().apply {
+                                playStage.getUnitsOfPlayer(players[2].id).forEach { add(it) }
+                            }
+                            addTask(EliminateAllEnemyUnitsTask(threeSlimes).description("Defeat all enemies"))
+                        }
+                    }
+                }
+            }
 
             addTrigger(UnitsDiedTrigger(playStage.getUnitsOfEnemyOf(player))).onTrigger {
                 gameEndCondition.win()
-            }
-
-            queueTask(
-                MoveUnitTask(
-                    alice,
-                    alice.tiledX + alice.movingRange,
-                    alice.tiledY,
-                    true
-                ).description("Select unit and press the marked tile to move to.")
-            ).addOnCompleteTrigger {
-                addTask(
-                    ExecuteCommandTask(AttackCommand::class, true).description(
-                        "Press a slime to fight"
-                    )
-                ).addOnCompleteTrigger {
-                    queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
-                        val threeSlimes = Array<UnitActor>().apply {
-                            playStage.getUnitsOfPlayer(players[2].id).forEach { add(it) }
-                        }
-                        addTask(EliminateAllEnemyUnitsTask(threeSlimes).description("Kill all slimes"))
-                    }
-                }
             }
         }
     }

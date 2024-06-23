@@ -8,8 +8,8 @@ object Const {
 
     // App:
     const val APP_NAME = "Fae's Feisty Fray"
-    const val APP_VER_NAME = "0.2.3-alpha"
-    const val IS_RELEASE = false
+    const val APP_VER_NAME = "0.2.4-alpha"
+    const val IS_RELEASE = true
     const val USER_FOLDER = "Documents/Fae's Feisty Fray/"
     const val LEGACY_USER_FOLDER = "Documents/Petals - F&GCC/"
 
@@ -112,4 +112,5 @@ object Const {
     const val HEALING_AMOUNT_NEAR_LEADER = 10
     const val KILL_CREDITS_SLIME_HUGE = 1000
     const val KILL_CREDITS_SLIME_LING = 200
+    const val CRYSTALS_CLUSTER = 2000
 }

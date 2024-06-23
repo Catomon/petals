@@ -7,12 +7,11 @@ import ctmn.petals.playscreen.commands.AttackCommand
 import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.UnitMovedEvent
 import ctmn.petals.playscreen.events.UnitSelectedEvent
-import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.playStage
 import ctmn.petals.playscreen.seqactions.AttackAction
+import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.unit.*
-import ctmn.petals.unit.UnitActor
 
 class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
 
@@ -79,8 +78,11 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
     }
 
     private fun updateBorders() {
-        if (unit?.isPlayerUnit(guiStage.localPlayer) == false && GamePref.showBotGui != true
-            && guiStage.playScreen.botManager.isBotPlayer(guiStage.playScreen.turnManager.currentPlayer)) {
+        if (unit?.isPlayerUnit(guiStage.localPlayer) == false && !GamePref.showBotGui && guiStage.playScreen.botManager.isBotPlayer(
+                guiStage.playScreen.turnManager.currentPlayer
+            )
+            && guiStage.playScreen.fogOfWarManager.isVisible(unit!!.tiledX, unit!!.tiledY)
+        ) {
             this.unit = null
             isVisible = false
         }
@@ -128,7 +130,7 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
         if (unit != null && !unit!!.canMove() && !unit!!.isPlayerUnit(guiStage.localPlayer))
             moveRangeBorder.isVisible = false
 
-        if (GamePref.drawUnitAttackRange == true) {
+        if (GamePref.drawUnitAttackRange && unit?.canAttackNow() == true) {
             attackRangeBorder.show(isVisible)
             if (unit == null) {
                 minAttackRangeBorder.show(isVisible)

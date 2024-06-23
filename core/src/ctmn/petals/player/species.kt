@@ -46,6 +46,7 @@ val fairyUnits = object : SpeciesUnits {
 
         add(FairyBomber().cost(600))
         add(FairyGlaive().cost(600))
+        add(FairyArmorSword().cost(600))
 
         add(FairyWaterplant().cost(600))
         add(FairyCucumber().cost(800))

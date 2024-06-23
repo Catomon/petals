@@ -180,6 +180,7 @@ open class TileActor(
                 "ActionCooldown" -> components.add(gson.fromJson(value, ActionCooldown::class.java))
                 "BaseBuildingComponent" -> components.add(gson.fromJson(value, BaseBuildingComponent::class.java))
                 "DestroyingComponent" -> components.add(gson.fromJson(value, DestroyingComponent::class.java))
+                "CrystalsComponent" -> components.add(gson.fromJson(value, CrystalsComponent::class.java))
             }
         }
 

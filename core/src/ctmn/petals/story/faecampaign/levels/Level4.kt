@@ -78,6 +78,7 @@ class Level4 : Scenario("lv_4", "level_healer") {
 
         val player = player!!
 
+        playScreen.guiStage.showCredits = false
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {
@@ -86,8 +87,8 @@ class Level4 : Scenario("lv_4", "level_healer") {
 
         playScreen {
             queueDialogAction(
-                StoryDialog.Quote("You got a healer unit.\n" +
-                        "Keep your units close to him to heal them up"))
+                StoryDialog.Quote("You got a Healer Fairy.\n" +
+                        "Keep your units close to her to heal them up"))
 
             addTrigger(PlayerHasNoUnits(players[0])).onTrigger {
                 gameEndCondition.lose()
@@ -100,7 +101,7 @@ class Level4 : Scenario("lv_4", "level_healer") {
                     gameEndCondition.lose()
             }
 
-            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Kill enemy units")).addOnCompleteTrigger {
+            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Defeat enemy units")).addOnCompleteTrigger {
                 //gameOverSuccess()
             }
 

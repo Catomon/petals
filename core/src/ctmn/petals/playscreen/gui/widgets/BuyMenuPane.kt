@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
@@ -28,6 +27,7 @@ import ctmn.petals.utils.addClickListener
 import ctmn.petals.utils.removeCover
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.StageCover
+import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newIconButton
 import ctmn.petals.widgets.newLabel
 
@@ -54,7 +54,7 @@ private class BuyMenuPane(
     private val guiStage: PlayGUIStage,
     var baseTile: TileActor,
     val player: Player? = null,
-    val units: Array<UnitActor>? = null,
+    val filterUnits: Array<UnitActor>? = null,
 ) : VisTable() {
 
     companion object {
@@ -97,26 +97,39 @@ private class BuyMenuPane(
         //grid group
         val unitsData = guiStage.playScreen.unitsData
 
-        fun addB(unitActor: UnitActor, cost: Int) {
-            if (isWater && !unitActor.isWater) return
-            if (!isWater && !unitActor.isLand && !unitActor.isAir) return
-            gridGroup.addButton(UnitButton(unitActor, cost))
+        fun addB(unitActor: UnitActor, cost: Int, unlocked: Boolean = true): UnitButton? {
+            if (isWater && !unitActor.isWater) return null
+            if (!isWater && !unitActor.isLand && !unitActor.isAir) return null
+            val button = UnitButton(unitActor, cost, unlocked)
+            gridGroup.addButton(button)
+
+            return UnitButton(unitActor, cost)
         }
 
         if (player == null) {
             //add all units with ShopComponent
             for (name in unitsData.names) {
                 val newUnit = unitsData.get(name)
-                if (newUnit.cShop != null)
+                if (newUnit.cShop != null) {
                     addB(newUnit, newUnit.cShop?.price ?: 999999)
+                }
             }
         } else {
             //add species units
-            val units = this.units ?: getSpeciesUnits(player.species)
+            val units = getSpeciesUnits(player.species)
+            val lockedUnits = Array<UnitActor>()
             for (unit in units) {
-                if (unit.cShop != null)
-                    addB(unit, unit.cShop?.price ?: 999999)
+                if (unit.cShop != null) {
+                    val unlocked = filterUnits?.any { it.selfName == unit.selfName } ?: true
+                    if (unlocked) {
+                        addB(unit, unit.cShop?.price ?: 999999, true)
+                    } else {
+                        lockedUnits.add(unit)
+                    }
+                }
             }
+
+            lockedUnits.forEach { addB(it, it.cShop?.price ?: 999999, false) }
         }
 
         //scroll pane
@@ -129,36 +142,32 @@ private class BuyMenuPane(
 
     private fun GridGroup.addButton(unitButton: UnitButton) {
         addActor(unitButton)
-        unitButton.button.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent, x: Float, y: Float) {
-                super.clicked(event, x, y)
-
-                if (guiStage.currentState == guiStage.myTurn && baseTile != null) {
-                    // give the unit to the first leader that comes to the unit if there are no leaders by default
-                    var unitLeaderIdLoc = unitLeaderId
-                    if (unitLeaderIdLoc == -1) {
-                        for (unit in guiStage.playStage.getUnitsOfPlayer(guiStage.localPlayer)) {
-                            if (unit.isLeader)
-                                unitLeaderIdLoc = unit.leaderID
-                        }
+        unitButton.button.addChangeListener {
+            if (guiStage.currentState == guiStage.myTurn && baseTile != null) {
+                // give the unit to the first leader that comes to the unit if there are no leaders by default
+                var unitLeaderIdLoc = unitLeaderId
+                if (unitLeaderIdLoc == -1) {
+                    for (unit in guiStage.playStage.getUnitsOfPlayer(guiStage.localPlayer)) {
+                        if (unit.isLeader)
+                            unitLeaderIdLoc = unit.leaderID
                     }
-
-                    val buyCommand = BuyUnitCommand(
-                        unitButton.unit.selfName,
-                        guiStage.localPlayer.id,
-                        unitButton.cost,
-                        baseTile!!.tiledX,
-                        baseTile!!.tiledY,
-                        unitLeaderIdLoc
-                    )
-
-                    if (buyCommand.canExecute(guiStage.playScreen))
-                        guiStage.playScreen.commandManager.queueCommand(buyCommand)
                 }
 
-                this@BuyMenuPane.remove()
+                val buyCommand = BuyUnitCommand(
+                    unitButton.unit.selfName,
+                    guiStage.localPlayer.id,
+                    unitButton.cost,
+                    baseTile!!.tiledX,
+                    baseTile!!.tiledY,
+                    unitLeaderIdLoc
+                )
+
+                if (buyCommand.canExecute(guiStage.playScreen))
+                    guiStage.playScreen.commandManager.queueCommand(buyCommand)
             }
-        })
+
+            this@BuyMenuPane.remove()
+        }
     }
 
     override fun setStage(stage: Stage?) {
@@ -175,28 +184,32 @@ private class BuyMenuPane(
         super.setStage(stage)
     }
 
-    private class UnitButton(val unit: UnitActor, val cost: Int) : WidgetGroup() {
+    private class UnitButton(val unit: UnitActor, val cost: Int, val unlocked: Boolean = true) : WidgetGroup() {
 
         val button = newIconButton("buy_unit")
         private val labelCost = newLabel(cost.toString())
 
         init {
-            val icon = assets.atlases.findRegion("gui/icons/${unit.selfName}")
-            val region = findUnitTextures(unit.selfName, unit.playerId).firstOrNull()
-
-            button.style.imageUp =
-                if (icon != null)
-                    VisUI.getSkin().getDrawable("icons/${unit.selfName}")
-                else
-                    TextureRegionDrawable(region)
-
-            button.style.imageUp.minWidth = 64f
-            button.style.imageUp.minHeight = 64f
-
-            labelCost.setPosByCenter(32f + labelCost.width / 2, 84f)
-
             addActor(button)
-            addActor(labelCost)
+            if (unlocked) {
+                val icon = assets.atlases.findRegion("gui/icons/${unit.selfName}")
+                val region = findUnitTextures(unit.selfName, unit.playerId).firstOrNull()
+
+                button.style.imageUp =
+                    if (icon != null)
+                        VisUI.getSkin().getDrawable("icons/${unit.selfName}")
+                    else
+                        TextureRegionDrawable(region)
+
+                button.style.imageUp.minWidth = 64f
+                button.style.imageUp.minHeight = 64f
+
+                labelCost.setPosByCenter(32f + labelCost.width / 2, 84f)
+
+                addActor(labelCost)
+            } else {
+                button.isDisabled = true
+            }
 
             setScale(1f)
         }

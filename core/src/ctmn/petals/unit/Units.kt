@@ -47,6 +47,7 @@ object Units {
         add(FairyShield())
         add(FairySower())
         add(FairySword())
+        add(FairyArmorSword())
         add(FairyWaterplant())
         add(FallenKnight())
         add(FallenSpearman())

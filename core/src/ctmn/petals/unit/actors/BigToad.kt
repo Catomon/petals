@@ -7,7 +7,7 @@ class BigToad : UnitActor(
     UnitComponent(
         "big_toad",
         100,
-        5,
+        10,
         5,
         6
     )
@@ -18,12 +18,14 @@ class BigToad : UnitActor(
         add(
             AttackComponent(
                 20,
-                25,
+                30,
                 1
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.slime))
-        add(MatchUpBonusComponent())
+        add(MatchUpBonusComponent().apply {
+            bonuses[UnitIds.PIXIE] = 30 to 0
+        })
         add(TraitComponent(fireVulnerability = 1.5f))
     }
 }

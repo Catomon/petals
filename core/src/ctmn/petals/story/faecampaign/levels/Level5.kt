@@ -1,6 +1,7 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.Const
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.SpeciesUnitNotFoundExc
 import ctmn.petals.player.fairyUnits
@@ -9,10 +10,7 @@ import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.BuildBaseCommand
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
-import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
-import ctmn.petals.playscreen.tasks.ExecuteCommandTask
-import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
-import ctmn.petals.playscreen.tasks.MoveUnitTask
+import ctmn.petals.playscreen.tasks.*
 import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
 import ctmn.petals.playscreen.triggers.TurnStartTrigger
 import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
@@ -21,15 +19,10 @@ import ctmn.petals.playstage.getUnit
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
-import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.FairySower
-import ctmn.petals.unit.tiledX
-import ctmn.petals.unit.tiledY
 
 class Level5 : Scenario("lv_5", "level_capture") {
-
-    private val task by lazy { KeepPlayerUnitsAlive(players[1]) }
 
     init {
         players.addAll(
@@ -83,36 +76,48 @@ class Level5 : Scenario("lv_5", "level_capture") {
                     "To get units, you need to claim a base using Sower Fairy"
                 ),
                 StoryDialog.Quote(
+                    "A base can be claimed only on plain terrain and shallow water." +
+                            "It costs ${Const.BASE_BUILD_COST}"
+                ),
+                StoryDialog.Quote(
                     "Move Sower Fairy to marked position\n" +
                             "and claim a base"
                 )
-            )
-
-            val fairySower = playStage.getUnit<FairySower>()!!
-            queueTask(
-                MoveUnitTask(
-                    fairySower,
-                    fairySower.tiledX + 2,
-                    fairySower.tiledY + 1,
-                    true
-                ).description("Move Fairy Sower")
             ).addOnCompleteTrigger {
-                queueTask(ExecuteCommandTask(BuildBaseCommand::class, true).description("Claim a base"))
-                addTrigger(TurnStartTrigger(players[0])).onTrigger {
-                    queueDialogAction(
-                        StoryDialog.Quote(
-                            "Buy Sower Fairies to claim bases and capture crystal tiles"
-                        ),
-                        StoryDialog.Quote(
-                            "When you capture crystal tiles,\n" +
-                                    "they give you some amount of crystals each turn."
-                        ),
-                        StoryDialog.Quote(
-                            "Use them to buy more units"
-                        )
-                    )
-                    addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Prepare for the enemy's attack")).addOnCompleteTrigger {
-                        //gameOverSuccess()
+                val fairySower = playStage.getUnit<FairySower>()!!
+                queueTask(
+                    MoveUnitTask(
+                        fairySower,
+                        fairySower.tiledX + 2,
+                        fairySower.tiledY + 1,
+                        true
+                    ).description("Move Fairy Sower")
+                ).addOnCompleteTrigger {
+                    queueTask(ExecuteCommandTask(BuildBaseCommand::class, true).description("Claim a base"))
+                    addTrigger(TurnStartTrigger(players[0])).onTrigger {
+                        queueDialogAction(
+                            StoryDialog.Quote(
+                                "Buy Sower Fairies to claim bases and capture crystal tiles"
+                            ),
+                            StoryDialog.Quote(
+                                "When you capture crystal tiles,\n" +
+                                        "they give you some amount of crystals each turn."
+                            ),
+                            StoryDialog.Quote(
+                                "Use them to buy more units"
+                            )
+                        ).addOnCompleteTrigger {
+                            addTask(BuyUnitsTask("Fairy Sower", UnitIds.DOLL_SOWER, 4))
+                            addTask(CaptureCrystalsTask()).addOnCompleteTrigger {
+                                queueDialogAction(
+                                    StoryDialog.Quote(
+                                    "Each crystal tile can provide up to ${Const.CRYSTALS_CLUSTER} crystals.\n"
+                                ))
+                            }
+                            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Repel the enemy's attack")).addOnCompleteTrigger {
+                                //gameOverSuccess()
+                            }
+                        }
                     }
                 }
             }
@@ -132,19 +137,19 @@ class Level5 : Scenario("lv_5", "level_capture") {
 
             // don't copy this
             addTurnCycleTrigger(4).onTrigger {
-                queueAddUnitAction(enemyUnits.last { it.stage == null })
+                queueAddUnitAction(enemyUnits.last { it.isAlive() && it.stage == null })
             }
             addTurnCycleTrigger(5).onTrigger {
-                queueAddUnitAction(enemyUnits.last { it.stage == null })
+                queueAddUnitAction(enemyUnits.last { it.isAlive() && it.stage == null })
             }
             addTurnCycleTrigger(6).onTrigger {
-                queueAddUnitAction(enemyUnits.last { it.stage == null })
+                queueAddUnitAction(enemyUnits.last { it.isAlive() && it.stage == null })
             }
             addTurnCycleTrigger(7).onTrigger {
-                queueAddUnitAction(enemyUnits.last { it.stage == null })
+                queueAddUnitAction(enemyUnits.last { it.isAlive() && it.stage == null })
             }
             addTurnCycleTrigger(8).onTrigger {
-                enemyUnits.filter { it.stage == null }.forEach { queueAddUnitAction(it) }
+                enemyUnits.filter { it.isAlive() && it.stage == null }.forEach { queueAddUnitAction(it) }
             }
         }
     }

@@ -758,19 +758,26 @@ class PlayGUIStage(
                 when (event) {
                     is CommandAddedEvent -> {
                         val unit = when (val command = event.command) {
-                            is MoveUnitCommand -> playStage.findUnit(command.unitId)
+                            is MoveUnitCommand ->
+                                if (playScreen.fogOfWarManager.isVisible(command.tileX, command.tileY))
+                                    playStage.findUnit(command.unitId) else null
+
                             is AttackCommand -> playStage.findUnit(command.attackerUnitId)
                             is CaptureCommand -> playStage.findUnit(command.unitId)
                             else -> null
                         }
-                        if (unit != null && unit.isPlayerUnit(playScreen.turnManager.currentPlayer)) {
+                        if (unit != null && unit.isPlayerUnit(playScreen.turnManager.currentPlayer)
+                            && playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)
+                        ) {
                             selectUnit(unit)
                         }
                     }
 
                     is UnitBoughtEvent -> {
                         val unit = event.unit
-                        if (unit.isPlayerUnit(playScreen.turnManager.currentPlayer)) {
+                        if (unit.isPlayerUnit(playScreen.turnManager.currentPlayer)
+                            && playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)
+                        ) {
                             selectUnit(unit)
                         }
                     }
@@ -838,11 +845,18 @@ class PlayGUIStage(
     }
 
     override fun keyDown(keyCode: Int): Boolean {
-        if (keyCode == Input.Keys.ESCAPE) {
-            if (root.findActor<InGameMenu>("game_menu")?.remove() == null)
-                addActor(InGameMenu(playScreen))
+        when (keyCode) {
+            Input.Keys.ESCAPE -> {
+                if (root.findActor<InGameMenu>("game_menu")?.remove() == null)
+                    addActor(InGameMenu(playScreen))
 
-            return true
+                return true
+            }
+
+            Input.Keys.ENTER -> {
+                if (!endTurnButton.isDisabled && endTurnButton.isVisible)
+                    endTurn()
+            }
         }
 
         return super.keyDown(keyCode)

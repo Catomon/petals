@@ -29,6 +29,7 @@ object UnitIds {
     const val WATERPLANT = "waterplant"
     const val DOLL_GLAIVE = "doll_glaive"
     const val DOLL_SOWER = "doll_sower"
+    const val DOLL_ARMOR_SWORD = "doll_armor_sword"
 
     const val SLIME = "slime"
     const val SLIME_BIG = "slime_big"

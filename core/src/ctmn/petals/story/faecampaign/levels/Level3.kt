@@ -49,6 +49,7 @@ class Level3 : Scenario("lv_3", "level_2") {
     override fun makeScenario(playScreen: PlayScreen) {
         super.makeScenario(playScreen)
 
+        playScreen.guiStage.showCredits = false
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
 
         playScreen {

@@ -128,8 +128,11 @@ class AbilitiesPanel(val guiStage: PlayGUIStage) : VisTable() {
 
         if (unitActor == null || unitActor.cAbilities == null) {
             updateButtons()
+            isVisible = false
             return
         }
+
+        isVisible = true
 
         for (ability in unitActor.abilities) {
             when (ability) {

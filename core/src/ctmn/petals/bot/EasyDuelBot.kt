@@ -76,7 +76,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
 
     private var captureCrystals = true
 
-    private var lastActionTile = 0f
+    private var lastActionTime = 0f
 
     private var isThinking = false
     private var isCommandExecuted = false
@@ -91,11 +91,23 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
         isThinking = false
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        curTime = 0f
+        isThinking = false
+        isCommandExecuted = false
+        lastActionTime = 0f
+        currentCommand = null
+        didISayWaiting = false
+        didISayNext = false
+    }
+
     override fun update(delta: Float) {
         if (isThinking) return
 
         curTime += delta
-        lastActionTile += min(delta, 0.25f)
+        lastActionTime += min(delta, 0.25f)
 
         if (playScreen.actionManager.hasActions) {
             if (!didISayWaiting) {
@@ -104,7 +116,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                 didISayWaiting = true
             }
 
-            lastActionTile = 0f
+            lastActionTime = 0f
             curTime = 0f
             return
         }
@@ -118,55 +130,14 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
 
         thinkingThread.start()
 
-        if (isCommandExecuted && lastActionTile < 5f) {
-            onCommand()
-
-            didISayWaiting = false
-            didISayNext = false
-        } else {
-            if (lastActionTile >= 5f)
-                err("nextCommand returns true ban no commands executed")
-        }
-
-        isDone = curTime > 1 && playScreen.actionManager.isQueueEmpty
-    }
-
-    private fun doStuff(delta: Float) {
-        //Gdx.app.log(this::class.simpleName, "Update...")
-        curTime += delta
-        lastActionTile += min(delta, 0.25f)
-
-        if (playScreen.actionManager.hasActions) {
-            if (!didISayWaiting) {
-                Gdx.app.log(this::class.simpleName, "Waiting for action complete...")
-
-                didISayWaiting = true
-            }
-
-            lastActionTile = 0f
+        if (isCommandExecuted && lastActionTime < 5f) {
             curTime = 0f
-            return
-        }
-
-        if (curTime < idleTime) return
-
-        if (!didISayNext) {
-            Gdx.app.log(this::class.simpleName, "Next Command...")
-            didISayNext = true
-        }
-
-        val isCommandExecuted =
-            nextCommand()
-
-        if (isCommandExecuted && lastActionTile < 5f) {
-
-            onCommand()
 
             didISayWaiting = false
             didISayNext = false
         } else {
-            if (lastActionTile >= 5f)
-                err("nextCommand returns true ban no commands executed")
+            if (lastActionTime >= 5f)
+                err("nextCommand returns true but no commands executed")
         }
 
         isDone = curTime > 1 && playScreen.actionManager.isQueueEmpty
@@ -785,16 +756,6 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
         }
 
         return false
-    }
-
-    private fun onCommand() {
-        curTime = 0f
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-
     }
 
     override fun onEnd() {

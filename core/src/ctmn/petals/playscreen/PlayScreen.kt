@@ -53,10 +53,7 @@ import ctmn.petals.screens.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
-import ctmn.petals.tile.components.ActionCooldown
-import ctmn.petals.tile.components.BaseBuildingComponent
-import ctmn.petals.tile.components.CapturingComponent
-import ctmn.petals.tile.components.DestroyingComponent
+import ctmn.petals.tile.components.*
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BonusFieldComponent
@@ -148,7 +145,7 @@ open class PlayScreen(
         playStage.camera.position.y = Gdx.graphics.height / 2f
 
         playStage.addActorAfterTiles(fogOfWarManager)
-        playStage.root.addActorAfter(fogOfWarManager, MarkersDrawer())
+        playStage.root.addActorAfter(fogOfWarManager, MarkersDrawer(this))
 
         // stop touch events if an action is processing
         playStage.addCaptureListener(TouchEventsBlockOnActionListener())
@@ -617,13 +614,31 @@ open class PlayScreen(
             val nextPlayer = turnCycleEvent.nextPlayer
             if (!nextPlayer.isOutOfGame) {
                 nextPlayer.credits += 100
-                for (base in playStage.getCapturablesOf(nextPlayer)) {
-                    if (base.isBase)
+                for (capturable in playStage.getCapturablesOf(nextPlayer)) {
+                    if (capturable.isBase)
                         also {
                             //nextPlayer.credits += creditsPerBase
                         }
-                    else
-                        nextPlayer.credits += creditsPerCluster
+                    else {
+                        val cCrystals = capturable.get(CrystalsComponent::class.java) ?: CrystalsComponent().also {
+                            capturable.add(it)
+                        }
+
+                        if (cCrystals.amount > 0) {
+                            cCrystals.amount -= creditsPerCluster
+                            if (cCrystals.amount < 0) {
+                                nextPlayer.credits += creditsPerCluster - cCrystals.amount
+                                cCrystals.amount = 0
+                            } else {
+
+                                nextPlayer.credits += creditsPerCluster
+                            }
+                        }
+
+                        if (cCrystals.amount <= 0) {
+                            playStage.removeTileSafely(capturable)
+                        }
+                    }
                 }
             }
 
@@ -698,9 +713,9 @@ open class PlayScreen(
                     val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
                     if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
                         unitOnTile.captureBase(tile, turnManager.getPlayerById(unitOnTile.playerId))
-                        unitOnTile.remove()
+                        playStage.root.fire(TileCapturedEvent(tile))
 
-                        playStage.root.fire(BaseCapturedEvent(tile))
+                        unitOnTile.remove()
                     }
                     tile.components.remove(CapturingComponent::class.java)
                 }
@@ -730,22 +745,7 @@ open class PlayScreen(
                 if (tile.cDestroying?.playerId == turnCycleEvent.nextPlayer.id) {
                     val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
                     if (unitOnTile != null && tile.cDestroying!!.playerId == unitOnTile.playerId) {
-                        playStage.shiftLayerAt(tile.tiledX, tile.tiledY, 1)
-
-                        if (playStage.getTile(tile.tiledX, tile.tiledY) == null) {
-                            err("No back tile; added a grass tile then")
-                            playStage.addActor(
-                                TileActor(
-                                    TileData.get("grass")!!,
-                                    1,
-                                    tile.tiledX,
-                                    tile.tiledY
-                                )
-                            )
-
-                        }
-
-                        tile.remove()
+                        playStage.removeTileSafely(tile)
                         //todo debris
                     }
                     tile.components.remove(DestroyingComponent::class.java)
