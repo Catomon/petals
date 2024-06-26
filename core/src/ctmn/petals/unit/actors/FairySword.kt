@@ -20,7 +20,6 @@ class FairySword : UnitActor(
 
     init {
         add(ShopComponent(100))
-        add(AbilitiesComponent())
         add(SummonableComponent(10))
         add(FollowerComponent())
         add(

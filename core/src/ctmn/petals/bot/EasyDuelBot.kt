@@ -5,8 +5,11 @@ import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const
 import ctmn.petals.player.Player
 import ctmn.petals.player.getSpeciesUnits
-import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.commands.*
+import ctmn.petals.playscreen.income
+import ctmn.petals.playscreen.playStageOrNull
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
 import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.*
@@ -81,15 +84,19 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
     private var isThinking = false
     private var isCommandExecuted = false
 
-    private val thinkingThread get() = thread(false) {
-        isThinking = true
-        try {
-            isCommandExecuted = nextCommand()
-        } catch (e: Exception) {
-            err("Bot exception nextCommand() " + e.message)
+    private var cameraMoveAction: CameraMoveAction? = null
+
+    private val thinkingThread
+        get() = thread(false) {
+            isThinking = true
+            try {
+                nextCommand()
+            } catch (e: Exception) {
+                err("Bot exception nextCommand() ")
+                e.printStackTrace()
+            }
+            isThinking = false
         }
-        isThinking = false
-    }
 
     override fun onStart() {
         super.onStart()
@@ -105,6 +112,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
 
     override fun update(delta: Float) {
         if (isThinking) return
+        if (isDone) return
 
         curTime += delta
         lastActionTime += min(delta, 0.25f)
@@ -128,16 +136,21 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             didISayNext = true
         }
 
-        thinkingThread.start()
+        if (currentCommand != null) {
+            if (cameraMoveAction != null) playScreen.actionManager.queueAction(cameraMoveAction!!)
+            executeCommand(currentCommand!!)
+            currentCommand = null
+            isCommandExecuted = true
+        } else {
+            isThinking = true
+            thinkingThread.start()
+        }
 
-        if (isCommandExecuted && lastActionTime < 5f) {
+        if (isCommandExecuted && lastActionTime < 0.5f) {
             curTime = 0f
-
             didISayWaiting = false
             didISayNext = false
-        } else {
-            if (lastActionTime >= 5f)
-                err("nextCommand returns true but no commands executed")
+            isCommandExecuted = false
         }
 
         isDone = curTime > 1 && playScreen.actionManager.isQueueEmpty
@@ -188,7 +201,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                         if (command.canExecute(playScreen)) {
                             playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                            playScreen.commandManager.queueCommand(command, playerID)
+                            queueCommand(command)
 
                             currentCommand = command
                             return true
@@ -210,7 +223,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                         if (command.canExecute(playScreen)) {
                             playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                            playScreen.commandManager.queueCommand(command, playerID)
+                            queueCommand(command)
 
                             currentCommand = command
                             return true
@@ -232,7 +245,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                         if (command.canExecute(playScreen)) {
                             playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                            playScreen.commandManager.queueCommand(command, playerID)
+                            queueCommand(command)
 
                             currentCommand = command
                             return true
@@ -245,16 +258,23 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
         return false
     }
 
+    private fun queueCommand(command: Command) {
+        this.currentCommand = command
+    }
+
+    private fun executeCommand(command: Command, playerId: Int? = null) {
+        playScreen.commandManager.queueCommand(command, playerId ?: playerID)
+    }
+
     private fun PlayScreen.moveCameraToAction(x: Float, y: Float) {
-        if (moveCamera && fogOfWarManager.isVisible(x.tiled(), y.tiled())) actionManager.queueAction(
-            CameraMoveAction(
-                x,
-                y
-            )
-        )
+        if (moveCamera && fogOfWarManager.isVisible(x.tiled(), y.tiled())) {
+            cameraMoveAction = CameraMoveAction(x, y)
+        }
     }
 
     private fun buyCommand(): Boolean {
+        val playStage = playScreen.playStage
+
         //check cash
         if (player.credits <= 0)
             return false
@@ -296,16 +316,50 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
         if (isWater && playScreen.playStage.getUnitsOfPlayer(playerID).filter { it.isWater }.size > 3)
             return false
 
-        val buyPriority =
+        val buyPriority: MutableList<Pair<String, Int>> =
             if (isWater)
-                buyPriority.filter { speciesUnits.find { unit -> unit.isWater }?.selfName == it.first }
+                buyPriority.filter { speciesUnits.find { unit -> unit.isWater }?.selfName == it.first }.toMutableList()
             else
                 buyPriority.filter { speciesUnits.find { unit -> unit.selfName == it.first && !unit.isWater } != null }
-        val buyPriority2 =
+                    .toMutableList()
+        val buyPriority2: MutableList<Pair<String, Int>> =
             if (isWater)
-                buyPriority
+                buyPriority.toMutableList()
             else
                 this.buyPriority2.filter { speciesUnits.find { unit -> unit.selfName == it.first && !unit.isWater } != null }
+                    .toMutableList()
+
+        //if there are enemies near the base in range of 2, don't buy worker units
+        if (playScreen.playStage.getUnitsInRange(baseX, baseY, 2).any { !it.isAlly(player) }
+            || playStage.getTiles().none { it.isCrystal }) {
+            //1
+            buyPriority.removeAll { it.first == UnitIds.DOLL_SOWER || it.first == UnitIds.GOBLIN_PICKAXE }
+
+            //2
+            buyPriority2.removeAll { it.first == UnitIds.DOLL_SOWER || it.first == UnitIds.GOBLIN_PICKAXE }
+        }
+
+        val enemyAirUnitsCount =
+            (enemyUnits.count { it.isAir || it.selfName == UnitIds.DOLL_SCOUT || it.selfName == UnitIds.GOBLIN_WYVERN } * 0.65f).toInt()
+        if (enemyAirUnitsCount > playStage.getUnitsOfPlayer(player).count { it.canAttackAir }) {
+            //1
+            buyPriority.removeAll { unitBuyPair -> speciesUnits.any { it.selfName == unitBuyPair.first && it.canAttackAir } }
+            speciesUnits.filter { it.canAttackAir && (it.cShop?.price ?: -1) >= 100 }.sortedBy { it.cShop?.price ?: -1 }
+                .forEach { unit ->
+                    this.buyPriority.firstOrNull { it.first == unit.selfName }?.let { pair ->
+                        buyPriority.add(0, pair.copy(second = enemyAirUnitsCount))
+                    }
+                }
+
+            //2
+            buyPriority2.removeAll { unitBuyPair -> speciesUnits.any { it.selfName == unitBuyPair.first && it.canAttackAir } }
+            speciesUnits.filter { it.canAttackAir && (it.cShop?.price ?: -1) >= 100 }.sortedBy { it.cShop?.price ?: -1 }
+                .forEach { unit ->
+                    this.buyPriority.firstOrNull { it.first == unit.selfName }?.let { pair ->
+                        buyPriority2.add(0, pair.copy(second = enemyAirUnitsCount))
+                    }
+                }
+        }
 
         for ((name, count) in buyPriority) {
             if (player.credits < (speciesUnits.find { it.selfName == name }?.cShop?.price ?: continue)) continue
@@ -355,7 +409,8 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
         if (buyCommand.canExecute(playScreen)) {
             playScreen.moveCameraToAction(baseX.unTiled(), baseY.unTiled())
 
-            playScreen.commandManager.queueCommand(buyCommand, playerID)
+            playScreen.actionManager.queueAction(WaitAction(0.30f))
+            queueCommand(buyCommand)
 
             return true
         }
@@ -366,8 +421,14 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
     private fun attackCommand(): Boolean {
         for (unit in unitsAwaitingOrders) {
             if (unit.canBuildBase() || unit.selfName == UnitIds.DOLL_HEALER || unit.selfName == UnitIds.GOBLIN_HEALER) {
+                continue
+            }
+
+            //move off of base if is yours and u have some credits
+            if (playScreen.playStage.getTile(unit.tiledX, unit.tiledY)?.let {
+                    it.isBase && it.cPlayerId?.playerId == unit.playerId
+                } == true && player.credits > 100) {
                 return false
-                //continue
             }
 
             for (enemyUnit in enemyUnits) {
@@ -379,11 +440,11 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                             playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
                             if (unit.actionPoints == 2)
-                                playScreen.actionManager.queueAction(WaitAction(0.5f))
-                            else
-                                playScreen.actionManager.queueAction(WaitAction(0.30f))
+                                playScreen.actionManager.queueAction(WaitAction(0.05f))
+//                            else
+//                                playScreen.actionManager.queueAction(WaitAction(0.30f))
 
-                            playScreen.commandManager.queueCommand(command, playerID)
+                            queueCommand(command)
                             currentCommand = command
 
                             return true
@@ -412,7 +473,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                 if (command?.canExecute(playScreen) == true) {
                     playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                    playScreen.commandManager.queueCommand(command, playerID)
+                    queueCommand(command)
 
                     return true
                 }
@@ -420,6 +481,54 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
         }
 
         return false
+    }
+
+    private fun closestEnemyBase(unit: UnitActor): TileActor? {
+        val bases = playScreen.playStage.getBases().filter { !player.isAllyId(it?.cPlayerId?.playerId ?: Player.NONE) }
+        var closestBase = bases.firstOrNull() ?: return null
+        for (base in bases) {
+            if (tiledDst(base.tiledX, base.tiledY, unit.tiledX, unit.tiledY) < tiledDst(
+                    closestBase.tiledX,
+                    closestBase.tiledY,
+                    unit.tiledX,
+                    unit.tiledY
+                )
+            ) {
+                closestBase = base
+            }
+        }
+
+        return closestBase
+    }
+
+    private fun closestBase(unit: UnitActor): TileActor? {
+        val bases = playScreen.playStage.getBases(player)
+        var closestBase = bases.firstOrNull() ?: return null
+        for (base in bases) {
+            if (tiledDst(base.tiledX, base.tiledY, unit.tiledX, unit.tiledY) < tiledDst(
+                    closestBase.tiledX,
+                    closestBase.tiledY,
+                    unit.tiledX,
+                    unit.tiledY
+                )
+            ) {
+                closestBase = base
+            }
+        }
+
+        return closestBase
+    }
+
+    private fun closestEnemy(unit: UnitActor): UnitActor? {
+        var closestEnemyUnit =
+            enemyUnits.firstOrNull() ?: return null
+        for (enemyUnit in enemyUnits) {
+            if (unit.distToUnit(enemyUnit) < unit.distToUnit(closestEnemyUnit)) {
+                closestEnemyUnit = enemyUnit
+            }
+        }
+
+        return closestEnemyUnit
     }
 
     private fun moveToClosestUnit(unit: UnitActor): Boolean {
@@ -441,14 +550,19 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
         val movingMatrix = playScreen.playStage.getMovementGrid(unit, true)
         for (x in movingMatrix.indices) {
             for (y in 0 until movingMatrix[x].size) {
-                if (movingMatrix[x][y] > 0 && playScreen.playStage.getTile(x, y)?.isOccupied != true) {
+                val tile = playScreen.playStage.getTile(x, y)
+                if (movingMatrix[x][y] > 0 && tile?.isOccupied == false) {
                     // дистанция между ближайшим юнитом врага и тайлом доступным для движения
                     if (tiledDst(
                             closestEnemyUnit.tiledX,
                             closestEnemyUnit.tiledY,
                             x,
                             y
-                        ) < closestDst || closestDst == -1
+                        ) < closestDst || closestDst == -1 || (unit.cTerrainProps?.get(
+                            tile.terrain ?: ""
+                        )?.atkPlusDf ?: 0) > (unit.cTerrainProps?.get(
+                            playScreen.playStage.getTile(closestTileX, closestTileY)?.terrain ?: ""
+                        )?.atkPlusDf ?: 0)
                     ) {
                         closestDst = tiledDst(closestEnemyUnit.tiledX, closestEnemyUnit.tiledY, x, y)
                         closestTileX = x
@@ -471,7 +585,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                 )
                     if (playScreen.playStage.getUnitsOfPlayer(player).size < 5) {
                         unit.cUnit.actionPoints = 1
-                        return true
+                        return false
                     }
             }
         }
@@ -486,7 +600,6 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                         playScreen.playStage.getTile(closestTileX, closestTileY)?.terrain ?: ""
                     )?.atkPlusDf ?: 0)
                 ) {
-                    log("(MoveTClosestUnit) HE HAS BETTER TERRAIN IM NOT MOVING !!!")
                     return false
                 } else {
 
@@ -495,7 +608,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                     if (moveCommand.canExecute(playScreen)) {
                         playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                        playScreen.commandManager.queueCommand(moveCommand, playerID)
+                        queueCommand(moveCommand)
 
                         currentCommand = moveCommand
                         return true
@@ -531,7 +644,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                                 if (command.canExecute(playScreen)) {
                                     playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                                    playScreen.queueCommand(command)
+                                    queueCommand(command)
                                     return true
                                 }
                             }
@@ -543,12 +656,26 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
 
         if (!unit.canCapture()) {
             if (unit.canDestroy()) {
-                if (!enemyUnits.isEmpty) {
-                    if (playStage.getBases(playScreen.turnManager.getPlayerById(enemyUnits.first().playerId)!!).size != 0) {
-                        if (moveNDestroyBase(unit)) return true
-                    } else {
-                        if (moveToClosestUnit(unit)) return true
+                var moreCloseToEnemyBaseThanHis = false
+                val enemyNearClosestBase = closestBase(unit)?.let { closestBase ->
+                    closestEnemy(unit)?.let { closestEnemy ->
+                        val enemyToMyBaseDist = tiledDst(closestEnemy, closestBase)
+
+                        moreCloseToEnemyBaseThanHis = closestEnemyBase(unit)?.let { enemyBase ->
+                            tiledDst(unit, enemyBase) < enemyToMyBaseDist
+                        } == true
+
+                        enemyToMyBaseDist <= 6
                     }
+                } == true
+                //playScreen.turnManager.getPlayerById(enemyUnits.first().playerId)!!
+                if (playStage.getBasesOfEnemyOf(player).size != 0
+                    && (!enemyNearClosestBase || moreCloseToEnemyBaseThanHis)
+                ) {
+                    if (moveNDestroyBase(unit)) return true
+                } else {
+                    if (!enemyUnits.isEmpty)
+                        if (moveToClosestUnit(unit)) return true
                 }
             }
 
@@ -565,12 +692,35 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             }
         }
 
+        val crystalTiles =
+            playStage.getTiles().filter { it.isCrystal && !player.isAllyId(it.cPlayerId?.playerId ?: Player.NONE) }
+
+        if (crystalTiles.isEmpty()) {
+            return moveToClosestUnit(unit)
+        }
+
         // find the closest crystal
-        val closestCrystal = playStage.getTiles().filter {
+        val workers = playStage.getUnitsOfPlayer(player).filter { it.isWorker }
+        val closestCrystal: TileActor? = playStage.getTiles().filter {
             it.isCrystal && (it.get(PlayerIdComponent::class.java)?.playerId != unit.playerId || !it.has(
                 PlayerIdComponent::class.java
             ))
-        }.minByOrNull { tiledDst(unit.tiledX, unit.tiledY, it.tiledX, it.tiledY) }
+        }.minByOrNull { tiledDst(unit.tiledX, unit.tiledY, it.tiledX, it.tiledY) }.let {
+            val unitToTile = workers.mapNotNull { playerUnit ->
+                if (playerUnit != unit) {
+                    playerUnit to crystalTiles.minBy { tiledDst(playerUnit, it) }
+                } else null
+            }
+
+            crystalTiles.sortedBy { tiledDst(unit, it) }.forEach { crystalTile ->
+                if (unitToTile.none { it.second == crystalTile } || unitToTile.firstOrNull { it.second == crystalTile }
+                        ?.let { tiledDst(unit, it.second) <= tiledDst(it.first, it.second) } == true) {
+                    return@let crystalTile
+                }
+            }
+
+            it
+        }
 
         if (closestCrystal == null) {
             val units = playStage.getUnitsOfPlayer(playerID)
@@ -581,7 +731,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                     if (command.canExecute(playScreen)) {
                         playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                        playScreen.queueCommand(command)
+                        queueCommand(command)
                         return true
                     }
                 }
@@ -598,7 +748,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             if (command.canExecute(playScreen)) {
                 playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                playScreen.queueCommand(command)
+                queueCommand(command)
                 return true
             }
         }
@@ -623,7 +773,13 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             for (y in 0 until movingMatrix[x].size) {
                 if (movingMatrix[x][y] > 0 && playScreen.playStage.getTile(x, y)?.isOccupied != true) {
                     // дистанция между crystal врага и тайлом доступным для движения
-                    if (tiledDst(closestCrystal.tiledX, closestCrystal.tiledY, x, y) < closestDst || closestDst == -1) {
+                    if (tiledDst(
+                            closestCrystal.tiledX,
+                            closestCrystal.tiledY,
+                            x,
+                            y
+                        ) < closestDst || closestDst == -1
+                    ) {
                         closestDst = tiledDst(closestCrystal.tiledX, closestCrystal.tiledY, x, y)
                         closestTileX = x
                         closestTileY = y
@@ -639,7 +795,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             if (moveCommand.canExecute(playScreen)) {
                 playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                playScreen.commandManager.queueCommand(moveCommand, playerID)
+                queueCommand(moveCommand)
 
                 currentCommand = moveCommand
                 return true
@@ -695,7 +851,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             if (command.canExecute(playScreen)) {
                 playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                playScreen.queueCommand(command)
+                queueCommand(command)
                 return true
             }
         }
@@ -738,7 +894,6 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                     playScreen.playStage.getTile(closestTileX, closestTileY)?.terrain ?: ""
                 )?.atkPlusDf ?: 0)
             ) {
-                log("(MoveNDestroyBase) HE HAS BETTER TERRAIN IM NOT MOVING !!!")
                 return false
             } else {
 
@@ -747,7 +902,7 @@ class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
                 if (moveCommand.canExecute(playScreen)) {
                     playScreen.moveCameraToAction(unit.centerX, unit.centerY)
 
-                    playScreen.commandManager.queueCommand(moveCommand, playerID)
+                    queueCommand(moveCommand)
 
                     currentCommand = moveCommand
                     return true

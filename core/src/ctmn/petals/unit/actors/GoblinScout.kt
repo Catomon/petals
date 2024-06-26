@@ -25,7 +25,8 @@ class GoblinScout : UnitActor(
             AttackComponent(
                 5,
                 20,
-                1
+                1,
+                attackType = ATTACK_TYPE_ALL
             )
         )
 

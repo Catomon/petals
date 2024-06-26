@@ -8,8 +8,8 @@ object Const {
 
     // App:
     const val APP_NAME = "Fae's Feisty Fray"
-    const val APP_VER_NAME = "0.2.4-alpha"
-    const val IS_RELEASE = true
+    const val APP_VER_NAME = "0.2.5-alpha"
+    const val IS_RELEASE = false
     const val USER_FOLDER = "Documents/Fae's Feisty Fray/"
     const val LEGACY_USER_FOLDER = "Documents/Petals - F&GCC/"
 

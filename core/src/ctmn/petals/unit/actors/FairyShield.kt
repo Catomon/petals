@@ -18,7 +18,6 @@ class FairyShield : UnitActor(
 
     init {
         add(BonusFieldComponent(range = 1, defense = 5))
-        add(AbilitiesComponent())
         add(SummonableComponent(30))
         add(FollowerComponent())
         add(

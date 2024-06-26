@@ -59,6 +59,14 @@ fun tiledDst(x1: Int, y1: Int, x2: Int, y2: Int): Int {
     return x + y
 }
 
+fun tiledDst(tile1: TileActor, tile2: TileActor): Int {
+    return tiledDst(tile1.tiledX, tile1.tiledY, tile2.tiledX, tile2.tiledY)
+}
+
+fun tiledDst(unit: UnitActor, tile2: TileActor): Int {
+    return tiledDst(unit.tiledX, unit.tiledY, tile2.tiledX, tile2.tiledY)
+}
+
 fun PlayStage.zoomCameraByDefault() {
     (camera as OrthographicCamera).zoom = PLAY_CAMERA_ZOOM
 
@@ -359,13 +367,26 @@ fun PlayStage.getEffects(): Array<ctmn.petals.effects.EffectActor> {
     return effects
 }
 
-fun PlayStage.getBases(player: Player): Array<TileActor> {
+fun PlayStage.getBasesOfEnemyOf(player: Player): Array<TileActor> {
+    val bases = Array<TileActor>()
+    for (tile in getTiles()) {
+        if (tile.isBase && !player.isAllyId(tile.cPlayerId?.playerId ?: Player.NONE))
+            bases.add(tile)
+    }
+
+    return bases
+}
+
+fun PlayStage.getBases(player: Player? = null): Array<TileActor> {
     val bases = Array<TileActor>()
 
     for (tile in getTiles()) {
         if (tile.isBase)
-            if (tile.cPlayerId?.playerId == player.id)
+            if (player == null)
                 bases.add(tile)
+            else
+                if (player.isAllyId(tile.cPlayerId?.playerId ?: Player.NONE))
+                    bases.add(tile)
     }
 
     return bases

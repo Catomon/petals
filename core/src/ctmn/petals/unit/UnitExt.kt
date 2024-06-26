@@ -140,6 +140,10 @@ val UnitActor.sprite: Sprite?
             else -> null
         }
 
+val UnitActor.canAttackAir get() = cAttack?.attackType == ATTACK_TYPE_ALL || cAttack?.attackType == ATTACK_TYPE_AIR
+
+val UnitActor.isWorker get() = selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
+
 /*** UnitActor extensions */
 //fun UnitActor.setPosition(x: Int, y: Int) {
 //    setPosition((x * Const.TILE_SIZE).toFloat(), (y * Const.TILE_SIZE).toFloat())
@@ -337,6 +341,10 @@ fun UnitActor.isPlayerUnit(player: Player): Boolean {
 
 fun UnitActor.isPlayerTeamUnit(player: Player): Boolean {
     return (teamId != Team.NONE && player.teamId != Team.NONE) && teamId == player.teamId
+}
+
+fun Player.isAllyId(playerId: Int): Boolean {
+    return playerId != Player.NONE && id == playerId
 }
 
 fun Player.isAlly(teamId: Int): Boolean {

@@ -17,7 +17,6 @@ class GoblinGiant : UnitActor(
 ) {
 
     init {
-        add(AbilitiesComponent())
         add(SummonableComponent(100))
         add(FollowerComponent())
         add(

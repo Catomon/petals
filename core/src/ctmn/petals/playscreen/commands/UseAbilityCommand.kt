@@ -53,7 +53,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
         //return if unit has no targets
         if (targetActorsArray.isEmpty) {
-            Gdx.app.error(UseAbilityCommand::class.simpleName, "Canceled: no targets found")
+            //Gdx.app.error(UseAbilityCommand::class.simpleName, "Canceled: no targets found")
             return false
         }
 

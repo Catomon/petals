@@ -19,7 +19,6 @@ class FairyGlaive : UnitActor(
 
     init {
         add(ShopComponent(400))
-        add(AbilitiesComponent())
         add(SummonableComponent(10))
         add(FollowerComponent())
         add(

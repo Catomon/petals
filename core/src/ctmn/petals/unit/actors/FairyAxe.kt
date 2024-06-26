@@ -20,7 +20,6 @@ class FairyAxe : UnitActor(
 
     init {
         add(ShopComponent(100))
-        add(AbilitiesComponent())
         add(SummonableComponent(30))
         add(FollowerComponent())
         add(
