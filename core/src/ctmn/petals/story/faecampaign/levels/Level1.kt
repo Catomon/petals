@@ -71,10 +71,17 @@ class Level1 : Scenario("lv_1", "level_0") {
         //                    gameEndCondition.lose()
 
         val swordFaerie = playScreen.playStage.getUnitsOfPlayer(players[0]).first()
-        val swordFaerie2 = FairySword()
-        playStage.addActor(swordFaerie2)
-        swordFaerie2.position(swordFaerie.tiledX, swordFaerie.tiledY)
-        swordFaerie2.player(players[0])
+
+        repeat(2) {
+            val swordFaerie2 = FairySword()
+            playStage.addActor(swordFaerie2)
+            if (it > 0)
+                swordFaerie2.position(swordFaerie.tiledX + 1, swordFaerie.tiledY - 2)
+            else
+                swordFaerie2.position(swordFaerie.tiledX + 1, swordFaerie.tiledY + 2)
+            swordFaerie2.player(players[0])
+        }
+
         val taskUnit = swordFaerie
 
         val stick =
@@ -99,16 +106,16 @@ class Level1 : Scenario("lv_1", "level_0") {
                         taskUnit.tiledX + taskUnit.movingRange,
                         taskUnit.tiledY,
                         true
-                    ).description("Select unit and press the marked tile to move to.")
+                    ).description("Select the marked unit and press on the marked tile to move to")
                 ).addOnCompleteTrigger {
                     addTask(
                         ExecuteCommandTask(AttackCommand::class, true).description(
-                            "Press nearby enemy to attack"
+                            "While unit is selected, press on the enemy in attack range to fight"
                         )
                     ).addOnCompleteTrigger {
-                        queueTask(EndTurnTask().description("Press End Turn button.")).addOnCompleteTrigger {
+                        queueTask(EndTurnTask().description("Move other units and press End Turn button")).addOnCompleteTrigger {
                             val threeSlimes = Array<UnitActor>().apply {
-                                playStage.getUnitsOfPlayer(players[2].id).forEach { add(it) }
+                                playStage.getUnitsOfPlayer(players[1].id).forEach { add(it) }
                             }
                             addTask(EliminateAllEnemyUnitsTask(threeSlimes).description("Defeat all enemies"))
                         }

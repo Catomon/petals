@@ -437,6 +437,12 @@ fun UnitActor.position(label: LabelActor): UnitActor {
     return this
 }
 
+fun UnitActor.position(tile: TileActor): UnitActor {
+    position(tile.tiledX, tile.tiledY)
+
+    return this
+}
+
 fun UnitActor.followerOf(leader: UnitActor, dieWithLeader: Boolean = false): UnitActor {
     check(leader.cLeader != null)
 

@@ -10,11 +10,12 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.tile.components.CrystalsComponent
 import ctmn.petals.tile.isBase
 import ctmn.petals.tile.isCrystal
 
 fun Player.income(playScreen: PlayScreen): Int {
-    var income = playScreen.creditsPassiveIncome
+    var income = if (creditsPassiveReserve > 0) playScreen.creditsPassiveIncome else 0
     playScreen.playStage.getCapturablesOf(this).forEach { tile ->
         if (tile.isBase) also {
             //income += playScreen.creditsPerBase
@@ -23,6 +24,18 @@ fun Player.income(playScreen: PlayScreen): Int {
     }
 
     return income
+}
+
+fun Player.incomeReserve(playScreen: PlayScreen): Int {
+    var incomeReserve = creditsPassiveReserve
+    playScreen.playStage.getCapturablesOf(this).forEach { tile ->
+        if (tile.isCrystal) also {
+            incomeReserve += tile.get(CrystalsComponent::class.java)?.amount ?: 0
+        }
+        else if (tile.isCrystal) incomeReserve += playScreen.creditsPerCluster
+    }
+
+    return incomeReserve
 }
 
 fun PlayScreen.queueAction(action: () -> Unit): SeqAction {

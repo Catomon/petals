@@ -156,10 +156,19 @@ class Assets : AssetManager() {
         }
         loadSound("click.ogg")
         loadSound("heal_up.ogg")
-        loadSound("hit.ogg")
         loadSound("unit_explosion.ogg")
         loadSound("unit_select.ogg")
         loadSound("unit_deselect.ogg")
+        loadSound("step_grass.ogg")
+        loadSound("step_water.ogg")
+        loadSound("step_rock.ogg")
+        loadSound("step_forest.ogg")
+        loadSound("step_forest_1.ogg")
+        loadSound("flee.ogg")
+        loadSound("hit.ogg")
+        loadSound("hit_2.ogg")
+        loadSound("slime_hit.ogg")
+        loadSound("bow.ogg")
 
         Gdx.app.debug(Assets::class.simpleName, "Loading sounds... Done")
 
@@ -179,11 +188,11 @@ class Assets : AssetManager() {
             else -> VisUI.load(Gdx.files.internal("skin/wafer-ui.json"))
         }
 
-        //VisUI.getSkin().getFont("font").data.setScale(0.3f)
-        //VisUI.getSkin().getFont("font_12").data.setScale(0.22f)
-//        VisUI.getSkin().getFont("font").data.setScale(0.22f)
-//        VisUI.getSkin().getFont("font_8").data.setScale(0.5f)
-//        VisUI.getSkin().getFont("font_5").data.setScale(0.5f) //0.35
+//        VisUI.getSkin().getFont("font").data.setScale(2f)
+//        VisUI.getSkin().getFont("quaver").data.setScale(2f)
+//        VisUI.getSkin().getFont("font_8").data.setScale(2f)
+//        VisUI.getSkin().getFont("font_5").data.setScale(2f)
+//        VisUI.getSkin().getFont("default-font").data.setScale(2f)
 
         //VisUI.getSkin().setScale(Const.GUI_SCALE)
 //        VisUI.getSkin().setScale(0.5f)
@@ -387,8 +396,8 @@ object AudioManager {
     var currentMusic: Music? = null
     var currentMusic2: Music? = null
 
-    fun music(name: String): Music {
-        if (currentMusic == null) {
+    fun music(name: String, slot: Int = -1): Music {
+        if (currentMusic == null || slot == 0) {
             currentMusic = Gdx.audio.newMusic(Gdx.files.internal("music/$name"))
             currentMusic?.volume = musicVolume
             return currentMusic!!

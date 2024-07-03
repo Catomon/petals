@@ -1,18 +1,17 @@
 package ctmn.petals.playstage
 
-import ctmn.petals.Const.TILE_SIZE
-import ctmn.petals.player.Player
-import ctmn.petals.map.label.LabelActor
-import ctmn.petals.unit.*
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM
+import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.map.label.LabelActor
+import ctmn.petals.player.Player
 import ctmn.petals.tile.*
 import ctmn.petals.tile.TerrainNames.land_capturable
-import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.*
 import ctmn.petals.utils.err
 import ctmn.petals.utils.getSurroundingUnits
 import kotlin.math.max
@@ -407,6 +406,10 @@ fun PlayStage.getCapturablesOf(player: Player): Array<TileActor> {
 
 fun PlayStage.getUnitOrTile(x: Int, y: Int): Actor? {
     return getUnit(x, y) ?: getTile(x, y)
+}
+
+fun PlayStage.getUnit(tile: TileActor): UnitActor? {
+    return getUnit(tile.tiledX, tile.tiledY)
 }
 
 inline fun <reified T : UnitActor> PlayStage.getUnit(player: Player? = null): T? {

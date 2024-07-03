@@ -42,6 +42,7 @@ class FairyScout : UnitActor(
             bonuses[UnitIds.CATAPULT] = Pair(20, 0)
             bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(20, 0)
             bonuses[UnitIds.DOLL_BOW] = Pair(20, 0)
+            bonuses[UnitIds.CROSSBOWMAN] = Pair(20, 0)
         })
     }
 }

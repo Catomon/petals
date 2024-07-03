@@ -106,7 +106,9 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
         //take damage if in target attack range
         val attackTypeNotOk = targetUnit.isAir && targetUnit.cAttack?.attackType == ATTACK_TYPE_GROUND
-        if (!attackTypeNotOk && targetUnit.canAttack(attackerUnit)
+        if (targetUnit.attackRange > 0
+            && !attackTypeNotOk
+            && targetUnit.canAttack(attackerUnit)
             && attackerUnit.isUnitNear(targetUnit, 1)
             && targetUnit.cAttack!!.attackRangeBlocked <= 0
             && ((!attackerUnit.isAir || (attackerUnit.isAir && targetUnit.isAir)) || targetUnit.attackRange > 1)

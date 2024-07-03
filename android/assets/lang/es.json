@@ -1,9 +1,14 @@
 {
   "menu": {
     "story": "Historia",
+    "levels": "Campaña",
+    "quickplay": "Juego rápido",
     "match": "Partida",
+    "vsBot": "Vs Bot",
+    "vsPlayer": "Vs Jugador",
+    "profile": "Perfil",
     "editor": "Editor",
-    "settings": "Configuración",
+    "settings": "Ajustes",
     "exit": "Salir"
   },
   "play": {

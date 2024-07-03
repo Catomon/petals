@@ -75,7 +75,8 @@ class CloudShadowDrawer : Actor() {
                 ).toFloat()
             })
         } else {
-            throw IllegalArgumentException("Only for PlayStage")
+            if (stage != null)
+                throw IllegalArgumentException("Only for PlayStage")
         }
     }
 

@@ -22,7 +22,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
     val batch = SpriteBatch()
 
-    private val music = AudioManager.music("optomistic_day_masteredloopable.ogg").apply { isLooping = true }
+    private val music = AudioManager.music("snow_city.mp3").apply { isLooping = true }
 
     private val background = ParallaxBackground(Array<MovingBackground>().apply {
         add(MovingBackground(assets.getTexture("1.png"), 1f))
@@ -118,6 +118,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
         menuStage.dispose()
         storySelectStage.dispose()
         batch.dispose()
+        music.dispose()
         AudioManager.disposeMusic()
     }
 }

@@ -24,5 +24,7 @@ class Slime : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
+
+        hitSounds = arrayOf("slime_hit.ogg")
     }
 }

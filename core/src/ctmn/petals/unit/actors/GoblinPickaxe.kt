@@ -22,7 +22,7 @@ class GoblinPickaxe : UnitActor(
         add(
             AttackComponent(
                 0,
-                10,
+                15,
                 1
             )
         )

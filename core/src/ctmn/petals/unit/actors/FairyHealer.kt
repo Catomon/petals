@@ -24,8 +24,8 @@ class FairyHealer : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
+                15,
                 20,
-                25,
                 1
             )
         )

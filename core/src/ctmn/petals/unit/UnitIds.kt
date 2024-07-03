@@ -36,6 +36,7 @@ object UnitIds {
     const val SLIME_HUGE = "slime_huge"
     const val SLIME_LING = "slime_ling"
     const val PINK_SLIME_LING = "pink_slime_ling"
+    const val SLIME_TINY = "slime_tiny"
 
 
     const val GHOST = "ghost"
@@ -63,9 +64,13 @@ object UnitIds {
     const val GOBLIN_CROSSBOW = "goblin_crossbow"
     const val GOBLIN_PICKAXE = "goblin_pickaxe"
     const val GOBLIN_HEALER = "goblin_healer"
+    const val GOBLIN_SPEAR = "goblin_spear"
 
     const val ROOT_TREE = "root_tree"
     const val ANGRY_OWL = "angry_owl"
 
     const val BULGY = "bulgy"
+
+    const val BLOB = "blob"
+    const val ROOT = "root"
 }

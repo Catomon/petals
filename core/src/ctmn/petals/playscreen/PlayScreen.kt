@@ -56,6 +56,8 @@ import ctmn.petals.tile.*
 import ctmn.petals.tile.components.*
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
+import ctmn.petals.unit.actors.ObjBlob
+import ctmn.petals.unit.actors.ObjRoot
 import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.unit.component.BurningComponent
 import ctmn.petals.unit.component.TileEffectComponent
@@ -101,6 +103,7 @@ open class PlayScreen(
     var friendlyFire = false
 
     var creditsPassiveIncome = 100
+    var creditsPassiveIncomeMax = 2000
     var creditsPerBase = 100
     var creditsPerCluster = 100 //classic 75
 
@@ -131,6 +134,9 @@ open class PlayScreen(
     var debug = false
 
     private val debugKeysProcessor by lazy { DebugKeysProcessor() }
+
+    private val ambienceMusic =
+        AudioManager.music("very_quiet_morning_meadow_forest.ogg").apply { isLooping = true; play(); volume *= 2f }
 
     init {
         discordRich(Rich.PLAYING)
@@ -602,6 +608,9 @@ open class PlayScreen(
         backImage.sprite.texture.dispose()
 
         batch.dispose()
+
+        ambienceMusic.dispose()
+        AudioManager.disposeMusic()
     }
 
     private var gameState: GameStateSnapshot? = null
@@ -609,17 +618,124 @@ open class PlayScreen(
     private inner class PlayTurnCycleListener : EventListener {
         override fun handle(event: Event): Boolean {
             val turnCycleEvent = if (event is TurnsCycleListener.TurnCycleEvent) event else return false
-
-            // give next player gold for every base
             val nextPlayer = turnCycleEvent.nextPlayer
-            if (!nextPlayer.isOutOfGame) {
-                nextPlayer.credits += 100
-                for (capturable in playStage.getCapturablesOf(nextPlayer)) {
-                    if (capturable.isBase)
-                        also {
-                            //nextPlayer.credits += creditsPerBase
+
+            //update bases capturing
+            for (tile in ArrayIterator(playStage.getTiles())) {
+                if (tile.isCapturable && tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id) {
+                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
+                        unitOnTile.captureBase(tile, turnManager.getPlayerById(unitOnTile.playerId))
+                        unitOnTile.remove()
+
+                        playStage.root.fire(TileCapturedEvent(tile))
+                    }
+                    tile.components.remove(CapturingComponent::class.java)
+                }
+
+                if (tile.cBaseBuilding?.playerId == turnCycleEvent.nextPlayer.id) {
+                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    if (unitOnTile != null && tile.cBaseBuilding!!.playerId == unitOnTile.playerId) {
+                        val newBase =
+                            TileActor(TileData.get(Tiles.PIXIE_NEST_BLUE)!!, tile.layer, tile.tiledX, tile.tiledY)
+                        tile.layer -= 1
+                        val tile2 = playStage.getTile(tile.tiledX, tile.tiledY, tile.layer)
+                        if (tile2 != null) {
+                            tile2.layer -= 1
+                            tile2.remove()
+                            playStage.addActor(tile2)
                         }
-                    else {
+                        tile.remove()
+                        playStage.addActor(tile)
+                        playStage.addActor(newBase)
+                        unitOnTile.captureBase(newBase, turnManager.getPlayerById(unitOnTile.playerId))
+                        unitOnTile.remove()
+                        //playStage.root.fire(BaseBuilt(tile))
+                    }
+                    tile.components.remove(BaseBuildingComponent::class.java)
+                }
+
+                if (tile.cDestroying?.playerId == turnCycleEvent.nextPlayer.id) {
+                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    if (unitOnTile != null && tile.cDestroying!!.playerId == unitOnTile.playerId) {
+                        playStage.removeTileSafely(tile)
+                        //todo debris
+                    }
+                    tile.components.remove(DestroyingComponent::class.java)
+                }
+
+                // remove cooldown
+                if (tile.isBase) {
+                    tile.del(ActionCooldown::class.java)
+                }
+
+                //
+                if (tile.isCrystal) {
+                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
+                    if (unitOnTile?.playerId == nextPlayer.id) {
+                        when (unitOnTile.selfName) {
+                            UnitIds.SLIME_LING, UnitIds.SLIME, UnitIds.SLIME_HUGE, UnitIds.SLIME_BIG, UnitIds.SLIME_TINY -> {
+                                if (tile.selfName != Tiles.CRYSTAL_SLIME) {
+                                    tile.tileComponent.name = Tiles.CRYSTAL_SLIME
+                                    tile.del(PlayerIdComponent::class.java)
+                                    tile.initView()
+
+                                    fireEvent(TileCapturedEvent(tile))
+                                }
+                            }
+
+                            UnitIds.EVIL_TREE, UnitIds.ROOT_TREE -> {
+                                if (tile.selfName != Tiles.CRYSTAL_ROOT) {
+                                    tile.tileComponent.name = Tiles.CRYSTAL_ROOT
+                                    tile.del(PlayerIdComponent::class.java)
+                                    tile.initView()
+
+                                    fireEvent(TileCapturedEvent(tile))
+                                }
+                            }
+                        }
+                    }
+
+                    if (playStage.getUnit(tile) == null) {
+                        when (tile.selfName) {
+                            Tiles.CRYSTAL_SLIME -> {
+                                playStage.addActor(ObjBlob().player(8, 4).position(tile))
+
+                                tile.tileComponent.name = Tiles.CRYSTAL
+                                tile.del(PlayerIdComponent::class.java)
+                                tile.initView()
+                                fireEvent(TileCapturedEvent(tile))
+                            }
+
+                            Tiles.CRYSTAL_ROOT -> {
+                                playStage.addActor(ObjRoot().player(8, 4).position(tile))
+
+                                tile.tileComponent.name = Tiles.CRYSTAL
+                                tile.del(PlayerIdComponent::class.java)
+                                tile.initView()
+                                fireEvent(TileCapturedEvent(tile))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // calculate income
+            if (!nextPlayer.isOutOfGame) {
+                //passive income
+                if (nextPlayer.creditsPassiveReserve > 0) {
+                    nextPlayer.creditsPassiveReserve -= creditsPassiveIncome
+                    if (nextPlayer.creditsPassiveReserve < 0) {
+                        nextPlayer.credits += creditsPassiveIncome - nextPlayer.creditsPassiveReserve
+                        nextPlayer.creditsPassiveReserve = 0
+                    } else {
+                        nextPlayer.credits += creditsPassiveIncome
+                    }
+                }
+
+                //capturables income
+                for (capturable in playStage.getCapturablesOf(nextPlayer)) {
+                    if (capturable.isCrystal) {
                         val cCrystals = capturable.get(CrystalsComponent::class.java) ?: CrystalsComponent().also {
                             capturable.add(it)
                         }
@@ -630,7 +746,6 @@ open class PlayScreen(
                                 nextPlayer.credits += creditsPerCluster - cCrystals.amount
                                 cCrystals.amount = 0
                             } else {
-
                                 nextPlayer.credits += creditsPerCluster
                             }
                         }
@@ -704,56 +819,6 @@ open class PlayScreen(
                             }
                         }
                     }
-                }
-            }
-
-            //update bases capturing
-            for (tile in ArrayIterator(playStage.getTiles())) {
-                if (tile.isCapturable && tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id) {
-                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
-                    if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
-                        unitOnTile.captureBase(tile, turnManager.getPlayerById(unitOnTile.playerId))
-                        playStage.root.fire(TileCapturedEvent(tile))
-
-                        unitOnTile.remove()
-                    }
-                    tile.components.remove(CapturingComponent::class.java)
-                }
-
-                if (tile.cBaseBuilding?.playerId == turnCycleEvent.nextPlayer.id) {
-                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
-                    if (unitOnTile != null && tile.cBaseBuilding!!.playerId == unitOnTile.playerId) {
-                        val newBase =
-                            TileActor(TileData.get(Tiles.PIXIE_NEST_BLUE)!!, tile.layer, tile.tiledX, tile.tiledY)
-                        tile.layer -= 1
-                        val tile2 = playStage.getTile(tile.tiledX, tile.tiledY, tile.layer)
-                        if (tile2 != null) {
-                            tile2.layer -= 1
-                            tile2.remove()
-                            playStage.addActor(tile2)
-                        }
-                        tile.remove()
-                        playStage.addActor(tile)
-                        playStage.addActor(newBase)
-                        unitOnTile.captureBase(newBase, turnManager.getPlayerById(unitOnTile.playerId))
-                        unitOnTile.remove()
-                        //playStage.root.fire(BaseBuilt(tile))
-                    }
-                    tile.components.remove(BaseBuildingComponent::class.java)
-                }
-
-                if (tile.cDestroying?.playerId == turnCycleEvent.nextPlayer.id) {
-                    val unitOnTile = playStage.getUnit(tile.tiledX, tile.tiledY)
-                    if (unitOnTile != null && tile.cDestroying!!.playerId == unitOnTile.playerId) {
-                        playStage.removeTileSafely(tile)
-                        //todo debris
-                    }
-                    tile.components.remove(DestroyingComponent::class.java)
-                }
-
-                // remove cooldown
-                if (tile.isBase) {
-                    tile.del(ActionCooldown::class.java)
                 }
             }
 

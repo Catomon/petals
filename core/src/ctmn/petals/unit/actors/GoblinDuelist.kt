@@ -32,6 +32,7 @@ class GoblinDuelist : UnitActor(
             bonuses[UnitIds.CATAPULT] = Pair(20, 15)
             bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(20, 15)
             bonuses[UnitIds.DOLL_BOW] = Pair(20, 15)
+            bonuses[UnitIds.EVIL_TREE] = 20 to 0
         })
     }
 }

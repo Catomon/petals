@@ -3,6 +3,8 @@ package ctmn.petals.bot
 import com.badlogic.gdx.Gdx
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.commands.Command
+import ctmn.petals.playscreen.queueCommand
 import kotlin.concurrent.thread
 
 class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
@@ -22,6 +24,8 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
 
     private var lastThinkingElapsedTime = 0L
 
+    private var currentCommand: Command? = null
+
     override fun update(delta: Float) {
         if (isDone) return
 
@@ -29,7 +33,10 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
 
         if (playScreen.actionManager.hasActions) {
             if (!didIPrintDebug) {
-                Gdx.app.log(this::class.simpleName, "Last thinking elapsed time: ${lastThinkingElapsedTime/1_000_000}")
+                Gdx.app.log(
+                    this::class.simpleName,
+                    "Last thinking elapsed time: ${lastThinkingElapsedTime / 1_000_000}"
+                )
                 Gdx.app.log(this::class.simpleName, "Waiting for action complete...")
 
                 didIPrintDebug = true
@@ -41,7 +48,13 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
 
         if (elapsedTime < idleTime) return
 
-        if (thinkingThread?.isAlive != true) {
+        if (currentCommand != null) {
+            val isCommandExecuted = playScreen.commandManager.queueCommand(currentCommand!!, playerID)
+            if (isCommandExecuted) commandExecuted()
+            currentCommand = null
+        }
+
+        if (thinkingThread?.isAlive != true && currentCommand == null) {
             startThinking()
         }
 
@@ -79,8 +92,13 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
                 lastThinkingElapsedTime = endTime - startTime
 
                 if (command != null) {
-                    isCommandExecuted = command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)
-                    if (isCommandExecuted) commandExecuted()
+                    if (command.canExecute(playScreen)) {
+
+                    }
+
+                    currentCommand = command
+                    //isCommandExecuted = command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)
+//                    if (isCommandExecuted) commandExecuted()
                 } else
                     noCommands = true
             } catch (e: Exception) {

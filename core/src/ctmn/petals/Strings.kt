@@ -7,6 +7,7 @@ var strings: Strings = getLangStringsByPrefs()
 
 object GameLocale {
     const val ENGLISH = "en";
+    const val JAPANESE = "jp"
     const val SPANISH = "es"
     const val RUSSIAN = "ru"
 }

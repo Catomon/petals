@@ -38,10 +38,14 @@ class PlayStage(
 
     val tileLayers = ArrayMap<Int, PlayStageGroup>()
     val tilesLayer1 = PlayStageGroup().also {
-        tileLayers.put(0, PlayStageGroup())
+        it.name = "tiles"
+        tileLayers.put(0, PlayStageGroup().apply { name = "tiles" })
         tileLayers.put(1, it)
     }
-    val unitsLayer = PlayStageGroup()
+    val unitsLayer = PlayStageGroup().apply { name = "units" }
+
+    private val beforeTilesActor = PlayStageGroup().apply { name = "before_tiles" }
+    private val afterTilesActor = PlayStageGroup().apply { name = "after_tiles" }
 
     private val nightTint = Vector3(0.2f, 0.3f, 0.5f)
     private val eveningTint = Vector3(1.0f, 0.5f, 0.0f)
@@ -94,6 +98,9 @@ class PlayStage(
 
             false
         }
+
+        root.addActorBefore(tileLayers.firstValue(), beforeTilesActor)
+        root.addActorAfter(tileLayers.last().value, afterTilesActor)
     }
 
     override fun draw() {
@@ -107,17 +114,28 @@ class PlayStage(
 
         border.draw(batch)
 
-        /** [Background] is a PlayStageGroup btw */
+        //draw PlayStageGroup actors
+        beforeTilesActor.draw(batch, 1f)
 
         for (actor in actors) {
-            if (actor is PlayStageGroup) {
+            if (actor.name == "tiles" || actor.name == "background") {
                 shaderBegin()
 
                 actor.draw(batch, 1f)
 
                 shaderEnd()
+            }
+        }
 
-                continue
+        afterTilesActor.draw(batch, 1f)
+
+        for (actor in actors) {
+            if (actor.name == "units") {
+                shaderBegin()
+
+                actor.draw(batch, 1f)
+
+                shaderEnd()
             }
         }
 
@@ -162,11 +180,11 @@ class PlayStage(
     }
 
     fun addActorBeforeTiles(actor: Actor) {
-        root.addActorBefore(tileLayers.firstValue(), actor)
+        beforeTilesActor.addActor(actor)
     }
 
     fun addActorAfterTiles(actor: Actor) {
-        root.addActorAfter(tileLayers.last().value, actor)
+        afterTilesActor.addActor(actor)
     }
 
     private fun addTile(tile: TileActor) {
@@ -174,6 +192,7 @@ class PlayStage(
             tileLayers[tile.layer].addActor(tile)
         else {
             tileLayers.put(tile.layer, PlayStageGroup().apply {
+                name = "tiles"
                 addActor(tile)
                 this@PlayStage.root.addActorAfter(tileLayers.get(tile.layer - 1), this)
             })
@@ -314,6 +333,10 @@ class PlayStage(
     private inner class Background : PlayStageGroup() {
 
         private val backTile = TileActor("grass", "grass").apply { initView() }
+
+        init {
+            name = "background"
+        }
 
         override fun draw(batch: Batch, parentAlpha: Float) {
             for (tile in tilesLayer1.children) {

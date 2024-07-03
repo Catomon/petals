@@ -85,16 +85,16 @@ class Level6 : Scenario("lv_6", "level_bases") {
 
         playScreen {
             queueDialogAction(StoryDialog.Quote("Enemy bases can be destroyed by most ground units"))
-            queueDialogAction(StoryDialog.Quote("Get your units on top of enemy base and destroy it"))
+            queueDialogAction(StoryDialog.Quote("Get your units on top of enemy base and destroy it")).addOnCompleteTrigger {
+                queueTask(object : Task() {
+                    override var description: String? = "Destroy all enemy bases"
 
-            queueTask(object : Task() {
-                override var description: String? = "Destroy all enemy bases"
-
-                override fun update(delta: Float) {
-                    if (playStage.getCapturablesOf(players[1]).none { it.isBase })
-                        complete()
-                }
-            })
+                    override fun update(delta: Float) {
+                        if (playStage.getCapturablesOf(players[1]).none { it.isBase })
+                            complete()
+                    }
+                })
+            }
         }
     }
 }

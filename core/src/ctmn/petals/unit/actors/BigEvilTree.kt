@@ -20,7 +20,6 @@ class BigEvilTree : UnitActor(
 ) {
 
     init {
-        add(FollowerComponent())
         add(
             AttackComponent(
                 25,

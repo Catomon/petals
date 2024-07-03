@@ -37,5 +37,7 @@ class GoblinBow : UnitActor(
             bonuses[UnitIds.DOLL_BOMBER] = 25 to 0
             bonuses[UnitIds.GOBLIN_WYVERN] = 25 to 0
         })
+
+        hitSounds = arrayOf("bow.ogg")
     }
 }

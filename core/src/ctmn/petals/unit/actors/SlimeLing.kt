@@ -29,6 +29,8 @@ class SlimeLing : UnitActor(
         add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 1.5f))
+
+        hitSounds = arrayOf("slime_hit.ogg")
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {

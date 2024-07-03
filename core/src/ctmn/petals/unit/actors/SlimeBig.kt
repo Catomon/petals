@@ -28,5 +28,7 @@ class SlimeBig : UnitActor(
             bonuses[UnitIds.DOLL_BOW] = Pair(0, 25)
             bonuses[UnitIds.DOLL_PIKE] = 0 to 25
         })
+
+        hitSounds = arrayOf("slime_hit.ogg")
     }
 }

@@ -725,8 +725,9 @@ class PlayGUIStage(
         //listeners
         playStage.addListener {
             if (it is CommandExecutedEvent || it is NextTurnEvent) {
-                creditsLabel.setText("${localPlayer.credits} (+${localPlayer.income(playScreen)})")
-                creditsLabelTooltip.setText("+${localPlayer.income(playScreen)}")
+                creditsLabel.setText("${localPlayer.credits} (+${localPlayer.income(playScreen)}/${localPlayer.incomeReserve(playScreen)})")
+
+                creditsLabelTooltip.setText("")//${localPlayer.incomeReserve(playScreen)}
             }
 
             false
@@ -810,10 +811,10 @@ class PlayGUIStage(
         }
 
         with(createTable()) {
-            top().right().padRight(1f * 3f).padTop(1f * 3f)
+            top().right().padRight(3f).padTop(3f)
             add(fpsLabel).top().right().padRight(20f)
             add(creditsIcon).right().top().padTop(3f)
-            add(creditsLabel).top().right().padRight(1f * 3f).padTop(6f)
+            add(creditsLabel).top().right().padRight(3f).height(creditsIcon.height).padTop(3f)
             add(topRightButtonsTable).top().right()
         }
 

@@ -1,0 +1,22 @@
+{
+  "menu": {
+    "story": "ストーリー",
+    "levels": "キャンペーン",
+    "quickplay": "クイックプレイ",
+    "match": "マッチ",
+    "vsBot": "ボットと対戦",
+    "vsPlayer": "プレイヤーと対戦",
+    "profile": "プロフィール",
+    "editor": "エディター",
+    "settings": "設定",
+    "exit": "終了"
+  },
+  "play": {
+    "your_turn": "あなたの番",
+    "enemy_turn": "敵の番",
+    "ally_turn": "味方の番"
+  },
+  "units": {
+    "alissa": "アリッサ"
+  }
+}

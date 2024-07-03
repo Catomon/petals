@@ -20,8 +20,8 @@ class FairySower : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                5,
-                15,
+                0,
+                10,
                 0
             )
         )

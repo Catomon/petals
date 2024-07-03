@@ -1,11 +1,13 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.unit.*
+import ctmn.petals.unit.TerrainPropsPack
+import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds.SLIME_TINY
 import ctmn.petals.unit.component.*
 
 class SlimeTiny : UnitActor(
     UnitComponent(
-        "slime_tiny",
+        SLIME_TINY,
         50,
         0,
         4,
@@ -17,13 +19,15 @@ class SlimeTiny : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                5,
-                10,
+                15,
+                20,
                 1
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 1.5f))
+
+        hitSounds = arrayOf("slime_hit.ogg")
     }
 }

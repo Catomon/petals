@@ -41,6 +41,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     var actionPointsMove = ACTION_POINTS_MOVE
 
+    var hitSounds: Array<String> = arrayOf("hit.ogg", "hit_2.ogg")
+
     class AnimationProps {
         var attackFrame = 1f
         var attackEffectFrame = 0f

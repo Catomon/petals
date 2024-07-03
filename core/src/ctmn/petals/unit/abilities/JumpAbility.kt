@@ -11,6 +11,7 @@ import ctmn.petals.actors.actions.JumpAction
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import ctmn.petals.actors.actions.CameraShakeAction
 import ctmn.petals.effects.CreateEffect
 import ctmn.petals.unit.Ability
 
@@ -45,6 +46,8 @@ open class JumpAbility : Ability("jump") {
                     playScreen.playStage.getUnit(tileX, tileY - 1)?.throwUnit(0, -1)
                     playScreen.playStage.getUnit(tileX - 1, tileY)?.throwUnit(-1, 0)
                     playScreen.playStage.getUnit(tileX + 1, tileY)?.throwUnit(1, 0)
+
+                    playScreen.playStage.addAction(CameraShakeAction(2f))
                 }
             )))
 

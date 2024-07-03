@@ -3,11 +3,12 @@ package ctmn.petals.unit.actors
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
+import ctmn.petals.unit.UnitIds.GOBLIN_SPEAR
 import ctmn.petals.unit.component.*
 
 class GoblinPike : UnitActor(
     UnitComponent(
-        "goblin_spear",
+        GOBLIN_SPEAR,
         100,
         10,
         4,

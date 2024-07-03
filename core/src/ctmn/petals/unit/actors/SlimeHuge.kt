@@ -38,6 +38,14 @@ class SlimeHuge : UnitActor(
         add(LeaderComponent(Random.nextInt(100000, 999999), 2, 5, 5, 4, false))
 
         mana = 30
+
+        hitSounds = arrayOf("slime_hit.ogg")
+    }
+
+    override fun loadAnimations() {
+        super.loadAnimations()
+
+        airborneAnimation = createAnimation("slime_huge_airborne", 0.30f)
     }
 
     //todo slime component with slimeSpawnsLeft

@@ -25,5 +25,7 @@ class PinkSlimeLing : UnitActor(
         add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 1.5f))
+
+        hitSounds = arrayOf("slime_hit.ogg")
     }
 }

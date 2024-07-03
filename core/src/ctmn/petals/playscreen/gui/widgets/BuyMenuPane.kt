@@ -26,10 +26,7 @@ import ctmn.petals.unit.*
 import ctmn.petals.utils.addClickListener
 import ctmn.petals.utils.removeCover
 import ctmn.petals.utils.setPosByCenter
-import ctmn.petals.widgets.StageCover
-import ctmn.petals.widgets.addChangeListener
-import ctmn.petals.widgets.newIconButton
-import ctmn.petals.widgets.newLabel
+import ctmn.petals.widgets.*
 
 class BuyMenu : VisTable() {
 
@@ -45,8 +42,13 @@ class BuyMenu : VisTable() {
         check(stage != null)
 
         clear()
-        add(BuyMenuPane(guiStage, base, player, availableUnits[player.id]))
-            .size(325f, 460f).center()
+        val buyMenuPane = BuyMenuPane(guiStage, base, player, availableUnits[player.id])
+        val closeButton = newTextButton("Close").addChangeListener { buyMenuPane.remove(); it.remove() }.addClickSound()
+        add(VisLabel("Buy Menu")).center().padTop(6f).padBottom(10f)
+        row()
+        add(buyMenuPane).width(325f).center().fillY().expandY()
+        row()
+        add(closeButton).padBottom(16f).width(325f)
     }
 }
 
@@ -88,7 +90,7 @@ private class BuyMenuPane(
     }
 
     init {
-        background = VisUI.getSkin().getDrawable("background")
+        //background = VisUI.getSkin().getDrawable("background")
         // setSize(340f, 400f)
 
         val playStage = baseTile.playStageOrNull ?: throw IllegalStateException("Base tile in not on the stage.")
@@ -135,8 +137,6 @@ private class BuyMenuPane(
         //scroll pane
         scrollPane.setScrollingDisabled(true, false)
         guiStage.scrollFocus = scrollPane
-        add(VisLabel("Buy Menu")).center()
-        row()
         add(scrollPane).fill().expand()
     }
 
@@ -144,6 +144,8 @@ private class BuyMenuPane(
         addActor(unitButton)
         unitButton.button.addChangeListener {
             if (guiStage.currentState == guiStage.myTurn && baseTile != null) {
+                guiStage.buyMenu.clear()
+
                 // give the unit to the first leader that comes to the unit if there are no leaders by default
                 var unitLeaderIdLoc = unitLeaderId
                 if (unitLeaderIdLoc == -1) {
@@ -172,9 +174,7 @@ private class BuyMenuPane(
 
     override fun setStage(stage: Stage?) {
         if (stage != null) {
-            stage.root.addActorBefore(parent, StageCover(0.5f).addClickListener {
-                remove()
-            })
+            stage.root.addActorBefore(parent, StageCover(0.5f))
 
             //fadeIn()
             //stage.addCaptureListener(captureListener)

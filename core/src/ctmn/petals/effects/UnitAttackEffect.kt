@@ -18,7 +18,7 @@ class UnitAttackEffect(val assets: Assets) : ctmn.petals.effects.EffectActor() {
     override fun setStage(stage: Stage?) {
         super.setStage(stage)
 
-        if (stage != null)
-            assets.getSound("hit.ogg").play()
+//        if (stage != null)
+//            assets.getSound("hit2.ogg").play()
     }
 }

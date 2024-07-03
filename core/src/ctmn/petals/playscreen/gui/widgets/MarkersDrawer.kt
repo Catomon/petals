@@ -9,12 +9,16 @@ import ctmn.petals.assets
 import ctmn.petals.newPlayPuiSprite
 import ctmn.petals.newPlaySprite
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.commands.BuildBaseCommand
 import ctmn.petals.playscreen.events.TaskBeginEvent
 import ctmn.petals.playscreen.events.TaskCompletedEvent
 import ctmn.petals.playscreen.tasks.CaptureCrystalsTask
+import ctmn.petals.playscreen.tasks.ExecuteCommandTask
 import ctmn.petals.playscreen.tasks.MoveUnitTask
 import ctmn.petals.playscreen.tasks.TaskManager
+import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.cPlayerId
+import ctmn.petals.unit.isWorker
 import ctmn.petals.unit.playerIdByColor
 import ctmn.petals.utils.*
 
@@ -50,6 +54,17 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
                         if (tile.cPlayerId?.playerId != playScreen.localPlayer.id) {
                             setPosition(tile.centerX, tile.centerY)
                             drawMarker(batch)
+                        }
+                    }
+                }
+
+                is ExecuteCommandTask -> {
+                    if (task.commandClass == BuildBaseCommand::class) {
+                        for (unit in playScreen.playStage.getUnitsOfPlayer(playScreen.localPlayer)) {
+                            if (unit.isWorker) {
+                                setPosition(unit.centerX, unit.centerY)
+                                drawMarker(batch)
+                            }
                         }
                     }
                 }

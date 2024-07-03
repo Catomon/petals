@@ -100,7 +100,10 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
     }
 
     override fun setScreen(screen: Screen?) {
-        //MARK: season tiles atlas reset to tilesSummerAtlas
+        if (this.screen is PlayScreen) {
+            this.screen.dispose()
+        }
+
         if (this.screen is PlayScreen && screen !is PlayScreen) {
             assets.tilesAtlas = assets.tilesSummerAtlas
         }

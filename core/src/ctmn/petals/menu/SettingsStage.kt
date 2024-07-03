@@ -174,7 +174,8 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
         init {
             items = Array<Pair<String, String>>().apply {
                 add("English" to GameLocale.ENGLISH)
-                //add("Spanish" to GameLocale.SPANISH)
+                add("Japanese" to GameLocale.JAPANESE)
+                add("Spanish" to GameLocale.SPANISH)
                 //add("Russian" to GameLocale.RUSSIAN)
             }
         }

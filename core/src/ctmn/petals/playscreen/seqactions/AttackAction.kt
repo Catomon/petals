@@ -1,11 +1,13 @@
 package ctmn.petals.playscreen.seqactions
 
 import ctmn.petals.Const
+import ctmn.petals.assets
 import ctmn.petals.effects.MissileActor
 import ctmn.petals.effects.UnitAttackEffect
 import ctmn.petals.effects.UnitShakeAction
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.attackRange
 import ctmn.petals.unit.cAnimationView
 import ctmn.petals.unit.tiledX
 import ctmn.petals.utils.centerX
@@ -58,11 +60,16 @@ class AttackAction(
                 attackEffect.y = targetUnit.y + Const.TILE_SIZE / 2
                 playScreen.playStage.addActor(attackEffect)
 
+                assets.getSound(attackerUnit.hitSounds.random()).play()
+
                 attackerAttacked = true
             }
         }
 
         if (!defenderAttacked) {
+            if (targetUnit.attackRange < 0)
+                defenderAttacked = true
+
             if (targetUnit.animationProps.attackFrame <= (targetUnit.attackAnimation?.stateTime
                     ?: 0f) || targetUnit.cAnimationView?.animation != targetUnit.attackAnimation
             ) {

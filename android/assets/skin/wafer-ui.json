@@ -1,19 +1,19 @@
 {
 BitmapFont: {
 	font: {
-		file: BadComic24.fnt
+		file: ark-pixel-10px-monospaced-ja.fnt
 	}
 	font_5: {
-		file: BadComic24.fnt
+		file: ark-pixel-10px-monospaced-ja.fnt
 	}
 	font_8: {
-		file: BadComic24.fnt
+		file: ark-pixel-10px-monospaced-ja.fnt
 	}
 	quaver: {
-		file: BadComic24.fnt
+		file: ark-pixel-10px-monospaced-ja.fnt
 	}
 	default-font: {
-		file: BadComic24.fnt
+		file: ark-pixel-10px-monospaced-ja.fnt
 	}
 }
 Color: {

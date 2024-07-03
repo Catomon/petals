@@ -17,7 +17,7 @@ class HealthChangeEffect(unit: UnitActor, changeVal: Int)
     init {
         color = if (changeVal < 0) Color.RED else Color.GREEN
 
-        setFontScale(0.30f)
+        setFontScale(0.33f)
 
         setPosition(unit.x + 2f, unit.y - 2f) //also used at [UnitInfoDrawer.kt]
 
