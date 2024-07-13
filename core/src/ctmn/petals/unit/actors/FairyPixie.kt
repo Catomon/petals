@@ -36,4 +36,10 @@ class FairyPixie : UnitActor(
         }))
         add(MatchUpBonusComponent())
     }
+
+    override fun loadAnimations() {
+        super.loadAnimations()
+
+        showWaterEffect = false
+    }
 }

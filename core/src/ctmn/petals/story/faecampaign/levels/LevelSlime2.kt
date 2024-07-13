@@ -65,7 +65,22 @@ class LevelSlime2 : Scenario(ID, "level_slime_2") {
 
         val player = player!!
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(EasyDuelBot(players[1], playScreen, Array<UnitActor>().also { units ->
+            goblinUnits.units.forEach {
+                when (it.selfName) {
+                    UnitIds.GOBLIN_SWORD,
+                    UnitIds.GOBLIN_SPEAR,
+                    UnitIds.GOBLIN_BOW,
+                    UnitIds.GOBLIN_PICKAXE,
+                    UnitIds.GOBLIN_SCOUT,
+                    UnitIds.GOBLIN_BOAR,
+                    UnitIds.GOBLIN_HEALER,
+                    UnitIds.GOBLIN_WOLF,
+                    UnitIds.GOBLIN_DUELIST,
+                    -> units.add(it)
+                }
+            }
+        }))
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 1
@@ -74,7 +89,7 @@ class LevelSlime2 : Scenario(ID, "level_slime_2") {
         })
 
         playScreen.fogOfWarManager.drawFog = true
-        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {units ->
+        playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also { units ->
             fairyUnits.units.filter { unit ->
                 unit.selfName == UnitIds.DOLL_SOWER
                         || unit.selfName == UnitIds.DOLL_AXE

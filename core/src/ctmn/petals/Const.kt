@@ -8,14 +8,14 @@ object Const {
 
     // App:
     const val APP_NAME = "Fae's Feisty Fray"
-    const val APP_VER_NAME = "0.2.7-alpha"
-    const val IS_RELEASE = false
+    const val APP_VER_NAME = "0.3-alpha"
+    const val IS_RELEASE = true
     const val USER_FOLDER = "Documents/Fae's Feisty Fray/"
     const val LEGACY_USER_FOLDER = "Documents/Petals - F&GCC/"
 
     const val CONSOLE_ENABLED = !IS_RELEASE
     const val DEBUG_MODE = !IS_RELEASE
-    const val SHOW_FPS = false
+    const val SHOW_FPS = !IS_RELEASE
 
     /** discord */
     const val DISABLE_RICH = !IS_RELEASE

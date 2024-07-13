@@ -3,10 +3,7 @@ package ctmn.petals.story.faecampaign.levels
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.bot.SimpleBot
-import ctmn.petals.player.Player
-import ctmn.petals.player.fairyUnits
-import ctmn.petals.player.newBluePlayer
-import ctmn.petals.player.newRedPlayer
+import ctmn.petals.player.*
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
@@ -63,7 +60,22 @@ class LevelSlime1 : Scenario(ID, "level_slime_1") {
 
         val player = player!!
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(EasyDuelBot(players[1], playScreen, Array<UnitActor>().also { units ->
+            goblinUnits.units.forEach {
+                when (it.selfName) {
+                    UnitIds.GOBLIN_SWORD,
+                    UnitIds.GOBLIN_SPEAR,
+                    UnitIds.GOBLIN_BOW,
+                    UnitIds.GOBLIN_PICKAXE,
+                    UnitIds.GOBLIN_SCOUT,
+                    UnitIds.GOBLIN_BOAR,
+                    UnitIds.GOBLIN_HEALER,
+                    UnitIds.GOBLIN_WOLF,
+                        //UnitIds.GOBLIN_DUELIST,
+                    -> units.add(it)
+                }
+            }
+        }))
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 1

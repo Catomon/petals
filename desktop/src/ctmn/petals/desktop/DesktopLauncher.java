@@ -18,7 +18,7 @@ public class DesktopLauncher {
         }
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.preferencesDirectory = "Documents/Petals - F&GCC";
+        config.preferencesDirectory = "Documents/Fae's Feisty Fray";
         config.foregroundFPS = 60;
         config.backgroundFPS = 30;
         config.vSyncEnabled = true;

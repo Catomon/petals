@@ -6,6 +6,7 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_SCOUT
 import ctmn.petals.unit.component.*
+import ctmn.petals.unit.movingRange
 
 
 class FairyScout : UnitActor(
@@ -13,7 +14,7 @@ class FairyScout : UnitActor(
         DOLL_SCOUT,
         100,
         5,
-        5,
+        4,
         7
     )
 ) {
@@ -28,6 +29,7 @@ class FairyScout : UnitActor(
                 attackType = ATTACK_TYPE_ALL
             )
         )
+        add(MoveAfterAttackComponent(movingRange, 2))
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().apply {
             get(TerrainNames.mountains).mv(1)
             get(TerrainNames.chasm).mv(0)
@@ -44,5 +46,11 @@ class FairyScout : UnitActor(
             bonuses[UnitIds.DOLL_BOW] = Pair(20, 0)
             bonuses[UnitIds.CROSSBOWMAN] = Pair(20, 0)
         })
+    }
+
+    override fun loadAnimations() {
+        super.loadAnimations()
+
+        showWaterEffect = false
     }
 }

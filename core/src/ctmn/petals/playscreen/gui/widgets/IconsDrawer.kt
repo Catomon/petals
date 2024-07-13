@@ -13,7 +13,9 @@ import ctmn.petals.tile.components.BaseBuildingComponent
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.tile.components.DestroyingComponent
 import ctmn.petals.unit.actors.FairyHealer
+import ctmn.petals.unit.actors.FairyShield
 import ctmn.petals.unit.component.BonusFieldComponent
+import ctmn.petals.unit.component.ReloadingComponent
 import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
 import ctmn.petals.utils.*
@@ -23,7 +25,11 @@ class IconsDrawer(val gui: PlayGUIStage) : Actor() {
     private val capturingIc = AnimatedSprite(assets.findAtlasRegions("gui/icons/capturing"), 0.7f).resizeFromPui()
     private val baseBuildingIc = AnimatedSprite(assets.findAtlasRegions("gui/icons/building"), 0.7f).resizeFromPui()
     private val destroyingIc = AnimatedSprite(assets.findAtlasRegions("gui/icons/destroying"), 0.7f).resizeFromPui()
+    private val reloadingIc = AnimatedSprite(assets.findAtlasRegions("gui/icons/reloading"), 0.7f).resizeFromPui()
     private val healingRangeIc = newPlayPuiSprite(assets.findAtlasRegion("gui/heal_area_heart")).apply {
+        color.a = 0.4f
+    }
+    private val defenseRangeIc = newPlayPuiSprite(assets.findAtlasRegion("gui/defense_area_shield")).apply {
         color.a = 0.4f
     }
 
@@ -35,21 +41,36 @@ class IconsDrawer(val gui: PlayGUIStage) : Actor() {
         capturingIc.update(delta)
         baseBuildingIc.update(delta)
         destroyingIc.update(delta)
+        reloadingIc.update(delta)
     }
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
 
         gui.selectedUnit?.let { unit ->
-            if (unit is FairyHealer) {
-                gui.playStage.getTilesInRange(
-                    unit.tiledX,
-                    unit.tiledY,
-                    unit.get(BonusFieldComponent::class.java)?.range ?: 0,
-                    true,
-                ).forEach { tile ->
-                    healingRangeIc.setPositionByCenter(tile.centerX, tile.centerY)
-                    healingRangeIc.draw(batch, parentAlpha)
+            when (unit) {
+                is FairyHealer -> {
+                    gui.playStage.getTilesInRange(
+                        unit.tiledX,
+                        unit.tiledY,
+                        unit.get(BonusFieldComponent::class.java)?.range ?: 0,
+                        true,
+                    ).forEach { tile ->
+                        healingRangeIc.setPositionByCenter(tile.centerX, tile.centerY)
+                        healingRangeIc.draw(batch, parentAlpha)
+                    }
+                }
+
+                is FairyShield -> {
+                    gui.playStage.getTilesInRange(
+                        unit.tiledX,
+                        unit.tiledY,
+                        unit.get(BonusFieldComponent::class.java)?.range ?: 0,
+                        true,
+                    ).forEach { tile ->
+                        defenseRangeIc.setPositionByCenter(tile.centerX, tile.centerY)
+                        defenseRangeIc.draw(batch, parentAlpha)
+                    }
                 }
             }
         }
@@ -69,6 +90,10 @@ class IconsDrawer(val gui: PlayGUIStage) : Actor() {
                 if (tile.has(DestroyingComponent::class.java)) {
                     destroyingIc.setPosition(unit.x - halfTileSize, unit.y - halfTileSize)
                     destroyingIc.draw(batch, parentAlpha)
+                }
+                if ((unit.get(ReloadingComponent::class.java)?.currentTurns ?: 0) > 0) {
+                    reloadingIc.setPosition(unit.x - halfTileSize, unit.y - halfTileSize)
+                    reloadingIc.draw(batch, parentAlpha)
                 }
             }
         }

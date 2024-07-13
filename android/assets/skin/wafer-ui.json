@@ -511,6 +511,18 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		disabled: end_turn_btn_disabled
 		focusBorder: end_turn_btn_border
 	}
+	units_have_action: {
+		down: units_have_action_pressed
+		up: units_have_action
+		disabled: units_have_action_disabled
+		focusBorder: units_have_action_border
+	}
+	units_have_waypoint: {
+		down: units_have_action_pressed
+		up: units_have_waypoint
+		disabled: units_have_action_disabled
+		focusBorder: units_have_action_border
+	}
 	info: {
 		down: info_btn_pressed
 		up: info_btn

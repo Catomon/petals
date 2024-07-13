@@ -23,5 +23,7 @@ object Components {
         SummonableComponent::class.java,
         SummonerComponent::class.java,
         TraitComponent::class.java,
+        ReloadingComponent::class.java,
+        MoveAfterAttackComponent::class.java,
     )
 }

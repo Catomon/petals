@@ -67,7 +67,7 @@ class CloudShadowDrawer : Actor() {
 
         if (stage is PlayStage) {
             addAction(OneAction {
-                timeToSpawn = maxOf(200f * (playStage.tiledHeight() / 14f), 200f)
+                timeToSpawn = maxOf(300f * (playStage.tiledHeight() / 14f), 300f)
                 spawn()
                 shadows.first().x = Random.nextInt(
                     0 - shadowRegions.first().regionWidth / 2,

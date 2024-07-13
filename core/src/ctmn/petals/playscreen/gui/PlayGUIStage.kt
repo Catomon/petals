@@ -19,7 +19,6 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.AudioManager
 import ctmn.petals.Const
-import ctmn.petals.Const.ACTION_POINTS_MOVE_MIN
 import ctmn.petals.Const.BASE_BUILD_COST
 import ctmn.petals.Const.PLAY_GUI_VIEWPORT_HEIGHT
 import ctmn.petals.Const.PLAY_GUI_VIEWPORT_WIDTH
@@ -99,6 +98,8 @@ class PlayGUIStage(
     private val infoButton = newIconButton("info").apply { isVisible = false }
     private val pauseButton = newIconButton("pause")
     val endTurnButton = newIconButton("end_turn")
+    private val unitsHaveActionButton = AwaitingOrderPanel(this)
+    private val unitsHaveWaypointButton = newIconButton("units_have_waypoint")
     private val backButtonStyle = VisUI.getSkin().get("back", VisImageButton.VisImageButtonStyle::class.java)
     private val cancelButtonStyle =
         VisUI.getSkin().get("cancel_in-game", VisImageButton.VisImageButtonStyle::class.java)
@@ -126,7 +127,7 @@ class PlayGUIStage(
     val tileHighlighter = TileHighlighter(this)
 
     //ability and movement borders (playStage)
-    private val movementBorder = AttackMovementRangeDrawer(this)
+    val movementBorder = AttackMovementRangeDrawer(this)
     val abilityRangeBorder = BorderDrawer(Color.VIOLET, this)
     val abilityActivationRangeBorder = BorderDrawer(Color.VIOLET, this)
 
@@ -664,17 +665,7 @@ class PlayGUIStage(
             if (playScreen.turnManager.currentPlayer != localPlayer) return@addListener false
             if (playScreen.actionManager.hasActions) return@addListener false
             if (event is CommandExecutedEvent || event is ActionCompletedEvent) {
-                var actionAvailable = false
-                playStage.getUnitsOfPlayer(localPlayer.id).forEach { myUnit ->
-                    if (myUnit.actionPoints > 0) {
-                        if (myUnit.actionPoints >= ACTION_POINTS_MOVE_MIN) {
-                            actionAvailable = true
-                        } else if (playStage.getUnitsOfEnemyOf(localPlayer).any { myUnit.canAttackNow(it) })
-                            actionAvailable = true
-                        else if (playStage.getTile(myUnit.tiledX, myUnit.tiledY)?.let { myUnit.canCapture(it) } == true)
-                            actionAvailable = true
-                    }
-                }
+                var actionAvailable = playStage.playerUnitsHasAction(localPlayer).size > 0
                 if (
                     playStage.getCapturablesOf(localPlayer)
                         .any { it.isBase && !it.has(ActionCooldown::class.java) } && localPlayer.credits >= 50
@@ -725,7 +716,13 @@ class PlayGUIStage(
         //listeners
         playStage.addListener {
             if (it is CommandExecutedEvent || it is NextTurnEvent) {
-                creditsLabel.setText("${localPlayer.credits} (+${localPlayer.income(playScreen)}/${localPlayer.incomeReserve(playScreen)})")
+                creditsLabel.setText(
+                    "${localPlayer.credits} (+${localPlayer.income(playScreen)}/${
+                        localPlayer.incomeReserve(
+                            playScreen
+                        )
+                    })"
+                )
 
                 creditsLabelTooltip.setText("")//${localPlayer.incomeReserve(playScreen)}
             }
@@ -830,6 +827,11 @@ class PlayGUIStage(
         }
         createTable(endTurnButton).bottom().right()
 
+//        with(createTable()) {
+//            center().right().padRight(2f)
+//            add(unitsHaveActionButton)
+//        }
+
         with(turnIconTable) {
             top()
             add(turnIcon).top().center()
@@ -843,6 +845,8 @@ class PlayGUIStage(
             left()
             add(tasksTable).left().top()
         })
+
+        addActor(NextTurnPopUp(this))
     }
 
     override fun keyDown(keyCode: Int): Boolean {
@@ -857,6 +861,11 @@ class PlayGUIStage(
             Input.Keys.ENTER -> {
                 if (!endTurnButton.isDisabled && endTurnButton.isVisible)
                     endTurn()
+            }
+
+            Input.Keys.SPACE -> {
+                if (playScreen.turnManager.currentPlayer == localPlayer && !playScreen.actionManager.hasActions)
+                    selectNextAvailableUnit()
             }
         }
 
@@ -969,6 +978,23 @@ class PlayGUIStage(
 
     fun State.isCurrent(): Boolean {
         return this == currentState
+    }
+
+    fun selectNextAvailableUnit() {
+        val plUnits = playStage.playerUnitsHasAction(localPlayer)
+        if (plUnits.isEmpty) return
+        if (selectedUnit != null) {
+            val unitIndex = plUnits.indexOf(selectedUnit)
+            selectUnit(null)
+            if (unitIndex > -1) {
+                val nextIndex = if (unitIndex + 1 < plUnits.size) unitIndex + 1 else 0
+                selectUnit(plUnits.get(nextIndex))
+            } else {
+                selectUnit(plUnits.first())
+            }
+        } else {
+            selectUnit(plUnits.first())
+        }
     }
 
     fun onScreenResize(width: Int, height: Int) {

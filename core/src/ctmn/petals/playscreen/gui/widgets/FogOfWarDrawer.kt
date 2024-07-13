@@ -22,7 +22,8 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
 
     private val playStage = playScreen.playStage
 
-    private val fogOfWarSprite: Sprite = Sprite(playScreen.assets.atlases.findRegion("gui/tile_black"))
+    private val fogOfWarSprite: Sprite = Sprite(playScreen.assets.atlases.findRegion("misc/fow"))
+    private val spriteAlpha = 0.30f
 
     var fogMap: KArray<IntArray>? = null
 
@@ -49,7 +50,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
 
     init {
         fogOfWarSprite.setSize(Const.TILE_SIZE, Const.TILE_SIZE)
-        fogOfWarSprite.setAlpha(0.5f)
+        fogOfWarSprite.setAlpha(spriteAlpha)
 
         playStage.addListener {
             when (it) {
@@ -91,6 +92,10 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
         if (!drawFog) return true
 
         if (fogMap == null) return true
+
+        if (tileX !in 0 until fogMap!!.size) return false
+
+        if (tileY !in 0 until fogMap!![tileX].size) return false
 
         return fogMap!![tileX][tileY] > 0
     }
@@ -173,7 +178,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
         val maxOfView = fogMap ?: return
 
         //draw
-        fogOfWarSprite.setAlpha(0.5f)
+        fogOfWarSprite.setAlpha(spriteAlpha)
         for ((i, _) in maxOfView.withIndex()) {
             for ((j, _) in maxOfView[i].withIndex()) {
                 if (maxOfView[i][j] <= 0) {

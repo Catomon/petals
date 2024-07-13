@@ -21,7 +21,7 @@ class Border(val playStage: PlayStage) {
     }
 
     fun make() {
-        with (playStage) {
+        with(playStage) {
 
             borders.clear()
 
@@ -71,6 +71,8 @@ class Border(val playStage: PlayStage) {
             for (border in borders) {
                 border.x *= Const.TILE_SIZE
                 border.y *= Const.TILE_SIZE
+                border.x -= (borderSprite.width - Const.TILE_SIZE) / 2
+                border.y -= (borderSprite.height - Const.TILE_SIZE) / 2
 
                 if (border.id != "") border.id = "_${border.id}"
 

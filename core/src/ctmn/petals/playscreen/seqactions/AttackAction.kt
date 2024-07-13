@@ -81,6 +81,8 @@ class AttackAction(
 
         isDone = attackerAttacked && defenderAttacked
 
+        if (isDone) postAttack.invoke()
+
 //        if (!isDone) {
 //            if (attackerUnit.cAnimationView?.animation == attackerUnit.attackAnimation) {
 //                if (attackerUnit.cAnimationView!!.animation.stateTime >= attackerUnit.cAnimationView!!.animation.animationDuration)

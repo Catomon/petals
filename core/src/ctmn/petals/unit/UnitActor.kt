@@ -99,6 +99,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     protected open fun loadAnimations() {
         attackAnimation = findAnimation("${selfName}_attack", 0.25f)
         attackAnimation = findAnimation("${selfName}_attack", 0.25f)
+
+        showWaterEffect = !isAir
     }
 
     override fun add(component: Component): Component {
@@ -206,7 +208,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
             viewComponent.setPosition(x + TILE_SIZE / 2, y + TILE_SIZE / 2 + 10.toPlayScale())
 
-            waterSprite.setPosition(sprite.x, sprite.y - 12.toPlayScale())
+            waterSprite.setPosition(sprite.x, sprite.y - 11.toPlayScale())
 
             if (sprite.width > 32) {
                 sprite.setSize(32f, 32f - 12f)

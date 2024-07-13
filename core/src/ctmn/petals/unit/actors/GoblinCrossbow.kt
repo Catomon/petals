@@ -19,7 +19,6 @@ class GoblinCrossbow : UnitActor(
 ) {
 
     init {
-        add(SummonableComponent(20))
         add(FollowerComponent())
         add(
             AttackComponent(
@@ -29,6 +28,7 @@ class GoblinCrossbow : UnitActor(
                 attackType = ATTACK_TYPE_ALL
             )
         )
+        add(ReloadingComponent(1))
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().also {
             it[TerrainNames.hills].ad(15, 0)
             it[TerrainNames.mountains].ad(15, 5)
@@ -38,6 +38,7 @@ class GoblinCrossbow : UnitActor(
             bonuses[UnitIds.ANGRY_OWL] = 25 to 0
             bonuses[UnitIds.DOLL_BOMBER] = 25 to 0
             bonuses[UnitIds.GOBLIN_WYVERN] = 25 to 0
+            bonuses[UnitIds.DOLL_SCOUT] = 25 to 0
         })
 
         hitSounds = arrayOf("bow.ogg")

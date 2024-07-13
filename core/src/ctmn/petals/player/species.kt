@@ -29,7 +29,7 @@ interface SpeciesUnits {
 
 val fairyUnits = object : SpeciesUnits {
     override val species: String = fairy
-    override val units: Array<UnitActor> = Array<UnitActor>().apply {
+    override val units: Array<UnitActor> get() = Array<UnitActor>().apply {
         add(FairyPixie().cost(50))
 
         add(FairySower().cost(100))
@@ -49,7 +49,7 @@ val fairyUnits = object : SpeciesUnits {
         add(FairyArmorSword().cost(600))
 
         add(FairyWaterplant().cost(600))
-        add(FairyCucumber().cost(800))
+        add(FairyCucumber().cost(1000))
 
         add(FairyCannon().cost(1000))
         add(FairyHunter().cost(1200))
@@ -58,7 +58,7 @@ val fairyUnits = object : SpeciesUnits {
 
 val goblinUnits = object : SpeciesUnits {
     override val species: String = goblin
-    override val units: Array<UnitActor> = Array<UnitActor>().apply {
+    override val units: Array<UnitActor> get() = Array<UnitActor>().apply {
         add(GoblinScout().cost(50))
 
         add(GoblinPickaxe().cost(100))
@@ -78,7 +78,7 @@ val goblinUnits = object : SpeciesUnits {
         add(GoblinWyvern().cost(600))
 
         add(GoblinShip().cost(600))
-        add(GoblinGalley().cost(800))
+        add(GoblinGalley().cost(1000))
 
         add(GoblinCatapult().cost(1000))
         add(GoblinGiant().cost(1200))

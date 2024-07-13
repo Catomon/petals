@@ -256,6 +256,8 @@ fun UnitActor.canAttack(unit: UnitActor): Boolean {
         cAttack?.attackType == ATTACK_TYPE_AIR && !unit.isAir -> return false
         cAttack?.attackType == ATTACK_TYPE_GROUND && unit.isAir -> return false
         //cAttack?.attackType == ATTACK_TYPE_ALL && isAir && unit.isAir &&  -> return false
+        (get(ReloadingComponent::class.java)?.currentTurns ?: 0) > 0 -> return false
+        get(MoveAfterAttackComponent::class.java)?.attacked == true -> return false
     }
 
     return true
@@ -332,7 +334,7 @@ fun UnitActor.canCapture(): Boolean {
 }
 
 fun UnitActor.canCapture(tile: TileActor): Boolean {
-    return tile.isCapturable && canCapture()
+    return tile.isCapturable && canCapture() && tile.cPlayerId?.playerId != playerId
 }
 
 fun UnitActor.isPlayerUnit(player: Player): Boolean {

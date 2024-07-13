@@ -152,10 +152,10 @@ fun <T : Actor> Actor.addClickSound(sound: Sound): T {
     return this as T
 }
 
-inline fun <reified E : Event> Stage.addListener(crossinline func: () -> Unit) {
+inline fun <reified E : Event> Stage.addListener(crossinline func: E.() -> Unit) {
     addListener {
         if (it is E) {
-            func()
+            func(it)
         }
 
         false

@@ -5,6 +5,7 @@ import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds.DOLL_BOMBER
 import ctmn.petals.unit.component.*
+import ctmn.petals.unit.movingRange
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
@@ -40,7 +41,8 @@ class FairyBomber : UnitActor(
                 attackType = ATTACK_TYPE_GROUND
             )
         )
-
+        add(MoveAfterAttackComponent(movingRange, 1))
+        add(ReloadingComponent(1))
         add(TerrainPropComponent(TerrainPropsPack.flier.copy().apply {
 //            get(TerrainNames.base).mv(999)
 //            get(TerrainNames.crystals).mv(999)

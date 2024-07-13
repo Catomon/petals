@@ -37,7 +37,7 @@ class SlimeHuge : UnitActor(
         add(TraitComponent(fireVulnerability = 2f))
         add(LeaderComponent(Random.nextInt(100000, 999999), 2, 5, 5, 4, false))
 
-        mana = 30
+        mana = 100
 
         hitSounds = arrayOf("slime_hit.ogg")
     }

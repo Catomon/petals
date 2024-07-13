@@ -1,11 +1,12 @@
 package ctmn.petals.utils
 
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.Const
+import ctmn.petals.player.Player
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.isPassableAndFree
-import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.isInRange
+import ctmn.petals.unit.*
 import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
 import kotlin.math.max
@@ -26,6 +27,26 @@ fun PlayStage.getTilesInRange(tileX: Int, tileY: Int, range: Int, removeMid: Boo
     }
 
     return tiles
+}
+
+fun PlayStage.playerUnitsHasAction(player: Player): Array<UnitActor> {
+    val units = Array<UnitActor>()
+
+    getUnitsOfPlayer(player.id).forEach { myUnit ->
+        if (myUnit.actionPoints > 0) {
+            val tile = getTile(myUnit.tiledX, myUnit.tiledY)
+            if (myUnit.actionPoints >= Const.ACTION_POINTS_MOVE_MIN) {
+                units.add(myUnit)
+            } else if (getUnitsOfEnemyOf(player).any { myUnit.canAttackNow(it) })
+                units.add(myUnit)
+            else if (tile?.let { myUnit.canCapture(it) } == true)
+                units.add(myUnit)
+            else if (tile?.let { myUnit.canBuildBase(it) } == true && player.credits >= Const.BASE_BUILD_COST)
+                units.add(myUnit)
+        }
+    }
+
+    return units
 }
 
 fun PlayStage.getTile(unitActor: UnitActor): TileActor? {

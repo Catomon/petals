@@ -24,12 +24,14 @@ import ctmn.petals.utils.tiledX
 import kotlin.concurrent.thread
 import kotlin.math.min
 
-class EasyDuelBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
+class EasyDuelBot(
+    player: Player,
+    playScreen: PlayScreen,
+    private val speciesUnits: Array<UnitActor> = getSpeciesUnits(player.species)
+) : Bot(player, playScreen) {
 
     val unitsAwaitingOrders = Array<UnitActor>()
     val enemyUnits = Array<UnitActor>()
-
-    private val speciesUnits = getSpeciesUnits(player.species)
 
     private val buyPriority = Array<Pair<String, Int>>().apply {
 

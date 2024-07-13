@@ -112,7 +112,7 @@ class PlayStage(
         batch.projectionMatrix = camera.combined
         batch.begin()
 
-        border.draw(batch)
+//        border.draw(batch)
 
         //draw PlayStageGroup actors
         beforeTilesActor.draw(batch, 1f)
@@ -126,6 +126,8 @@ class PlayStage(
                 shaderEnd()
             }
         }
+
+        border.draw(batch)
 
         afterTilesActor.draw(batch, 1f)
 

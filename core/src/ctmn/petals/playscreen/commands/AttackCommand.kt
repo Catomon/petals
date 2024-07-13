@@ -9,6 +9,8 @@ import ctmn.petals.playscreen.seqactions.AttackAction
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
+import ctmn.petals.unit.component.MoveAfterAttackComponent
+import ctmn.petals.unit.component.ReloadingComponent
 import ctmn.petals.utils.getSurroundingUnits
 import ctmn.petals.utils.getUnitsInRange
 import kotlin.math.max
@@ -118,12 +120,28 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
                 val isUnitAttackerDie = attackerUnit.health <= 0
                 if (isUnitAttackerDie) attackerUnit.killedBy(targetUnit, playScreen)
+
+                targetUnit.get(ReloadingComponent::class.java)?.apply {
+                    currentTurns = turns
+                }
             }
         }
 
         postAttack = {
             /** remove unit if dead */
             //moved
+        }
+
+        attackerUnit.get(ReloadingComponent::class.java)?.apply {
+            currentTurns = turns
+        }
+
+        attackerUnit.get(MoveAfterAttackComponent::class.java)?.apply {
+            if (!attacked) {
+                attackerUnit.actionPoints = Const.ACTION_POINTS
+                attackerUnit.cUnit.movingRange = secondRange
+                attacked = true
+            }
         }
 
         /** add attack action */

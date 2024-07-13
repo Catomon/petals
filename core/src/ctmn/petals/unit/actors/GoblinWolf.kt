@@ -5,6 +5,7 @@ import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.component.*
+import ctmn.petals.unit.movingRange
 
 
 class GoblinWolf : UnitActor(
@@ -12,7 +13,7 @@ class GoblinWolf : UnitActor(
         "goblin_wolf",
         100,
         5,
-        6,
+        5,
         6
     )
 ) {
@@ -26,6 +27,7 @@ class GoblinWolf : UnitActor(
                 1
             )
         )
+        add(MoveAfterAttackComponent(movingRange, 2))
         add(TerrainPropComponent(TerrainPropsPack.horse.copy().apply {
             get(TerrainNames.forest).mv(1).ad(15, 5)
             get(TerrainNames.mountains).mv(2)

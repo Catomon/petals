@@ -60,6 +60,7 @@ import ctmn.petals.unit.actors.ObjBlob
 import ctmn.petals.unit.actors.ObjRoot
 import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.unit.component.BurningComponent
+import ctmn.petals.unit.component.ReloadingComponent
 import ctmn.petals.unit.component.TileEffectComponent
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.newLabel
@@ -478,7 +479,8 @@ open class PlayScreen(
             gameEnding = true
 
             queueAction {
-                val labelGameOver = newLabel("GameOver", "font_8").also { it.isVisible = false }
+                val labelGameOver = newLabel("GAME OVER").also { it.isVisible = false }
+                labelGameOver.setFontScale(2f)
 
                 val winners = gameEndCondition.winners
                 val youWon = winners.contains(localPlayer.id)
@@ -490,7 +492,7 @@ open class PlayScreen(
 
                 when {
                     youWon -> {
-                        labelGameOver.setText("You Won")
+                        labelGameOver.setText("YOU WON")
                         if (oneWinner) {
 
                         } else {
@@ -499,7 +501,7 @@ open class PlayScreen(
                     }
 
                     enemyWon -> {
-                        labelGameOver.setText("You Lost")
+                        labelGameOver.setText("YOU LOSE")
                         if (oneWinner) {
 
                         } else {
@@ -508,7 +510,7 @@ open class PlayScreen(
                     }
 
                     draw -> {
-                        labelGameOver.setText("Draw")
+                        labelGameOver.setText("DRAW")
                     }
                 }
 
@@ -520,6 +522,7 @@ open class PlayScreen(
                 labelGameOver.isVisible = true
                 labelGameOver.addAction(Actions.delay(3f, object : Action() {
                     override fun act(delta: Float): Boolean {
+                        labelGameOver.remove()
                         gameOver()
                         return true
                     }
@@ -793,6 +796,11 @@ open class PlayScreen(
                 }
 
                 if (unit.playerId == turnCycleEvent.nextPlayer.id) {
+                    //update reloading
+                    unit.get(ReloadingComponent::class.java)?.apply {
+                        currentTurns -= 1
+                    }
+
                     //reset units ap
                     if (unit.buffs.find { buff -> buff.name == "freeze" } == null)
                         unit.actionPoints = Const.ACTION_POINTS

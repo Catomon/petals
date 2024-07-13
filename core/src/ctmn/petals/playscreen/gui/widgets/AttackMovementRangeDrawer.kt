@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Group
 import ctmn.petals.GamePref
 import ctmn.petals.playscreen.commands.AttackCommand
 import ctmn.petals.playscreen.events.CommandAddedEvent
+import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.events.UnitMovedEvent
 import ctmn.petals.playscreen.events.UnitSelectedEvent
 import ctmn.petals.playscreen.gui.PlayGUIStage
@@ -48,6 +49,10 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
 
                     isVisible = false
 
+                    updateBorders()
+                }
+
+                is CommandExecutedEvent -> {
                     updateBorders()
                 }
 

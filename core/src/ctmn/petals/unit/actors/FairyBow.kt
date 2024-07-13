@@ -29,6 +29,7 @@ class FairyBow : UnitActor(
                 attackType = ATTACK_TYPE_ALL
             )
         )
+        add(ReloadingComponent(1))
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().also {
             it[TerrainNames.hills].ad(15, 0)
             it[TerrainNames.mountains].ad(15, 5)
@@ -38,6 +39,8 @@ class FairyBow : UnitActor(
             bonuses[UnitIds.ANGRY_OWL] = 25 to 0
             bonuses[UnitIds.DOLL_BOMBER] = 25 to 0
             bonuses[UnitIds.GOBLIN_WYVERN] = 25 to 0
+            bonuses[UnitIds.DOLL_SCOUT] = 25 to 0
+            bonuses[UnitIds.PIXIE] = 25 to 0
         })
 
         hitSounds = arrayOf("bow.ogg")

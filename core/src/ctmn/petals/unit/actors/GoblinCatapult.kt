@@ -36,6 +36,7 @@ class GoblinCatapult : UnitActor(
                 attackSplashRange = 1,
             )
         )
+        add(ReloadingComponent(1))
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().also {
             it[TerrainNames.mountains].ad(10, 0)
         }))

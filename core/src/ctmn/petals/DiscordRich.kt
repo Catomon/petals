@@ -45,7 +45,7 @@ fun discordRich(rich: Rich) {
             Rich.PLAYING -> {
                 smallImageKey = "small_icon"
                 smallImageText = "Petals"
-                details = "Playing"
+                details = "In Game"
             }
         }
     }

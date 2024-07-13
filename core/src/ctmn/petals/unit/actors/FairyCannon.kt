@@ -45,6 +45,7 @@ class FairyCannon : UnitActor(
                 attackSplashRange = 1,
             )
         )
+        add(ReloadingComponent(1))
         add(TerrainPropComponent(TerrainPropsPack.foot.copy().apply {
             get(TerrainNames.mountains).ad(10, 0)
             get(TerrainNames.water).mv(1)
