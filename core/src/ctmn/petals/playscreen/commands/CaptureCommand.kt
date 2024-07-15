@@ -1,6 +1,7 @@
 package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Const.ACTION_POINTS_ATTACK
+import ctmn.petals.Const.CAPTURE_TIME
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.tile.*
@@ -36,7 +37,7 @@ class CaptureCommand(val unitId: String, val baseId: String) : Command() {
         unit.del(InvisibilityComponent::class.java)
 
         if (base.cPlayerId?.playerId != unit.playerId) {
-            base.add(CapturingComponent(unit.playerId))
+            base.add(CapturingComponent(unit.playerId, CAPTURE_TIME))
         }
 
         return true

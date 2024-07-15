@@ -2,6 +2,7 @@ package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Const.ACTION_POINTS_ATTACK
 import ctmn.petals.Const.BASE_BUILD_COST
+import ctmn.petals.Const.BUILD_TIME
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.tile.TerrainNames
@@ -46,7 +47,7 @@ class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
         unit.del(InvisibilityComponent::class.java)
 
         if (tile.cPlayerId?.playerId != unit.playerId) {
-            tile.add(BaseBuildingComponent(unit.playerId))
+            tile.add(BaseBuildingComponent(unit.playerId, BUILD_TIME))
         }
 
         return true

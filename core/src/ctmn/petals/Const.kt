@@ -9,7 +9,7 @@ object Const {
     // App:
     const val APP_NAME = "Fae's Feisty Fray"
     const val APP_VER_NAME = "0.3-alpha"
-    const val IS_RELEASE = true
+    const val IS_RELEASE = false
     const val USER_FOLDER = "Documents/Fae's Feisty Fray/"
     const val LEGACY_USER_FOLDER = "Documents/Petals - F&GCC/"
 
@@ -114,4 +114,7 @@ object Const {
     const val KILL_CREDITS_SLIME_LING = 200
     const val CRYSTALS_CLUSTER = 2000
     const val PLAYER_CREDITS_RESERVE = 2000
+    const val REMOVE_UNIT_AFTER_CAPTURE = false
+    const val CAPTURE_TIME = 2
+    const val BUILD_TIME = 3
 }

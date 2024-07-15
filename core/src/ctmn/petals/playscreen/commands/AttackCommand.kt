@@ -128,19 +128,16 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         }
 
         postAttack = {
-            /** remove unit if dead */
-            //moved
-        }
+            attackerUnit.get(ReloadingComponent::class.java)?.apply {
+                currentTurns = turns
+            }
 
-        attackerUnit.get(ReloadingComponent::class.java)?.apply {
-            currentTurns = turns
-        }
-
-        attackerUnit.get(MoveAfterAttackComponent::class.java)?.apply {
-            if (!attacked) {
-                attackerUnit.actionPoints = Const.ACTION_POINTS
-                attackerUnit.cUnit.movingRange = secondRange
-                attacked = true
+            attackerUnit.get(MoveAfterAttackComponent::class.java)?.apply {
+                if (!attacked) {
+                    attackerUnit.actionPoints = Const.ACTION_POINTS
+                    attackerUnit.cUnit.movingRange = secondRange
+                    attacked = true
+                }
             }
         }
 
