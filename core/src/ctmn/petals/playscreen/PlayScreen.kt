@@ -34,12 +34,16 @@ import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.commands.CommandManager
 import ctmn.petals.playscreen.commands.EndTurnCommand
 import ctmn.petals.playscreen.commands.GrantXpCommand
-import ctmn.petals.playscreen.events.*
+import ctmn.petals.playscreen.events.ActionCompletedEvent
+import ctmn.petals.playscreen.events.GameOverEvent
+import ctmn.petals.playscreen.events.NextTurnEvent
+import ctmn.petals.playscreen.events.UnitMovedEvent
 import ctmn.petals.playscreen.gui.GameOverMenu
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.gui.PlayStageCameraController
 import ctmn.petals.playscreen.gui.widgets.FogOfWarDrawer
 import ctmn.petals.playscreen.gui.widgets.MarkersDrawer
+import ctmn.petals.playscreen.listeners.ActionEffectListener
 import ctmn.petals.playscreen.listeners.PinkSlimeLingHealing
 import ctmn.petals.playscreen.listeners.TileLifeTimeListener
 import ctmn.petals.playscreen.seqactions.SeqActionManager
@@ -53,7 +57,8 @@ import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
-import ctmn.petals.unit.component.*
+import ctmn.petals.unit.component.BurningComponent
+import ctmn.petals.unit.component.TileEffectComponent
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.newLabel
 import playScreen.PlayTurnCycleListener
@@ -157,6 +162,7 @@ open class PlayScreen(
         // less important game logic
         playStage.addListener(TileLifeTimeListener(playStage))
         playStage.addListener(PinkSlimeLingHealing())
+        playStage.addListener(ActionEffectListener(this))
         playStage.addListener {
             if (it is UnitMovedEvent) {
                 val unit = it.unit
@@ -226,7 +232,7 @@ open class PlayScreen(
             playStage.addActor(label)
         }
 
-        Decorator().decorate(playStage)
+        Decorator.decorate(playStage)
 
         fixLevel()
 

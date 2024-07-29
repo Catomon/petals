@@ -23,7 +23,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
     private val playStage = playScreen.playStage
 
     private val fogOfWarSprite: Sprite = Sprite(playScreen.assets.atlases.findRegion("misc/fow"))
-    private val spriteAlpha = 0.30f
+    private val spriteAlpha = 0.40f
 
     var fogMap: KArray<IntArray>? = null
 

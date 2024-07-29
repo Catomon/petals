@@ -12,7 +12,7 @@ class FairyAxe : UnitActor(
     UnitComponent(
         DOLL_AXE,
         100,
-        10,
+        15,
         4,
         6
     )

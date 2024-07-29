@@ -10,7 +10,7 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
-class FairyCannon : UnitActor(
+class FairyPeas : UnitActor(
     UnitComponent(
         DOLL_CANNON,
         100,

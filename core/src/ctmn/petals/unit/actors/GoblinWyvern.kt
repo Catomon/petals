@@ -10,7 +10,7 @@ class GoblinWyvern : UnitActor(
     UnitComponent(
         GOBLIN_WYVERN,
         100,
-        5,
+        10,
         3,
         7
     )

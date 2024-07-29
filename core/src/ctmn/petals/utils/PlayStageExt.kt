@@ -54,7 +54,7 @@ fun PlayStage.getTile(unitActor: UnitActor): TileActor? {
 }
 
 fun PlayStage.getSurroundingTiles(tileX: Int, tileY: Int, isPassableAndFree: Boolean = false): Array<TileActor> {
-    val tiles = Array<TileActor>()
+    val tiles = Array<TileActor>(4)
     getTile(tileX, tileY - 1)?.let { tiles.add(it) }
     getTile(tileX, tileY + 1)?.let { tiles.add(it) }
     getTile(tileX - 1, tileY)?.let { tiles.add(it) }

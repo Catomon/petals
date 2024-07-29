@@ -27,6 +27,8 @@ import ctmn.petals.GamePref
 import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
+import ctmn.petals.player.getSpeciesBuildings
+import ctmn.petals.player.getSpeciesUnits
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.*
 import ctmn.petals.playscreen.events.*
@@ -113,6 +115,7 @@ class PlayGUIStage(
         isVisible = false
         add(VisTable().apply { add(VisLabel(BASE_BUILD_COST.toString())) })
     }
+    private val buildButton = newIconButton("build").apply { isVisible = false }
     private val destroyTileButton = newIconButton("destroy_tile").apply { isVisible = false }
 
     //not widgets
@@ -366,6 +369,16 @@ class PlayGUIStage(
             buildBaseButton.isVisible = false
         }
 
+        buildButton.addChangeListener {
+            selectedUnit?.let { unit ->
+                if (unit.isPlayerUnit(localPlayer)) {
+                    addActor(BuildMenu(this@PlayGUIStage, unit, playStage.getTile(unit)!!, localPlayer, getSpeciesBuildings(localPlayer.species)))
+                }
+            }
+
+            buildButton.isVisible = false
+        }
+
         addListener {
             val unit: UnitActor? = when (it) {
                 is UnitSelectedEvent -> it.unit
@@ -375,6 +388,7 @@ class PlayGUIStage(
 
             captureButton.isVisible = false
             buildBaseButton.isVisible = false
+            buildButton.isVisible = false
             destroyTileButton.isVisible = false
 
             unit ?: return@addListener false
@@ -384,6 +398,9 @@ class PlayGUIStage(
 
                 buildBaseButton.isVisible = unit.canBuildBase()
                 buildBaseButton.isDisabled = !unit.canBuildBase(tile) || localPlayer.credits < BASE_BUILD_COST
+
+                buildButton.isVisible = unit.canBuild()
+                buildButton.isDisabled = !unit.canBuild(tile)
 
                 destroyTileButton.isVisible = unit.canDestroy(
                     tile,
@@ -820,6 +837,7 @@ class PlayGUIStage(
             add(VisTable().apply {
                 add(captureButton)
                 add(buildBaseButton)
+                add(buildButton)
                 add(destroyTileButton)
             })
             row()

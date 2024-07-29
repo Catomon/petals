@@ -37,7 +37,7 @@ object Units {
         add(FairyAxe())
         add(FairyBomber())
         add(FairyBow())
-        add(FairyCannon())
+        add(FairyPeas())
         add(FairyCucumber())
         add(FairyGlaive())
         add(FairyHealer())

@@ -2,6 +2,7 @@ package ctmn.petals.tile
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.assets
+import ctmn.petals.effects.AnimationEffect
 import ctmn.petals.player.Player
 import ctmn.petals.player.fairy
 import ctmn.petals.player.goblin
@@ -12,6 +13,8 @@ import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.tiledDst
 import ctmn.petals.tile.components.*
 import ctmn.petals.unit.playerColorName
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
 
 /** @returns true if tile is occupied by a unit */
 
@@ -165,4 +168,18 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
 //    }
 
 //    if (species == fairy && playerId == 1 || species == goblin && playerId == 2) return
+}
+
+fun TileActor.cutGrass() {
+    val tile = this
+    if (tile.terrain == TerrainNames.grass && !tile.selfName.endsWith("_cutoff")) {
+        TileData.get(tile.selfName + "_cutoff")?.let { tileData ->
+            tile.tileComponent.name = tileData.name
+            tile.initView()
+
+            playStageOrNull?.addActor(AnimationEffect(assets.findAtlasRegions("effects/grass_cutoff"), 0.1f).apply {
+                setPosition(tile.centerX, tile.centerY)
+            })
+        }
+    }
 }

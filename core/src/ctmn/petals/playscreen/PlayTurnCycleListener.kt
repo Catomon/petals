@@ -17,6 +17,7 @@ import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.ObjBlob
 import ctmn.petals.unit.actors.ObjRoot
 import ctmn.petals.unit.component.*
+import ctmn.petals.utils.getSurroundingTiles
 
 class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener {
     override fun handle(event: Event): Boolean {
@@ -195,120 +196,191 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
         nextPlayer: Player,
     ) {
         for (tile in Array.ArrayIterator(playScreen.playStage.getTiles())) {
-            if (tile.isCapturable && tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id) {
-                val cCapturing = tile.cCapturing!!
-                val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
-                if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
-                    cCapturing.turns -= 1
-                    if (cCapturing.turns <= 0) {
-                        unitOnTile.captureBase(tile, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
+            updateCapturing(tile, turnCycleEvent)
 
-                        if (Const.REMOVE_UNIT_AFTER_CAPTURE)
-                            unitOnTile.remove()
+            updateBaseBuilding(tile, turnCycleEvent)
 
-                        tile.components.remove(CapturingComponent::class.java)
+            updateBuilding(tile, turnCycleEvent)
 
-                        playScreen.playStage.root.fire(TileCapturedEvent(tile))
-                    } else {
-                        unitOnTile.actionPoints = 0
+            updateDestroying(tile, turnCycleEvent)
+
+            removeBaseBuyCooldown(tile)
+
+            garbageByNeutrals(tile, nextPlayer)
+        }
+    }
+
+    private fun garbageByNeutrals(tile: TileActor, nextPlayer: Player) {
+        if (tile.isCrystal) {
+            val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
+            if (unitOnTile?.playerId == nextPlayer.id) {
+                when (unitOnTile.selfName) {
+                    UnitIds.SLIME_LING, UnitIds.SLIME, UnitIds.SLIME_HUGE, UnitIds.SLIME_BIG, UnitIds.SLIME_TINY -> {
+                        if (tile.selfName != Tiles.CRYSTAL_SLIME) {
+                            tile.tileComponent.name = Tiles.CRYSTAL_SLIME
+                            tile.del(PlayerIdComponent::class.java)
+                            tile.initView()
+
+                            playScreen.fireEvent(TileCapturedEvent(tile))
+                        }
                     }
-                } else {
-                    tile.components.remove(CapturingComponent::class.java)
+
+                    UnitIds.EVIL_TREE, UnitIds.ROOT_TREE -> {
+                        if (tile.selfName != Tiles.CRYSTAL_ROOT) {
+                            tile.tileComponent.name = Tiles.CRYSTAL_ROOT
+                            tile.del(PlayerIdComponent::class.java)
+                            tile.initView()
+
+                            playScreen.fireEvent(TileCapturedEvent(tile))
+                        }
+                    }
                 }
             }
 
-            if (tile.cBaseBuilding?.playerId == turnCycleEvent.nextPlayer.id) {
-                val cBaseBuilding = tile.cBaseBuilding!!
-                val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
-                if (unitOnTile != null && cBaseBuilding.playerId == unitOnTile.playerId) {
-                    cBaseBuilding.turns -= 1
-                    if (cBaseBuilding.turns <= 0) {
-                        val newBase =
-                            TileActor(TileData.get(Tiles.PIXIE_NEST_BLUE)!!, tile.layer, tile.tiledX, tile.tiledY)
-                        tile.layer -= 1
-                        val tile2 = playScreen.playStage.getTile(tile.tiledX, tile.tiledY, tile.layer)
-                        if (tile2 != null) {
-                            tile2.layer -= 1
-                            tile2.remove()
-                            playScreen.playStage.addActor(tile2)
-                        }
-                        tile.remove()
-                        playScreen.playStage.addActor(tile)
-                        playScreen.playStage.addActor(newBase)
-                        unitOnTile.captureBase(newBase, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
+            if (playScreen.playStage.getUnit(tile) == null) {
+                when (tile.selfName) {
+                    Tiles.CRYSTAL_SLIME -> {
+                        playScreen.playStage.addActor(ObjBlob().player(8, 4).position(tile))
+
+                        tile.tileComponent.name = Tiles.CRYSTAL
+                        tile.del(PlayerIdComponent::class.java)
+                        tile.initView()
+                        playScreen.fireEvent(TileCapturedEvent(tile))
+                    }
+
+                    Tiles.CRYSTAL_ROOT -> {
+                        playScreen.playStage.addActor(ObjRoot().player(8, 4).position(tile))
+
+                        tile.tileComponent.name = Tiles.CRYSTAL
+                        tile.del(PlayerIdComponent::class.java)
+                        tile.initView()
+                        playScreen.fireEvent(TileCapturedEvent(tile))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun removeBaseBuyCooldown(tile: TileActor) {
+        if (tile.isBase) {
+            tile.del(ActionCooldown::class.java)
+        }
+    }
+
+    private fun updateCapturing(
+        tile: TileActor,
+        turnCycleEvent: TurnsCycleListener.TurnCycleEvent,
+    ) {
+        if (tile.isCapturable && tile.cCapturing?.playerId == turnCycleEvent.nextPlayer.id) {
+            val cCapturing = tile.cCapturing!!
+            val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
+            if (unitOnTile != null && tile.cCapturing!!.playerId == unitOnTile.playerId) {
+                cCapturing.turns -= 1
+                if (cCapturing.turns <= 0) {
+                    unitOnTile.captureBase(tile, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
+
+                    if (Const.REMOVE_UNIT_AFTER_CAPTURE)
                         unitOnTile.remove()
-                        tile.components.remove(BaseBuildingComponent::class.java)
-                        //playStage.root.fire(BaseBuilt(tile))
-                    } else {
-                        unitOnTile.actionPoints = 0
-                    }
+
+                    tile.components.remove(CapturingComponent::class.java)
+
+                    playScreen.playStage.root.fire(TileCapturedEvent(tile))
                 } else {
+                    unitOnTile.actionPoints = 0
+                }
+            } else {
+                tile.components.remove(CapturingComponent::class.java)
+            }
+        }
+    }
+
+    private fun updateDestroying(
+        tile: TileActor,
+        turnCycleEvent: TurnsCycleListener.TurnCycleEvent,
+    ) {
+        if (tile.cDestroying?.playerId == turnCycleEvent.nextPlayer.id) {
+            val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
+            if (unitOnTile != null && tile.cDestroying!!.playerId == unitOnTile.playerId) {
+                playScreen.playStage.removeTileSafely(tile)
+                //todo debris
+            }
+            tile.components.remove(DestroyingComponent::class.java)
+        }
+    }
+
+    private fun updateBaseBuilding(
+        tile: TileActor,
+        turnCycleEvent: TurnsCycleListener.TurnCycleEvent,
+    ) {
+        if (tile.cBaseBuilding?.playerId == turnCycleEvent.nextPlayer.id) {
+            val cBaseBuilding = tile.cBaseBuilding!!
+            val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
+            if (unitOnTile != null && cBaseBuilding.playerId == unitOnTile.playerId) {
+                cBaseBuilding.turns -= 1
+                if (cBaseBuilding.turns <= 0) {
+                    val newBase =
+                        TileActor(TileData.get(Tiles.PIXIE_NEST_BLUE)!!, tile.layer, tile.tiledX, tile.tiledY)
+                    tile.layer -= 1
+                    val tile2 = playScreen.playStage.getTile(tile.tiledX, tile.tiledY, tile.layer)
+                    if (tile2 != null) {
+                        tile2.layer -= 1
+                        tile2.remove()
+                        playScreen.playStage.addActor(tile2)
+                    }
+                    tile.remove()
+                    playScreen.playStage.addActor(tile)
+                    playScreen.playStage.addActor(newBase)
+                    unitOnTile.captureBase(newBase, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
+                    unitOnTile.remove()
                     tile.components.remove(BaseBuildingComponent::class.java)
+                    //playStage.root.fire(BaseBuilt(tile))
+                } else {
+                    unitOnTile.actionPoints = 0
                 }
+            } else {
+                tile.components.remove(BaseBuildingComponent::class.java)
             }
+        }
+    }
 
-            if (tile.cDestroying?.playerId == turnCycleEvent.nextPlayer.id) {
-                val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
-                if (unitOnTile != null && tile.cDestroying!!.playerId == unitOnTile.playerId) {
-                    playScreen.playStage.removeTileSafely(tile)
-                    //todo debris
-                }
-                tile.components.remove(DestroyingComponent::class.java)
-            }
-
-            // remove cooldown
-            if (tile.isBase) {
-                tile.del(ActionCooldown::class.java)
-            }
-
-            //
-            if (tile.isCrystal) {
-                val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
-                if (unitOnTile?.playerId == nextPlayer.id) {
-                    when (unitOnTile.selfName) {
-                        UnitIds.SLIME_LING, UnitIds.SLIME, UnitIds.SLIME_HUGE, UnitIds.SLIME_BIG, UnitIds.SLIME_TINY -> {
-                            if (tile.selfName != Tiles.CRYSTAL_SLIME) {
-                                tile.tileComponent.name = Tiles.CRYSTAL_SLIME
-                                tile.del(PlayerIdComponent::class.java)
-                                tile.initView()
-
-                                playScreen.fireEvent(TileCapturedEvent(tile))
-                            }
-                        }
-
-                        UnitIds.EVIL_TREE, UnitIds.ROOT_TREE -> {
-                            if (tile.selfName != Tiles.CRYSTAL_ROOT) {
-                                tile.tileComponent.name = Tiles.CRYSTAL_ROOT
-                                tile.del(PlayerIdComponent::class.java)
-                                tile.initView()
-
-                                playScreen.fireEvent(TileCapturedEvent(tile))
-                            }
-                        }
+    private fun updateBuilding(
+        tile: TileActor,
+        turnCycleEvent: TurnsCycleListener.TurnCycleEvent,
+    ) {
+        if (tile.get(BuildingComponent::class.java)?.playerId == turnCycleEvent.nextPlayer.id) {
+            val cBuilding = tile.get(BuildingComponent::class.java)!!
+            val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
+            if (unitOnTile != null && cBuilding.playerId == unitOnTile.playerId) {
+                cBuilding.turns -= 1
+                if (cBuilding.turns <= 0) {
+                    val buildingTile =
+                        TileActor(TileData.get(cBuilding.buildingName)!!, tile.layer, tile.tiledX, tile.tiledY)
+                    tile.layer -= 1
+                    val tile2 = playScreen.playStage.getTile(tile.tiledX, tile.tiledY, tile.layer)
+                    if (tile2 != null) {
+                        tile2.layer -= 1
+                        tile2.remove()
+                        playScreen.playStage.addActor(tile2)
                     }
-                }
-
-                if (playScreen.playStage.getUnit(tile) == null) {
-                    when (tile.selfName) {
-                        Tiles.CRYSTAL_SLIME -> {
-                            playScreen.playStage.addActor(ObjBlob().player(8, 4).position(tile))
-
-                            tile.tileComponent.name = Tiles.CRYSTAL
-                            tile.del(PlayerIdComponent::class.java)
-                            tile.initView()
-                            playScreen.fireEvent(TileCapturedEvent(tile))
-                        }
-
-                        Tiles.CRYSTAL_ROOT -> {
-                            playScreen.playStage.addActor(ObjRoot().player(8, 4).position(tile))
-
-                            tile.tileComponent.name = Tiles.CRYSTAL
-                            tile.del(PlayerIdComponent::class.java)
-                            tile.initView()
-                            playScreen.fireEvent(TileCapturedEvent(tile))
-                        }
+                    tile.remove()
+                    playScreen.playStage.addActor(tile)
+                    playScreen.playStage.addActor(buildingTile)
+                    if (buildingTile.isCombinable) {
+                        Decorator.combineTile(buildingTile)
+                            playScreen.playStage.getSurroundingTiles(tile.tiledX, tile.tiledY).forEach {
+                                if (buildingTile.terrain == it.terrain) //todo
+                                Decorator.combineTile(it)
+                            }
                     }
+//                    unitOnTile.captureBase(buildingTile, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
+                    //unitOnTile.remove()
+                    tile.components.remove(BuildingComponent::class.java)
+                    //playStage.root.fire(BaseBuilt(tile))
+                } else {
+                    unitOnTile.actionPoints = 0
                 }
+            } else {
+                tile.components.remove(BuildingComponent::class.java)
             }
         }
     }

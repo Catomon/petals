@@ -9,6 +9,7 @@ import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.google.gson.JsonObject
+import ctmn.petals.playstage.Decorator
 import ctmn.petals.playstage.GameActor
 import ctmn.petals.tile.components.*
 import ctmn.petals.unit.component.*
@@ -35,16 +36,19 @@ open class TileActor(
 
     val tileName: String get() = tileComponent.name
     val terrain: String get() = tileComponent.terrain
-    var layer: Int get() = tileComponent.layer
+    var layer: Int
+        get() = tileComponent.layer
         set(value) {
             tileComponent.layer = value
         }
 
-    var tiledX: Int get() = tileComponent.tiledX
+    var tiledX: Int
+        get() = tileComponent.tiledX
         set(value) {
             tileComponent.tiledX = value
         }
-    var tiledY: Int get() = tileComponent.tiledY
+    var tiledY: Int
+        get() = tileComponent.tiledY
         set(value) {
             tileComponent.tiledY = value
         }
@@ -53,21 +57,30 @@ open class TileActor(
 
     val animation: RegionAnimation? get() = tileViewComponent?.animation
 
-    constructor(tileData: Tile, layer: Int, tileX: Int, tileY: Int): this(tileData.name, tileData.terrain, layer, tileX, tileY)
+    val isCombinable get() = Decorator.isTileCombinable(this)
+        //assets.atlases.findRegion("tiles/${terrain}/" + tileName + "_combinable") != null
+
+    constructor(tileData: Tile, layer: Int, tileX: Int, tileY: Int) : this(
+        tileData.name,
+        tileData.terrain,
+        layer,
+        tileX,
+        tileY
+    )
 
     init {
         components.add(TileComponent(tileName, terrain, layer, tiledX, tiledY))
 
         // set actor size
-        width = TILE_SIZE.toFloat()
-        height = TILE_SIZE.toFloat()
+        width = TILE_SIZE
+        height = TILE_SIZE
     }
 
     fun initView() {
         // load tile texture
         var textures = assets.atlases.findRegions("tiles/$tileName")
 
-        var nameNoSuffix = tileName.toLowerCase(Locale.ROOT)
+        var nameNoSuffix = tileName.lowercase(Locale.ROOT)
         "abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
 
         // if tile texture is not found, try to find it in terrain folder
@@ -93,21 +106,27 @@ open class TileActor(
             val animation = RegionAnimation(frameDuration, textures)
             add(TileViewComponent(Sprite(animation.currentFrame), animation))
         } else {
-            if (terrain != TerrainNames.roads) {
-                fun findRegAndAdd(suffix: String) {
-                    assets.atlases.findRegion("tiles/${terrain}/" + nameNoSuffix + suffix)?.let {
-                        textures.add(it)
+            if (!isCombinable) {
+                if (terrain != TerrainNames.roads) {
+                    fun findRegAndAdd(suffix: String) {
+                        assets.atlases.findRegion("tiles/${terrain}/" + nameNoSuffix + suffix)?.let {
+                            textures.add(it)
+                        }
                     }
+                    findRegAndAdd("_a")
+                    findRegAndAdd("_b")
+                    findRegAndAdd("_c")
+                    findRegAndAdd("_d")
+                    findRegAndAdd("_e")
+                    findRegAndAdd("_f")
                 }
-                findRegAndAdd("_a")
-                findRegAndAdd("_b")
-                findRegAndAdd("_c")
-                findRegAndAdd("_d")
-                findRegAndAdd("_e")
-                findRegAndAdd("_f")
             }
 
             add(TileViewComponent(Sprite(textures.random())))
+        }
+
+        if (tileViewComponent == null) {
+            throw IllegalStateException("Tile cView has not been initialized. tiles/${terrain}/$tileName")
         }
 
         // resize sprite if it is 24x24
@@ -149,7 +168,7 @@ open class TileActor(
         sprite.draw(batch)
     }
 
-    override fun toJsonObject() : JsonObject {
+    override fun toJsonObject(): JsonObject {
         val unitJsonObject = JsonObject()
 
         unitJsonObject.addProperty("name", tileComponent.name)
@@ -179,6 +198,7 @@ open class TileActor(
                 "ReplaceWithComponent" -> components.add(gson.fromJson(value, ReplaceWithComponent::class.java))
                 "ActionCooldown" -> components.add(gson.fromJson(value, ActionCooldown::class.java))
                 "BaseBuildingComponent" -> components.add(gson.fromJson(value, BaseBuildingComponent::class.java))
+                "BuildingComponent" -> components.add(gson.fromJson(value, BuildingComponent::class.java))
                 "DestroyingComponent" -> components.add(gson.fromJson(value, DestroyingComponent::class.java))
                 "CrystalsComponent" -> components.add(gson.fromJson(value, CrystalsComponent::class.java))
             }
@@ -217,20 +237,23 @@ open class TileActor(
         return "TileActor[nm: $tileName, terrain: $terrain, x: $tiledX, y: $tiledY, l: $layer]"
     }
 
-    fun makeCopy() : TileActor {
+    fun makeCopy(): TileActor {
         val tileCopy = TileActor()
         tileCopy.name = this.name
         for (component in components.components) {
-            tileCopy.add(when (component) {
-                is TileComponent -> component.copy()
-                is CapturingComponent -> component.copy()
-                is LifeTimeComponent -> component.copy()
-                is PlayerIdComponent -> component.copy()
-                is ReplaceWithComponent -> component.copy()
-                is BaseBuildingComponent -> component.copy()
-                is DestroyingComponent -> component.copy()
-                else -> continue
-            })
+            tileCopy.add(
+                when (component) {
+                    is TileComponent -> component.copy()
+                    is CapturingComponent -> component.copy()
+                    is LifeTimeComponent -> component.copy()
+                    is PlayerIdComponent -> component.copy()
+                    is ReplaceWithComponent -> component.copy()
+                    is BaseBuildingComponent -> component.copy()
+                    is DestroyingComponent -> component.copy()
+                    is BuildingComponent -> component.copy()
+                    else -> continue
+                }
+            )
         }
 
         return tileCopy

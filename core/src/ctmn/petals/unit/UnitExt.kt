@@ -297,6 +297,14 @@ fun UnitActor.canBuildBase(tile: TileActor): Boolean {
     return canBuildBase() && tile.terrain == TerrainNames.grass || tile.terrain == TerrainNames.water
 }
 
+fun UnitActor.canBuild(): Boolean {
+    return (selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE)
+}
+
+fun UnitActor.canBuild(tile: TileActor): Boolean {
+    return canBuild()// && tile.terrain == TerrainNames.grass || tile.terrain == TerrainNames.water
+}
+
 fun UnitActor.canDestroy(tile: TileActor, tileTeamId: Int? = null): Boolean {
     return canDestroy() && tile.isBase && tile.cPlayerId?.playerId != playerId && this.teamId != tileTeamId
 }
@@ -737,7 +745,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is FairyAxe -> 1
         is FairyBomber -> 1
         is FairyBow -> 1
-        is FairyCannon -> 1
+        is FairyPeas -> 1
         is FairyCucumber -> 1
         is FairyHealer -> 1
         is FairyHunter -> 1

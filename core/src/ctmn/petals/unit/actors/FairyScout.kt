@@ -13,7 +13,7 @@ class FairyScout : UnitActor(
     UnitComponent(
         DOLL_SCOUT,
         100,
-        5,
+        10,
         4,
         7
     )

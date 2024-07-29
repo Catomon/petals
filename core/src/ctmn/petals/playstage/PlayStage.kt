@@ -4,12 +4,10 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.EventListener
-import com.badlogic.gdx.scenes.scene2d.Group
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.utils.ArrayMap
+import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.utils.Array
+import com.badlogic.gdx.utils.ArrayMap
+import com.badlogic.gdx.utils.Pools
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ctmn.petals.assets
 import ctmn.petals.map.label.LabelActor
@@ -18,12 +16,14 @@ import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.events.PlayStageListener
 import ctmn.petals.playscreen.events.UnitAddedEvent
 import ctmn.petals.tile.TileActor
-import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.cLevel
+import ctmn.petals.unit.cUnit
 import ctmn.petals.utils.TintShader
-import ctmn.petals.utils.log
+import ctmn.petals.utils.getSurroundingTiles
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.tiledY
+import ctmn.petals.widgets.addNotifyWindow
 
 /** The stage of the game.
  * Do not use clear() for removing tiles and units. It's removing all layer groups as well as actors for drawing gui.
@@ -206,6 +206,9 @@ class PlayStage(
                 }
             }
         }
+
+        if (initView && tile.tileViewComponent == null)
+            tile.initView()
     }
 
     override fun addActor(actor: Actor) {
@@ -233,9 +236,6 @@ class PlayStage(
 
                 if (tiledWidth < actor.tiledX + 1) tiledWidth = actor.tiledX + 1
                 if (tiledHeight < actor.tiledY + 1) tiledHeight = actor.tiledY + 1
-
-                if (initView && actor.tileViewComponent == null)
-                    actor.initView()
 
                 actor.setPosition(actor.tiledX, actor.tiledY)
                 addTile(actor)
@@ -408,6 +408,35 @@ class PlayStage(
             updateCaches()
 
             return super.removeActor(actor, unfocus)
+        }
+    }
+
+    private inner class RootGroup : Group() {
+        override fun fire(event: Event): Boolean {
+            if (event.stage == null) event.stage = stage
+            event.target = this
+
+            try {
+                // Notify the target capture listeners.
+                notify(event, true)
+                if (event.isStopped) return event.isCancelled
+
+                // Notify the target listeners.
+                notify(event, false)
+                if (!event.bubbles) return event.isCancelled
+                if (event.isStopped) return event.isCancelled
+
+                return event.isCancelled
+            } catch (e: Exception) {
+                e.printStackTrace()
+                addNotifyWindow(e.message ?: "null", "PlayStage listener exc.")
+            }
+
+            return event.isCancelled
+        }
+
+        override fun notify(event: Event?, capture: Boolean): Boolean {
+            return super.notify(event, capture)
         }
     }
 }

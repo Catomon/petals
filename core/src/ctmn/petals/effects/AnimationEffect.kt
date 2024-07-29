@@ -1,10 +1,10 @@
 package ctmn.petals.effects
 
-import ctmn.petals.Const
-import ctmn.petals.utils.RegionAnimation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.Const
 import ctmn.petals.newPlaySprite
+import ctmn.petals.utils.RegionAnimation
 
 class AnimationEffect(regions: Array<TextureAtlas.AtlasRegion>, frameDuration: Float = 0.05f) : EffectActor() {
     init {
@@ -15,9 +15,9 @@ class AnimationEffect(regions: Array<TextureAtlas.AtlasRegion>, frameDuration: F
         setSize(sprite.width, sprite.height)
 
         if (sprite.width < Const.TILE_SIZE) {
-            sprite.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
-            width = Const.TILE_SIZE.toFloat()
-            height = Const.TILE_SIZE.toFloat()
+            sprite.setSize(Const.TILE_SIZE, Const.TILE_SIZE)
+            width = Const.TILE_SIZE
+            height = Const.TILE_SIZE
         }
     }
 }

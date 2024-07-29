@@ -1,34 +1,45 @@
 package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Const.ACTION_POINTS_ATTACK
-import ctmn.petals.Const.BASE_BUILD_COST
 import ctmn.petals.Const.BUILD_TIME
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
-import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.BaseBuildingComponent
+import ctmn.petals.tile.components.BuildingComponent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.actionPoints
-import ctmn.petals.unit.canBuildBase
+import ctmn.petals.unit.canBuild
 import ctmn.petals.unit.component.InvisibilityComponent
 import ctmn.petals.unit.playerId
 import ctmn.petals.utils.err
 
-class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
+class BuildCommand(
+    val buildingName: String,
+    val buildTime: Int,
+    val cost: Int,
+    val unitId: String,
+    val tileId: String,
+) : Command() {
 
-    constructor(unit: UnitActor, base: TileActor) : this(unit.stageName, base.stageName)
+    constructor(buildingName: String, buildTime: Int, cost: Int, unit: UnitActor, tile: TileActor) : this(
+        buildingName,
+        buildTime,
+        cost,
+        unit.stageName,
+        tile.stageName
+    )
 
     override fun canExecute(playScreen: PlayScreen): Boolean {
         val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val tile: TileActor = playScreen.playStage.root.findActor(baseId)
+        val tile: TileActor = playScreen.playStage.root.findActor(tileId)
 
-        if (!unit.canBuildBase(tile)) return false
+        if (!unit.canBuild(tile)) return false
 
         if (unit.actionPoints <= 0) return false
 
-        if ((playScreen.turnManager.getPlayerById(unit.playerId)?.credits ?: 0) < BASE_BUILD_COST) {
+        if ((playScreen.turnManager.getPlayerById(unit.playerId)?.credits ?: 0) < cost) {
             err("Not enough credits")
             return false
         }
@@ -38,16 +49,16 @@ class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
 
     override fun execute(playScreen: PlayScreen): Boolean {
         val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val tile: TileActor = playScreen.playStage.root.findActor(baseId)
+        val tile: TileActor = playScreen.playStage.root.findActor(tileId)
 
         unit.actionPoints = 0
 
-        playScreen.turnManager.getPlayerById(unit.playerId)!!.credits -= BASE_BUILD_COST
+        playScreen.turnManager.getPlayerById(unit.playerId)!!.credits -= cost
 
         unit.del(InvisibilityComponent::class.java)
 
         if (tile.cPlayerId?.playerId != unit.playerId) {
-            tile.add(BaseBuildingComponent(unit.playerId, BUILD_TIME))
+            tile.add(BuildingComponent(buildingName, playerId, buildTime))
         }
 
         return true

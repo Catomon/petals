@@ -8,7 +8,7 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.tile.Tiles
 
-class Decorator {
+object Decorator {
     private val combinableSuffixes =
         arrayOf("l", "r", "t", "b", "lb", "lr", "lrb", "lrt", "lrtb", "lt", "ltb", "r", "rb", "rt", "rtb", "t", "tb")
 
@@ -33,6 +33,7 @@ class Decorator {
         val playStage = playStageOrNull ?: throw IllegalStateException("Tile is not on the Stage")
 
         val nameNoSuff = nameNoSuffix()
+        tileComponent.name = nameNoSuff
 
         with(playStage) {
             /* make suffix based on similar neighbour tiles */
@@ -146,14 +147,18 @@ class Decorator {
         return nameNoSuffix
     }
 
+    fun isTileCombinable(tile: TileActor) = tile.isCombinable()
+
     private fun TileActor.isCombinable(): Boolean {
         //var nameNoSuffix = selfName
         //"abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
 
-        combinableSuffixes.forEach {
-            if (assets.atlases.findRegion("tiles/${terrain}/" + selfName + "_$it") != null)
-                return true
-        }
+        return assets.atlases.findRegion("tiles/${terrain}/" + nameNoSuffix() + "_combinable") != null
+
+//        combinableSuffixes.forEach {
+//            if (assets.atlases.findRegion("tiles/${terrain}/" + selfName + "_$it") != null)
+//                return true
+//        }
 
         return false
     }

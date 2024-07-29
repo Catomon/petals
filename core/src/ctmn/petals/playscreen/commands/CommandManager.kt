@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Queue
 import ctmn.petals.utils.err
 import ctmn.petals.utils.log
+import ctmn.petals.widgets.addNotifyWindow
 
 class CommandManager(val playScreen: PlayScreen) {
 
@@ -20,12 +21,21 @@ class CommandManager(val playScreen: PlayScreen) {
     
     val isQueueEmpty get() = commandQueue.isEmpty
 
-    fun update(deltaTime: Float) {
+    fun update(delta: Float) {
         // process queue
         while (!commandQueue.isEmpty && !stop && playScreen.actionManager.isQueueEmpty) {
             val queueCommand = commandQueue.first()
             commandQueue.removeValue(queueCommand, false)
-            execute(queueCommand!!)
+
+            try {
+                execute(queueCommand!!)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                stop = true
+                playScreen.guiStage.addNotifyWindow(e.message ?: "null", "CommandMgr. exception", action = {
+                    stop = false
+                })
+            }
         }
     }
 

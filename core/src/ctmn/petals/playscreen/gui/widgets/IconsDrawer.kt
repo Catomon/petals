@@ -10,12 +10,14 @@ import ctmn.petals.playscreen.playStage
 import ctmn.petals.playstage.getUnits
 import ctmn.petals.resizeFromPui
 import ctmn.petals.tile.components.BaseBuildingComponent
+import ctmn.petals.tile.components.BuildingComponent
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.tile.components.DestroyingComponent
 import ctmn.petals.unit.actors.FairyHealer
 import ctmn.petals.unit.actors.FairyShield
 import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.unit.component.ReloadingComponent
+import ctmn.petals.unit.playerId
 import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
 import ctmn.petals.utils.*
@@ -79,15 +81,19 @@ class IconsDrawer(val gui: PlayGUIStage) : Actor() {
             if (gui.playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)
             ) {
                 val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: break
-                if (tile.has(CapturingComponent::class.java)) {
+                if (tile.get(CapturingComponent::class.java)?.playerId == unit.playerId) {
                     capturingIc.setPosition(unit.x - halfTileSize, unit.y - halfTileSize)
                     capturingIc.draw(batch, parentAlpha)
                 }
-                if (tile.has(BaseBuildingComponent::class.java)) {
+                if (tile.get(BaseBuildingComponent::class.java)?.playerId == unit.playerId) {
                     baseBuildingIc.setPosition(unit.x - halfTileSize, unit.y - halfTileSize)
                     baseBuildingIc.draw(batch, parentAlpha)
                 }
-                if (tile.has(DestroyingComponent::class.java)) {
+                if (tile.get(BuildingComponent::class.java)?.playerId == unit.playerId) {
+                    baseBuildingIc.setPosition(unit.x - halfTileSize, unit.y - halfTileSize)
+                    baseBuildingIc.draw(batch, parentAlpha)
+                }
+                if (tile.get(DestroyingComponent::class.java)?.playerId == unit.playerId) {
                     destroyingIc.setPosition(unit.x - halfTileSize, unit.y - halfTileSize)
                     destroyingIc.draw(batch, parentAlpha)
                 }

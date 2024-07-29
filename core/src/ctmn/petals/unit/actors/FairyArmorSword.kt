@@ -10,7 +10,7 @@ class FairyArmorSword : UnitActor(
     UnitComponent(
         DOLL_ARMOR_SWORD,
         100,
-        15,
+        20,
         4,
         6,
         playerID = 1

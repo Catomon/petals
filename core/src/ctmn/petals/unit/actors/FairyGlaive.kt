@@ -10,7 +10,7 @@ class FairyGlaive : UnitActor(
     UnitComponent(
         DOLL_GLAIVE,
         100,
-        20,
+        25,
         4,
         6,
         playerID = 1

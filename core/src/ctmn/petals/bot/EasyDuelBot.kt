@@ -34,38 +34,40 @@ class EasyDuelBot(
     val enemyUnits = Array<UnitActor>()
 
     private val buyPriority = Array<Pair<String, Int>>().apply {
-
         add(speciesUnits[1].selfName to 2)
 
         speciesUnits.reversed().forEach { unit ->
-            val amount = when (unit.cShop!!.price) {
-                100 -> 3
-                200 -> 2
-                300 -> 1
-                500 -> 1
-                else -> 1
-            }
+            if (speciesUnits[1].selfName != unit.selfName) {
+                val amount = when (unit.cShop!!.price) {
+                    200 -> 1
+                    100 -> 4
+                    300 -> 1
+                    500 -> 1
+                    else -> 1
+                }
 
-            add(unit.selfName to amount)
+                add(unit.selfName to amount)
+            }
         }
     }
 
     private val buyPriority2 = Array<Pair<String, Int>>().apply {
-
         add(speciesUnits[1].selfName to 3)
 
         speciesUnits.forEach { unit ->
-            val amount = when (unit.cShop!!.price) {
-                100 -> 4
-                200 -> 3
-                300 -> 2
-                500 -> 2
-                1500 -> 2
-                2000 -> 4
-                else -> 2
-            }
+            if (speciesUnits[1].selfName != unit.selfName) {
+                val amount = when (unit.cShop!!.price) {
+                    200 -> 2
+                    100 -> 5
+                    300 -> 2
+                    500 -> 2
+                    1500 -> 2
+                    2000 -> 4
+                    else -> 2
+                }
 
-            add(unit.selfName to amount)
+                add(unit.selfName to amount)
+            }
         }
     }
 

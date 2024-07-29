@@ -6,12 +6,14 @@ import ctmn.petals.effects.MissileActor
 import ctmn.petals.effects.UnitAttackEffect
 import ctmn.petals.effects.UnitShakeAction
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.tile.cutGrass
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.attackRange
 import ctmn.petals.unit.cAnimationView
 import ctmn.petals.unit.tiledX
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
+import ctmn.petals.utils.getTile
 
 class AttackAction(
     val attackerUnit: UnitActor,
@@ -60,6 +62,8 @@ class AttackAction(
                 attackEffect.y = targetUnit.y + Const.TILE_SIZE / 2
                 playScreen.playStage.addActor(attackEffect)
 
+                playScreen.playStage.getTile(targetUnit)?.cutGrass()
+
                 assets.getSound(attackerUnit.hitSounds.random()).play()
 
                 attackerAttacked = true
@@ -73,7 +77,11 @@ class AttackAction(
             if (targetUnit.animationProps.attackFrame <= (targetUnit.attackAnimation?.stateTime
                     ?: 0f) || targetUnit.cAnimationView?.animation != targetUnit.attackAnimation
             ) {
-                damageAttacker?.invoke()
+                damageAttacker?.let {
+                    it.invoke()
+
+                    //playScreen.playStage.getTile(attackerUnit)?.cutGrass()
+                }
 
                 defenderAttacked = true
             }
