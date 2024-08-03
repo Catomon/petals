@@ -74,6 +74,8 @@ val fairyUnits = object : SpeciesUnits {
 
     override val buildings: Array<Building> = Array<Building>().apply {
         add(Building("waterlily", 1, 25, Array<String>().apply { add("water") }))
+        add(Building("plant_wall", 1, 50, Array<String>().apply { add("grass") }))
+        add(Building("plant_tower", 1, 50, Array<String>().apply { add("grass") }))
     }
 }
 
@@ -108,6 +110,8 @@ val goblinUnits = object : SpeciesUnits {
 
     override val buildings: Array<Building> = Array<Building>().apply {
         add(Building("bridge", 1, 25, Array<String>().apply { add("water") }))
+        add(Building("wooden_wall", 1, 50, Array<String>().apply { add("grass") }))
+        add(Building("wooden_tower", 1, 50, Array<String>().apply { add("grass") }))
     }
 }
 

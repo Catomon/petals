@@ -599,7 +599,7 @@ open class PlayScreen(
     }
 
     override fun resize(width: Int, height: Int) {
-        playStage.viewport.update(width, height, false)
+        playStage.onScreenResize(width, height)
         guiStage.onScreenResize(width, height)
     }
 

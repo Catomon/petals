@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
-import com.badlogic.gdx.utils.Pools
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ctmn.petals.assets
 import ctmn.petals.map.label.LabelActor
@@ -17,10 +16,8 @@ import ctmn.petals.playscreen.events.PlayStageListener
 import ctmn.petals.playscreen.events.UnitAddedEvent
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.cLevel
 import ctmn.petals.unit.cUnit
 import ctmn.petals.utils.TintShader
-import ctmn.petals.utils.getSurroundingTiles
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.tiledY
 import ctmn.petals.widgets.addNotifyWindow
@@ -81,7 +78,11 @@ class PlayStage(
     private val background = Background()
     private val cloudShadowDrawer = CloudShadowDrawer()
 
+    val lightsEngine = LightsEngine(this)
+
     init {
+        root = RootGroup()
+
         addActor(background)
 
         for (layer in tileLayers)
@@ -150,6 +151,8 @@ class PlayStage(
         }
 
         batch.end()
+
+        lightsEngine.draw(batch.projectionMatrix)
     }
 
     private fun shaderBegin() {
@@ -224,10 +227,6 @@ class PlayStage(
             val y = actor.tiledY
             actor.setPosition(0, 0)
             actor.setPosition(x, y)
-        }
-
-        if (actor is UnitActor && actor.cLevel != null) {
-            //actor.levelUp() todo
         }
 
         when (actor) {
@@ -330,6 +329,11 @@ class PlayStage(
         }
 
         return super.addListener(listener)
+    }
+
+    fun onScreenResize(width: Int, height: Int) {
+        viewport.update(width, height, false)
+        lightsEngine.update(width, height)
     }
 
     private inner class Background : PlayStageGroup() {

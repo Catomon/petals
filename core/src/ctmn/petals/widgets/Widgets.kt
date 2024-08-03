@@ -12,12 +12,7 @@ import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.Focusable
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.util.BorderOwner
-import com.kotcrab.vis.ui.widget.VisImageButton
-import com.kotcrab.vis.ui.widget.VisImageTextButton
-import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.VisTextButton
-import com.kotcrab.vis.ui.widget.VisWindow
+import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.AudioManager
 import ctmn.petals.utils.addClickListener
 

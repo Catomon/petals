@@ -76,7 +76,7 @@ project(":android") {
         api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         api "com.badlogicgames.ashley:ashley:$ashleyVersion"
         api "de.golfgl.gdxgamesvcs:gdx-gamesvcs-android-gpgs:1.0.2"
-        
+
     }
 }
 
@@ -85,6 +85,7 @@ project(":core") {
 
 
     dependencies {
+        implementation fileTree(dir: 'libs', include: ['*.jar'])
 
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
