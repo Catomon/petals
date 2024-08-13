@@ -19,11 +19,12 @@ import ctmn.petals.playscreen.commands.BuyUnitCommand
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
+import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isWaterBase
 import ctmn.petals.unit.*
-import ctmn.petals.utils.addClickListener
 import ctmn.petals.utils.removeCover
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.widgets.*
@@ -120,9 +121,17 @@ private class BuyMenuPane(
             //add species units
             val units = getSpeciesUnits(player.species)
             val lockedUnits = Array<UnitActor>()
-            for (unit in units) {
+            val tiles = playStage.getTiles()
+            for (speciesUnit in units) {
+                val unit = speciesUnit.unitActor
                 if (unit.cShop != null) {
-                    val unlocked = filterUnits?.any { it.selfName == unit.selfName } ?: true
+                    val filtered = filterUnits?.any { it.selfName == unit.selfName } ?: true
+                    //todo base level
+                    val unlocked =
+                        filtered && speciesUnit.requiredBuildings.all {
+                            tiles.any { tile -> tile.cPlayerId?.playerId == player.id && it == tile.selfName }
+                        }
+
                     if (unlocked) {
                         addB(unit, unit.cShop?.price ?: 999999, true)
                     } else {

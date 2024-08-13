@@ -363,8 +363,11 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                         playScreen.playStage.addActor(tile2)
                     }
                     tile.remove()
+                    tile.components.remove(BuildingComponent::class.java)
                     playScreen.playStage.addActor(tile)
+
                     playScreen.playStage.addActor(buildingTile)
+                    buildingTile.add(PlayerIdComponent(cBuilding.playerId))
                     if (buildingTile.isCombinable) {
                         Decorator.combineTile(buildingTile)
                             playScreen.playStage.getSurroundingTiles(tile.tiledX, tile.tiledY).forEach {
@@ -372,10 +375,6 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                                 Decorator.combineTile(it)
                             }
                     }
-//                    unitOnTile.captureBase(buildingTile, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
-                    //unitOnTile.remove()
-                    tile.components.remove(BuildingComponent::class.java)
-                    //playStage.root.fire(BaseBuilt(tile))
                 } else {
                     unitOnTile.actionPoints = 0
                 }

@@ -27,7 +27,11 @@ import kotlin.math.min
 class EasyDuelBot(
     player: Player,
     playScreen: PlayScreen,
-    private val speciesUnits: Array<UnitActor> = getSpeciesUnits(player.species)
+    private val speciesUnits: Array<UnitActor> = Array<UnitActor>().apply {
+        getSpeciesUnits(player.species).forEach {
+            add(it.unitActor)
+        }
+    }
 ) : Bot(player, playScreen) {
 
     val unitsAwaitingOrders = Array<UnitActor>()

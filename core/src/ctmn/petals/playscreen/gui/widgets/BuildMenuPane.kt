@@ -15,7 +15,10 @@ import ctmn.petals.player.Player
 import ctmn.petals.playscreen.commands.BuildCommand
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.playStageOrNull
+import ctmn.petals.playscreen.selfName
+import ctmn.petals.playstage.getTiles
 import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.cPlayerId
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.removeCover
 import ctmn.petals.utils.setPosByCenter
@@ -53,9 +56,11 @@ class BuildMenu(
         val playStage = tile.playStageOrNull ?: throw IllegalStateException("The tile in not on the stage.")
 
         //grid group
+        val tiles = playStage.getTiles()
         for (building in buildings) {
             val terrains = building.terrains
-            val unlocked = !terrains.none { it == tile.terrain }
+            val hasRequiredBuilding = building.requires == "" || tiles.any { it.selfName == building.requires && it.cPlayerId?.playerId == player.id }
+            val unlocked = !terrains.none { it == tile.terrain } && hasRequiredBuilding
 
             val buildButton = BuildingButton(building.name, building.cost, unlocked)
             buildButton.button.addChangeListener {
