@@ -10,7 +10,7 @@ class GoblinPike : UnitActor(
     UnitComponent(
         GOBLIN_SPEAR,
         100,
-        10,
+        15,
         4,
         6
     )
@@ -21,7 +21,7 @@ class GoblinPike : UnitActor(
         add(
             AttackComponent(
                 20,
-                30,
+                35,
                 1
             )
         )

@@ -23,7 +23,7 @@ class FairyPixie : UnitActor(
     init {
         add(
             AttackComponent(
-                5,
+                10,
                 20,
                 1,
                 attackType = ATTACK_TYPE_ALL

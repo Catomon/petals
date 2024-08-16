@@ -27,6 +27,7 @@ object TerrainNames {
     const val chasm = "chasm"
     const val lava = "lava"
     const val mud = "mud"
+    const val building = "building"
 
     // is not a real terrain, terrain prop pack might have it as UNREACHABLE
     // to indicate that unit should not get to land capturables

@@ -33,10 +33,10 @@ class FairyBomber : UnitActor(
 
         add(
             AttackComponent(
-                35,
-                55,
+                45,
+                60,
                 1,
-                attackSplashDamage = 20,
+                attackSplashDamage = 40,
                 attackSplashRange = 1,
                 attackType = ATTACK_TYPE_GROUND
             )

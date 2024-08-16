@@ -14,8 +14,8 @@ import kotlin.random.Random
 class SlimeHuge : UnitActor(
     UnitComponent(
         "slime_huge",
-        200,
-        15,
+        300,
+        20,
         3,
         6
     )

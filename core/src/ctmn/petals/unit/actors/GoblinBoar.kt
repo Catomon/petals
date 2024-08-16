@@ -10,7 +10,7 @@ class GoblinBoar : UnitActor(
     UnitComponent(
         "goblin_boar",
         100,
-        15,
+        20,
         5,
         6
     )
@@ -20,8 +20,8 @@ class GoblinBoar : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                40,
                 50,
+                60,
                 1
             )
         )

@@ -21,7 +21,7 @@ class FairySower : UnitActor(
         add(
             AttackComponent(
                 0,
-                10,
+                0,
                 0
             )
         )

@@ -15,19 +15,26 @@ object FairyWaterplantStat : UnitStat(
     maxDamage = 60,
 )
 
-abstract class UnitStat(
-    var id: String,
-    var health: Int = 100,
-    var minDamage: Int = 0,
-    var maxDamage: Int = 0,
-    var attackRange: Int = 0,
-    var viewRange: Int = 0
+open class UnitStat(
+    val id: String,
+    val health: Int = 100,
+    val minDamage: Int = 0,
+    val maxDamage: Int = 0,
+    val attackRange: Int = 0,
+    val viewRange: Int = 0
 ) {
 
     init {
         //storeSomewhere
     }
 }
+
+//private val waterplantStat = UnitStat(
+//    WATERPLANT,
+//    health = 100,
+//    minDamage = 45,
+//    maxDamage = 60,
+//)
 
 class FairyWaterplant : UnitActor(
     UnitComponent(

@@ -13,7 +13,7 @@ class GoblinShip : UnitActor(
     UnitComponent(
         GOBLIN_SHIP,
         100,
-        5,
+        10,
         4,
         6,
         UNIT_TYPE_WATER

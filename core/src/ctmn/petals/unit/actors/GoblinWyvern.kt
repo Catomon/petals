@@ -10,7 +10,7 @@ class GoblinWyvern : UnitActor(
     UnitComponent(
         GOBLIN_WYVERN,
         100,
-        10,
+        15,
         3,
         7
     )
@@ -19,8 +19,8 @@ class GoblinWyvern : UnitActor(
     init {
         add(
             AttackComponent(
-                45,
-                60,
+                65,
+                80,
                 1,
                 attackType = ATTACK_TYPE_ALL
             )

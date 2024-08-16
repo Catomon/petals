@@ -306,7 +306,9 @@ fun UnitActor.canBuild(tile: TileActor): Boolean {
 }
 
 fun UnitActor.canDestroy(tile: TileActor, tileTeamId: Int? = null): Boolean {
-    return canDestroy() && tile.isBase && tile.cPlayerId?.playerId != playerId && this.teamId != tileTeamId
+    val isDestroyableTile = tile.isBase || tile.terrain == TerrainNames.building
+
+    return isDestroyableTile && canDestroy() && tile.cPlayerId?.playerId != playerId && this.teamId != tileTeamId
 }
 
 fun UnitActor.canDestroy(): Boolean {

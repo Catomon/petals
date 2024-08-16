@@ -10,6 +10,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.Const
 import ctmn.petals.Const.IS_RELEASE
+import ctmn.petals.Const.UNLOCK_LEVELS
 import ctmn.petals.PetalsGame
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.*
@@ -73,7 +74,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
                     )
                 }
 
-                levelNum - 1 <= nextLvlIndex -> {
+                (levelNum - 1 <= nextLvlIndex || UNLOCK_LEVELS) -> {
                     statusImage.setDrawable(VisUI.getSkin().newDrawable("unlocked_level"))
                 }
 

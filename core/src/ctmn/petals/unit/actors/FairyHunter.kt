@@ -1,17 +1,15 @@
 package ctmn.petals.unit.actors
 
-import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds.HUNTER
-import ctmn.petals.unit.abilities.UnsummonAbility
 import ctmn.petals.unit.component.*
 
 class FairyHunter : UnitActor(
     UnitComponent(
         HUNTER,
-        250,
-        20,
+        300,
+        30,
         3,
         6
     )
@@ -22,8 +20,8 @@ class FairyHunter : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                45,
-                60,
+                55,
+                70,
                 1
             )
         )

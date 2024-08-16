@@ -200,8 +200,8 @@ class Assets : AssetManager() {
 
     fun getTexture(name: String): Texture = get(name, Texture::class.java)
 
-    fun findAtlasRegion(name: String): TextureAtlas.AtlasRegion = atlases.findRegion(name)!!
-    fun findAtlasRegions(name: String): Array<TextureAtlas.AtlasRegion> = atlases.findRegions(name)!!
+    fun findAtlasRegion(name: String): TextureAtlas.AtlasRegion = atlases.findRegion(name) ?: throw IllegalArgumentException("Atlas region '$name' not found.")
+    fun findAtlasRegions(name: String): Array<TextureAtlas.AtlasRegion> = atlases.findRegions(name)
 
     fun getSound(name: String): Sound = get("$soundsFolderName/$name")
 

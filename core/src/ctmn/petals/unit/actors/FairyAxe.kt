@@ -24,8 +24,8 @@ class FairyAxe : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                45,
                 60,
+                80,
                 1
             )
         )

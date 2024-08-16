@@ -11,7 +11,7 @@ class FairyPike : UnitActor(
     UnitComponent(
         DOLL_PIKE,
         100,
-        10,
+        15,
         4,
         6
     )
@@ -24,7 +24,7 @@ class FairyPike : UnitActor(
         add(
             AttackComponent(
                 20,
-                30,
+                35,
                 1
             )
         )

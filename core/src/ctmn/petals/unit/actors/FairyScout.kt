@@ -23,8 +23,8 @@ class FairyScout : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                40,
-                60,
+                55,
+                70,
                 1,
                 attackType = ATTACK_TYPE_ALL
             )

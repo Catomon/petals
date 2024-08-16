@@ -22,8 +22,8 @@ class GoblinWolf : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                40,
-                60,
+                55,
+                70,
                 1
             )
         )

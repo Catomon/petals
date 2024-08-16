@@ -20,7 +20,7 @@ class GoblinSword : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                30,
+                25,
                 40,
                 1
             )

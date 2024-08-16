@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
+import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
@@ -59,26 +60,36 @@ class BuildMenu(
         val tiles = playStage.getTiles()
         for (building in buildings) {
             val terrains = building.terrains
-            val hasRequiredBuilding = building.requires == "" || tiles.any { it.selfName == building.requires && it.cPlayerId?.playerId == player.id }
+            val hasRequiredBuilding =
+                building.requires == "" || tiles.any { it.selfName == building.requires && it.cPlayerId?.playerId == player.id }
             val unlocked = !terrains.none { it == tile.terrain } && hasRequiredBuilding
 
-            val buildButton = BuildingButton(building.name, building.cost, unlocked)
-            buildButton.button.addChangeListener {
-                if (guiStage.currentState == guiStage.myTurn) {
-                    val buildCommand = BuildCommand(
-                        building.name,
-                        building.buildTime,
-                        building.cost,
-                        unit,
-                        tile
-                    )
+            val buildButton = BuildingButton(
+                building.name,
+                building.cost,
+                unlocked,
+                if (building.requires.isEmpty()) emptyList() else listOf(building.requires)
+            )
 
-                    if (buildCommand.canExecute(guiStage.playScreen))
-                        guiStage.playScreen.commandManager.queueCommand(buildCommand)
+            if (unlocked) {
+                buildButton.button.addChangeListener {
+                    if (guiStage.currentState == guiStage.myTurn) {
+                        val buildCommand = BuildCommand(
+                            building.name,
+                            building.buildTime,
+                            building.cost,
+                            unit,
+                            tile
+                        )
+
+                        if (buildCommand.canExecute(guiStage.playScreen))
+                            guiStage.playScreen.commandManager.queueCommand(buildCommand)
+                    }
+
+                    this@BuildMenu.remove()
                 }
-
-                this@BuildMenu.remove()
             }
+
             gridGroup.addActor(buildButton)
         }
     }
@@ -99,6 +110,7 @@ class BuildMenu(
         buildingName: String,
         cost: Int,
         unlocked: Boolean = true,
+        val requiredBuildings: List<String> = emptyList(),
     ) : WidgetGroup() {
 
         val button = newIconButton("buy_unit")
@@ -107,26 +119,53 @@ class BuildMenu(
         init {
             addActor(button)
             if (unlocked) {
-                val icon = assets.atlases.findRegion("gui/icons/${buildingName}")
-                val region = assets.tilesAtlas.regions.firstOrNull { it.name.endsWith(buildingName) }
-
-                button.style.imageUp =
-                    if (icon != null)
-                        VisUI.getSkin().getDrawable("icons/${buildingName}")
-                    else
-                        TextureRegionDrawable(region)
-
-                button.style.imageUp.minWidth = 64f
-                button.style.imageUp.minHeight = 64f
+                setButtonImage(buildingName)
 
                 labelCost.setPosByCenter(32f + labelCost.width / 2, 84f)
 
                 addActor(labelCost)
             } else {
-                button.isDisabled = true
+//                button.isDisabled = true
+
+                setButtonImage(buildingName)
+                button.color.a = 0.5f
+
+                requiredBuildings.firstOrNull()?.let { building ->
+                    addActor(VisImage(assets.findAtlasRegion("tiles/building/$building")).also {
+                        it.setSize(48f, 48f)
+                    })
+                }
+
+                requiredBuildings.getOrNull(1)?.let { building ->
+                    addActor(VisImage(assets.findAtlasRegion("tiles/building/$building")).also {
+                        it.setPosition(48f, 0f)
+                        it.setSize(48f, 48f)
+                    })
+                }
+
+                requiredBuildings.getOrNull(2)?.let { building ->
+                    addActor(VisImage(assets.findAtlasRegion("tiles/building/$building")).also {
+                        it.setPosition(96f, 0f)
+                        it.setSize(48f, 48f)
+                    })
+                }
             }
 
             setScale(1f)
+        }
+
+        private fun setButtonImage(buildingName: String) {
+            val icon = assets.atlases.findRegion("gui/icons/${buildingName}")
+            val region = assets.tilesAtlas.regions.firstOrNull { it.name.endsWith(buildingName) }
+
+            button.style.imageUp =
+                if (icon != null)
+                    VisUI.getSkin().getDrawable("icons/${buildingName}")
+                else
+                    TextureRegionDrawable(region)
+
+            button.style.imageUp.minWidth = 64f
+            button.style.imageUp.minHeight = 64f
         }
     }
 }

@@ -10,7 +10,7 @@ class FairyGlaive : UnitActor(
     UnitComponent(
         DOLL_GLAIVE,
         100,
-        25,
+        35,
         4,
         6,
         playerID = 1
@@ -18,13 +18,11 @@ class FairyGlaive : UnitActor(
 ) {
 
     init {
-        add(ShopComponent(400))
-        add(SummonableComponent(10))
         add(FollowerComponent())
         add(
             AttackComponent(
-                35,
                 50,
+                70,
                 1
             )
         )

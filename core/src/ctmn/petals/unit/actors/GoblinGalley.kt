@@ -13,7 +13,7 @@ class GoblinGalley : UnitActor(
     UnitComponent(
         GOBLIN_GALLEY,
         100,
-        5,
+        10,
         4,
         6,
         UNIT_TYPE_WATER

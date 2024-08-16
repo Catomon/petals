@@ -9,8 +9,8 @@ import ctmn.petals.unit.component.*
 class GoblinGiant : UnitActor(
     UnitComponent(
         GOBLIN_GIANT,
-        250,
-        20,
+        300,
+        30,
         3,
         6
     )
@@ -21,8 +21,8 @@ class GoblinGiant : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                45,
-                60,
+                55,
+                70,
                 1
             )
         )

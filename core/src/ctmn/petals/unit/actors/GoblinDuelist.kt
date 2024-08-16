@@ -11,7 +11,7 @@ class GoblinDuelist : UnitActor(
     UnitComponent(
         GOBLIN_DUELIST,
         100,
-        10,
+        15,
         6,
         6
     )
@@ -21,8 +21,8 @@ class GoblinDuelist : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                50,
-                70,
+                60,
+                80,
                 1
             )
         )

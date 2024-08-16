@@ -10,7 +10,7 @@ class FairyArmorSword : UnitActor(
     UnitComponent(
         DOLL_ARMOR_SWORD,
         100,
-        20,
+        30,
         4,
         6,
         playerID = 1
@@ -18,13 +18,11 @@ class FairyArmorSword : UnitActor(
 ) {
 
     init {
-        add(ShopComponent(400))
-        add(SummonableComponent(10))
         add(FollowerComponent())
         add(
             AttackComponent(
-                40,
                 60,
+                80,
                 1
             )
         )
