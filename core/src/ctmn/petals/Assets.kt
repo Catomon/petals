@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -118,14 +119,18 @@ class Assets : AssetManager() {
     fun findUnitAtlas(playerId: Int): TextureAtlas = findUnitAtlas(playerColorName(playerId))
 
     private fun addUnitAtlases() {
-        addAsset("units_blue.atlas", TextureAtlas::class.java, createUnitsAtlas(bluePlayerColors))
-        addAsset("units_red.atlas", TextureAtlas::class.java, createUnitsAtlas(redPlayerColors))
-        addAsset("units_green.atlas", TextureAtlas::class.java, createUnitsAtlas(greenPlayerColors))
-        addAsset("units_purple.atlas", TextureAtlas::class.java, createUnitsAtlas(purplePlayerColors))
-        addAsset("units_yellow.atlas", TextureAtlas::class.java, createUnitsAtlas(yellowPlayerColors))
-        addAsset("units_orange.atlas", TextureAtlas::class.java, createUnitsAtlas(orangePlayerColors))
-        addAsset("units_pink.atlas", TextureAtlas::class.java, createUnitsAtlas(pinkPlayerColors))
-        addAsset("units_brown.atlas", TextureAtlas::class.java, createUnitsAtlas(brownPlayerColors))
+        log("Loading units atlases...")
+
+        loadUnitsAtlasByColor("units_blue", bluePlayerColors)
+        loadUnitsAtlasByColor("units_red", redPlayerColors)
+        loadUnitsAtlasByColor("units_green", greenPlayerColors)
+        loadUnitsAtlasByColor("units_purple", purplePlayerColors)
+        loadUnitsAtlasByColor("units_yellow", yellowPlayerColors)
+        loadUnitsAtlasByColor("units_orange", orangePlayerColors)
+        loadUnitsAtlasByColor("units_pink", pinkPlayerColors)
+        loadUnitsAtlasByColor("units_brown", brownPlayerColors)
+
+        log("Loading units atlases V")
     }
 
     fun beginLoadingAll() {
@@ -148,7 +153,7 @@ class Assets : AssetManager() {
         load("3.png", Texture::class.java)
         load("4.png", Texture::class.java)
 
-        Gdx.app.debug(Assets::class.simpleName, "Loading textures... Done")
+        Gdx.app.debug(Assets::class.simpleName, "Loading textures V")
 
         Gdx.app.debug(Assets::class.simpleName, "Loading sounds...")
         fun loadSound(name: String) {
@@ -170,7 +175,7 @@ class Assets : AssetManager() {
         loadSound("slime_hit.ogg")
         loadSound("bow.ogg")
 
-        Gdx.app.debug(Assets::class.simpleName, "Loading sounds... Done")
+        Gdx.app.debug(Assets::class.simpleName, "Loading sounds V")
 
 //FileHandle.list() not working in jar and isDirectory returns false even if it's a directory
 //        for (file in Gdx.files.internal(soundsFolderName).list()) {
@@ -200,7 +205,9 @@ class Assets : AssetManager() {
 
     fun getTexture(name: String): Texture = get(name, Texture::class.java)
 
-    fun findAtlasRegion(name: String): TextureAtlas.AtlasRegion = atlases.findRegion(name) ?: throw IllegalArgumentException("Atlas region '$name' not found.")
+    fun findAtlasRegion(name: String): TextureAtlas.AtlasRegion =
+        atlases.findRegion(name) ?: throw IllegalArgumentException("Atlas region '$name' not found.")
+
     fun findAtlasRegions(name: String): Array<TextureAtlas.AtlasRegion> = atlases.findRegions(name)
 
     fun getSound(name: String): Sound = get("$soundsFolderName/$name")
@@ -227,7 +234,7 @@ class Assets : AssetManager() {
     ///
     ///////// // // // /  // / / / /
 
-    private fun createUnitsAtlas(colors: kotlin.Array<Pair<Color, Color>>): TextureAtlas {
+    private fun loadUnitsAtlasByColor(name: String, colors: kotlin.Array<Pair<Color, Color>>) {
         var atlOrNull: TextureAtlas? = null
         Gdx.app.postRunnable {
             try {
@@ -237,12 +244,49 @@ class Assets : AssetManager() {
                 Gdx.app.exit()
             }
         }
-
         while (atlOrNull == null) {
             Thread.sleep(50)
         }
         val atl = atlOrNull!!
 
+        val textureFile = Gdx.files.internal("$name.png")
+        if (textureFile.exists()) {
+            atl.textures.clear()
+
+            var texture: Texture? = null
+            Gdx.app.postRunnable {
+                try {
+                    texture = Texture(textureFile)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Gdx.app.exit()
+                }
+            }
+
+            while (texture == null) {
+                Thread.sleep(10)
+            }
+
+            atl.textures.add(texture)
+        } else if (Const.IS_DESKTOP) {
+            print("Creating $name units texture")
+            try {
+                createAndSaveUnitsTexture(atl, colors, name)
+                log(" V")
+            } catch (e: Exception) {
+                log(" X")
+                e.printStackTrace()
+            }
+        } else err("$name units texture is missing and won't be created (non-desktop device).")
+
+        addAsset("$name.atlas", TextureAtlas::class.java, atl)
+    }
+
+    private fun createAndSaveUnitsTexture(
+        atl: TextureAtlas,
+        colors: kotlin.Array<Pair<Color, Color>>,
+        name: String,
+    ): TextureAtlas {
         val texture = atl.textures.first()
         texture.textureData.prepare()
         val pixmap = texture.textureData.consumePixmap()
@@ -279,8 +323,16 @@ class Assets : AssetManager() {
             }
         }
 
-        pixmap.dispose()
 
+        try {
+            PixmapIO.writePNG(Gdx.files.local("$name.png"), pixmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Gdx.app.exit()
+        }
+
+
+        pixmap.dispose()
         return atl
     }
 
