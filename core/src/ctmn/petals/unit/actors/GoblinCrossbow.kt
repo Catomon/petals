@@ -22,8 +22,8 @@ class GoblinCrossbow : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                45,
-                65,
+                50,
+                70,
                 4,
                 attackType = ATTACK_TYPE_ALL
             )

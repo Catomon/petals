@@ -268,6 +268,7 @@ class Assets : AssetManager() {
             }
 
             atl.textures.add(texture)
+            atl.regions.forEach { it.texture = texture }
         } else if (Const.IS_DESKTOP) {
             print("Creating $name units texture")
             try {

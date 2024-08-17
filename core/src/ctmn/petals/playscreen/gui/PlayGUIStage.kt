@@ -340,7 +340,7 @@ class PlayGUIStage(
             selectedUnit?.let { unit ->
                 if (unit.isPlayerUnit(localPlayer)) {
                     val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addChangeListener
-                    if (!tile.isBase || tile.cPlayerId?.playerId == unit.playerId || playScreen.turnManager.getPlayerById(
+                    if (!unit.canDestroy(tile) || tile.cPlayerId?.playerId == unit.playerId || playScreen.turnManager.getPlayerById(
                             tile.cPlayerId?.playerId ?: -1
                         )?.isAlly(unit.playerId) == true
                     ) return@addChangeListener

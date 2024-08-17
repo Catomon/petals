@@ -8,7 +8,7 @@ object Const {
 
     // App:
     const val APP_NAME = "Fae's Feisty Fray"
-    const val APP_VER_NAME = "0.3.1-alpha"
+    const val APP_VER_NAME = "0.4-alpha"
     const val IS_RELEASE = false
     const val UNLOCK_LEVELS = true
     const val USER_FOLDER = "Documents/Fae's Feisty Fray/"
