@@ -13,7 +13,7 @@ class StageCover(alpha: Float = 1f) : Widget() {
 
     private val sprite = Sprite(assets.atlases.findRegion("gui/white"))
 
-    private var afterFadeOutTime = 0f
+    private var delayBeforeAction = 0f
 
     init {
         color.a = alpha
@@ -25,13 +25,13 @@ class StageCover(alpha: Float = 1f) : Widget() {
     fun fadeInAndThen(andThen: OneAction, duration: Float = 1f, blackTime: Float = 0f) : StageCover {
         color.a = 0f
 
-        afterFadeOutTime = blackTime
+        delayBeforeAction = blackTime
 
         addAction(Actions.sequence(
             Actions.fadeIn(duration),
             UpdateAction {
-                afterFadeOutTime -= it
-                return@UpdateAction afterFadeOutTime <= 0
+                delayBeforeAction -= it
+                return@UpdateAction delayBeforeAction <= 0
             },
             andThen))
 

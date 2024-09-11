@@ -1,9 +1,9 @@
 package ctmn.petals.desktop;
 
-import ctmn.petals.Const;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import ctmn.petals.Const;
 import ctmn.petals.GamePref;
 import ctmn.petals.PetalsGame;
 
@@ -11,6 +11,8 @@ public class DesktopLauncher {
     public static void main(String[] arg) {
 
         boolean packAndExit = arg.length == 1 && arg[0].equals("packTextures");
+
+        boolean windowed = arg.length == 1 && arg[0].equals("windowed");
 
         if (packAndExit) {
             RunTexturePacker.pack();
@@ -32,6 +34,10 @@ public class DesktopLauncher {
         config.addIcon("libgdx32.png", Files.FileType.Internal);
         //config.addIcon("libgdx16.png", Files.FileType.Internal);
 
-        new LwjglApplication(new PetalsGame(RunTexturePacker::pack), config);
+        new LwjglApplication(new PetalsGame(RunTexturePacker::pack, () -> {
+            if (windowed) {
+                GamePref.INSTANCE.setFullscreen(false);
+            }
+        }), config);
     }
 }

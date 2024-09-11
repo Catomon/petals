@@ -32,7 +32,7 @@ fun updateAppConfigToPrefs() {
             Gdx.graphics.setWindowedMode(854, 480)
 }
 
-class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
+class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: Runnable = Runnable {  }) : Game() {
 
     val assets = Assets()
 
@@ -40,6 +40,8 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
     var debugMode = Const.DEBUG_MODE
 
     override fun create() {
+        onCreate.run()
+
         updateAppConfigToPrefs()
 
         if (!Const.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
@@ -100,7 +102,7 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }) : Game() {
     }
 
     override fun setScreen(screen: Screen?) {
-        if (this.screen is PlayScreen) {
+        if (this.screen is PlayScreen && this.screen != screen) {
             this.screen.dispose()
         }
 

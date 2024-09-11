@@ -9,7 +9,6 @@ import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.game
 import ctmn.petals.menu.startLevel
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.StoryPlayScreen
 import ctmn.petals.utils.fadeOut
@@ -76,12 +75,17 @@ class StoryGameOverMenu(val result: Int, val playScreen: StoryPlayScreen) : Widg
     }
 
     fun goToLevelSelect() {
-        stage.addActor(StageCover().fadeInAndThen(OneAction {
-            playScreen.game.screen = MenuScreen().apply {
-                stage = levelsStage
-                stage.fadeOut()
-            }
-        }))
+        val menuScreen = MenuScreen().apply {
+            stage = levelsStage
+            stage.fadeOut()
+        }
+        playScreen.game.screen = menuScreen
+
+//        stage.addActor(StageCover().fadeInAndThen(OneAction {
+//            // for unknown reason jre crashes if I put code above here
+//            // the crash occurs when PlayScreen creating SpriteBatch after choosing a level in levelsStage
+//            // which makes it more strange idk.
+//        }))
     }
 
     override fun setStage(stage: Stage?) {
