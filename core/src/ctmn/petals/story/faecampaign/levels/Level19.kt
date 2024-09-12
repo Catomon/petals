@@ -18,7 +18,7 @@ import ctmn.petals.unit.actors.GoblinSword
 import ctmn.petals.unit.player
 import ctmn.petals.unit.position
 
-class Level19 : Scenario("lv_19", "level_lava") {
+class Level19 : Scenario("lv_19_lava", "level_lava") {
 
     init {
         players.addAll(

@@ -24,7 +24,7 @@ class FairyBow : UnitActor(
         add(
             AttackComponent(
                 30,
-                45,
+                40,
                 3,
                 attackType = ATTACK_TYPE_ALL
             )

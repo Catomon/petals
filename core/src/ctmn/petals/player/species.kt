@@ -95,15 +95,15 @@ val fairySpecies = object : SpeciesUnits {
 
     override val buildings: Array<Building> = Array<Building>().apply {
         add(Building(FAIRY_FORGE, 2, 200, Array<String>().apply { add("grass") }))
-        add(Building(FAIRY_ARCHERS_GUILD, 2, 200, Array<String>().apply { add("grass") }))
+        add(Building(FAIRY_ARCHERS_GUILD, 3, 200, Array<String>().apply { add("grass") }))
         add(Building(FAIRY_AERTHYS, 3, 300, Array<String>().apply { add("grass") }, FAIRY_FORGE))
         add(Building(FAIRY_CUCUMBER, 3, 300, Array<String>().apply { add("grass") }, FAIRY_AERTHYS))
         add(Building(FAIRY_ARMORY, 4, 400, Array<String>().apply { add("grass") }, FAIRY_FORGE))
         add(Building(FAIRY_FOLIA, 4, 400, Array<String>().apply { add("grass") }, FAIRY_ARMORY))
 
-        add(Building(WATERLILY, 1, 25, Array<String>().apply { add("water") }))
-        add(Building(PLANT_WALL, 1, 50, Array<String>().apply { add("grass") }))
-        add(Building(PLANT_TOWER, 1, 50, Array<String>().apply { add("grass") }))
+        add(Building(WATERLILY, 2, 50, Array<String>().apply { add("water") }))
+        add(Building(PLANT_WALL, 2, 100, Array<String>().apply { add("grass") }))
+        add(Building(PLANT_TOWER, 2, 100, Array<String>().apply { add("grass") }))
     }
 }
 
@@ -157,16 +157,16 @@ val goblinSpecies = object : SpeciesUnits {
 
     override val buildings: Array<Building> = Array<Building>().apply {
         add(Building(GOBLIN_FORGE, 2, 200, Array<String>().apply { add("grass") }))
-        add(Building(GOBLIN_ARCHERS_GUILD, 2, 200, Array<String>().apply { add("grass") }))
+        add(Building(GOBLIN_ARCHERS_GUILD, 3, 200, Array<String>().apply { add("grass") }))
         add(Building(GOBLIN_ARMORY, 3, 300, Array<String>().apply { add("grass") }, GOBLIN_FORGE))
         add(Building(GOBLIN_BEASTMOUNT, 3, 300, Array<String>().apply { add("grass") }, GOBLIN_FORGE))
         add(Building(GOBLIN_ARSENAL, 4, 400, Array<String>().apply { add("grass") }, GOBLIN_ARMORY))
         add(Building(GOBLIN_FOUNDRY, 4, 400, Array<String>().apply { add("grass") }, GOBLIN_ARSENAL))
 
 
-        add(Building(BRIDGE, 2, 25, Array<String>().apply { add("water") }))
-        add(Building(WOODEN_WALL, 2, 50, Array<String>().apply { add("grass") }))
-        add(Building(WOODEN_TOWER, 2, 50, Array<String>().apply { add("grass") }))
+        add(Building(BRIDGE, 2, 50, Array<String>().apply { add("water") }))
+        add(Building(WOODEN_WALL, 2, 100, Array<String>().apply { add("grass") }))
+        add(Building(WOODEN_TOWER, 2, 100, Array<String>().apply { add("grass") }))
     }
 }
 
