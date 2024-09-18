@@ -7,7 +7,7 @@ import ctmn.petals.playscreen.seqactions.CameraMoveAction
 import ctmn.petals.playscreen.commands.*
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.BigEvilTree
+import ctmn.petals.unit.actors.creatures.BigEvilTree
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.Gdx

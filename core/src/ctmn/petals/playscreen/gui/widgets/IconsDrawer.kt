@@ -13,8 +13,8 @@ import ctmn.petals.tile.components.BaseBuildingComponent
 import ctmn.petals.tile.components.BuildingComponent
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.tile.components.DestroyingComponent
-import ctmn.petals.unit.actors.FairyHealer
-import ctmn.petals.unit.actors.FairyShield
+import ctmn.petals.unit.actors.fairies.FairyHealer
+import ctmn.petals.unit.actors.fairies.FairyShield
 import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.unit.component.ReloadingComponent
 import ctmn.petals.unit.playerId

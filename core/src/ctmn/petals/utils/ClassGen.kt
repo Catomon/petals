@@ -50,11 +50,22 @@ object ClassGen {
 
     fun generateUnitsClass() {
         val resourcesDir = File("core/src/ctmn/petals/unit/actors")
-        val resourceFiles = resourcesDir.listFiles { file -> file.isFile && file.name.endsWith(".kt") }
+        val unitsFiles = mutableListOf<File>()
+        fun collectUnitsKtFiles(folder: File) {
+            for (file in folder.listFiles()!!) {
+                if (file.isDirectory) {
+                    collectUnitsKtFiles(file)
+                } else {
+                    if (file.isFile && file.name.endsWith(".kt"))
+                        unitsFiles.add(file)
+                }
+            }
+        }
+        collectUnitsKtFiles(resourcesDir)
 
         val resourceMap = mutableMapOf<String, File>()
-        resourceFiles?.forEach { file ->
-            val fieldName = file.nameWithoutExtension.toUpperCase(Locale.ROOT)
+        unitsFiles.forEach { file ->
+            val fieldName = file.nameWithoutExtension.uppercase()
             resourceMap[fieldName] = file
         }
 
@@ -67,6 +78,9 @@ object ClassGen {
                 "import ctmn.petals.player.Player\n" +
                         "import ctmn.petals.playscreen.selfName\n" +
                         "import ctmn.petals.unit.actors.*\n" +
+                        "import ctmn.petals.unit.actors.fairies.*\n" +
+                        "import ctmn.petals.unit.actors.goblins.*\n" +
+                        "import ctmn.petals.unit.actors.creatures.*\n" +
                         "import java.util.*\n" +
                         "import kotlin.collections.HashMap\n" +
                         "import kotlin.reflect.KClass"

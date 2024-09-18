@@ -24,6 +24,9 @@ import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.unit.actors.*
+import ctmn.petals.unit.actors.creatures.*
+import ctmn.petals.unit.actors.fairies.*
+import ctmn.petals.unit.actors.goblins.*
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
@@ -777,6 +780,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is GoblinWolf -> 2
         is GoblinWyvern -> 2
         is GoblinPickaxe -> 2
+        is GoblinBomber -> 2
 
         is Cherie -> 3
         is CherieSpearman -> 3

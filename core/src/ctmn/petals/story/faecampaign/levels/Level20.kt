@@ -14,10 +14,8 @@ import ctmn.petals.story.Scenario
 import ctmn.petals.story.aliceOrNull
 import ctmn.petals.story.playScreen
 import ctmn.petals.tile.isBase
-import ctmn.petals.unit.actors.Alice
-import ctmn.petals.unit.actors.GoblinSword
+import ctmn.petals.unit.actors.goblins.GoblinSword
 import ctmn.petals.unit.cUnit
-import ctmn.petals.unit.movingRange
 import ctmn.petals.unit.player
 import ctmn.petals.unit.position
 

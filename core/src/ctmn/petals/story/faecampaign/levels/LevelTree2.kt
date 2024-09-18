@@ -13,7 +13,7 @@ import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.actors.BigEvilTree
+import ctmn.petals.unit.actors.creatures.BigEvilTree
 import ctmn.petals.unit.cLeader
 import ctmn.petals.unit.leader
 

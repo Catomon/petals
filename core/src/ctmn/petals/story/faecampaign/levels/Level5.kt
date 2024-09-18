@@ -20,7 +20,7 @@ import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.FairySower
+import ctmn.petals.unit.actors.fairies.FairySower
 
 class Level5 : Scenario("lv_5", "level_capture") {
 

@@ -14,7 +14,7 @@ import ctmn.petals.story.Scenario
 import ctmn.petals.story.alissa.CreateUnit
 import ctmn.petals.story.playScreen
 import ctmn.petals.tile.components.PlayerIdComponent
-import ctmn.petals.unit.actors.SlimeHuge
+import ctmn.petals.unit.actors.creatures.SlimeHuge
 import ctmn.petals.unit.player
 import ctmn.petals.unit.position
 

@@ -23,8 +23,8 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
 import ctmn.petals.unit.abilities.HealthPotionAbility
-import ctmn.petals.unit.actors.SlimeLing
-import ctmn.petals.unit.actors.SlimeTiny
+import ctmn.petals.unit.actors.creatures.SlimeLing
+import ctmn.petals.unit.actors.creatures.SlimeTiny
 
 class AliceLevel : Scenario("lv_1", "alice_slime2") {
 

@@ -5,23 +5,9 @@ import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.bot.SimpleBot
 import ctmn.petals.player.*
 import ctmn.petals.playscreen.*
-import ctmn.petals.playscreen.listeners.TurnsCycleListener
-import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
-import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
-import ctmn.petals.playscreen.tasks.Task
-import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
-import ctmn.petals.playscreen.triggers.TurnCycleTrigger
-import ctmn.petals.playscreen.triggers.UnitPosRectTrigger
-import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
-import ctmn.petals.playstage.getCapturablesOf
-import ctmn.petals.playstage.getUnit
-import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.story.Scenario
-import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.story.playScreen
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.FairyAxe
-import ctmn.petals.utils.getSurroundingUnits
 
 class LevelTree1 : Scenario(ID, "level_tree_1") {
 

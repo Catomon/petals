@@ -173,7 +173,7 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
 fun TileActor.cutGrass() {
     val tile = this
     if (tile.terrain == TerrainNames.grass && !tile.selfName.endsWith("_cutoff")) {
-        TileData.get(tile.selfName + "_cutoff")?.let { tileData ->
+        TileData.tiles.getOrDefault(tile.selfName + "_cutoff", null)?.let { tileData ->
             tile.tileComponent.name = tileData.name
             tile.initView()
 

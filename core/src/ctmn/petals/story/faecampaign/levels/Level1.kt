@@ -21,8 +21,8 @@ import ctmn.petals.story.playScreen
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.FairySword
-import ctmn.petals.unit.actors.GoblinSword
+import ctmn.petals.unit.actors.fairies.FairySword
+import ctmn.petals.unit.actors.goblins.GoblinSword
 
 class Level1 : Scenario("lv_1", "level_0") {
 

@@ -3,6 +3,9 @@ package ctmn.petals.unit
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.unit.actors.*
+import ctmn.petals.unit.actors.creatures.*
+import ctmn.petals.unit.actors.fairies.*
+import ctmn.petals.unit.actors.goblins.*
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
@@ -37,11 +40,11 @@ object Units {
         add(FairyAxe())
         add(FairyBomber())
         add(FairyBow())
-        add(FairyPeas())
         add(FairyCucumber())
         add(FairyGlaive())
         add(FairyHealer())
         add(FairyHunter())
+        add(FairyPeas())
         add(FairyPike())
         add(FairyPixie())
         add(FairyScout())

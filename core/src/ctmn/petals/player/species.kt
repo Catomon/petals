@@ -2,7 +2,8 @@ package ctmn.petals.player
 
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.actors.*
+import ctmn.petals.unit.actors.fairies.*
+import ctmn.petals.unit.actors.goblins.*
 import ctmn.petals.unit.component.ShopComponent
 
 const val fairy = "fairy"
@@ -144,6 +145,7 @@ val goblinSpecies = object : SpeciesUnits {
             add(GoblinBoar().cost(400), 1, listOf(GOBLIN_FORGE))
 
             add(GoblinDuelist().cost(500), 1, listOf(GOBLIN_FORGE, GOBLIN_ARMORY))
+            add(GoblinBomber().cost(500), 1, listOf(GOBLIN_FORGE, GOBLIN_ARSENAL))
 
             add(GoblinCrossbow().cost(600), 1, listOf(GOBLIN_ARSENAL, GOBLIN_ARCHERS_GUILD))
             add(GoblinWyvern().cost(600), 1, listOf(GOBLIN_FORGE, GOBLIN_BEASTMOUNT))

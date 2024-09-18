@@ -18,7 +18,7 @@ import ctmn.petals.tile.components.PlayerIdComponent
 import ctmn.petals.unit.*
 import ctmn.petals.unit.abilities.HealingTouchAbility
 import ctmn.petals.unit.abilities.HealthPotionAbility
-import ctmn.petals.unit.actors.SlimeHuge
+import ctmn.petals.unit.actors.creatures.SlimeHuge
 import ctmn.petals.utils.*
 import ctmn.petals.utils.tiledX
 import kotlin.concurrent.thread

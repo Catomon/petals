@@ -7,7 +7,7 @@ import ctmn.petals.playscreen.selfName
 import ctmn.petals.story.*
 import ctmn.petals.unit.*
 import ctmn.petals.unit.Abilities
-import ctmn.petals.unit.actors.FairyPike
+import ctmn.petals.unit.actors.fairies.FairyPike
 import ctmn.petals.unit.UnitActor
 
 abstract class AlissaScenario(name: String, levelFileName: String) : Scenario(name, levelFileName) {

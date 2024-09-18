@@ -13,8 +13,8 @@ import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.BigEvilTree
-import ctmn.petals.unit.actors.SlimeHuge
+import ctmn.petals.unit.actors.creatures.BigEvilTree
+import ctmn.petals.unit.actors.creatures.SlimeHuge
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.RoamingPosition
 import ctmn.petals.utils.*
