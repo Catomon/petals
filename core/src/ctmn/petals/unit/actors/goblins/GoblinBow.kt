@@ -24,7 +24,8 @@ class GoblinBow : UnitActor(
                 30,
                 40,
                 3,
-                attackType = ATTACK_TYPE_ALL
+                attackType = ATTACK_TYPE_ALL,
+                environmentDmg = 15
             )
         )
         add(ReloadingComponent(1))

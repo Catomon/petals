@@ -29,4 +29,8 @@ object TileData {
     fun get(name: String): Tile? {
         return tiles[name] ?: tiles[name.split("_")[0]]
     }
+
+    fun getOrNull(name: String): Tile? {
+        return tiles[name]
+    }
 }

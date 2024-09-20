@@ -139,7 +139,7 @@ object Decorator {
         }
     }
 
-    private fun TileActor.nameNoSuffix(): String {
+    fun TileActor.nameNoSuffix(): String {
         var nameNoSuffix = selfName
         combinableSuffixes.forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
         "abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }

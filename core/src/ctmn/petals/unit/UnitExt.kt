@@ -22,16 +22,16 @@ import ctmn.petals.playscreen.seqactions.KillUnitAction
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.*
+import ctmn.petals.tile.components.BaseBuildingComponent
+import ctmn.petals.tile.components.BuildingComponent
+import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.unit.actors.*
 import ctmn.petals.unit.actors.creatures.*
 import ctmn.petals.unit.actors.fairies.*
 import ctmn.petals.unit.actors.goblins.*
 import ctmn.petals.unit.component.*
-import ctmn.petals.utils.RegionAnimation
-import ctmn.petals.utils.centerX
-import ctmn.petals.utils.centerY
-import ctmn.petals.utils.tiled
+import ctmn.petals.utils.*
 import java.util.*
 
 val cUnitMapper: ComponentMapper<UnitComponent> = ComponentMapper.getFor(UnitComponent::class.java)
@@ -147,12 +147,9 @@ val UnitActor.canAttackAir get() = cAttack?.attackType == ATTACK_TYPE_ALL || cAt
 
 val UnitActor.isWorker get() = selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
 
-/*** UnitActor extensions */
-//fun UnitActor.setPosition(x: Int, y: Int) {
-//    setPosition((x * Const.TILE_SIZE).toFloat(), (y * Const.TILE_SIZE).toFloat())
-//    tiledX = x
-//    tiledY = y
-//}
+val UnitActor.isBuilding get() = playStageOrNull?.getTile(this)?.get(BuildingComponent::class.java)?.playerId == playerId
+val UnitActor.isCapturing get() = playStageOrNull?.getTile(this)?.get(CapturingComponent::class.java)?.playerId == playerId
+val UnitActor.isBaseBuilding get() = playStageOrNull?.getTile(this)?.get(BaseBuildingComponent::class.java)?.playerId == playerId
 
 fun UnitActor.getAbility(name: String): Ability? {
     for (ability in cAbilities?.abilities ?: return null) {

@@ -15,8 +15,8 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.playerColorName
-import ctmn.petals.utils.err
-import ctmn.petals.utils.log
+import ctmn.petals.utils.logErr
+import ctmn.petals.utils.logMsg
 import ctmn.petals.utils.replaceColor
 import ctmn.petals.utils.rgba
 
@@ -110,7 +110,7 @@ class Assets : AssetManager() {
     fun findUnitAtlas(playerColor: String): TextureAtlas {
         val assetName = "units_$playerColor.atlas"
         if (!contains(assetName)) {
-            if (playerColor != "-1") err("Unit colors for player id not found: $playerColor")
+            if (playerColor != "-1") logErr("Unit colors for player id not found: $playerColor")
             return unitsAtlas
         }
         return get(assetName)
@@ -119,7 +119,7 @@ class Assets : AssetManager() {
     fun findUnitAtlas(playerId: Int): TextureAtlas = findUnitAtlas(playerColorName(playerId))
 
     private fun addUnitAtlases() {
-        log("Loading units atlases...")
+        logMsg("Loading units atlases...")
 
         loadUnitsAtlasByColor("units_blue", bluePlayerColors)
         loadUnitsAtlasByColor("units_red", redPlayerColors)
@@ -130,7 +130,7 @@ class Assets : AssetManager() {
         loadUnitsAtlasByColor("units_pink", pinkPlayerColors)
         loadUnitsAtlasByColor("units_brown", brownPlayerColors)
 
-        log("Loading units atlases V")
+        logMsg("Loading units atlases V")
     }
 
     fun beginLoadingAll() {
@@ -273,12 +273,12 @@ class Assets : AssetManager() {
             print("Creating $name units texture")
             try {
                 createAndSaveUnitsTexture(atl, colors, name)
-                log(" V")
+                logMsg(" V")
             } catch (e: Exception) {
-                log(" X")
+                logMsg(" X")
                 e.printStackTrace()
             }
-        } else err("$name units texture is missing and won't be created (non-desktop device).")
+        } else logErr("$name units texture is missing and won't be created (non-desktop device).")
 
         addAsset("$name.atlas", TextureAtlas::class.java, atl)
     }

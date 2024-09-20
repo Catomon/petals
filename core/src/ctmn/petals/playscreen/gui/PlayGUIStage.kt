@@ -28,7 +28,6 @@ import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
 import ctmn.petals.player.getSpeciesBuildings
-import ctmn.petals.player.getSpeciesUnits
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.*
 import ctmn.petals.playscreen.events.*
@@ -148,7 +147,7 @@ class PlayGUIStage(
             field.onExit?.invoke()
             value.onEnter?.invoke()
 
-            log("State changed: ${field.name} -> ${value.name}")
+            logMsg("State changed: ${field.name} -> ${value.name}")
 
             field = value
         }
@@ -223,7 +222,7 @@ class PlayGUIStage(
                 }
             }
 
-            log("MapClickListener changed: ${field::class.simpleName} -> ${value::class.simpleName}")
+            logMsg("MapClickListener changed: ${field::class.simpleName} -> ${value::class.simpleName}")
 
             if (field !is BlockedCL) //why
                 field = value
@@ -709,11 +708,11 @@ class PlayGUIStage(
 
     private fun setupPlayStage() {
         if (playStage.root.findActor<Actor>("been_set_up_mark") != null) {
-            err("PlayStage UI is already set up.")
+            logErr("PlayStage UI is already set up.")
             return
         }
 
-        log("PlayStage UI set up.")
+        logMsg("PlayStage UI set up.")
 
         playStage.addActor(Actor().apply { name = "been_set_up_mark" })
 

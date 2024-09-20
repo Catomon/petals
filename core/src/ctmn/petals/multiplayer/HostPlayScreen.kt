@@ -2,6 +2,8 @@ package ctmn.petals.multiplayer
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import ctmn.petals.Const
+import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.actors.actions.UpdateAction
 import ctmn.petals.multiplayer.json.GameStateSnapshot
 import ctmn.petals.multiplayer.json.LobbyState
@@ -19,6 +21,7 @@ import ctmn.petals.playscreen.gui.floatingLabel
 import ctmn.petals.playscreen.seqactions.SeqAction
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.fromGson
+import ctmn.petals.utils.printLess
 import ctmn.petals.utils.toGson
 import ctmn.petals.widgets.LoadingCover
 import ctmn.petals.widgets.newNotifyWindow
@@ -136,8 +139,10 @@ class HostPlayScreen(
         }
 
         // wait for all players to be ready
+        var timeReady = 0
+        var fail = false
         while (playerStatuses.values.firstOrNull { it != PlayerStatus.READY } != null) {
-
+            timeReady++
             Thread.sleep(1000)
 
             broadcastMessage(StatusRequest())
@@ -146,32 +151,44 @@ class HostPlayScreen(
 
             Gdx.app.log("HostPlayScreen", "Waiting for players to be ready ${playerStatuses.size}/${playersReady.size}")
 
-            var allDisconnected = true
-            for ((i, playerStatus) in playerStatuses.values.withIndex()) {
-                if (playerStatuses[localPlayer.clientId] != playerStatuses.values.elementAt(i)
-                    && playerStatus != PlayerStatus.LOST_CONNECTION && playerStatus != PlayerStatus.DISCONNECTED
-                )
-                    allDisconnected = false
-            }
+            val allDisconnected = playerStatuses.values.all { playerStatus -> playerStatuses[localPlayer.clientId] == playerStatus
+                    || (playerStatus == PlayerStatus.LOST_CONNECTION || playerStatus == PlayerStatus.DISCONNECTED) }
+            if (timeReady > 10) { //allDisconnected ||
+                fail = true
 
-            if (allDisconnected) {
+                Gdx.app.log("HostPlayScreen", "allDisconnected($allDisconnected) timeReady($timeReady) > 10")
                 break
-
-//                returnToMenuScreen()
-//                (game.screen as MenuScreen).stage.addActor(
-//                    newNotifyWindow("All players disconnected", "Custom game")
-//                )
             }
         }
+
+        if (fail) {
+            returnToMenuScreen()
+
+            if (timeReady > 15) {
+                (game.screen as MenuScreen).stage.addActor(
+                    newNotifyWindow("Players ready time out", "Custom game")
+                )
+            } else {
+                (game.screen as MenuScreen).stage.addActor(
+                    newNotifyWindow("All players disconnected", "Custom game")
+                )
+            }
+
+            isReady = false
+
+            return
+        }
+
         Gdx.app.log("HostPlayScreen", "All players are ready")
 
-        // for testing
-        playStage.addAction(UpdateAction {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-                gameStateId++
+        if (Const.DEBUG_MODE) {
+            playStage.addAction(UpdateAction {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
+                    gameStateId++
 
-            false
-        })
+                false
+            })
+        }
     }
     
     override fun initGui() {

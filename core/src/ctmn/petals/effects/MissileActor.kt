@@ -10,7 +10,7 @@ import ctmn.petals.actors.actions.JumpAction
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.assets
 import ctmn.petals.utils.AnimatedSprite
-import ctmn.petals.utils.err
+import ctmn.petals.utils.logErr
 import ctmn.petals.utils.setPositionByCenter
 
 class MissileActor(
@@ -36,7 +36,7 @@ class MissileActor(
         if (stage != null) {
             addAction(jumpAction)
             addAction(DelayAction(5f).apply { action = OneAction {
-                err("Effect time out ${this@MissileActor}")
+                logErr("Effect time out ${this@MissileActor}")
                 addAction(RemoveAction())
             } })
         }

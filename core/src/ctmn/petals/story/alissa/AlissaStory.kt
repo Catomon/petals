@@ -2,7 +2,6 @@ package ctmn.petals.story.alissa
 
 import ctmn.petals.Const.TREASURED_PETALS_STORY_ID
 import ctmn.petals.story.Story
-import ctmn.petals.story.alissa.scenarios.*
 
 class AlissaStory : Story(
     "The Treasured Petals",

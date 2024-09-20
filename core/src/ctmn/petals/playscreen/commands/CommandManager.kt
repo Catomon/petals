@@ -5,8 +5,7 @@ import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Queue
-import ctmn.petals.utils.err
-import ctmn.petals.utils.log
+import ctmn.petals.utils.logErr
 import ctmn.petals.widgets.addNotifyWindow
 
 class CommandManager(val playScreen: PlayScreen) {
@@ -42,7 +41,7 @@ class CommandManager(val playScreen: PlayScreen) {
     fun execute(command: Command) {
         if (!command.canExecute(playScreen)) {
             // it will happen sometimes cuz of Bot players
-            err("Command ${command::class.simpleName} cannot be executed (command.canExecute() returns false)")
+            logErr("Command ${command::class.simpleName} cannot be executed (command.canExecute() returns false)")
             return
         }
 

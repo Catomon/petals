@@ -35,6 +35,7 @@ class GoblinCatapult : UnitActor(
                 2,
                 attackSplashDamage = 25,
                 attackSplashRange = 1,
+                environmentDmg = 100
             )
         )
         add(ReloadingComponent(1))

@@ -104,7 +104,7 @@ val fairySpecies = object : SpeciesUnits {
 
         add(Building(WATERLILY, 2, 50, Array<String>().apply { add("water") }))
         add(Building(PLANT_WALL, 2, 100, Array<String>().apply { add("grass") }))
-        add(Building(PLANT_TOWER, 2, 100, Array<String>().apply { add("grass") }))
+        add(Building(PLANT_TOWER, 2, 100, Array<String>().apply { add("grass") }, FAIRY_ARCHERS_GUILD))
     }
 }
 
@@ -168,7 +168,7 @@ val goblinSpecies = object : SpeciesUnits {
 
         add(Building(BRIDGE, 2, 50, Array<String>().apply { add("water") }))
         add(Building(WOODEN_WALL, 2, 100, Array<String>().apply { add("grass") }))
-        add(Building(WOODEN_TOWER, 2, 100, Array<String>().apply { add("grass") }))
+        add(Building(WOODEN_TOWER, 2, 100, Array<String>().apply { add("grass") }, GOBLIN_ARCHERS_GUILD))
     }
 }
 

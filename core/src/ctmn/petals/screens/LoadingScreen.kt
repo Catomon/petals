@@ -17,7 +17,7 @@ import ctmn.petals.PetalsGame
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.actors.actions.UpdateAction
-import ctmn.petals.utils.err
+import ctmn.petals.utils.logErr
 import kotlin.concurrent.thread
 
 class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen {
@@ -77,7 +77,7 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
                         try {
                             assets.onFinishLoading()
                         } catch (e: Exception) {
-                            err("Error in Assets.onFinishLoading(). " + e.printStackTrace())
+                            logErr("Error in Assets.onFinishLoading(). " + e.printStackTrace())
                             Gdx.app.exit()
                         }
 

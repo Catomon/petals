@@ -1,19 +1,16 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.Const.ACTION_POINTS_ATTACK
-import ctmn.petals.Const.BUILD_TIME
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
-import ctmn.petals.tile.components.BaseBuildingComponent
 import ctmn.petals.tile.components.BuildingComponent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.actionPoints
 import ctmn.petals.unit.canBuild
 import ctmn.petals.unit.component.InvisibilityComponent
 import ctmn.petals.unit.playerId
-import ctmn.petals.utils.err
+import ctmn.petals.utils.logErr
 
 class BuildCommand(
     val buildingName: String,
@@ -40,7 +37,7 @@ class BuildCommand(
         if (unit.actionPoints <= 0) return false
 
         if ((playScreen.turnManager.getPlayerById(unit.playerId)?.credits ?: 0) < cost) {
-            err("Not enough credits")
+            logErr("Not enough credits")
             return false
         }
 
@@ -60,6 +57,8 @@ class BuildCommand(
         if (tile.cPlayerId?.playerId != unit.playerId) {
             tile.add(BuildingComponent(buildingName, playerId, buildTime))
         }
+
+        unit.updateView()
 
         return true
     }

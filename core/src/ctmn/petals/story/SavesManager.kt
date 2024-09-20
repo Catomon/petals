@@ -68,7 +68,7 @@ object SavesManager {
         if (json.has("game_version")) {
             val ver = Version.compareVersions(Const.APP_VER_NAME, json.get("game_version").asString)
             if (ver > 0)
-                err("Warn: Save version is older that the game version")
+                logErr("Warn: Save version is older that the game version")
 
             return ver
         }
@@ -88,7 +88,7 @@ object SavesManager {
                     return Gson().fromJson(string, T::class.java)
             }
         } catch (e: Exception) {
-            err("Failed to read save file for story id: $storyId")
+            logErr("Failed to read save file for story id: $storyId")
             e.printStackTrace()
 
             return null
@@ -108,7 +108,7 @@ object SavesManager {
                     return
                 }
             } catch (e: Exception) {
-                err("Failed to save story $storySaveGson to file ${save.path()}")
+                logErr("Failed to save story $storySaveGson to file ${save.path()}")
                 e.printStackTrace()
 
                 break
@@ -124,7 +124,7 @@ object SavesManager {
         return try {
             decryptData(encryptedString, generateSecretKey(asdfaksf))
         } catch (e: Exception) {
-            err("Failed to decrypt a story save")
+            logErr("Failed to decrypt a story save")
             e.printStackTrace()
             "{ }"
         }

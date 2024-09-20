@@ -4,10 +4,9 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.*
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.map.loadMap
 import ctmn.petals.map.loadScenarioMap
 import ctmn.petals.playstage.PlayStage
-import ctmn.petals.utils.log
+import ctmn.petals.utils.logMsg
 
 abstract class Scenario(
     val id: String,
@@ -39,7 +38,7 @@ abstract class Scenario(
 
     open fun saveTo(storySaveGson: StorySaveGson) {
         evaluateResult()
-        log("Result: $result")
+        logMsg("Result: $result")
         val lp = storySaveGson.progress.levels[id]
         if (lp != null) {
             if (lp.state < result)

@@ -9,16 +9,25 @@ import ctmn.petals.actors.actions.JumpAction
 import ctmn.petals.utils.tiled
 import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.playscreen.events.UnitMovedEvent
 
 class ThrowUnitAction(val unit: UnitActor, val dX: Int, val dY: Int, val power: Float = 100f) : SeqAction() {
 
-    private val subActions = Array<SeqAction>()
+    private val subActions = Array<ActorAction>()
 
     override fun update(deltaTime: Float) {
         for (action in subActions) {
             action.update(deltaTime)
-            if (action.isDone)
+            if (action.isDone) {
                 subActions.removeValue(action, true)
+
+                if (action.act is JumpAction) {
+                    val act = action.act
+                    if (act.actor is UnitActor) {
+                        playScreen.fireEvent(UnitMovedEvent(act.actor as UnitActor, act.startX.tiled(), act.startY.tiled()))
+                    }
+                }
+            }
         }
 
         if (subActions.isEmpty)

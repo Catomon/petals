@@ -34,10 +34,7 @@ import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.commands.CommandManager
 import ctmn.petals.playscreen.commands.EndTurnCommand
 import ctmn.petals.playscreen.commands.GrantXpCommand
-import ctmn.petals.playscreen.events.ActionCompletedEvent
-import ctmn.petals.playscreen.events.GameOverEvent
-import ctmn.petals.playscreen.events.NextTurnEvent
-import ctmn.petals.playscreen.events.UnitMovedEvent
+import ctmn.petals.playscreen.events.*
 import ctmn.petals.playscreen.gui.GameOverMenu
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.gui.PlayStageCameraController
@@ -47,6 +44,7 @@ import ctmn.petals.playscreen.listeners.ActionEffectListener
 import ctmn.petals.playscreen.listeners.PinkSlimeLingHealing
 import ctmn.petals.playscreen.listeners.TileLifeTimeListener
 import ctmn.petals.playscreen.seqactions.SeqActionManager
+import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playscreen.tasks.TaskManager
 import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
@@ -55,6 +53,7 @@ import ctmn.petals.screens.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
+import ctmn.petals.tile.components.HealthComponent
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BurningComponent
@@ -195,6 +194,26 @@ open class PlayScreen(
 
             false
         }
+
+        playStage.addListener {
+            when (it) {
+                is UnitMovedEvent -> {
+                    it.unit.updateView()
+                }
+
+                is ActionStartedEvent -> {
+                    if (it.action is ThrowUnitAction)
+                        it.action.unit.updateView()
+                }
+
+                is ActionCompletedEvent -> {
+                    if (it.action is ThrowUnitAction)
+                        it.action.unit.updateView()
+                }
+            }
+
+            false
+        }
     }
 
     fun update(delta: Float) {
@@ -234,12 +253,12 @@ open class PlayScreen(
 
         Decorator.decorate(playStage)
 
-        fixLevel()
+        prepareLevel()
 
         levelCreated()
     }
 
-    private fun fixLevel() {
+    private fun prepareLevel() {
         // if first tile on a tiled position has layer != 1, shift all tiles layer on the position to make it 1
         // like 0 1 2 -> -1 0 1
         // only if layer is <3, in this case: 0 1 2 3 -> -1 0 1 3
@@ -291,7 +310,8 @@ open class PlayScreen(
         botManager.botPlayers.forEach { it.levelCreated(playStage) }
     }
 
-    private var isReady = false
+    var isReady = false
+        protected set
 
     open fun ready() {
         if (levelId == null) throw IllegalStateException("Level is null")
@@ -487,7 +507,7 @@ open class PlayScreen(
                 val enemyWon = !draw && !youWon
                 val oneWinner = winners.size == 1
 
-                log("Game Over. Winners: ${winners.joinToString()}; teamId: ${turnManager.getPlayerById(winners.firstOrNull() ?: -1)?.teamId ?: ""}")
+                logMsg("Game Over. Winners: ${winners.joinToString()}; teamId: ${turnManager.getPlayerById(winners.firstOrNull() ?: -1)?.teamId ?: ""}")
 
                 when {
                     youWon -> {

@@ -74,6 +74,22 @@ open class TileActor(
         // set actor size
         width = TILE_SIZE
         height = TILE_SIZE
+
+        //
+        val health = when {
+            terrain == TerrainNames.forest -> 150
+            terrain == TerrainNames.building -> 200
+            terrain == TerrainNames.crystals -> 400
+            terrain == TerrainNames.walls -> 300
+            terrain == TerrainNames.tower -> 200
+            tileName.startsWith(Tiles.BRIDGE) -> 150
+            tileName.startsWith(Tiles.WATERLILY) -> 150
+            else -> 0
+        }
+
+        if (health > 0) {
+            add(HealthComponent(health))
+        }
     }
 
     fun initView() {
@@ -201,6 +217,7 @@ open class TileActor(
                 "BuildingComponent" -> components.add(gson.fromJson(value, BuildingComponent::class.java))
                 "DestroyingComponent" -> components.add(gson.fromJson(value, DestroyingComponent::class.java))
                 "CrystalsComponent" -> components.add(gson.fromJson(value, CrystalsComponent::class.java))
+                "HealthComponent" -> components.add(gson.fromJson(value, HealthComponent::class.java))
             }
         }
 
@@ -251,6 +268,7 @@ open class TileActor(
                     is BaseBuildingComponent -> component.copy()
                     is DestroyingComponent -> component.copy()
                     is BuildingComponent -> component.copy()
+                    is HealthComponent -> component.copy()
                     else -> continue
                 }
             )

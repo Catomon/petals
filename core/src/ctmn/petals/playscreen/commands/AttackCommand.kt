@@ -6,12 +6,14 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.*
 import ctmn.petals.unit.*
 import ctmn.petals.playscreen.seqactions.AttackAction
+import ctmn.petals.playstage.damageTile
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
 import ctmn.petals.unit.component.MoveAfterAttackComponent
 import ctmn.petals.unit.component.ReloadingComponent
 import ctmn.petals.utils.getSurroundingUnits
+import ctmn.petals.utils.getTile
 import ctmn.petals.utils.getUnitsInRange
 import kotlin.math.max
 import kotlin.math.min
@@ -138,6 +140,10 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
                     attackerUnit.cUnit.movingRange = secondRange
                     attacked = true
                 }
+            }
+
+            playScreen.playStage.getTile(targetUnit.tiledX, targetUnit.tiledY)?.let { tile ->
+                playScreen.playStage.damageTile(tile, attackerUnit.cAttack?.environmentDmg ?: 0)
             }
         }
 

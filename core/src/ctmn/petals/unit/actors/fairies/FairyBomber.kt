@@ -38,7 +38,8 @@ class FairyBomber : UnitActor(
                 1,
                 attackSplashDamage = 40,
                 attackSplashRange = 1,
-                attackType = ATTACK_TYPE_GROUND
+                attackType = ATTACK_TYPE_GROUND,
+                environmentDmg = 50
             )
         )
         add(MoveAfterAttackComponent(movingRange, 1))

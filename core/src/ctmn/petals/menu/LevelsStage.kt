@@ -16,7 +16,7 @@ import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.*
 import ctmn.petals.story.faecampaign.FaerieStory
 import ctmn.petals.story.faecampaign.FaerieStorySave
-import ctmn.petals.utils.log
+import ctmn.petals.utils.logMsg
 import ctmn.petals.widgets.*
 
 fun PetalsGame.startLevel(story: Story, scenario: Scenario) {
@@ -85,7 +85,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
     }
 
     init {
-        log(story.storySave.toString())
+        logMsg(story.storySave.toString())
 
 //        addListener {
 //            if (it is ResetStateEvent) {

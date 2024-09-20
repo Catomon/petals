@@ -15,13 +15,12 @@ class GoblinBomber : UnitActor(
         100,
         5,
         4,
-        6,
-        UNIT_TYPE_WATER
+        6
     )
 ) {
 
     override val attackEffect: MissileActor
-        get() = MissileActor(missileName = "bomb_missile").also {
+        get() = MissileActor(missileName = "bomb_missile", power = 150f).also {
             it.setStart(
                 centerX,
                 centerY + 5
@@ -33,11 +32,13 @@ class GoblinBomber : UnitActor(
         add(
             AttackComponent(
                 35,
-                45,
+                55,
                 3,
-                2,
-                attackSplashDamage = 35,
+                0,
+                attackSplashDamage = 45,
                 attackSplashRange = 1,
+                attackType = ATTACK_TYPE_GROUND,
+                environmentDmg = 50
             )
         )
         add(ReloadingComponent(1))

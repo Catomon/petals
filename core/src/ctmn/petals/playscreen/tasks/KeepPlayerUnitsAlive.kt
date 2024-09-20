@@ -9,7 +9,7 @@ import ctmn.petals.playscreen.events.GameOverEvent
 import ctmn.petals.playscreen.events.UnitDiedEvent
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.unit.playerId
-import ctmn.petals.utils.log
+import ctmn.petals.utils.logMsg
 
 class KeepPlayerUnitsAlive(val player: Player) : Task() {
 
@@ -28,7 +28,7 @@ class KeepPlayerUnitsAlive(val player: Player) : Task() {
             if (event is UnitDiedEvent) {
                 if (event.unit.playerId == 1) {
                     complete(state = State.FAILED)
-                    log("task failed")
+                    logMsg("task failed")
                 }
             }
 

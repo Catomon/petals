@@ -7,13 +7,17 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const.PLAY_CAMERA_ZOOM
 import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.assets
+import ctmn.petals.effects.AnimationEffect
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
+import ctmn.petals.playscreen.selfName
+import ctmn.petals.playstage.Decorator.nameNoSuffix
 import ctmn.petals.tile.*
 import ctmn.petals.tile.TerrainNames.land_capturable
+import ctmn.petals.tile.components.HealthComponent
 import ctmn.petals.unit.*
-import ctmn.petals.utils.err
-import ctmn.petals.utils.getSurroundingUnits
+import ctmn.petals.utils.*
 import kotlin.math.max
 import kotlin.Array as KArray
 
@@ -617,11 +621,40 @@ fun PlayStage.shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
     }
 }
 
+fun PlayStage.damageTile(tile: TileActor, damage: Int) {
+    tile.get(HealthComponent::class.java)?.let {
+        it.health -= damage
+
+        if (it.health <= 0) {
+            destroyTile(tile)
+        }
+    }
+}
+
+fun PlayStage.destroyTile(tile: TileActor) {
+    logMsg("Tile destroyed: ${tile.selfName}")
+
+    val debris = TileData.getOrNull(tile.selfName + "_debris") ?:  TileData.getOrNull(tile.nameNoSuffix() + "_debris") ?: TileData.getOrNull(tile.terrain + "_debris")
+    if (debris != null) {
+        logMsg("Tile debris added: ${tile.selfName} debris")
+        tile.remove()
+        val debrisTile = TileActor(debris, tile.layer, tile.tiledX, tile.tiledY)
+        addActor(debrisTile)
+    } else {
+        logMsg("Tile ${tile.selfName} had no debris")
+        removeTileSafely(tile)
+    }
+
+    val destroyEffect = AnimationEffect(assets.effectsAtlas.findRegions("tile_destroyed"), 0.075f)
+    destroyEffect.setPosition(tile.centerX, tile.centerY)
+    addActor(destroyEffect)
+}
+
 fun PlayStage.removeTileSafely(tile: TileActor) {
     shiftLayerAt(tile.tiledX, tile.tiledY, 1)
 
     if (getTile(tile.tiledX, tile.tiledY) == null) {
-        err("No back tile; added a grass tile then")
+        logErr("No back tile; added a grass tile then")
         addActor(
             TileActor(
                 TileData.get("grass")!!,

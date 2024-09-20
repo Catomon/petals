@@ -288,6 +288,8 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                 } else {
                     unitOnTile.actionPoints = 0
                 }
+
+                unitOnTile.updateView()
             } else {
                 tile.components.remove(CapturingComponent::class.java)
             }
@@ -337,6 +339,8 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                 } else {
                     unitOnTile.actionPoints = 0
                 }
+
+                unitOnTile.updateView()
             } else {
                 tile.components.remove(BaseBuildingComponent::class.java)
             }
@@ -378,6 +382,8 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                 } else {
                     unitOnTile.actionPoints = 0
                 }
+
+                unitOnTile.updateView()
             } else {
                 tile.components.remove(BuildingComponent::class.java)
             }

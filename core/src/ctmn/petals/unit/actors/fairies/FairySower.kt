@@ -1,7 +1,6 @@
 package ctmn.petals.unit.actors.fairies
 
-import ctmn.petals.unit.TerrainPropsPack
-import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitIds.DOLL_SOWER
 import ctmn.petals.unit.component.*
 
@@ -11,10 +10,12 @@ class FairySower : UnitActor(
         100,
         0,
         3,
-        5,
+        4,
         playerID = 1
     )
 ) {
+
+    val buildingAnimation = findAnimation(DOLL_SOWER + "_building", loop = true)
 
     init {
         add(FollowerComponent())
@@ -27,5 +28,17 @@ class FairySower : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent())
+    }
+
+    override fun updateView() {
+        super.updateView()
+
+        if (isBuilding || isCapturing || isBaseBuilding) {
+            if (cAnimationView?.animation?.let { it != buildingAnimation } == true) {
+                setAnimation(buildingAnimation, duration = 9999999f)
+            }
+        } else {
+            setAnimation(null)
+        }
     }
 }

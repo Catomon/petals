@@ -38,6 +38,8 @@ class CaptureCommand(val unitId: String, val baseId: String) : Command() {
 
         if (base.cPlayerId?.playerId != unit.playerId) {
             base.add(CapturingComponent(unit.playerId, CAPTURE_TIME))
+
+            unit.updateView()
         }
 
         return true

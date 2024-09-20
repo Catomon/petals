@@ -16,6 +16,7 @@ data class AttackComponent(
     var attackSplashDamage: Int = 0,
     var attackSplashRange: Int = 0, // 0 - no splash
     var attackType: String = ATTACK_TYPE_GROUND,
+    var environmentDmg: Int = 25
     //var reloading: Int = 0,
 ) : Component, CopyableComponent {
 

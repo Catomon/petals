@@ -3,9 +3,9 @@ package ctmn.petals.unit
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.unit.actors.*
-import ctmn.petals.unit.actors.creatures.*
 import ctmn.petals.unit.actors.fairies.*
 import ctmn.petals.unit.actors.goblins.*
+import ctmn.petals.unit.actors.creatures.*
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
@@ -21,21 +21,28 @@ object Units {
 
     init {
         add(Alice())
-        add(AngryOwl())
         add(Axeman())
-        add(BigEvilTree())
-        add(BigToad())
         add(Bowman())
-        add(Bulgy())
         add(Catapult())
         add(Cavalry())
         add(CentaurSpear())
         add(CentaurSword())
         add(Cherie())
         add(CherieSpearman())
+        add(AngryOwl())
+        add(BigEvilTree())
+        add(BigToad())
+        add(Bulgy())
+        add(EvilTree())
+        add(PinkSlimeLing())
+        add(RootTree())
+        add(Slime())
+        add(SlimeBig())
+        add(SlimeHuge())
+        add(SlimeLing())
+        add(SlimeTiny())
         add(Crossbowman())
         add(Dummy())
-        add(EvilTree())
         add(FairyArmorSword())
         add(FairyAxe())
         add(FairyBomber())
@@ -58,6 +65,7 @@ object Units {
         add(FishGuy())
         add(Goblin())
         add(GoblinBoar())
+        add(GoblinBomber())
         add(GoblinBow())
         add(GoblinCatapult())
         add(GoblinCrossbow())
@@ -79,13 +87,6 @@ object Units {
         add(Necromancer())
         add(ObjBlob())
         add(ObjRoot())
-        add(PinkSlimeLing())
-        add(RootTree())
-        add(Slime())
-        add(SlimeBig())
-        add(SlimeHuge())
-        add(SlimeLing())
-        add(SlimeTiny())
         add(Spearman())
         add(Swordman())
         add(VillageSpearman())

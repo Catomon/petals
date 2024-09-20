@@ -11,7 +11,7 @@ import ctmn.petals.editor.collectMaps
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.tile.*
 import ctmn.petals.unit.*
-import ctmn.petals.utils.err
+import ctmn.petals.utils.logErr
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
 import java.io.FileNotFoundException
@@ -101,7 +101,7 @@ fun MapSave.convertActors(): ArrayList<Actor> {
                     val unit = Units.find(actor.id)
                         ?.also { it.position(actor.x, actor.y).player(playerIdByUnitSpecies(it)) }
                     if (unit == null) {
-                        err("Unit not found: ${actor.id}")
+                        logErr("Unit not found: ${actor.id}")
                         continue
                     }
 

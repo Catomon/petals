@@ -23,7 +23,7 @@ import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.gui.floatingLabel
 import ctmn.petals.utils.fromGson
-import ctmn.petals.utils.log
+import ctmn.petals.utils.logMsg
 import ctmn.petals.utils.toGson
 import ctmn.petals.widgets.newNotifyWindow
 
@@ -60,7 +60,7 @@ class ClientPlayScreen(
                 if (game.screen != this@ClientPlayScreen) return
 
                 if (serverStatus == ServerStatus.SHUTDOWN) {
-                    log("Disconnected due to server shutdown.")
+                    logMsg("Disconnected due to server shutdown.")
                     return
                 }
 
@@ -95,7 +95,7 @@ class ClientPlayScreen(
                         DelayAction(1.5f),
                         OneAction {
                             if (!client.running() && !client.channelFuture.isSuccess) {
-                                log("Lost connection to the server.")
+                                logMsg("Lost connection to the server.")
 
                                 returnToMenuScreen()
                                 val menuScreen = (game.screen as MenuScreen)

@@ -156,6 +156,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                         }
                 }
 
+                confirmButton.isDisabled =
+                    playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+
                 serverManager.sendLobbyState()
             }
 
@@ -170,6 +173,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
                         if (it.player != null)
                             it.button.color.a = 0.5f    // lost connection
+
+                        confirmButton.isDisabled =
+                            playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
 
                         println("[Server Lobby] Player ${client.clientId} lost connection")
                     }
@@ -663,7 +669,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         }
         ps.ready()
 
-        menuScreen.game.screen = ps
+        if (ps.isReady)
+            menuScreen.game.screen = ps
     }
 
     private fun setLevel(map: MapConverted?) {

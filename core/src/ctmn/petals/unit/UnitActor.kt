@@ -124,11 +124,18 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         currentAnimationDuration = duration
     }
 
+    private var isFrozen = false
+
     open fun updateView() {
         if (buffs.findLast { it.name == "freeze" } != null) {
             sprite?.color = Color.BLUE.cpy()
-        } else
-            sprite?.color = Color.WHITE.cpy()
+            isFrozen = true
+        } else {
+            if (isFrozen) {
+                sprite?.color = Color.WHITE.cpy()
+                isFrozen = false
+            }
+        }
     }
 
     override fun toJsonObject(): JsonObject {

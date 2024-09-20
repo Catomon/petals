@@ -100,7 +100,7 @@ class EasyDuelBot(
             try {
                 nextCommand()
             } catch (e: Exception) {
-                err("Bot exception nextCommand() ")
+                logErr("Bot exception nextCommand() ")
                 e.printStackTrace()
             }
             isThinking = false
