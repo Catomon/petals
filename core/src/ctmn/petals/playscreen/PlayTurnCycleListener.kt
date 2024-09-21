@@ -303,10 +303,12 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
         if (tile.cDestroying?.playerId == turnCycleEvent.nextPlayer.id) {
             val unitOnTile = playScreen.playStage.getUnit(tile.tiledX, tile.tiledY)
             if (unitOnTile != null && tile.cDestroying!!.playerId == unitOnTile.playerId) {
-                playScreen.playStage.removeTileSafely(tile)
-                //todo debris
+                //playScreen.playStage.removeTileSafely(tile)
+                playScreen.playStage.destroyTile(tile)
             }
             tile.components.remove(DestroyingComponent::class.java)
+
+
         }
     }
 

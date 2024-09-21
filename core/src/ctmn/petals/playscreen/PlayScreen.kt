@@ -865,6 +865,11 @@ open class PlayScreen(
 
             player.credits += amount
         }
+
+        @ConsoleDoc(description = "Unlocks all units.")
+        fun ulckAll() {
+            guiStage.buyMenu.unlockAll = true
+        }
     }
 
     private inner class DebugKeysProcessor : InputAdapter() {

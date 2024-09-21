@@ -36,6 +36,8 @@ class BuyMenu : VisTable() {
 
     val availableUnits = HashMap<Int, Array<UnitActor>>()
 
+    var unlockAll = false
+
     init {
         setFillParent(true)
     }
@@ -44,7 +46,7 @@ class BuyMenu : VisTable() {
         check(stage != null)
 
         clear()
-        val buyMenuPane = BuyMenuPane(guiStage, base, player, availableUnits[player.id])
+        val buyMenuPane = BuyMenuPane(guiStage, base, player, availableUnits[player.id], unlockAll)
         val closeButton =
             newTextButton("Close").addChangeListener { buyMenuPane.remove(); it.remove(); clear() }.addClickSound()
         add(VisLabel("Buy Menu")).center().padTop(6f).padBottom(10f)
@@ -60,6 +62,7 @@ private class BuyMenuPane(
     var baseTile: TileActor,
     val player: Player? = null,
     val filterUnits: Array<UnitActor>? = null,
+    val unlockAll: Boolean = false,
 ) : VisTable() {
 
     companion object {
@@ -137,7 +140,7 @@ private class BuyMenuPane(
                             tiles.any { tile -> tile.cPlayerId?.playerId == player.id && it == tile.selfName }
                         }
 
-                    if (unlocked) {
+                    if (unlocked || unlockAll) {
                         addB(unit, unit.cShop?.price ?: 999999, true)
                     } else {
                         lockedUnits.add(unit)

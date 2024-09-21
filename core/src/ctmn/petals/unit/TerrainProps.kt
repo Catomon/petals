@@ -2,6 +2,7 @@ package ctmn.petals.unit
 
 import ctmn.petals.tile.TerrainNames.land_capturable
 import ctmn.petals.tile.TerrainNames.base
+import ctmn.petals.tile.TerrainNames.building
 import ctmn.petals.tile.TerrainNames.chasm
 import ctmn.petals.tile.TerrainNames.crystals
 import ctmn.petals.tile.TerrainNames.deepwater
@@ -181,13 +182,14 @@ object TerrainPropsPack {
         put(fortress, 1, 5, 15)
         put(fallenforest, 2, 0, 0)
         put(swamp, ONE_TILE, -10, -5)
-        put(crystals, 1, 0, 0)
+        put(crystals, 1, 0, 5)
         put(deepwater, UNREACHABLE, -15, -10)
         put(skyscraper, UNREACHABLE, -15, 10)
         put(chasm, UNREACHABLE)
         put(lava, ONE_TILE)
         put(mud, 1, -5, -5)
         put(ice, 0, -5, -5)
+        put(building, 1, 0, 5)
     }
 
     val flier = TerrainProps().apply {
@@ -237,6 +239,7 @@ object TerrainPropsPack {
         put(land_capturable, UNREACHABLE)
         put(mud, UNREACHABLE)
         put(ice, UNREACHABLE)
+        put(crystals, UNREACHABLE)
     }
 
     val slime = TerrainProps().apply {
@@ -264,6 +267,7 @@ object TerrainPropsPack {
         put(lava, ONE_TILE)
         put(mud, 1, 5, 5)
         put(ice, 0, 5, 0)
+        put(building, 1, 0, 5)
     }
 
     val giant = TerrainProps().apply {
@@ -291,5 +295,6 @@ object TerrainPropsPack {
         put(lava, ONE_TILE)
         put(mud, 1, -5, -5)
         put(ice, 1, -10, -5)
+        put(building, ONE_TILE, 0, 0)
     }
 }

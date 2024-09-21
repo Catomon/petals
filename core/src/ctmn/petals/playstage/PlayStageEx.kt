@@ -634,7 +634,7 @@ fun PlayStage.damageTile(tile: TileActor, damage: Int) {
 fun PlayStage.destroyTile(tile: TileActor) {
     logMsg("Tile destroyed: ${tile.selfName}")
 
-    val debris = TileData.getOrNull(tile.selfName + "_debris") ?:  TileData.getOrNull(tile.nameNoSuffix() + "_debris") ?: TileData.getOrNull(tile.terrain + "_debris")
+    val debris = TileData.getOrNull(tile.selfName + "_debris") ?:  TileData.getOrNull(tile.nameNoSuffix() + "_debris") ?: TileData.getOrNull(tile.nameNoTeamName() + "_debris") ?: TileData.getOrNull(tile.terrain + "_debris")
     if (debris != null) {
         logMsg("Tile debris added: ${tile.selfName} debris")
         tile.remove()

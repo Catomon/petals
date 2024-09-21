@@ -8,7 +8,7 @@ import ctmn.petals.unit.component.*
 class FairyHunter : UnitActor(
     UnitComponent(
         HUNTER,
-        300,
+        500,
         30,
         3,
         6
@@ -22,7 +22,8 @@ class FairyHunter : UnitActor(
             AttackComponent(
                 55,
                 70,
-                1
+                1,
+                environmentDmg = 75
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.giant.copy().apply {

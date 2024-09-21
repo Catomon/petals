@@ -4,6 +4,7 @@ import ctmn.petals.Const.ACTION_POINTS_ATTACK
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.playstage.destroyTile
 import ctmn.petals.playstage.removeTileSafely
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
@@ -41,8 +42,9 @@ class DestroyTileCommand(val unitId: String, val baseId: String) : Command() {
 
         val playStage = playScreen.playStage
         if (unit.selfName == UnitIds.HUNTER || unit.selfName == UnitIds.GOBLIN_GIANT) {
-            playStage.removeTileSafely(tile)
-            //todo debris
+            playStage.destroyTile(tile)
+            //playStage.removeTileSafely(tile)
+
         } else {
             tile.add(DestroyingComponent(unit.playerId))
         }

@@ -9,17 +9,25 @@ import com.badlogic.gdx.scenes.scene2d.actions.RemoveAction
 import ctmn.petals.actors.actions.JumpAction
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.assets
+import ctmn.petals.playscreen.playStageOrNull
+import ctmn.petals.playstage.shiftLayerAt
+import ctmn.petals.tile.TerrainNames
+import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.TileData
 import ctmn.petals.utils.AnimatedSprite
 import ctmn.petals.utils.logErr
 import ctmn.petals.utils.setPositionByCenter
+import ctmn.petals.utils.tiled
 
 class MissileActor(
     missileName: String = "catapult_missile",
     explosionName: String = "catapult_explosion",
     targetX: Float = 0f,
     targetY: Float = 0f,
-    power: Float = 200f
+    power: Float = 200f,
 ) : Actor() {
+
+    var impactResultTile = "pit"
 
     val missileSprite = AnimatedSprite(assets.effectsAtlas.findRegions(missileName))
     val explosionSprite = AnimatedSprite(assets.effectsAtlas.findRegions(explosionName), 0.1f).apply {
@@ -35,10 +43,12 @@ class MissileActor(
 
         if (stage != null) {
             addAction(jumpAction)
-            addAction(DelayAction(5f).apply { action = OneAction {
-                logErr("Effect time out ${this@MissileActor}")
-                addAction(RemoveAction())
-            } })
+            addAction(DelayAction(5f).apply {
+                action = OneAction {
+                    logErr("Effect time out ${this@MissileActor}")
+                    addAction(RemoveAction())
+                }
+            })
         }
     }
 
@@ -59,9 +69,30 @@ class MissileActor(
 
         currentSprite.update(delta)
 
-        if (jumpAction.actor == null) {
+        if (jumpAction.actor == null && !isLanded) {
             isLanded = true
             currentSprite = explosionSprite
+
+            playStageOrNull?.let { playStage ->
+                playStage.getTile(jumpAction.endX.tiled(), jumpAction.endY.tiled())?.let { tile ->
+                    if (tile.terrain == TerrainNames.grass) {
+                        if (playStage.getTile(
+                                tile.tiledX,
+                                tile.tiledY,
+                                tile.layer - 1
+                            )?.terrain == TerrainNames.grass
+                        ) {
+                            tile.remove()
+                        } else {
+                            playStage.shiftLayerAt(tile.tiledX, tile.tiledY, -1)
+                        }
+
+                        val tileData = TileData.get(impactResultTile)
+                        if (tileData != null)
+                            playStage.addActor(TileActor(tileData, 1, tile.tiledX, tile.tiledY))
+                    }
+                }
+            }
         }
 
         if (explosionSprite.animation.isAnimationFinished(explosionSprite.animation.stateTime))

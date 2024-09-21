@@ -39,10 +39,11 @@ val TileActor.isBurning: Boolean
     get() {
         return selfName == Tiles.BURNING_FOREST
     }
-val TileActor.isFluid get() = terrain == TerrainNames.water
-        || terrain == TerrainNames.deepwater
-        || terrain == TerrainNames.lava
-        || terrain == TerrainNames.swamp
+val TileActor.isFluid
+    get() = terrain == TerrainNames.water
+            || terrain == TerrainNames.deepwater
+            || terrain == TerrainNames.lava
+            || terrain == TerrainNames.swamp
 
 fun TileActor.isPassableAndFree(): Boolean {
     return !isOccupied && terrain != TerrainNames.impassable
@@ -85,6 +86,17 @@ fun placeholderBaseNameToPlayerId(name: String): Int = when (name) {
     "pink_base" -> 7
     "brown_base" -> 8
     else -> throw IllegalArgumentException(name)
+}
+
+fun TileActor.nameNoTeamName(): String {
+    return tileName.removeSuffix("_blue")
+        .removeSuffix("_red")
+        .removeSuffix("_green")
+        .removeSuffix("_purple")
+        .removeSuffix("_yellow")
+        .removeSuffix("_orange")
+        .removeSuffix("_pink")
+        .removeSuffix("_brown")
 }
 
 /** if species == null will be goblins by def. */
