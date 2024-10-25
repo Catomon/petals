@@ -21,8 +21,8 @@ class GoblinBow : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
+                20,
                 30,
-                40,
                 3,
                 attackType = ATTACK_TYPE_ALL,
                 environmentDmg = 15

@@ -31,11 +31,11 @@ class GoblinBomber : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                35,
-                55,
+                25,
+                45,
                 3,
                 0,
-                attackSplashDamage = 45,
+                attackSplashDamage = 35,
                 attackSplashRange = 1,
                 attackType = ATTACK_TYPE_GROUND,
                 environmentDmg = 50

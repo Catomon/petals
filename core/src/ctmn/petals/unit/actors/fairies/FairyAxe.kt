@@ -27,7 +27,7 @@ class FairyAxe : UnitActor(
                 60,
                 80,
                 1,
-                 environmentDmg = 50
+                 environmentDmg = 25
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))

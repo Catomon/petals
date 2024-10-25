@@ -68,7 +68,7 @@ object SavesManager {
         if (json.has("game_version")) {
             val ver = Version.compareVersions(Const.APP_VER_NAME, json.get("game_version").asString)
             if (ver > 0)
-                logErr("Warn: Save version is older that the game version")
+                logErr("Warn: Save version is older than the game version")
 
             return ver
         }

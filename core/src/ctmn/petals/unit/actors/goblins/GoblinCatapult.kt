@@ -29,8 +29,8 @@ class GoblinCatapult : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                55,
-                70,
+                45,
+                60,
                 5,
                 2,
                 attackSplashDamage = 25,

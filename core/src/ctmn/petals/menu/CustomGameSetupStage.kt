@@ -805,7 +805,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 button.color.a = 1f // lost connection
 
                 if (value != null) {
-                    button.style.imageUp = VisUI.getSkin().getDrawable("portraits/${"abcdefgh"[value.id - 1]}")
+                    updateSpeciesPortrait(value)
 
                     removePlayerButton.isVisible = value != localPlayer && isHost
 
@@ -906,6 +906,16 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         fun getSlotStateInstance(): PlayerSlotState {
             return PlayerSlotState(player, isLocalHostSlot, isAI)
         }
+
+        private fun updateSpeciesPortrait(player: Player) {
+            button.style.imageUp = VisUI.getSkin().getDrawable("portraits/${player.species + "_" + "abcdefgh"[player.id - 1]}")
+        }
+
+        fun setPlayerSpecies(species: String) {
+            val player = player ?: return
+            player.species = species
+            updateSpeciesPortrait(player)
+        }
     }
 
     private fun PlayerSlot.showPlayerSlotActionDialog() {
@@ -963,7 +973,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         val makeGoblinButton = newTextButton("Set Goblin").addChangeListener {
             if ((slot.player != null)) {
-                slot.player?.species = goblin
+                slot.setPlayerSpecies(goblin)
 
                 serverManager.sendLobbyState()
             }
@@ -974,7 +984,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         val makeFaerieButton = newTextButton("Set Faerie").addChangeListener {
             if ((slot.player != null)) {
-                slot.player?.species = fairy
+                slot.setPlayerSpecies(fairy)
 
                 serverManager.sendLobbyState()
             }

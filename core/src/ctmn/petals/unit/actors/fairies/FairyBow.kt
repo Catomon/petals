@@ -23,8 +23,8 @@ class FairyBow : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
-                30,
-                40,
+                20,
+                35,
                 3,
                 attackType = ATTACK_TYPE_ALL,
                 environmentDmg = 15
