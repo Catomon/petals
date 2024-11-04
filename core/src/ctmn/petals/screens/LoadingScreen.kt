@@ -40,7 +40,7 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
 
         addActor(VisTable().apply {
             setFillParent(true)
-            add(bunnyImage).padTop(12f).size(256f)
+            add(bunnyImage).padTop(12f).size(bunnyImage.width * 256f / bunnyImage.height, 256f)
             row()
             add(msg).padTop(32f)
         })

@@ -28,7 +28,8 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
 
     private val targetFpsSelectBox = VisSelectBox<Int>().apply {
         items = Array<Int>().apply {
-            add(120, 60, 30)
+            if (!Const.IS_RELEASE) add(0)
+            add(240, 120, 60, 30)
         }
     }
 

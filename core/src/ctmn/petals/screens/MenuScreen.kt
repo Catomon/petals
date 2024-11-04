@@ -68,8 +68,8 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
         batch.begin()
         background.draw(stage.batch, stage.root.color.a)
 
-        blackThingy.x = viewport.camera.position.x - 150f
-        blackThingy.setSize(300f, stage.height)
+        blackThingy.x = viewport.camera.position.x - 160f
+        blackThingy.setSize(320f, stage.height)
         blackThingy.draw(stage.batch, stage.root.color.a)
         batch.end()
 

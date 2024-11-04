@@ -1,6 +1,5 @@
 package ctmn.petals.menu
 
-import ctmn.petals.*
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -9,14 +8,21 @@ import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
+import ctmn.petals.Const
+import ctmn.petals.assets
 import ctmn.petals.editor.EditorScreen
+import ctmn.petals.game
 import ctmn.petals.menu.StorySelectStage.Companion.startStory
 import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.quickplay.QuickplayScreen
 import ctmn.petals.story.StoriesManager
+import ctmn.petals.strings
 import ctmn.petals.utils.addClickListener
-import ctmn.petals.widgets.*
+import ctmn.petals.widgets.addChangeListener
+import ctmn.petals.widgets.addClickSound
+import ctmn.petals.widgets.newLabel
+import ctmn.petals.widgets.newTextButton
 
 class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
@@ -80,26 +86,28 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         table.center()
 
         with(table) {
-            add(bunnyImage).size(200f).colspan(2).padBottom(32f)
+            add(bunnyImage).size(bunnyImage.width * 200f / bunnyImage.height, 200f).padBottom(32f)
             row()
+            add(VisTable().apply {
 //            add(storyButton).bottom().width(300f).colspan(2)
 //            row()
-            add(levelsButton).bottom().width(300f).colspan(2)
-            row()
-            add(vsPlayerButton).width(150f)
-            add(vsBotButton).width(150f)
-            row()
-            add(profileButton).width(150f)
-            add(editorButton).width(150f)
-            row()
-            add(settingsButton).bottom().width(150f)
-            add(exitButton).bottom().width(150f)
-            row()
-            add(VisLabel("ver " + Const.APP_VER_NAME).apply {
-                setFontScale(0.65f)
-                align(Align.center)
-            }).colspan(2).bottom().padTop(30f)
-            row().height(30f)
+                add(levelsButton).bottom().width(300f).colspan(2)
+                row()
+                add(vsPlayerButton).width(150f)
+                add(vsBotButton).width(150f)
+                row()
+                add(profileButton).width(150f)
+                add(editorButton).width(150f)
+                row()
+                add(settingsButton).bottom().width(150f)
+                add(exitButton).bottom().width(150f)
+                row()
+                add(VisLabel("ver " + Const.APP_VER_NAME).apply {
+                    setFontScale(0.65f)
+                    align(Align.center)
+                }).colspan(2).bottom().padTop(30f)
+                row().height(30f)
+            }).width(320f)
         }
 
         addActor(table)
