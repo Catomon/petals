@@ -53,9 +53,11 @@ class Level2 : Scenario("lv_2", "level_1") {
         playScreen {
             queueDialogAction(StoryDialog.Quote("The numbers you see on the tiles are attack/defense bonuses units can get on these tiles.\n" +
                     "The bonuses vary depending on the unit type"))
-            queueDialogAction(StoryDialog.Quote("You can toggle visibility of terrain bonuses in the settings"))
+            queueDialogAction(StoryDialog.Quote("You can toggle visibility of terrain bonuses in the settings menu"))
 
-            addTask(EliminateAllEnemyUnitsTask().description("Kill enemy units")).addOnCompleteTrigger {
+            queueDialogAction(StoryDialog.Quote("Use terrain bonuses to your advantage and defeat the enemy"))
+
+            addTask(EliminateAllEnemyUnitsTask().description("Eliminate all enemy units")).addOnCompleteTrigger {
                 //gameOverSuccess()
             }
 

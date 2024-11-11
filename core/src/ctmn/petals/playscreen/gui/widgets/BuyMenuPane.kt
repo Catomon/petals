@@ -22,6 +22,7 @@ import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.getUnitsOfPlayer
+import ctmn.petals.strings
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isWaterBase
@@ -48,8 +49,8 @@ class BuyMenu : VisTable() {
         clear()
         val buyMenuPane = BuyMenuPane(guiStage, base, player, availableUnits[player.id], unlockAll)
         val closeButton =
-            newTextButton("Close").addChangeListener { buyMenuPane.remove(); it.remove(); clear() }.addClickSound()
-        add(VisLabel("Buy Menu")).center().padTop(6f).padBottom(10f)
+            newTextButton(strings.ui.close).addChangeListener { buyMenuPane.remove(); it.remove(); clear() }.addClickSound()
+        add(VisLabel(strings.play.buy_menu)).center().padTop(6f).padBottom(10f)
         row()
         add(buyMenuPane).width(325f).center().fillY().expandY()
         row()
@@ -133,8 +134,7 @@ private class BuyMenuPane(
             for (speciesUnit in speciesUnits) {
                 val unit = speciesUnit.unitActor
                 if (unit.cShop != null) {
-                    val filtered = true //filterUnits?.any { it.selfName == unit.selfName } ?: true //todo
-                    //todo base level
+                    val filtered = filterUnits?.any { it.selfName == unit.selfName } ?: true
                     val unlocked =
                         filtered && speciesUnit.requiredBuildings.all {
                             tiles.any { tile -> tile.cPlayerId?.playerId == player.id && it == tile.selfName }
@@ -143,7 +143,8 @@ private class BuyMenuPane(
                     if (unlocked || unlockAll) {
                         addB(unit, unit.cShop?.price ?: 999999, true)
                     } else {
-                        lockedUnits.add(unit)
+                        if (filtered)
+                            lockedUnits.add(unit)
                     }
                 }
             }

@@ -67,24 +67,26 @@ class Level5 : Scenario("lv_5", "level_capture") {
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {
             it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_SOWER } ?: throw SpeciesUnitNotFoundExc())
-            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_AXE } ?: throw SpeciesUnitNotFoundExc())
+            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_SWORD } ?: throw SpeciesUnitNotFoundExc())
+            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_PIKE } ?: throw SpeciesUnitNotFoundExc())
+//            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_AXE } ?: throw SpeciesUnitNotFoundExc())
         }
 
         playScreen {
             queueDialogAction(
                 StoryDialog.Quote(
-                    "To get units, you need to claim a base using Sower Fairy"
+                    "To get units, you need to create a base using a worker unit"
                 ),
                 StoryDialog.Quote(
                     "A base can be claimed only on plain terrain and shallow water." +
-                            "It costs ${Const.BASE_BUILD_COST}"
+                            "It costs ${Const.BASE_BUILD_COST} and takes ${Const.BASE_BUILD_TIME} turns to make."
                 ),
                 StoryDialog.Quote(
-                    "Move Sower Fairy to marked position\n" +
-                            "and claim a base"
+                    "Position Sower Fairy at the marked location and press 'Create Base' to begin planting a seed."
                 )
             ).addOnCompleteTrigger {
                 val fairySower = playStage.getUnit<FairySower>()!!
+                guiStage.selectUnit(fairySower)
                 queueTask(
                     MoveUnitTask(
                         fairySower,
@@ -93,21 +95,21 @@ class Level5 : Scenario("lv_5", "level_capture") {
                         true
                     ).description("Move Fairy Sower")
                 ).addOnCompleteTrigger {
-                    queueTask(ExecuteCommandTask(BuildBaseCommand::class, true).description("Claim a base"))
-                    addTrigger(TurnStartTrigger(players[0])).onTrigger {
+                    queueTask(ExecuteCommandTask(BuildBaseCommand::class, true).description("Create a base"))
+                    addTurnCycleTrigger(3, players[0]).onTrigger {
                         queueDialogAction(
                             StoryDialog.Quote(
-                                "Buy Sower Fairies to claim bases and capture crystal tiles"
+                                "Buy Sower Fairies to claim bases and capture crystal tiles."
                             ),
                             StoryDialog.Quote(
                                 "When you capture crystal tiles,\n" +
-                                        "they give you some amount of crystals each turn."
+                                        "they provide you with a certain amount of crystals each turn."
                             ),
                             StoryDialog.Quote(
-                                "Use them to buy more units"
+                                "Use these crystals to create more units."
                             )
                         ).addOnCompleteTrigger {
-                            addTask(BuyUnitsTask("Fairy Sower", UnitIds.DOLL_SOWER, 4))
+                            addTask(BuyUnitsTask("Fairy Sower", UnitIds.DOLL_SOWER, 2))
                             addTask(CaptureCrystalsTask()).addOnCompleteTrigger {
                                 queueDialogAction(
                                     StoryDialog.Quote(

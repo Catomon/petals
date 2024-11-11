@@ -61,6 +61,8 @@ const val WATERLILY = "waterlily"
 const val PLANT_WALL = "plant_wall"
 const val PLANT_TOWER = "plant_tower"
 
+//todo a building for healer and shield fairy
+
 val fairySpecies = object : SpeciesUnits {
     override val species: String = fairy
     override val units: Array<SpeciesUnit>
@@ -74,13 +76,14 @@ val fairySpecies = object : SpeciesUnits {
             add(FairySower().cost(100), 1)
 
             add(FairySword().cost(100), 1)
-            add(FairyPike().cost(200), 1, listOf(FAIRY_FORGE))
+            add(FairyPike().cost(200), 1) //, listOf(FAIRY_FORGE)
             add(FairyBow().cost(300), 1, listOf(FAIRY_ARCHERS_GUILD))
 
             add(FairyHealer().cost(300), 1, listOf(FAIRY_FORGE))
             add(FairyShield().cost(300), 1, listOf(FAIRY_FORGE))
 
             add(FairyAxe().cost(400), 1, listOf(FAIRY_FORGE))
+            add(FairyHammer().cost(400), 1, listOf(FAIRY_FORGE))
             add(FairyScout().cost(400), 1, listOf(FAIRY_FORGE, FAIRY_AERTHYS))
 
             add(FairyBomber().cost(500), 1, listOf(FAIRY_AERTHYS, FAIRY_CUCUMBER))
@@ -136,7 +139,7 @@ val goblinSpecies = object : SpeciesUnits {
             add(GoblinPickaxe().cost(100), 1)
 
             add(GoblinSword().cost(100), 1)
-            add(GoblinPike().cost(200), 1, listOf(GOBLIN_FORGE))
+            add(GoblinPike().cost(200), 1) //, listOf(GOBLIN_FORGE)
             add(GoblinBow().cost(300), 1, listOf(GOBLIN_ARCHERS_GUILD))
 
             add(GoblinHealer().cost(300), 1, listOf(GOBLIN_FORGE))

@@ -731,7 +731,7 @@ class PlayGUIStage(
 
         //listeners
         playStage.addListener {
-            if (it is CommandExecutedEvent || it is NextTurnEvent) {
+            if (it is CommandExecutedEvent || it is NextTurnEvent || it is CreditsChangeEvent) {
                 creditsLabel.setText(
                     "${localPlayer.credits} (+${localPlayer.income(playScreen)}/${
                         localPlayer.incomeReserve(

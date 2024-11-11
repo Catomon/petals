@@ -80,8 +80,15 @@ class Level4 : Scenario("lv_4", "level_healer") {
 
         playScreen {
             queueDialogAction(
+                StoryDialog.Quote("Some units will have abilities.\n" +
+                        "All abilities cost mana and have cooldowns."))
+
+            queueDialogAction(
                 StoryDialog.Quote("You got a Healer Fairy.\n" +
                         "Keep your units close to her to heal them up"))
+
+            queueDialogAction(
+                StoryDialog.Quote("Additionally, you can use her healing ability."))
 
             addTrigger(PlayerHasNoUnits(players[0])).onTrigger {
                 gameEndCondition.lose()
@@ -94,7 +101,7 @@ class Level4 : Scenario("lv_4", "level_healer") {
                     gameEndCondition.lose()
             }
 
-            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Defeat enemy units")).addOnCompleteTrigger {
+            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Eliminate all enemy units")).addOnCompleteTrigger {
                 //gameOverSuccess()
             }
 

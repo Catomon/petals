@@ -110,7 +110,7 @@ class Level1 : Scenario("lv_1", "level_0") {
                 ).addOnCompleteTrigger {
                     addTask(
                         ExecuteCommandTask(AttackCommand::class, true).description(
-                            "While unit is selected, press on the enemy in attack range to fight"
+                            "While the unit is selected, press on the enemy in attack range to fight"
                         )
                     ).addOnCompleteTrigger {
                         queueTask(EndTurnTask().description("Move other units and press End Turn button")).addOnCompleteTrigger {

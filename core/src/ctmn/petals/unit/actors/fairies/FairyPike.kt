@@ -29,12 +29,12 @@ class FairyPike : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.CAVALRY] = Pair(25, 15)
-            bonuses[UnitIds.FALLEN_KNIGHT] = Pair(25, 15)
+            bonuses[UnitIds.CAVALRY] = Pair(20, 15)
+            bonuses[UnitIds.FALLEN_KNIGHT] = Pair(20, 15)
             bonuses[UnitIds.CENTAUR_SPEAR] = Pair(10, 10)
             bonuses[UnitIds.CENTAUR_SWORD] = Pair(10, 10)
-            bonuses[UnitIds.GOBLIN_BOAR] = Pair(25, 15)
-            bonuses[UnitIds.GOBLIN_WOLF] = Pair(25, 15)
+            bonuses[UnitIds.GOBLIN_BOAR] = Pair(20, 15)
+            bonuses[UnitIds.GOBLIN_WOLF] = Pair(20, 15)
             bonuses[UnitIds.GOBLIN_WYVERN] = Pair(0, 15)
         })
     }

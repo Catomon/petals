@@ -117,6 +117,7 @@ open class TileActor(
             val frameDuration = when (terrain) {
                 "forest" -> 0.5f
                 "grass" -> 1f
+                "items" -> 0.1f
                 else -> 0.4f
             }
             val animation = RegionAnimation(frameDuration, textures)

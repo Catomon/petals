@@ -1,12 +1,15 @@
 package playScreen
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const
+import ctmn.petals.effects.FloatingUpIconLabel
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.events.CreditsChangeEvent
 import ctmn.petals.playscreen.events.TileCapturedEvent
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
 import ctmn.petals.playscreen.selfName
@@ -17,6 +20,8 @@ import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.ObjBlob
 import ctmn.petals.unit.actors.ObjRoot
 import ctmn.petals.unit.component.*
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
 import ctmn.petals.utils.getSurroundingTiles
 
 class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener {
@@ -44,13 +49,23 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                         capturable.add(it)
                     }
 
+                    fun showLabel(amount: Int) {
+                        playScreen.playStage.addActor(FloatingUpIconLabel("+$amount", "credits", 15f).also { it.label.color = Color.SKY; it.setPosition(capturable.centerX, capturable.centerY)})
+                        playScreen.fireEvent(CreditsChangeEvent(nextPlayer, amount))
+                    }
+
                     if (cCrystals.amount > 0) {
                         cCrystals.amount -= playScreen.creditsPerCluster
                         if (cCrystals.amount < 0) {
-                            nextPlayer.credits += playScreen.creditsPerCluster - cCrystals.amount
+                            val resultingAmount = playScreen.creditsPerCluster - cCrystals.amount
+                            nextPlayer.credits += resultingAmount
                             cCrystals.amount = 0
+
+                            showLabel(resultingAmount)
                         } else {
                             nextPlayer.credits += playScreen.creditsPerCluster
+
+                            showLabel(playScreen.creditsPerCluster)
                         }
                     }
 

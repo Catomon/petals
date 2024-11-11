@@ -117,5 +117,5 @@ object Const {
     const val PLAYER_CREDITS_RESERVE = 2000
     const val REMOVE_UNIT_AFTER_CAPTURE = false
     const val CAPTURE_TIME = 2
-    const val BUILD_TIME = 3
+    const val BASE_BUILD_TIME = 3
 }

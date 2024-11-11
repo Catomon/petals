@@ -41,6 +41,7 @@ import ctmn.petals.playscreen.gui.PlayStageCameraController
 import ctmn.petals.playscreen.gui.widgets.FogOfWarDrawer
 import ctmn.petals.playscreen.gui.widgets.MarkersDrawer
 import ctmn.petals.playscreen.listeners.ActionEffectListener
+import ctmn.petals.playscreen.listeners.ItemPickUpListener
 import ctmn.petals.playscreen.listeners.PinkSlimeLingHealing
 import ctmn.petals.playscreen.listeners.TileLifeTimeListener
 import ctmn.petals.playscreen.seqactions.SeqActionManager
@@ -53,7 +54,6 @@ import ctmn.petals.screens.pvp.newPvPAlice
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
-import ctmn.petals.tile.components.HealthComponent
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BurningComponent
@@ -162,6 +162,7 @@ open class PlayScreen(
         playStage.addListener(TileLifeTimeListener(playStage))
         playStage.addListener(PinkSlimeLingHealing())
         playStage.addListener(ActionEffectListener(this))
+        playStage.addListener(ItemPickUpListener(this))
         playStage.addListener {
             if (it is UnitMovedEvent) {
                 val unit = it.unit

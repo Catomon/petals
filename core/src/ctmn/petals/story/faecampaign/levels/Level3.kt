@@ -54,10 +54,12 @@ class Level3 : Scenario("lv_3", "level_2") {
 
         playScreen {
             queueDialogAction(
-                StoryDialog.Quote("Each unit type has its own match up bonuses\n" +
-                        "use pikes to take down riders"))
+                StoryDialog.Quote("Each unit type has its own match up bonuses"))
 
-            addTask(EliminateAllEnemyUnitsTask().description("Kill enemy units")).addOnCompleteTrigger {
+            queueDialogAction(
+                StoryDialog.Quote("For example, pikes have bonus damage and defense against riders."))
+
+            addTask(EliminateAllEnemyUnitsTask().description("Eliminate all enemy units")).addOnCompleteTrigger {
                 //gameOverSuccess()
             }
 

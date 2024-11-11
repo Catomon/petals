@@ -30,16 +30,16 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
 
     private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "font_5")
 
-    private val storyButton = newTextButton(strings.menu.story).apply { isDisabled = true }
-    private val levelsButton = newTextButton(strings.menu.levels)
-    private val quickPlayButton = newTextButton(strings.menu.quickplay)
-    private val matchButton = newTextButton(strings.menu.match)
-    private val vsPlayerButton = newTextButton(strings.menu.vsPlayer)
-    private val vsBotButton = newTextButton(strings.menu.vsBot)
-    private val profileButton = newTextButton(strings.menu.profile).apply { isDisabled = true }
-    private val editorButton = newTextButton(strings.menu.editor)
-    private val settingsButton = newTextButton(strings.menu.settings)
-    private val exitButton = newTextButton(strings.menu.exit)
+    private val storyButton = newTextButton(strings.ui.story).apply { isDisabled = true }
+    private val levelsButton = newTextButton(strings.ui.levels)
+    private val quickPlayButton = newTextButton(strings.ui.quickplay)
+    private val matchButton = newTextButton(strings.ui.match)
+    private val vsPlayerButton = newTextButton(strings.ui.vsPlayer)
+    private val vsBotButton = newTextButton(strings.ui.vsBot)
+    private val profileButton = newTextButton(strings.ui.profile).apply { isDisabled = true }
+    private val editorButton = newTextButton(strings.ui.editor)
+    private val settingsButton = newTextButton(strings.ui.settings)
+    private val exitButton = newTextButton(strings.ui.exit)
 
     private val table = VisTable()
     private val table2 = VisTable()

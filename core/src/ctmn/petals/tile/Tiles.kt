@@ -141,6 +141,7 @@ object Tiles {
     const val STONE_FORTRESS = "stone_fortress"
     const val BROKEN_DUG_UP_GRAVE = "broken_dug_up_grave"
     const val BROKEN_TOMBSTONE = "broken_tombstone"
+    const val BUILDING_DEBRIS = "building_debris"
     const val BURNED_FOREST = "burned_forest"
     const val CATTAILS = "cattails"
     const val CATTAILS_CUTOFF = "cattails_cutoff"

@@ -30,6 +30,7 @@ object UnitIds {
     const val DOLL_GLAIVE = "doll_glaive"
     const val DOLL_SOWER = "doll_sower"
     const val DOLL_ARMOR_SWORD = "doll_armor_sword"
+    const val DOLL_HAMMER = "doll_hammer"
 
     const val SLIME = "slime"
     const val SLIME_BIG = "slime_big"
@@ -74,4 +75,5 @@ object UnitIds {
 
     const val BLOB = "blob"
     const val ROOT = "root"
+    const val ROCK = "rock"
 }
