@@ -116,17 +116,8 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         with(table2) {
             bottom()
             add(VisImage("icons/itch").addClickListener {
-                Gdx.net.openURI("https://serascout.itch.io/petals")
+                Gdx.net.openURI("https://monscout.itch.io/faesfeistyfray")
             }.addClickSound())
-//            add(VisImage("icons/reddit").addClickListener {
-//                Gdx.net.openURI("https://www.reddit.com/r/Petals/")
-//            }.addClickSound())
-//            add(VisImage("icons/twitter").addClickListener {
-//                Gdx.net.openURI("https://twitter.com/chibiSera")
-//            }.addClickSound())
-//            add(VisImage("icons/discord").addClickListener {
-//                Gdx.net.openURI("https://discord.gg/QMG3UeUugF")
-//            }.addClickSound())
         }
 
         addActor(table2)

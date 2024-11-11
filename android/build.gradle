@@ -21,8 +21,8 @@ android {
         applicationId "ctmn.petals"
         minSdkVersion 26
         targetSdkVersion 33
-        versionCode 14
-        versionName "0.4.3"
+        versionCode 15
+        versionName "0.4.4"
         multiDexEnabled true
     }
     buildTypes {
