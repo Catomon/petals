@@ -4,6 +4,7 @@ import ctmn.petals.Assets
 import ctmn.petals.Const
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
+import ctmn.petals.strings
 import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitIds.ALICE_ID
 import ctmn.petals.unit.UnitIds.DOLL_PIKE
@@ -34,6 +35,8 @@ class Alice : UnitActor(
     }
 
     init {
+        characterName = strings.units.seraphina
+
         abilityCastAnimation = createAnimation("alice_casting")
         talkingAnimation = createAnimation("alice_talking", 0.30f)
         airborneAnimation = createAnimation("alice_airborne", 0.30f)

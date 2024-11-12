@@ -75,6 +75,7 @@ object Units {
         add(GoblinGiant())
         add(GoblinHealer())
         add(GoblinLeader())
+        add(GoblinMace())
         add(GoblinPickaxe())
         add(GoblinPike())
         add(GoblinScout())

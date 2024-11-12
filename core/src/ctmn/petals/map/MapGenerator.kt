@@ -14,11 +14,11 @@ class MapGenerator {
 
     //20 15
     //15, 15
-    val width = 15
-    val height = 15
+    val width = 16
+    val height = 16
     val bases = 2
 
-    val blueCrystalsAmount = 4
+    val blueCrystalsAmount = 8
     val lifeCrystalsAmount = 1
 
     val trees = 60

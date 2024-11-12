@@ -31,6 +31,7 @@ import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newTextButton
 import kotlin.random.Random
 
+@Deprecated("stuff was moved to the main menu")
 class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen {
 
     private val background = MovingBackground(assets.getTexture("sky.png"), 5f)
@@ -48,7 +49,7 @@ class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen
         AudioManager.sound("click")
     }
 
-    private fun addWidgets() {
+    private fun addWidgets() { //todo move to settings and main screen
         addActor(VisTable().apply {
             setFillParent(true)
 

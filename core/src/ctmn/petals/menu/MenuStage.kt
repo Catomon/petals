@@ -4,17 +4,32 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.Const
 import ctmn.petals.assets
+import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.editor.EditorScreen
 import ctmn.petals.game
+import ctmn.petals.map.labels
+import ctmn.petals.map.loadMap
 import ctmn.petals.menu.StorySelectStage.Companion.startStory
+import ctmn.petals.player.Player
+import ctmn.petals.player.fairy
+import ctmn.petals.player.newBluePlayer
+import ctmn.petals.player.newRedPlayer
+import ctmn.petals.playscreen.GameMode
+import ctmn.petals.playscreen.GameType
+import ctmn.petals.playscreen.NoEnd
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
+import ctmn.petals.playscreen.queueDialogAction
 import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
+import ctmn.petals.screens.PlayScreenTemplate
 import ctmn.petals.screens.quickplay.QuickplayScreen
 import ctmn.petals.story.StoriesManager
 import ctmn.petals.strings
@@ -31,7 +46,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "font_5")
 
     private val storyButton = newTextButton(strings.ui.story).apply { isDisabled = true }
-    private val levelsButton = newTextButton(strings.ui.levels)
+    private val campaignButton = newTextButton(strings.ui.levels)
     private val quickPlayButton = newTextButton(strings.ui.quickplay)
     private val matchButton = newTextButton(strings.ui.match)
     private val vsPlayerButton = newTextButton(strings.ui.vsPlayer)
@@ -57,7 +72,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             } else
                 menuScreen.stage = menuScreen.storySelectStage
         }
-        levelsButton.addChangeListener {
+        campaignButton.addChangeListener {
             menuScreen.stage = menuScreen.levelsStage
         }
         matchButton.addChangeListener {
@@ -91,8 +106,19 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             add(VisTable().apply {
 //            add(storyButton).bottom().width(300f).colspan(2)
 //            row()
-                add(levelsButton).bottom().width(300f).colspan(2)
+                add(campaignButton).bottom().width(300f).colspan(2)
                 row()
+
+                if (Const.DEBUG_MODE) {
+                    add(VisTextButton("RNG GEN TEST").addClickListener {
+                        game.screen = QuickplayScreen(game)
+                    })
+                    add(newTextButton("TEST PLAY").addChangeListener {
+                        startTestPlay()
+                    })
+                    row()
+                }
+
                 add(vsPlayerButton).width(150f)
                 add(vsBotButton).width(150f)
                 row()
@@ -124,6 +150,36 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
 
         windowTable.setFillParent(true)
         addActor(windowTable)
+    }
+
+    private fun startTestPlay() {
+        val players = Array<Player>().apply {
+            addAll(
+                newBluePlayer.apply { credits = 99999 },
+                newRedPlayer.apply { species = fairy })
+        }
+        val ps = PlayScreenTemplate.pvp(
+            game,
+            loadMap("test"),
+            players,
+            GameType.PVP_SAME_SCREEN,
+            NoEnd(),
+            GameMode.CRYSTALS_LEADERS,
+            players.first(),
+        ).apply {
+            botManager.add(EasyDuelBot(players[1], this))
+            fogOfWarManager.drawFog = false
+        }
+
+        ps.map?.labels?.forEach { label ->
+            if (label.labelName == "player") {
+                label.data.put("player_id", (label.data["id"].toInt() + 1).toString())
+            }
+        }
+
+        ps.ready()
+
+        game.screen = ps
     }
 
     override fun addActor(actor: Actor?) {

@@ -2,13 +2,9 @@ package ctmn.petals.menu
 
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
-import com.kotcrab.vis.ui.widget.VisCheckBox
-import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisScrollPane
-import com.kotcrab.vis.ui.widget.VisSelectBox
-import com.kotcrab.vis.ui.widget.VisSlider
-import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.*
+import ctmn.petals.screens.LoadingScreen
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.ScreenSizeChangedEvent
 import ctmn.petals.widgets.addChangeListener
@@ -109,6 +105,16 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
             }).fillX().padLeft(15f).padRight(15f)
 
             row()
+
+            if (Const.DEBUG_MODE) {
+                add(VisTextButton("Reload Assets").addChangeListener {
+                    game.runTexturePacker.run()
+                    game.assets.clear()
+                    game.screen = LoadingScreen(game)
+                })
+
+                row()
+            }
 
             add(VisTable().apply {
                 add(returnButton).left()

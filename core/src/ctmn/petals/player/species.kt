@@ -144,6 +144,7 @@ val goblinSpecies = object : SpeciesUnits {
 
             add(GoblinHealer().cost(300), 1, listOf(GOBLIN_FORGE))
 
+            add(GoblinMace().cost(400), 1, listOf(GOBLIN_FORGE))
             add(GoblinWolf().cost(400), 1, listOf(GOBLIN_FORGE, GOBLIN_BEASTMOUNT))
             add(GoblinBoar().cost(400), 1, listOf(GOBLIN_FORGE))
 

@@ -92,10 +92,10 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
         super.act(delta)
         if (isDone) {
             if (progress >= 100) {
-                if (Const.IS_RELEASE)
+//                if (Const.IS_RELEASE)
                     game.screen = MenuScreen(game)
-                else
-                    game.screen = DevScreen(game)
+//                else
+//                    game.screen = DevScreen(game)
             }
 
             progress = 100

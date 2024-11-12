@@ -48,6 +48,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         var attackEffectFrame = 0f
     }
 
+    var characterName = pUnitComponent?.name ?: ""
+
     init {
         if (pUnitComponent != null) {
             this.add(pUnitComponent)
@@ -94,6 +96,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         isVisible = false
 
         loadAnimations()
+
+        if (characterName.isEmpty()) characterName = unitComponent.name
     }
 
     protected open fun loadAnimations() {

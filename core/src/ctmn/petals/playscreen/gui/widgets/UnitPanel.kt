@@ -110,10 +110,7 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
         } else
             isVisible = true
 
-        val textUnitName = when (unitActor.selfName) {
-            UnitIds.ALICE_ID -> strings.units.alissa
-            else -> unitActor.name
-        }
+        val textUnitName = unitActor.characterName
         unitName.setText(textUnitName)
         //HP: MP: AT: DF:
         hp.setText("" + unitActor.health)

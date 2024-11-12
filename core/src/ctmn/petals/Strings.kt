@@ -53,6 +53,6 @@ class Strings {
     }
 
     class Units {
-        val alissa = "Alissa"
+        val seraphina = "Seraphina"
     }
 }
