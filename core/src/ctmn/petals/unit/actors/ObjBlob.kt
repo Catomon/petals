@@ -13,8 +13,8 @@ class ObjBlob : UnitActor(
         UnitIds.BLOB,
         100,
         10,
-        1,
-        2
+        0,
+        0,
     )
 ) {
 

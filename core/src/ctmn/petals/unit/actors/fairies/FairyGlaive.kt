@@ -34,7 +34,7 @@ class FairyGlaive : UnitActor(
             bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(0, 10)
             bonuses[UnitIds.GOBLIN_GALLEY] = Pair(0, 10)
             bonuses[UnitIds.CUCUMBER] = Pair(0, 10)
-            bonuses[UnitIds.DOLL_CANNON] = Pair(0, 10)
+            bonuses[UnitIds.DOLL_PEAS] = Pair(0, 10)
 
             bonuses[UnitIds.CAVALRY] = Pair(25, 15)
             bonuses[UnitIds.FALLEN_KNIGHT] = Pair(25, 15)

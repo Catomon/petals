@@ -3,17 +3,25 @@ package ctmn.petals.story
 import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.addTrigger
+import ctmn.petals.playscreen.events.ActionCompletedEvent
+import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.getUnit
 import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
 import ctmn.petals.unit.actors.Alice
 
 fun PlayScreen.gameOverSuccess() {
     gameEndCondition.win()
+
+    if (!actionManager.hasActions)
+        fireEvent(ActionCompletedEvent(WaitAction(0.5f)))
     //gameOver()
 }
 
 fun PlayScreen.gameOverFailure() {
     gameEndCondition.lose()
+
+    if (!actionManager.hasActions)
+        fireEvent(ActionCompletedEvent(WaitAction(0.5f)))
     //gameOver()
 }
 

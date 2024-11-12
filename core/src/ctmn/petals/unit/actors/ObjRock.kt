@@ -13,8 +13,8 @@ class ObjRock : UnitActor(
         UnitIds.ROCK,
         100,
         30,
-        1,
-        2
+        0,
+        0
     )
 ) {
 

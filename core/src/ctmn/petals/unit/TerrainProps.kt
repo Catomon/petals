@@ -16,6 +16,7 @@ import ctmn.petals.tile.TerrainNames.mountains
 import ctmn.petals.tile.TerrainNames.roads
 import ctmn.petals.tile.TerrainNames.forest
 import ctmn.petals.tile.TerrainNames.fortress
+import ctmn.petals.tile.TerrainNames.highgrass
 import ctmn.petals.tile.TerrainNames.hills
 import ctmn.petals.tile.TerrainNames.ice
 import ctmn.petals.tile.TerrainNames.lava
@@ -135,6 +136,7 @@ object TerrainPropsPack {
         put(unwalkable, 0)
         put(crystals, 1)
         put(skyscraper, 5)
+        put(highgrass, 1)
     }
 
     val horse = TerrainProps().apply {
@@ -240,6 +242,7 @@ object TerrainPropsPack {
         put(mud, UNREACHABLE)
         put(ice, UNREACHABLE)
         put(crystals, UNREACHABLE)
+        put(highgrass, UNREACHABLE)
     }
 
     val slime = TerrainProps().apply {

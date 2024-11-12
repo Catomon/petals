@@ -32,7 +32,7 @@ import ctmn.petals.widgets.newTextButton
 import kotlin.random.Random
 
 @Deprecated("stuff was moved to the main menu")
-class DevScreen(val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen {
+class DevScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 720f)), Screen {
 
     private val background = MovingBackground(assets.getTexture("sky.png"), 5f)
 

@@ -19,7 +19,7 @@ object UnitIds {
     const val DOLL_AXE = "doll_axe"
     const val DOLL_PIKE = "doll_pike"
     const val DOLL_BOW = "doll_bow"
-    const val DOLL_CANNON = "doll_cannon"
+    const val DOLL_PEAS = "doll_cannon"
     const val DOLL_BOMBER = "doll_bomber"
     const val DOLL_HEALER = "doll_healer"
     const val DOLL_SCOUT = "doll_scout"

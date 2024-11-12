@@ -14,7 +14,7 @@ class ObjRoot : UnitActor(
         100,
         15,
         0,
-        2
+        0
     )
 ) {
 

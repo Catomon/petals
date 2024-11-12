@@ -68,10 +68,6 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: R
     }
 
     override fun render() {
-        if (!IS_RELEASE && Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-            setScreen(DevScreen(this))
-        }
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
             swapFullscreen()
         }

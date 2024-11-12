@@ -320,7 +320,7 @@ fun UnitActor.canDestroy(): Boolean {
             && selfName != UnitIds.PIXIE
             && selfName != UnitIds.CUCUMBER
             && selfName != UnitIds.GOBLIN_CATAPULT
-            && selfName != UnitIds.DOLL_CANNON
+            && selfName != UnitIds.DOLL_PEAS
             && !isLeader
             && !(isAir && cAttack?.attackType == ATTACK_TYPE_GROUND)
             )
@@ -337,7 +337,7 @@ fun UnitActor.canCapture(): Boolean {
             && selfName != UnitIds.PIXIE
             && selfName != UnitIds.CUCUMBER
             && selfName != UnitIds.GOBLIN_CATAPULT
-            && selfName != UnitIds.DOLL_CANNON
+            && selfName != UnitIds.DOLL_PEAS
             && !isLeader
             && !(isAir && cAttack?.attackType == ATTACK_TYPE_GROUND)
             )
@@ -778,6 +778,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is GoblinWyvern -> 2
         is GoblinPickaxe -> 2
         is GoblinBomber -> 2
+        is GoblinMace -> 2
 
         is Cherie -> 3
         is CherieSpearman -> 3
@@ -788,5 +789,9 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is SlimeBig -> 4
         is SlimeHuge -> 4
         is SlimeTiny -> 4
+
+        is ObjRock -> -1
+        is ObjBlob -> -1
+        is ObjRoot -> -1
         else -> if (unit.playerId == Player.NONE) 4 else unit.playerId
     }

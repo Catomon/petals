@@ -12,10 +12,7 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.commands.BuildBaseCommand
 import ctmn.petals.playscreen.events.TaskBeginEvent
 import ctmn.petals.playscreen.events.TaskCompletedEvent
-import ctmn.petals.playscreen.tasks.CaptureCrystalsTask
-import ctmn.petals.playscreen.tasks.ExecuteCommandTask
-import ctmn.petals.playscreen.tasks.MoveUnitTask
-import ctmn.petals.playscreen.tasks.TaskManager
+import ctmn.petals.playscreen.tasks.*
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.unit.isWorker
@@ -46,6 +43,11 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
                         setPosition(task.unit.centerX, task.unit.centerY)
                     }
 
+                    drawMarker(batch)
+                }
+
+                is MoveAnyUnitTask -> {
+                    setPosition(task.x.unTiled() + Const.TILE_SIZE / 2, task.y.unTiled() + Const.TILE_SIZE / 2)
                     drawMarker(batch)
                 }
 
