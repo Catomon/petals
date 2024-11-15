@@ -24,25 +24,25 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
 
     var unitActor: UnitActor? = null
 
-    private var unitName = newLabel("UnitName", "font_5")
+    private var unitName = newLabel("UnitName", "default")
 
     private val hpIcon = VisImage(VisUI.getSkin().getDrawable("hp_ic"))
-    private val hp = newLabel("HP: X", "font_5")
+    private val hp = newLabel("HP: X", "default")
 
     private val mgIcon = VisImage(VisUI.getSkin().getDrawable("mg_ic"))
-    private val mg = newLabel("MG: X", "font_5")
+    private val mg = newLabel("MG: X", "default")
 
     private val atkIcon = VisImage(VisUI.getSkin().getDrawable("sword_icon"))
-    private val atk = newLabel("ATK: X", "font_5")
+    private val atk = newLabel("ATK: X", "default")
 
     private val defIcon = VisImage(VisUI.getSkin().getDrawable("shield_icon"))
-    private val def = newLabel("DEF: X", "font_5")
+    private val def = newLabel("DEF: X", "default")
 
     private val levelIcon = VisImage(VisUI.getSkin().getDrawable("lvl_ic"))
-    private val level = newLabel("LVL: X", "font_5")
+    private val level = newLabel("LVL: X", "default")
 
     private val expIcon = VisImage(VisUI.getSkin().getDrawable("exp_ic"))
-    private val exp = newLabel("XP: X/X", "font_5")
+    private val exp = newLabel("XP: X/X", "default")
 
     init {
         if (drawBackground)

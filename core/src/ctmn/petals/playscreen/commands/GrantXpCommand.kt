@@ -38,7 +38,7 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
 
         cLevel.exp += amount
 
-        val label = FloatingLabelAnimation("+$amount XP", "font_5")
+        val label = FloatingLabelAnimation("+$amount XP", "default")
         label.color = Color.BLUE
         label.setPosition(unit.centerX - label.width / 4, unit.centerY)
         playScreen.playStage.addActor(label)
@@ -53,7 +53,7 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
             if (cLevel.lvl >= Const.MAX_LVL)
                 cLevel.exp = xpToLevelUp(Const.MAX_LVL - 1)
 
-            val label = FloatingLabelAnimation("LEVEL UP!", "font_5")
+            val label = FloatingLabelAnimation("LEVEL UP!", "default")
             label.color = Color.YELLOW
             label.setPosition(unit.centerX - label.width / 4, unit.centerY)
             playScreen.playStage.addActor(label)

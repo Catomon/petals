@@ -184,9 +184,10 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
 
 fun TileActor.cutGrass() {
     val tile = this
-    if (tile.terrain == TerrainNames.grass && !tile.selfName.endsWith("_cutoff")) {
+    if (tile.terrain == TerrainNames.grass || tile.terrain == TerrainNames.highgrass && !tile.selfName.endsWith("_cutoff")) {
         TileData.tiles.getOrDefault(tile.selfName + "_cutoff", null)?.let { tileData ->
             tile.tileComponent.name = tileData.name
+            tile.tileComponent.terrain = tileData.terrain
             tile.initView()
 
             playStageOrNull?.addActor(AnimationEffect(assets.findAtlasRegions("effects/grass_cutoff"), 0.1f).apply {

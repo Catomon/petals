@@ -20,10 +20,10 @@ import ctmn.petals.widgets.*
 
 class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
-    private val labelSameScreen = newLabel("Same Screen", "font_5")
+    private val labelSameScreen = newLabel("Same Screen", "default")
     private val passAndPlayButton = newTextButton("Pass and Play")
 
-    private val labelLocalMp = newLabel("Local Multiplayer", "font_5")
+    private val labelLocalMp = newLabel("Local Multiplayer", "default")
     private val serverLobbyButton = newTextButton("Host")
     private val ipTextField = VisTextField()
 

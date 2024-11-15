@@ -77,7 +77,7 @@ class RocksOnTheWayLevel : Scenario(ID, "Rocks_in_the_way") {
             simpleAI.roamingIfNoAgro = true
             simpleAI.agroRange = 2
             simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 1
+            simpleAI.roamingMaxRange = 2
         })
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
             simpleAI.roamingIfNoAgro = true

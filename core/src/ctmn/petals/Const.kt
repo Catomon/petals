@@ -118,4 +118,9 @@ object Const {
     const val REMOVE_UNIT_AFTER_CAPTURE = false
     const val CAPTURE_TIME = 2
     const val BASE_BUILD_TIME = 3
+
+    //combat
+    const val MISSES = true
+    const val CRITS = true
+    const val ATTACK_BACK = false
 }

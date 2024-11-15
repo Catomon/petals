@@ -20,6 +20,7 @@ import ctmn.petals.utils.logMsg
 import ctmn.petals.utils.replaceColor
 import ctmn.petals.utils.rgba
 
+
 lateinit var assets: Assets
 
 class Assets : AssetManager() {
@@ -193,14 +194,7 @@ class Assets : AssetManager() {
             else -> VisUI.load(Gdx.files.internal("skin/wafer-ui.json"))
         }
 
-//        VisUI.getSkin().getFont("font").data.setScale(2f)
-//        VisUI.getSkin().getFont("quaver").data.setScale(2f)
-//        VisUI.getSkin().getFont("font_8").data.setScale(2f)
-//        VisUI.getSkin().getFont("font_5").data.setScale(2f)
-//        VisUI.getSkin().getFont("default-font").data.setScale(2f)
 
-        //VisUI.getSkin().setScale(Const.GUI_SCALE)
-//        VisUI.getSkin().setScale(0.5f)
     }
 
     fun getTexture(name: String): Texture = get(name, Texture::class.java)
@@ -216,11 +210,12 @@ class Assets : AssetManager() {
 
     fun getDrawable(name: String): Drawable = VisUI.getSkin().getDrawable(name)
 
-    fun generateFont(name: String = "Pixel.ttf", size: Int = 16, color: Color = Color.WHITE): BitmapFont {
+    fun generateFont(name: String, size: Int = 20, characters: String, color: Color = Color.WHITE): BitmapFont {
         val font: BitmapFont
         val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/$name"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.size = size
+        parameter.characters = characters
         parameter.minFilter = Texture.TextureFilter.Linear
         parameter.magFilter = Texture.TextureFilter.Linear
         font = generator.generateFont(parameter)

@@ -45,7 +45,7 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
     private val heartGlassAniDelay = 1.5f
     private var heartGlassAniCurDelay = heartGlassAniDelay
 
-    private val healthLabel = VisLabel("$this.healthLabel", "font_5").also {
+    private val healthLabel = VisLabel("$this.healthLabel", "default").also {
         it.isVisible = false
         it.setFontScale(0.25f)
 

@@ -85,7 +85,7 @@ class PlayGUIStage(
         }
     private val creditsIcon = VisImage("credits")
     private val creditsLabel =
-        newLabel("${localPlayer.credits}", "font_5").apply {
+        newLabel("${localPlayer.credits}", "default").apply {
             isVisible = playScreen.gameMode == GameMode.CRYSTALS || playScreen.gameMode == GameMode.CRYSTALS_LEADERS
             creditsIcon.isVisible = isVisible
         }
@@ -534,7 +534,7 @@ class PlayGUIStage(
 
                 val labelPlayerReady = newLabel(
                     "Player ${playerColorName(playScreen.turnManager.currentPlayer.id).replaceFirstChar { it.uppercaseChar() }} Ready",
-                    "font_8"
+                    "default"
                 )
                 addActor(labelPlayerReady)
                 labelPlayerReady.setPosition(camera.position.x - labelPlayerReady.width / 2, camera.position.y)

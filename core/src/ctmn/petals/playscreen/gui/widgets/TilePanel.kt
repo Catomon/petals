@@ -18,10 +18,10 @@ class TilePanel(val guiStage: PlayGUIStage) : VisTable() {
     private val tileIcon = VisImage(tileIconDrawable)
 
     private val atkIcon = VisImage(VisUI.getSkin().getDrawable("sword_icon"))
-    private val atk = newLabel("ATK: X", "font_5")
+    private val atk = newLabel("ATK: X", "default")
 
     private val defIcon = VisImage(VisUI.getSkin().getDrawable("shield_icon"))
-    private val def = newLabel("DEF: X", "font_5")
+    private val def = newLabel("DEF: X", "default")
 
     private val tilePosition = TilePosition(-1, -1)
 
@@ -31,7 +31,7 @@ class TilePanel(val guiStage: PlayGUIStage) : VisTable() {
         setBackground("unit_panel_background")
 
         //add(tileIcon)
-        add(newLabel("Terrain", "font_5"))
+        add(newLabel("Terrain", "default"))
         row()
         add(VisTable().apply {
             add(atkIcon)

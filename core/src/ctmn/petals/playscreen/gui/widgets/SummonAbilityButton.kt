@@ -53,8 +53,8 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
 
     private val dollsListTable = VisTable()
     private val pane = VisScrollPane(dollsListTable, "doll_scroll")
-    private val cooldownLabel = newLabel("0", "font_8")
-    private val costLabel = newLabel("0", "font_5")
+    private val cooldownLabel = newLabel("0", "default")
+    private val costLabel = newLabel("0", "default")
 
     private val dollsShownOnPane = 6
 
@@ -187,7 +187,7 @@ class SummonAbilityButton(val gui: PlayGUIStage, pUnitActor: UnitActor? = null) 
         button.addActor(icon)
 
         val unitSummonCost = Units.get(unitName).cSummonable?.cost ?: 0
-        val dollCostLabel = newLabel("$unitSummonCost", "font_5")
+        val dollCostLabel = newLabel("$unitSummonCost", "default")
         dollCostLabel.pack()
         dollCostLabel.setPosByCenter(button.width / 2, button.height - dollCostLabel.height / 2 - 2)
         if (summonAbility != null)

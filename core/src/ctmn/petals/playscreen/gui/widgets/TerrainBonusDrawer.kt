@@ -29,7 +29,7 @@ class TerrainBonusDrawer(val guiStage: PlayGUIStage) : Actor() {
 
     var unitActor: UnitActor? = null
 
-    val label = VisLabel("costLabel", "font_5")
+    val label = VisLabel("costLabel", "default")
 
     var isDisabled = !GamePref.showTerrainBonus
 

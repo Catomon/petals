@@ -919,7 +919,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     }
 
     private fun PlayerSlot.showPlayerSlotActionDialog() {
-//        val label = newLabel(message, "font_5")
+//        val label = newLabel(message, "default")
 //        label.wrap = true
 //        label.pack()
 //        label.setAlignment(Align.center)

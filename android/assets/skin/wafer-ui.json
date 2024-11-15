@@ -1,19 +1,7 @@
 {
 BitmapFont: {
-	font: {
-		file: ark-pixel-10px-monospaced-ja.fnt
-	}
-	font_5: {
-		file: ark-pixel-10px-monospaced-ja.fnt
-	}
-	font_8: {
-		file: ark-pixel-10px-monospaced-ja.fnt
-	}
-	quaver: {
-		file: ark-pixel-10px-monospaced-ja.fnt
-	}
 	default-font: {
-		file: ark-pixel-10px-monospaced-ja.fnt
+		file: ark-pixel-10px-monospaced-ja.fnt 
 	}
 }
 Color: {
@@ -112,7 +100,7 @@ CheckBoxStyle: {
 	default: {
 		checkboxOn: checkbox-checked
 		checkboxOff: checkbox
-		font: font
+		font: default-font
 	}
 }
 ImageButtonStyle: {
@@ -128,35 +116,29 @@ ImageButtonStyle: {
 }
 ImageTextButtonStyle: {
 	default: {
-		font: font_8
+		font: default-font
 		up: panel_b
 		down: panel_b
 	}
 }
 LabelStyle: {
 	default: {
-		font: font_5
+		font: default-font
 	}
 	quote: {
-		font: quaver
+		font: default-font
 	}
 	task: {
-		font: font_5
+		font: default-font
 		background: task_label_background
 	}
-	font_5: {
-		font: font_5
-	}
-	font_8: {
-		font: font_8
-	}
 	menuitem-shortcut: {
-		font: font
+		font: default-font
 	}
 }
 ListStyle: {
 	default: {
-		font: font_5
+		font: default-font
 		fontColorSelected: white
 		fontColorUnselected: light-gray
 		selection: selection
@@ -198,7 +180,7 @@ ScrollPaneStyle: {
 }
 SelectBoxStyle: {
 	default: {
-		font: font
+		font: default-font
 		fontColor: white
 		background: select-box
 		scrollStyle: select-box
@@ -231,14 +213,14 @@ SplitPaneStyle: {
 }
 TextButtonStyle: {
 	default: {
-		font: font_8
+		font: default-font
 		up: panel_b
 		down: panel_b
 	}
 }
 TextFieldStyle: {
 	default: {
-		font: font
+		font: default-font
 		fontColor: white
 		focusedFontColor: white
 		background: textfield
@@ -268,7 +250,7 @@ TreeStyle: {
 WindowStyle: {
 	default: {
 		background: window
-		titleFont: font
+		titleFont: default-font
 	}
 }
 com.kotcrab.vis.ui.Sizes: {
@@ -289,7 +271,7 @@ com.kotcrab.vis.ui.Sizes: {
 }
 com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle: {
 	default: {
-		font: font
+		font: default-font
 		fontColor: white
 		selection: green
 		background: textfield
@@ -304,7 +286,7 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 		down: list_item_button_down
 		focused: list_item_button_focused
 		checked: list_item_button_down
-		font: font_5
+		font: default-font
 		focusBorder: list_item_button_border
 		pressedOffsetY: -1
 		checkedOffsetY: -1
@@ -313,14 +295,14 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 		up: layers
 		down: layers
 		pressedOffsetY: -1
-		font: font
+		font: default-font
 		focusBorder: layers_border
 	}
 	normal: {
 		down: button_pressed
 		up: button
 		disabled: button_disabled
-		font: font_8
+		font: default-font
 		fontColor: white
 		downFontColor: light-gray
 		pressedOffsetY: -1
@@ -330,7 +312,7 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 		down: button_a_pressed
 		up: button_a
 		disabled: button_a_disabled
-		font: font_8
+		font: default-font
 		fontColor: white
 		downFontColor: light-gray
 		pressedOffsetY: -1
@@ -341,14 +323,14 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 		down: menu-button-down
 		up: menu-button
 		over: menu-button-down
-		font: font
+		font: default-font
 		fontColor: white
 		downFontColor: light-gray
 	}
 	toggle: {
 		down: button-pressed
 		up: button
-		font: font
+		font: default-font
 		fontColor: white
 		checked: button-pressed
 		downFontColor: light-gray
@@ -356,7 +338,7 @@ com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
 	tab: {
 		down: tab-pressed
 		up: tab-pressed
-		font: font
+		font: default-font
 		fontColor: white
 		checked: tab
 	}
@@ -677,7 +659,7 @@ com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle: {
 		down: button_a_pressed
 		up: button_a
 		disabled: button_a_disabled
-		font: font_8
+		font: default-font
 		fontColor: white
 		downFontColor: light-gray
 		pressedOffsetY: -1
@@ -692,14 +674,14 @@ com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle: {
 		checkBackgroundOver: checkbox
 		checkBackgroundDown: checkbox-pressed
 		tick: check
-		font: font
+		font: default-font
 	}
 	radio: {
 		checkBackground: radio
 		checkBackgroundOver: radio
 		checkBackgroundDown: radio-pressed
 		tick: check-radio
-		font: font
+		font: default-font
 	}
 }
 com.kotcrab.vis.ui.widget.PopupMenu$PopupMenuStyle: {
@@ -758,7 +740,7 @@ com.kotcrab.vis.ui.widget.MenuItem$MenuItemStyle: {
 		down: menu-button-down
 		up: menu-button
 		over: menu-button-over
-		font: font
+		font: default-font
 		fontColor: white
 	}
 }
@@ -771,7 +753,7 @@ com.kotcrab.vis.ui.widget.LinkLabel$LinkLabelStyle: {
 	default: {
 		fontColor: link
 		underline: link-underline
-		font: font
+		font: default-font
 	}
 }
 com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneStyle: {
@@ -822,7 +804,7 @@ com.kotcrab.vis.ui.widget.color.ColorPickerWidgetStyle: {
 }
 com.kotcrab.vis.ui.widget.color.ColorPickerStyle: {
 	default: {
-		titleFont: font
+		titleFont: default-font
 		background: window
 		titleFontColor: white
 		pickerStyle: default

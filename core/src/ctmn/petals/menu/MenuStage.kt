@@ -43,7 +43,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
 
     private val bunnyImage = VisImage(assets.getTexture("bunny.png"))
 
-    private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "font_5")
+    private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "default")
 
     private val storyButton = newTextButton(strings.ui.story).apply { isDisabled = true }
     private val campaignButton = newTextButton(strings.ui.levels)

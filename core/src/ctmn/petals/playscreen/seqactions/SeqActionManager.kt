@@ -8,8 +8,8 @@ import com.badlogic.gdx.utils.Queue
 
 class SeqActionManager(val playScreen: PlayScreen) {
 
-    private val actionList = Array<SeqAction>()
-    private val actionQueue = Queue<SeqAction>()
+    val actionList = Array<SeqAction>()
+    val actionQueue = Queue<SeqAction>()
 
     private var currentSeqAction: SeqAction? = null
 

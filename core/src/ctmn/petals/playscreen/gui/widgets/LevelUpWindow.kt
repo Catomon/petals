@@ -33,7 +33,7 @@ class LevelUpWindow(val unitActor: UnitActor) :
     private val fontScale = 0.16f
 
     private val unitNameLabel =
-        newLabel("${unitActor.selfName.first().toUpperCase()}${unitActor.selfName.substring(1)}", "font_5")
+        newLabel("${unitActor.selfName.first().toUpperCase()}${unitActor.selfName.substring(1)}", "default")
 
     private val captureListener = object : EventListener {
         override fun handle(event: Event?): Boolean {
@@ -58,11 +58,11 @@ class LevelUpWindow(val unitActor: UnitActor) :
             add(unitIcon).size(128f)
 
             add(VisTable().apply {
-                add(newLabel("AT: +1", "font_5"))
-                add(newLabel("DF: +1", "font_5")).padLeft(10f)
+                add(newLabel("AT: +1", "default"))
+                add(newLabel("DF: +1", "default")).padLeft(10f)
                 row().height(10f)
-                add(newLabel("MP: +1", "font_5"))
-                add(newLabel("AT: +1", "font_5")).padLeft(10f)
+                add(newLabel("MP: +1", "default"))
+                add(newLabel("AT: +1", "default")).padLeft(10f)
             })
         }).left()
 

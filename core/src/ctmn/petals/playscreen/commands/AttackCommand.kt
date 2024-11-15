@@ -71,8 +71,12 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         var damageAttacker: (() -> Unit)? = null
         val postAttack: () -> Unit
 
+        val miss = if (Const.MISSES) Random.nextInt(1, 101) <= 5 else false
+        val crit = if (Const.CRITS) Random.nextInt(1, 101) <= 5 else false
+
         /** health */
         damageTarget = {
+            val attackerDamage: Int = if (crit) (attackerDamage * 1.5f).toInt() else attackerDamage
             targetUnit.dealDamage(attackerDamage, attackerUnit, playScreen, false)
 
             val isUnitDefenderDie = targetUnit.health <= 0
@@ -110,7 +114,8 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
         //take damage if in target attack range
         val attackTypeNotOk = targetUnit.isAir && targetUnit.cAttack?.attackType == ATTACK_TYPE_GROUND
-        if (targetUnit.attackRange > 0
+        if (Const.ATTACK_BACK
+            && targetUnit.attackRange > 0
             && !attackTypeNotOk
             && targetUnit.canAttack(attackerUnit)
             && attackerUnit.isUnitNear(targetUnit, 1)
@@ -148,7 +153,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         }
 
         /** add attack action */
-        playScreen.queueAction(AttackAction(attackerUnit, targetUnit, damageTarget, damageAttacker, postAttack))
+        playScreen.queueAction(AttackAction(attackerUnit, targetUnit, damageTarget, damageAttacker, postAttack, miss))
 
         return true
     }

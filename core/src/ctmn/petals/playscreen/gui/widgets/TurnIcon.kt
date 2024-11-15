@@ -29,7 +29,7 @@ class TurnIcon : Actor() {
     private val hideAfter = 2f
     private var mHideAfter = hideAfter
 
-    val label = newLabel("Hello???" , "font_5")
+    val label = newLabel("Hello???" , "default")
 
     init {
 //        if (sprite.width > 18)

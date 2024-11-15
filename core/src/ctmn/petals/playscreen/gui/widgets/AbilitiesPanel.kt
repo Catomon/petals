@@ -157,8 +157,8 @@ class AbilitiesPanel(val guiStage: PlayGUIStage) : VisTable() {
 
         //private var iconSprite: Sprite = Sprite(guiStage.assets.getAtlasRegion("gui/healing_ic"))
 
-        private val cooldownLabel = newLabel("0", "font_8")
-        private val costLabel = newLabel("mana label", "font_5").apply { isVisible = false }
+        private val cooldownLabel = newLabel("0", "default")
+        private val costLabel = newLabel("mana label", "default").apply { isVisible = false }
 
         private var drawable: Drawable? = null
 

@@ -554,7 +554,7 @@ fun UnitActor.grantExp(amount: Int, playScreen: PlayScreen) {
     val cLevel = unit.cLevel ?: return
     cLevel.exp += amount
 
-    val label = FloatingLabelAnimation("+$amount XP", "font_5")
+    val label = FloatingLabelAnimation("+$amount XP", "default")
     label.color = Color.BLUE
     label.setPosition(unit.centerX - label.width / 4, unit.centerY)
     playScreen.playStage.addActor(label)
@@ -569,7 +569,7 @@ fun UnitActor.grantExp(amount: Int, playScreen: PlayScreen) {
         if (cLevel.lvl >= Const.MAX_LVL)
             cLevel.exp = xpToLevelUp(Const.MAX_LVL - 1)
 
-        val label = FloatingLabelAnimation("LEVEL UP!", "font_5")
+        val label = FloatingLabelAnimation("LEVEL UP!", "default")
         label.color = Color.YELLOW
         label.setPosition(unit.centerX - label.width / 4, unit.centerY)
         playScreen.playStage.addActor(label)
@@ -609,7 +609,7 @@ fun UnitActor.captureBase(base: TileActor, player: Player? = null) {
 
 val Terrain.atkPlusDf get() = attackBonus + defenseBonus
 
-fun UnitActor.getClosestTileInMoveRange(
+fun UnitActor.      getClosestTileInMoveRange(
     destX: Int,
     destY: Int,
     pTiles: Array<TileActor>? = null,

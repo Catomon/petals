@@ -31,7 +31,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
 
     private val game = menuScreen.game
 
-    private val labelChooseLevel = newLabel("Select level", "font_5")
+    private val labelChooseLevel = newLabel("Select level")
 
     private val returnButton = newTextButton("Return")
 

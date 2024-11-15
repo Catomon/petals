@@ -10,10 +10,10 @@ import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 
-class FloatingUpIconLabel(val text: String, val iconName: String, val moveBy: Float = 60f) : HorizontalGroup() {
+class FloatingUpIconLabel(val text: String, val iconName: String, val moveBy: Float = 15f) : HorizontalGroup() {
 
     private val duration = 1f
-    val label = VisLabel(text, "font_5").also { it.color = Color.SKY; it.setFontScale(0.5f) }
+    val label = VisLabel(text, "default").also { it.color = Color.SKY; it.setFontScale(0.5f) }
     
     init {
         addActor(label)

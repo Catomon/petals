@@ -111,15 +111,20 @@ fun PlayStage.getMapSizedGridOfZero(): KArray<IntArray> {
  *       }
  *   }
  */
-
-private var moveCostMap: KArray<IntArray>? = null
-
 fun PlayStage.getTileMovementCostMatrix(terrainProps: TerrainProps): KArray<IntArray> {
-    if (moveCostMap == null || moveCostMap!!.size != tiledWidth || moveCostMap!![0].size != tiledHeight) {
-        moveCostMap = KArray(tiledWidth()) { IntArray(tiledHeight()) { 0 } }
-    }
+    var moveCostMapTmp: KArray<IntArray> = KArray(tiledWidth()) { IntArray(tiledHeight()) { 0 } }
 
-    val moveCostMap = moveCostMap!!
+//    if (moveCostMapTmp == null || moveCostMapTmp!!.size != tiledWidth || moveCostMapTmp!![0].size != tiledHeight) {
+//        moveCostMapTmp = KArray(tiledWidth()) { IntArray(tiledHeight()) { 0 } }
+//    } else {
+//        moveCostMapTmp?.let { moveCostMap ->
+//            for (i in moveCostMap.indices) {
+//                moveCostMap[i].fill(0)
+//            }
+//        }
+//    }
+
+    val moveCostMap = moveCostMapTmp!!
 
     for (tile in getTiles()) {
         val terrainProp = terrainProps[tile.terrain]
@@ -608,8 +613,12 @@ fun PlayStage.shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
     val tilesToShift = Array<TileActor>()
     tileLayers.values.forEach {
         if (it != null && tileX in 0 until it.tilesGrid.size && tileY in 0 until (it.tilesGrid[0]?.size ?: 0)) {
-            it.tilesGrid[tileX][tileY]?.let { tile ->
-                tilesToShift.add(tile)
+            try {
+                it.tilesGrid[tileX][tileY]?.let { tile ->
+                    tilesToShift.add(tile)
+                }
+            } catch (e: IndexOutOfBoundsException) {
+                e.printStackTrace()
             }
         }
     }
@@ -634,7 +643,8 @@ fun PlayStage.damageTile(tile: TileActor, damage: Int) {
 fun PlayStage.destroyTile(tile: TileActor) {
     logMsg("Tile destroyed: ${tile.selfName}")
 
-    val debris = TileData.getOrNull(tile.selfName + "_debris") ?:  TileData.getOrNull(tile.nameNoSuffix() + "_debris") ?: TileData.getOrNull(tile.nameNoTeamName() + "_debris") ?: TileData.getOrNull(tile.terrain + "_debris")
+    val debris = TileData.getOrNull(tile.selfName + "_debris") ?: TileData.getOrNull(tile.nameNoSuffix() + "_debris")
+    ?: TileData.getOrNull(tile.nameNoTeamName() + "_debris") ?: TileData.getOrNull(tile.terrain + "_debris")
     if (debris != null) {
         logMsg("Tile debris added: ${tile.selfName} debris")
         tile.remove()

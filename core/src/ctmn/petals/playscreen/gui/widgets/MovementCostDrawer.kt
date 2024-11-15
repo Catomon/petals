@@ -23,7 +23,7 @@ class MovementCostDrawer(val guiStage: PlayGUIStage) : Actor() {
 
     val sprite = Sprite(guiStage.assets.findAtlasRegion("gui/white"))
 
-    val costLabel = VisLabel("costLabel", "font_5")
+    val costLabel = VisLabel("costLabel", "default")
 
     init {
         isVisible = false

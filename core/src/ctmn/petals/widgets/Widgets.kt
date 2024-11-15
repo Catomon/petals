@@ -109,7 +109,7 @@ fun newNotifyWindow(
     action: (() -> Unit)? = null,
     cancelButton: Boolean = false,
 ): VisWindow {
-    val label = newLabel(message, "font_5")
+    val label = newLabel(message, "default")
     label.wrap = true
     label.pack()
     label.setAlignment(Align.center)

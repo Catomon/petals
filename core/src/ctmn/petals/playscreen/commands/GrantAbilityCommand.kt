@@ -24,7 +24,7 @@ class GrantAbilityCommand(val unitId: String, val ability: Ability) : Command() 
         val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
 
         playScreen.playStage.addActor(
-            FloatingLabelAnimation("New Ability: $ability", "font_5").position(unit.centerX, unit.centerY))
+            FloatingLabelAnimation("New Ability: $ability", "default").position(unit.centerX, unit.centerY))
 
         unit.abilities.add(ability)
         return true

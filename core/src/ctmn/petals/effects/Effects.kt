@@ -89,7 +89,7 @@ object CreateEffect {
     fun immuneEffect(unit: UnitActor) {
         if (unit.playStageOrNull == null) return
 
-        val label = FloatingLabelAnimation("Immune!", "font_5")
+        val label = FloatingLabelAnimation("Immune!", "default")
         label.color = Color.YELLOW
         label.setPosition(unit.centerX - label.width / 4, unit.centerY)
 

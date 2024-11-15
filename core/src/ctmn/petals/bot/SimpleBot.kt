@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.commands.Command
+import ctmn.petals.utils.logErr
 import ctmn.petals.widgets.addNotifyWindow
 import kotlin.concurrent.thread
 
@@ -26,6 +27,8 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
 
     private var currentCommand: Command? = null
 
+    private var waitingForActionEndTime = 0f
+
     override fun update(delta: Float) {
         if (isDone) return
 
@@ -42,8 +45,20 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
                 didIPrintDebug = true
             }
 
+            waitingForActionEndTime += delta
+
+            if (waitingForActionEndTime > 10f) {
+                logErr("Action takes too long, removing: " + (playScreen.actionManager.actionList + playScreen.actionManager.actionQueue).joinToString(", "))
+                if (playScreen.actionManager.getNextInQueue() != null)
+                    playScreen.actionManager.getNextInQueue()?.isDone = true
+                else if (!playScreen.actionManager.actionList.isEmpty)
+                    playScreen.actionManager.actionList.forEach { it.isDone = true }
+            }
+
             elapsedTime = 0f
             return
+        } else {
+            waitingForActionEndTime = 0f
         }
 
         if (elapsedTime < idleTime) return

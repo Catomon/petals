@@ -5,11 +5,8 @@ import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const
 import ctmn.petals.player.Player
 import ctmn.petals.player.getSpeciesUnits
-import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.*
-import ctmn.petals.playscreen.income
-import ctmn.petals.playscreen.playStageOrNull
-import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
 import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.*
@@ -31,7 +28,7 @@ class EasyDuelBot(
         getSpeciesUnits(player.species).forEach {
             add(it.unitActor)
         }
-    }
+    },
 ) : Bot(player, playScreen) {
 
     val unitsAwaitingOrders = Array<UnitActor>()
@@ -75,7 +72,7 @@ class EasyDuelBot(
         }
     }
 
-    private val idleTime = 0.5f
+    private val idleTime = 0.75f
     private var curTime = 0f
 
     private var currentCommand: Command? = null
@@ -161,7 +158,7 @@ class EasyDuelBot(
             isCommandExecuted = false
         }
 
-        isDone = curTime > 1 && playScreen.actionManager.isQueueEmpty
+        isDone = curTime > idleTime * 1.5f && playScreen.actionManager.isQueueEmpty
     }
 
     private fun nextCommand(): Boolean {
@@ -207,7 +204,7 @@ class EasyDuelBot(
                         )
 
                         if (command.canExecute(playScreen)) {
-                            playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                            playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                             queueCommand(command)
 
@@ -229,7 +226,7 @@ class EasyDuelBot(
                         )
 
                         if (command.canExecute(playScreen)) {
-                            playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                            playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                             queueCommand(command)
 
@@ -251,7 +248,7 @@ class EasyDuelBot(
                         )
 
                         if (command.canExecute(playScreen)) {
-                            playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                            playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                             queueCommand(command)
 
@@ -274,7 +271,7 @@ class EasyDuelBot(
         playScreen.commandManager.queueCommand(command, playerId ?: playerID)
     }
 
-    private fun PlayScreen.moveCameraToAction(x: Float, y: Float) {
+    private fun PlayScreen.moveCameraAction(x: Float, y: Float) {
         if (moveCamera && fogOfWarManager.isVisible(x.tiled(), y.tiled())) {
             cameraMoveAction = CameraMoveAction(x, y)
         }
@@ -415,7 +412,7 @@ class EasyDuelBot(
         //buy
         val buyCommand = BuyUnitCommand(unitToBuy, player.id, unitPrice, baseX, baseY)
         if (buyCommand.canExecute(playScreen)) {
-            playScreen.moveCameraToAction(baseX.unTiled(), baseY.unTiled())
+            playScreen.moveCameraAction(baseX.unTiled(), baseY.unTiled())
 
             playScreen.actionManager.queueAction(WaitAction(0.30f))
             queueCommand(buyCommand)
@@ -445,10 +442,14 @@ class EasyDuelBot(
                         val command = AttackCommand(unit, enemyUnit)
 
                         if (command.canExecute(playScreen)) {
-                            playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                            playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
-                            if (unit.actionPoints == 2)
-                                playScreen.actionManager.queueAction(WaitAction(0.05f))
+                            if (unit.actionPoints == 2) {
+                                playScreen.queueAction {
+                                    playScreen.guiStage.selectUnit(unit)
+                                }
+                                playScreen.actionManager.queueAction(WaitAction(0.20f))
+                            }
 //                            else
 //                                playScreen.actionManager.queueAction(WaitAction(0.30f))
 
@@ -479,7 +480,7 @@ class EasyDuelBot(
             if (!enemyUnits.isEmpty) {
                 val command = unit.moveTowardsCommand(enemyUnits.first().tiledX, enemyUnits.first().tiledX)
                 if (command?.canExecute(playScreen) == true) {
-                    playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                    playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                     queueCommand(command)
 
@@ -614,7 +615,7 @@ class EasyDuelBot(
                     val moveCommand = MoveUnitCommand(unit, closestTileX, closestTileY)
 
                     if (moveCommand.canExecute(playScreen)) {
-                        playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                        playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                         queueCommand(moveCommand)
 
@@ -650,7 +651,7 @@ class EasyDuelBot(
                             if (tile != null && unit.canBuildBase(tile)) {
                                 val command = BuildBaseCommand(unit, tile)
                                 if (command.canExecute(playScreen)) {
-                                    playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                                    playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                                     queueCommand(command)
                                     return true
@@ -737,7 +738,7 @@ class EasyDuelBot(
                 val command = unit.moveTowardsCommand(unit2.tiledX, unit2.tiledY)
                 if (command != null) {
                     if (command.canExecute(playScreen)) {
-                        playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                        playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                         queueCommand(command)
                         return true
@@ -754,7 +755,7 @@ class EasyDuelBot(
         if (unit.tiledX == closestCrystal.tiledX && unit.tiledY == closestCrystal.tiledY) {
             val command = CaptureCommand(unit, closestCrystal)
             if (command.canExecute(playScreen)) {
-                playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                 queueCommand(command)
                 return true
@@ -801,7 +802,7 @@ class EasyDuelBot(
             val moveCommand = MoveUnitCommand(unit, closestTileX, closestTileY)
 
             if (moveCommand.canExecute(playScreen)) {
-                playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                 queueCommand(moveCommand)
 
@@ -857,7 +858,7 @@ class EasyDuelBot(
         if (unit.tiledX == closestBase.tiledX && unit.tiledY == closestBase.tiledY) {
             val command = DestroyTileCommand(unit, closestBase)
             if (command.canExecute(playScreen)) {
-                playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                 queueCommand(command)
                 return true
@@ -908,7 +909,7 @@ class EasyDuelBot(
                 val moveCommand = MoveUnitCommand(unit, closestTileX, closestTileY)
 
                 if (moveCommand.canExecute(playScreen)) {
-                    playScreen.moveCameraToAction(unit.centerX, unit.centerY)
+                    playScreen.moveCameraAction(unit.centerX, unit.centerY)
 
                     queueCommand(moveCommand)
 
