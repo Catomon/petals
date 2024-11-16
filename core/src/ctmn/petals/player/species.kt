@@ -105,7 +105,7 @@ val fairySpecies = object : SpeciesUnits {
         add(Building(FAIRY_ARMORY, 4, 400, Array<String>().apply { add("grass") }, FAIRY_FORGE))
         add(Building(FAIRY_FOLIA, 4, 400, Array<String>().apply { add("grass") }, FAIRY_ARMORY))
 
-        add(Building(WATERLILY, 2, 50, Array<String>().apply { add("water") }))
+        add(Building(WATERLILY, 2, 50, Array<String>().apply { add("water", "swamp") }))
         add(Building(PLANT_WALL, 2, 100, Array<String>().apply { add("grass") }))
         add(Building(PLANT_TOWER, 2, 100, Array<String>().apply { add("grass") }, FAIRY_ARCHERS_GUILD))
     }
@@ -148,7 +148,7 @@ val goblinSpecies = object : SpeciesUnits {
             add(GoblinWolf().cost(400), 1, listOf(GOBLIN_FORGE, GOBLIN_BEASTMOUNT))
             add(GoblinBoar().cost(400), 1, listOf(GOBLIN_FORGE))
 
-            add(GoblinDuelist().cost(500), 1, listOf(GOBLIN_FORGE, GOBLIN_ARMORY))
+            add(GoblinMachete().cost(500), 1, listOf(GOBLIN_FORGE, GOBLIN_ARMORY))
             add(GoblinBomber().cost(500), 1, listOf(GOBLIN_FORGE, GOBLIN_ARSENAL))
 
             add(GoblinCrossbow().cost(600), 1, listOf(GOBLIN_ARSENAL, GOBLIN_ARCHERS_GUILD))

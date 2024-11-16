@@ -765,7 +765,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is GoblinBoar -> 2
         is GoblinBow -> 2
         is GoblinCatapult -> 2
-        is GoblinDuelist -> 2
+        is GoblinMachete -> 2
         is GoblinGalley -> 2
         is GoblinGiant -> 2
         is GoblinHealer -> 2
@@ -795,3 +795,13 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is ObjRoot -> -1
         else -> if (unit.playerId == Player.NONE) 4 else unit.playerId
     }
+
+fun PlayScreen.throwUnitAction(unit: UnitActor, tileX: Int, tileY: Int, damage: Int = -1, source: UnitActor? = null) {
+    addAction(ThrowUnitAction(unit, tileX, tileY)).addOnCompleteTrigger { _ ->
+        if (damage > -1) {
+            CreateEffect.damageUnit(
+                unit.dealDamage(damage, source, this)
+            )
+        }
+    }
+}

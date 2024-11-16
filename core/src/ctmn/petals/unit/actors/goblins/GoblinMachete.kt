@@ -3,13 +3,13 @@ package ctmn.petals.unit.actors.goblins
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.GOBLIN_DUELIST
+import ctmn.petals.unit.UnitIds.GOBLIN_MACHETE
 import ctmn.petals.unit.component.*
 
 
-class GoblinDuelist : UnitActor(
+class GoblinMachete : UnitActor(
     UnitComponent(
-        GOBLIN_DUELIST,
+        GOBLIN_MACHETE,
         100,
         20,
         6,

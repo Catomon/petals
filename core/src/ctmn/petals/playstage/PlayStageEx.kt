@@ -617,7 +617,7 @@ fun PlayStage.shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
                 it.tilesGrid[tileX][tileY]?.let { tile ->
                     tilesToShift.add(tile)
                 }
-            } catch (e: IndexOutOfBoundsException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }

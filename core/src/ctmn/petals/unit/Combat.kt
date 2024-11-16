@@ -9,13 +9,20 @@ import ctmn.petals.playstage.getLeadUnit
 import ctmn.petals.playstage.getUnitsForTeam
 import ctmn.petals.unit.component.BonusFieldComponent
 import java.lang.IllegalStateException
+import kotlin.random.Random
 
-fun PlayScreen.randomDamage(min: Int, max: Int): Int {
+fun PlayScreen.randomInt(min: Int, max: Int): Int {
     val modMinDamage: Int = (min.toFloat()).toInt()
     val modMaxDamage: Int = (max.toFloat()).toInt()
 
     return random.nextInt(modMinDamage, modMaxDamage + 1)
 }
+
+fun PlayScreen.randomInt75(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+
+fun PlayScreen.randomInt50(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+
+fun PlayScreen.randomInt25(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
 
 /** up to 50% damage and 25% defense reducing depending on health */
 val UnitActor.combatDamageHpMod: Float
@@ -115,5 +122,5 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
 
     defense = (defense * defenseMod).toInt()
 
-    return Pair(randomDamage(minDMG, maxDMG), defense)
+    return Pair(randomInt(minDMG, maxDMG), defense)
 }

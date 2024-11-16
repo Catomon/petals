@@ -9,6 +9,7 @@ import ctmn.petals.effects.FloatingUpIconLabel
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.calcCreditsPerCluster
 import ctmn.petals.playscreen.events.CreditsChangeEvent
 import ctmn.petals.playscreen.events.TileCapturedEvent
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
@@ -23,6 +24,7 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.getSurroundingTiles
+import kotlin.math.max
 
 class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener {
     override fun handle(event: Event): Boolean {
@@ -42,8 +44,10 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                 }
             }
 
+            val capturables = playScreen.playStage.getCapturablesOf(nextPlayer)
+            val creditsPerCluster = playScreen.calcCreditsPerCluster(nextPlayer)
             //capturables income
-            for (capturable in playScreen.playStage.getCapturablesOf(nextPlayer)) {
+            for (capturable in capturables) {
                 if (capturable.isCrystal) {
                     val cCrystals = capturable.get(CrystalsComponent::class.java) ?: CrystalsComponent().also {
                         capturable.add(it)
@@ -55,17 +59,17 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                     }
 
                     if (cCrystals.amount > 0) {
-                        cCrystals.amount -= playScreen.creditsPerCluster
+                        cCrystals.amount -= creditsPerCluster
                         if (cCrystals.amount < 0) {
-                            val resultingAmount = playScreen.creditsPerCluster - cCrystals.amount
+                            val resultingAmount = creditsPerCluster - cCrystals.amount
                             nextPlayer.credits += resultingAmount
                             cCrystals.amount = 0
 
                             showLabel(resultingAmount)
                         } else {
-                            nextPlayer.credits += playScreen.creditsPerCluster
+                            nextPlayer.credits += creditsPerCluster
 
-                            showLabel(playScreen.creditsPerCluster)
+                            showLabel(creditsPerCluster)
                         }
                     }
 

@@ -1,6 +1,7 @@
 package ctmn.petals.playscreen.gui
 
 import com.badlogic.gdx.graphics.OrthographicCamera
+import ctmn.petals.Const
 import ctmn.petals.player.Player
 import ctmn.petals.playstage.*
 import ctmn.petals.utils.*
@@ -138,6 +139,8 @@ class PlayStageCameraController(val playStage: PlayStage) {
     }
 
     fun zoomUp(z: Float) {
+        val maxZoomOut = if (Const.DEBUG_MODE) 999999f else this.maxZoomOut
+
         camera.zoom += z
 
         val offset = 12 * camera.zoom + 32

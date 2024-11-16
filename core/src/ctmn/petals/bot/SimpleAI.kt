@@ -52,6 +52,7 @@ class SimpleAI(
                 Gdx.app.error(javaClass.simpleName, "Can't do shit for unit ${unit.name}")
 
                 unit.actionPoints = 0
+                lastUnitTimes = 0
 
                 continue
             }

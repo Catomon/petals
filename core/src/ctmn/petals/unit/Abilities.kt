@@ -19,6 +19,7 @@ object Abilities : ArrayMap<String, KClass<out Ability>>() {
         add(FogAbility())
         add(FortressAbility())
         add(FreezeAbility())
+        add(HammerAbility())
         add(HealingAbility())
         add(HealingTouchAbility())
         add(HealthPotionAbility())

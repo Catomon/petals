@@ -76,14 +76,31 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
 
         for (x in fogDiscoverMap.indices) {
             for (y in fogDiscoverMap[x].indices) {
-                if (isVisible(x, y))
+                if (fogMap != null) {
+                    val fogMap = fogMap!!
+                    val fogMapX = x - 1
+                    val fogMapY = y - 1
+                    if (fogMapX in fogMap.indices && fogMapY in fogMap[0].indices) {
+                        if (isVisible(fogMapX, fogMapY))
+                            fogDiscoverMap[x][y] = 1
+                    } else {
+                        if (isVisible(fogMapX + 1, fogMapY) || isVisible(fogMapX - 1, fogMapY) || isVisible(fogMapX, fogMapY + 1) || isVisible(fogMapX, fogMapY - 1))
+                            fogDiscoverMap[x][y] = 1
+                    }
+                } else {
                     fogDiscoverMap[x][y] = 1
+                }
             }
         }
     }
 
     fun updateGridMap() {
-        fogDiscoverMap = playStage.getMapSizedGridOfZero()
+        val mapSizedGrid = playStage.getMapSizedGridOfZero()
+        fogDiscoverMap = KArray(mapSizedGrid.size + 2) {
+            IntArray(mapSizedGrid[0].size + 2) {
+                0
+            }
+        }
     }
 
     fun isVisible(tileX: Int, tileY: Int): Boolean {
@@ -139,13 +156,13 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
 //            if (tile.selfName == Tiles.EDGE)
 //                maxOfView[tile.tiledX][tile.tiledY] = 1
 
-        for ((i, _) in maxOfView.withIndex()) {
-            for ((j, _) in maxOfView[i].withIndex()) {
-                if (playStage.getTile(i, j) == null)
-                    maxOfView[i][j] = 1
-
-            }
-        }
+//        for ((i, _) in maxOfView.withIndex()) {
+//            for ((j, _) in maxOfView[i].withIndex()) {
+//                if (playStage.getTile(i, j) == null)
+//                    maxOfView[i][j] = 1
+//
+//            }
+//        }
 
         return maxOfView
     }
@@ -200,7 +217,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
             for (y in fogDiscoverMap[x].indices) {
                 if (fogDiscoverMap[x][y] == 1) continue
 
-                fogOfWarSprite.setPosition(x * Const.TILE_SIZE, y * Const.TILE_SIZE)
+                fogOfWarSprite.setPosition((x - 1) * Const.TILE_SIZE, (y - 1) * Const.TILE_SIZE)
                 fogOfWarSprite.draw(batch)
             }
         }

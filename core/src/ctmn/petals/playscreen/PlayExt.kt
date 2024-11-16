@@ -13,14 +13,17 @@ import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.tile.components.CrystalsComponent
 import ctmn.petals.tile.isBase
 import ctmn.petals.tile.isCrystal
+import kotlin.math.max
+
+fun PlayScreen.calcCreditsPerCluster(player: Player) = creditsPerCluster + max(0, playStage.getCapturablesOf(player).count { it.isBase } - 1) * 25
 
 fun Player.income(playScreen: PlayScreen): Int {
     var income = if (creditsPassiveReserve > 0) playScreen.creditsPassiveIncome else 0
     playScreen.playStage.getCapturablesOf(this).forEach { tile ->
-        if (tile.isBase) also {
+        if (tile.isBase) {
             //income += playScreen.creditsPerBase
         }
-        else if (tile.isCrystal) income += playScreen.creditsPerCluster
+        else if (tile.isCrystal) income += playScreen.calcCreditsPerCluster(this)
     }
 
     return income

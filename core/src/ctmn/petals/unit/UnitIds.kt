@@ -61,7 +61,7 @@ object UnitIds {
     const val GOBLIN_WOLF = "goblin_wolf"
     const val GOBLIN_GIANT = "goblin_giant"
     const val GOBLIN_SCOUT = "goblin_scout"
-    const val GOBLIN_DUELIST = "goblin_duelist"
+    const val GOBLIN_MACHETE = "goblin_machete"
     const val GOBLIN_CROSSBOW = "goblin_crossbow"
     const val GOBLIN_PICKAXE = "goblin_pickaxe"
     const val GOBLIN_HEALER = "goblin_healer"

@@ -62,7 +62,7 @@ class LevelSlime3 : Scenario(ID, "level_slime_3") {
                     UnitIds.GOBLIN_BOAR,
                     UnitIds.GOBLIN_HEALER,
                     UnitIds.GOBLIN_WOLF,
-                    UnitIds.GOBLIN_DUELIST,
+                    UnitIds.GOBLIN_MACHETE,
                     UnitIds.GOBLIN_WYVERN,
                     -> units.add(it)
                 }

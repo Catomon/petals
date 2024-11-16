@@ -63,7 +63,7 @@ class Level6 : Scenario("lv_6", "level_bases") {
                     UnitIds.GOBLIN_BOAR,
                     UnitIds.GOBLIN_HEALER,
                         //UnitIds.GOBLIN_WOLF,
-                        //UnitIds.GOBLIN_DUELIST,
+                        //UnitIds.goblin_machete,
                     -> units.add(it)
                 }
             }

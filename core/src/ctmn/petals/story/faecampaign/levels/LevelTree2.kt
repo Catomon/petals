@@ -70,7 +70,7 @@ class LevelTree2 : Scenario(ID, "level_tree_2") {
                     UnitIds.GOBLIN_BOAR,
                     UnitIds.GOBLIN_HEALER,
                     UnitIds.GOBLIN_WOLF,
-                    UnitIds.GOBLIN_DUELIST,
+                    UnitIds.GOBLIN_MACHETE,
                     UnitIds.GOBLIN_WYVERN,
                     UnitIds.GOBLIN_CROSSBOW,
                     UnitIds.GOBLIN_CATAPULT,
