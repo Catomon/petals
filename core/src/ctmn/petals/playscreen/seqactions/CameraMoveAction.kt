@@ -17,7 +17,7 @@ class CameraMoveAction(
 
     private lateinit var camera: OrthographicCamera
 
-    private var stopRange: Float = 64f
+    private var stopRange: Float = 100f
 
     override fun update(deltaTime: Float) {
         if (lastX != camera.position.x)

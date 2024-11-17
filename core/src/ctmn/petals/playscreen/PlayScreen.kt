@@ -220,8 +220,8 @@ open class PlayScreen(
     fun update(delta: Float) {
         playStageCameraController.update(delta)
 
-        actionManager.update(delta)
         botManager.update(delta)
+        actionManager.update(delta)
         commandManager.update(delta)
         taskManager.update(delta)
         triggerManager.update(delta)

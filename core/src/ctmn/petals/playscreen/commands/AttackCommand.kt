@@ -1,7 +1,9 @@
 package ctmn.petals.playscreen.commands
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import ctmn.petals.Const
+import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.*
 import ctmn.petals.unit.*
@@ -12,9 +14,7 @@ import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
 import ctmn.petals.unit.component.MoveAfterAttackComponent
 import ctmn.petals.unit.component.ReloadingComponent
-import ctmn.petals.utils.getSurroundingUnits
-import ctmn.petals.utils.getTile
-import ctmn.petals.utils.getUnitsInRange
+import ctmn.petals.utils.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
@@ -77,6 +77,15 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         /** health */
         damageTarget = {
             val attackerDamage: Int = if (crit) (attackerDamage * 1.5f).toInt() else attackerDamage
+
+            if (crit) {
+                playScreen.playStage.addActor(FloatingUpLabel("Crit!", 15f).also {
+                    it.color = Color.YELLOW
+                    it.setFontScale(0.33f)
+                    it.setPosition(targetUnit.centerX, targetUnit.centerY)
+                })
+            }
+
             targetUnit.dealDamage(attackerDamage, attackerUnit, playScreen, false)
 
             val isUnitDefenderDie = targetUnit.health <= 0

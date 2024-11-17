@@ -15,7 +15,7 @@ class SeqActionManager(val playScreen: PlayScreen) {
 
     val currentAction get() = currentSeqAction
 
-    val hasActions get() = !actionList.isEmpty || !actionQueue.isEmpty
+    val hasActions get() = !actionList.isEmpty || !actionQueue.isEmpty || currentSeqAction != null
     val isQueueEmpty get() = actionQueue.isEmpty
 
     fun update(deltaTime: Float) {

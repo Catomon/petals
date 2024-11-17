@@ -141,7 +141,7 @@ class EasyDuelBot(
             didISayNext = true
         }
 
-        if (currentCommand != null) {
+        if (currentCommand != null && lastActionTime > 0.75f) {
             if (cameraMoveAction != null) playScreen.actionManager.queueAction(cameraMoveAction!!)
             executeCommand(currentCommand!!)
             currentCommand = null
@@ -158,7 +158,7 @@ class EasyDuelBot(
             isCommandExecuted = false
         }
 
-        isDone = curTime > idleTime * 1.5f && playScreen.actionManager.isQueueEmpty
+        isDone = lastActionTime > 1.5f && curTime > idleTime * 1.5f && playScreen.actionManager.isQueueEmpty
     }
 
     private fun nextCommand(): Boolean {
@@ -480,7 +480,11 @@ class EasyDuelBot(
             if (!enemyUnits.isEmpty) {
                 val command = unit.moveTowardsCommand(enemyUnits.first().tiledX, enemyUnits.first().tiledX)
                 if (command?.canExecute(playScreen) == true) {
+                    playScreen.queueAction {
+                        playScreen.guiStage.selectUnit(unit)
+                    }
                     playScreen.moveCameraAction(unit.centerX, unit.centerY)
+                    playScreen.queueAction(WaitAction(0.30f))
 
                     queueCommand(command)
 

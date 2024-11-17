@@ -2,6 +2,7 @@ package ctmn.petals.playscreen.gui
 
 import com.badlogic.gdx.graphics.OrthographicCamera
 import ctmn.petals.Const
+import ctmn.petals.Const.TILE_SIZE
 import ctmn.petals.player.Player
 import ctmn.petals.playstage.*
 import ctmn.petals.utils.*
@@ -143,7 +144,7 @@ class PlayStageCameraController(val playStage: PlayStage) {
 
         camera.zoom += z
 
-        val offset = 12 * camera.zoom + 32
+        val offset = 12 * camera.zoom + 32 + (TILE_SIZE * 3)
 
         fun zoomToMapSizeLimit() {
             if (camera.viewportWidth * camera.zoom > playStage.mapWidth() + offset &&
