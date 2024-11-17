@@ -144,7 +144,7 @@ class PlayStageCameraController(val playStage: PlayStage) {
 
         camera.zoom += z
 
-        val offset = 12 * camera.zoom + 32 + (TILE_SIZE * 3)
+        val offset = 12 * camera.zoom + 32
 
         fun zoomToMapSizeLimit() {
             if (camera.viewportWidth * camera.zoom > playStage.mapWidth() + offset &&

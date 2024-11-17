@@ -25,5 +25,6 @@ object Components {
         TraitComponent::class.java,
         ReloadingComponent::class.java,
         MoveAfterAttackComponent::class.java,
+        WaypointComponent::class.java,
     )
 }

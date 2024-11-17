@@ -33,6 +33,7 @@ import ctmn.petals.playscreen.commands.*
 import ctmn.petals.playscreen.events.*
 import ctmn.petals.playscreen.gui.widgets.*
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
+import ctmn.petals.playscreen.seqactions.UpdateAction
 import ctmn.petals.playscreen.tasks.DialogTask
 import ctmn.petals.playstage.*
 import ctmn.petals.story.aliceOrNull
@@ -43,6 +44,7 @@ import ctmn.petals.tile.isBase
 import ctmn.petals.tile.isCapturable
 import ctmn.petals.unit.*
 import ctmn.petals.unit.abilities.SummonAbility
+import ctmn.petals.unit.component.WaypointComponent
 import ctmn.petals.utils.*
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newIconButton
@@ -124,7 +126,7 @@ class PlayGUIStage(
     private val leaderFieldDrawer = LeaderFieldDrawer(this)
     private val unitInfoDrawer = UnitInfoDrawer(this)
     private val animationsUpdater = AnimationsUpdater(this)
-    private val movementCostDrawer = MovementCostDrawer(this)
+    val movementCostDrawer = MovementCostDrawer(this)
     private val terrainBonusDrawer = TerrainBonusDrawer(this)
     val tileHighlighter = TileHighlighter(this)
 
@@ -371,7 +373,15 @@ class PlayGUIStage(
         buildButton.addChangeListener {
             selectedUnit?.let { unit ->
                 if (unit.isPlayerUnit(localPlayer)) {
-                    addActor(BuildMenu(this@PlayGUIStage, unit, playStage.getTile(unit)!!, localPlayer, getSpeciesBuildings(localPlayer.species)))
+                    addActor(
+                        BuildMenu(
+                            this@PlayGUIStage,
+                            unit,
+                            playStage.getTile(unit)!!,
+                            localPlayer,
+                            getSpeciesBuildings(localPlayer.species)
+                        )
+                    )
                 }
             }
 
@@ -681,6 +691,9 @@ class PlayGUIStage(
             if (playScreen.turnManager.currentPlayer != localPlayer) return@addListener false
             if (playScreen.actionManager.hasActions) return@addListener false
             if (event is CommandExecutedEvent || event is ActionCompletedEvent) {
+                if (event is CommandExecutedEvent) {
+                    if (event.command is EndTurnCommand) return@addListener false
+                }
                 var actionAvailable = playStage.playerUnitsHasAction(localPlayer).size > 0
                 if (
                     playStage.getCapturablesOf(localPlayer)
@@ -695,6 +708,8 @@ class PlayGUIStage(
         }
     }
 
+    private val unitsToMove = mutableListOf<UnitActor>()
+
     private fun endTurn() {
         for (task in playScreen.taskManager.getTasks()) {
             if (task.isForcePlayerToComplete)
@@ -703,7 +718,48 @@ class PlayGUIStage(
 
         if (playScreen.actionManager.hasActions) return
 
-        playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
+        unitsToMove.clear()
+        unitsToMove.addAll(
+            playStage.getUnitsOfPlayer(localPlayer).filter { it.canMove() && it.has(WaypointComponent::class.java) })
+        if (unitsToMove.isEmpty()) {
+            playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
+        } else {
+            playScreen.addAction(UpdateAction {
+                val unitsToRemove = mutableListOf<UnitActor>()
+                for (unit in unitsToMove) {
+                    val waypoint = unit.get(WaypointComponent::class.java)!!
+                    val closestTile = unit.getClosestTileInMoveRange(waypoint.tileX, waypoint.tileY)
+                    if (closestTile != null) {
+                        val command = MoveUnitCommand(unit, closestTile.tiledX, closestTile.tiledY)
+                        if (command.canExecute(playScreen)) {
+                            if (command.tileX == waypoint.tileX && command.tileY == waypoint.tileY) {
+                                unit.del(WaypointComponent::class.java)
+                            }
+                            playScreen.queueCommand(command)
+                        } else {
+                            unit.actionPoints = 0
+                        }
+                    } else {
+                        unit.actionPoints = 0
+                    }
+
+                    unitsToRemove.add(unit)
+                    break
+                }
+
+                unitsToMove.removeAll(unitsToRemove)
+
+                if (unitsToMove.isEmpty()
+                    || playScreen.turnManager.currentPlayer != localPlayer
+                    || unitsToMove.none { it.has(WaypointComponent::class.java) || it.canMove() }
+                    ) {
+                    playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
+                    true
+                } else {
+                    false
+                }
+            })
+        }
     }
 
     private fun setupPlayStage() {
@@ -883,6 +939,16 @@ class PlayGUIStage(
             Input.Keys.SPACE -> {
                 if (playScreen.turnManager.currentPlayer == localPlayer && !playScreen.actionManager.hasActions)
                     selectNextAvailableUnit()
+            }
+
+            Input.Keys.M -> {
+                if (selectedUnit?.playerId == localPlayer.id)
+                selectedUnit?.add(
+                    WaypointComponent(
+                        tileSelectionDrawer.hoveringSprite.centerX().tiled(),
+                        tileSelectionDrawer.hoveringSprite.centerY().tiled()
+                    )
+                )
             }
         }
 

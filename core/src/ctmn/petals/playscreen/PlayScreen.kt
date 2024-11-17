@@ -969,5 +969,9 @@ open class PlayScreen(
                 )
             }
         }
+
+        fun showMoveCost() {
+            guiStage.movementCostDrawer.isVisible = !guiStage.movementCostDrawer.isVisible
+        }
     }
 }

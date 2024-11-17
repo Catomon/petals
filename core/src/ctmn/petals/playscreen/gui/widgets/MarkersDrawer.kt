@@ -15,6 +15,7 @@ import ctmn.petals.playscreen.events.TaskCompletedEvent
 import ctmn.petals.playscreen.tasks.*
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.cPlayerId
+import ctmn.petals.unit.component.WaypointComponent
 import ctmn.petals.unit.isWorker
 import ctmn.petals.unit.playerIdByColor
 import ctmn.petals.utils.*
@@ -70,6 +71,13 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
                         }
                     }
                 }
+            }
+        }
+
+        playScreen.guiStage.selectedUnit?.let { unit ->
+            unit.get(WaypointComponent::class.java)?.let { waypoint ->
+                setPosition(waypoint.tileX.unTiled() + Const.TILE_SIZE_HALF, waypoint.tileY.unTiled() + Const.TILE_SIZE_HALF)
+                drawMarker(batch)
             }
         }
     }

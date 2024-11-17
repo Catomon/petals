@@ -1,21 +1,21 @@
 package ctmn.petals.playscreen.gui.widgets
 
 import com.badlogic.gdx.graphics.Color
-import ctmn.petals.playstage.PlayStage
-import ctmn.petals.playstage.getUnits
-import ctmn.petals.playscreen.gui.PlayGUIStage
-import ctmn.petals.unit.*
-import ctmn.petals.utils.RegionAnimation
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
 import ctmn.petals.newPlayPuiSprite
+import ctmn.petals.playscreen.gui.PlayGUIStage
+import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.playstage.getUnits
 import ctmn.petals.tile.components.ActionCooldown
 import ctmn.petals.tile.isBase
-import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.*
 import ctmn.petals.unit.component.BarrierComponent
+import ctmn.petals.unit.component.WaypointComponent
+import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.setPositionByCenter
@@ -37,6 +37,7 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
     private val greenFrames = guiStage.assets.atlases.findRegions("gui/action_points_available")
     private val redFrames = guiStage.assets.atlases.findRegions("gui/action_points_available_red")
     private val blueFrames = guiStage.assets.atlases.findRegions("gui/action_points_available_blue")
+    private val waypointFrames = guiStage.assets.atlases.findRegions("gui/action_points_available_waypoint")
 
     private val actionPointsAnimation = RegionAnimation(0.6f, greenFrames)
     private val actionPointsSprite = newPlayPuiSprite(actionPointsAnimation.currentFrame)
@@ -93,9 +94,12 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
             if (unit.isPlayerUnit(guiStage.playScreen.turnManager.currentPlayer)) {
                 actionPointsSprite.setPosition(unit.x - 2f, unit.y - 2f)
 
-                if (unit.isPlayerUnit(guiStage.localPlayer))
-                    actionPointsAnimation.setFrames(greenFrames)
-                else
+                if (unit.isPlayerUnit(guiStage.localPlayer)) {
+                    if (unit.has(WaypointComponent::class.java))
+                        actionPointsAnimation.setFrames(waypointFrames)
+                    else
+                        actionPointsAnimation.setFrames(greenFrames)
+                } else
                     if (guiStage.localPlayer.isAlly(unit.teamId))
                         actionPointsAnimation.setFrames(blueFrames)
                     else
@@ -106,6 +110,7 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
                         actionPointsSprite.setRegion(actionPointsAnimation.currentFrame)
                         actionPointsSprite.draw(batch)
                     }
+
                     unit.canAttackNow() -> {
                         actionPointsSprite.setRegion(actionPointsAnimation.keyFrames[0])
                         actionPointsSprite.draw(batch)
@@ -125,8 +130,8 @@ class UnitInfoDrawer(val guiStage: PlayGUIStage) : Actor() {
                 h += 1
 
             if (unit.get(BarrierComponent::class.java)?.let {
-                h += it.amount / 10
-                it
+                    h += it.amount / 10
+                    it
                 } != null) {
                 healthLabel.color = Color.ORANGE
             } else

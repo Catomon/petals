@@ -75,6 +75,7 @@ object Const {
     const val EXPERIMENTAL: Boolean = true
     const val TILE_SIZE: Float = 16f
     const val TILE_SIZE_X2: Float = TILE_SIZE * 2f
+    const val TILE_SIZE_HALF: Float = TILE_SIZE / 2
 
     // Alice
     const val ALICE_LEADER_ID = 13404

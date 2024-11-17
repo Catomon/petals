@@ -42,15 +42,15 @@ class MovementCostDrawer(val guiStage: PlayGUIStage) : Actor() {
             false
         }
 
-        guiStage.addListener(object : InputListener() {
-            override fun keyUp(event: InputEvent?, keycode: Int): Boolean {
-                if (keycode == Input.Keys.M) {
-                    isVisible = !isVisible
-                }
-
-                return false
-            }
-        })
+//        guiStage.addListener(object : InputListener() {
+//            override fun keyUp(event: InputEvent?, keycode: Int): Boolean {
+//                if (keycode == Input.Keys.M) {
+//                    isVisible = !isVisible
+//                }
+//
+//                return false
+//            }
+//        })
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {

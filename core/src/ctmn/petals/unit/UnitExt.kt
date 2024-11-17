@@ -147,9 +147,12 @@ val UnitActor.canAttackAir get() = cAttack?.attackType == ATTACK_TYPE_ALL || cAt
 
 val UnitActor.isWorker get() = selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
 
-val UnitActor.isBuilding get() = playStageOrNull?.getTile(this)?.get(BuildingComponent::class.java)?.playerId == playerId
-val UnitActor.isCapturing get() = playStageOrNull?.getTile(this)?.get(CapturingComponent::class.java)?.playerId == playerId
-val UnitActor.isBaseBuilding get() = playStageOrNull?.getTile(this)?.get(BaseBuildingComponent::class.java)?.playerId == playerId
+val UnitActor.isBuilding
+    get() = playStageOrNull?.getTile(this)?.get(BuildingComponent::class.java)?.playerId == playerId
+val UnitActor.isCapturing
+    get() = playStageOrNull?.getTile(this)?.get(CapturingComponent::class.java)?.playerId == playerId
+val UnitActor.isBaseBuilding
+    get() = playStageOrNull?.getTile(this)?.get(BaseBuildingComponent::class.java)?.playerId == playerId
 
 fun UnitActor.getAbility(name: String): Ability? {
     for (ability in cAbilities?.abilities ?: return null) {
@@ -609,7 +612,7 @@ fun UnitActor.captureBase(base: TileActor, player: Player? = null) {
 
 val Terrain.atkPlusDf get() = attackBonus + defenseBonus
 
-fun UnitActor.      getClosestTileInMoveRange(
+fun UnitActor.getClosestTileInMoveRange(
     destX: Int,
     destY: Int,
     pTiles: Array<TileActor>? = null,

@@ -48,9 +48,11 @@ class SeqActionManager(val playScreen: PlayScreen) {
             if (currentSeqAction!!.isDone) {
                 actionQueue.removeValue(currentSeqAction, false)
 
-                playScreen.fireEvent(ActionCompletedEvent(currentSeqAction!!))
-
+                val completedAction = currentSeqAction!!
                 currentSeqAction = null
+
+                playScreen.fireEvent(ActionCompletedEvent(completedAction))
+
                 if (!actionQueue.isEmpty) {
                     currentSeqAction = actionQueue.first()
 
