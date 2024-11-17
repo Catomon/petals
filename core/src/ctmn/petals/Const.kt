@@ -8,7 +8,7 @@ object Const {
 
     // App:
     const val APP_NAME = "Fae's Feisty Fray"
-    const val APP_VER_NAME = "0.4.4-alpha"
+    const val APP_VER_NAME = "0.5-alpha"
     const val IS_RELEASE = false
     const val UNLOCK_LEVELS = true
     const val USER_FOLDER = "Documents/Fae's Feisty Fray/"
@@ -25,9 +25,9 @@ object Const {
     const val SERVER_PORT = 7396
 
     //JmDNS
-    const val SERVICE_TYPE = "_alissagame._upd.local."
-    const val SERVICE_NAME = "AlissaGameService"
-    const val SERVICE_DESCRIPTION = "Alissa Game Service"
+    const val SERVICE_TYPE = "_faegame._upd.local."
+    const val SERVICE_NAME = "FaesFeistyFrayMp"
+    const val SERVICE_DESCRIPTION = "Fae's Feisty Fray multiplayer ip scan or something."
 
 
     // GUI:

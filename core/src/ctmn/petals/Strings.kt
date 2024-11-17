@@ -12,7 +12,7 @@ object GameLocale {
     const val RUSSIAN = "ru"
 }
 
-fun getLangStringsByPrefs() : Strings {
+fun getLangStringsByPrefs(): Strings {
     val file = Gdx.files.internal("lang/${GamePref.locale}.json")
     if (!file.exists()) {
         check(GamePref.locale != GameLocale.ENGLISH)
@@ -27,11 +27,10 @@ fun getLangStringsByPrefs() : Strings {
 
 class Strings {
 
-    var ui = UI()
-    var play = Play()
+    var general = General()
     var units = Units()
 
-    class UI {
+    class General {
         val story = "Story"
         val levels = "Campaign"
         val quickplay = "Quickplay"
@@ -42,14 +41,48 @@ class Strings {
         val editor = "Editor"
         val settings = "Settings"
         val exit = "Exit"
-        val close = "close"
-    }
-
-    class Play {
+        val close = "Close"
+        val return_ = "Return"
+        val confirm = "Confirm"
+        val fullscreen = "Fullscreen"
+        val show_attack_range_border = "Show attack range\nborder"
+        val auto_end_turn = "Auto End Turn"
+        val show_terrain_bonus = "Show terrain bonus"
+        val target_fps = "Target fps"
+        val music = "Music"
+        val sound = "Sound"
+        val language = "Language"
+        val game_menu = "Game Menu"
+        val continue_ = "Continue"
+        val restart = "Restart"
+        val end_game = "End game"
+        val fog_of_war = "Fog Of War"
+        val daytime = "Daytime"
+        val season = "Season"
+        val day = "day"
+        val night = "night"
         val your_turn = "YOUR TURN"
         val enemy_turn = "ENEMY TURN"
         val ally_turn = "ALLY TURN"
         val buy_menu = "Base Menu"
+        val player_slot = "Player Slot"
+        val move_here = "Move here"
+        val add_easy_bot = "Add Easy Bot"
+        val player = "Player"
+        val add_player = "Add Player"
+        val set_goblin = "Set Goblin"
+        val set_faerie = "Set Faerie"
+        val remove = "Remove"
+        val cancel = "Cancel"
+        val same_screen = "Same Screen"
+        val pass_and_play = "Pass and Play"
+        val local_multiplayer = "Local Multiplayer"
+        val host = "Host"
+        val connecting = "Connecting..."
+        val looking_for_server = "Looking for server..."
+        val check_your_network_connection = "Check your network connection."
+        val connect = "Connect"
+        val no_local_servers_found = "No local servers found"
     }
 
     class Units {

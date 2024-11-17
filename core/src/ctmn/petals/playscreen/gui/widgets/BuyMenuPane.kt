@@ -49,8 +49,8 @@ class BuyMenu : VisTable() {
         clear()
         val buyMenuPane = BuyMenuPane(guiStage, base, player, availableUnits[player.id], unlockAll)
         val closeButton =
-            newTextButton(strings.ui.close).addChangeListener { buyMenuPane.remove(); it.remove(); clear() }.addClickSound()
-        add(VisLabel(strings.play.buy_menu)).center().padTop(6f).padBottom(10f)
+            newTextButton(strings.general.close).addChangeListener { buyMenuPane.remove(); it.remove(); clear() }.addClickSound()
+        add(VisLabel(strings.general.buy_menu)).center().padTop(6f).padBottom(10f)
         row()
         add(buyMenuPane).width(325f).center().fillY().expandY()
         row()

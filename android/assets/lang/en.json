@@ -1,6 +1,7 @@
 {
-  "ui": {
+  "general": {
     "story": "Story",
+    "levels": "Campaign",
     "quickplay": "Quickplay",
     "match": "Match",
     "vsBot": "Vs Bot",
@@ -8,14 +9,33 @@
     "profile": "Profile",
     "editor": "Editor",
     "settings": "Settings",
-    "exit": "Exit"
-  },
-  "play": {
+    "exit": "Exit",
+    "close": "Close",
+    "return_": "Return",
+    "confirm": "Confirm",
+    "fullscreen": "Fullscreen",
+    "show_attack_range_border": "Show attack range\nborder",
+    "auto_end_turn": "Auto End Turn",
+    "show_terrain_bonus": "Show terrain bonus",
+    "target_fps": "Target fps",
+    "music": "Music",
+    "sound": "Sound",
+    "language": "Language",
+    "game_menu": "Game Menu",
+    "continue_": "Continue",
+    "restart": "Restart",
+    "end_game": "End game",
+    "fog_of_war": "Fog Of War",
+    "daytime": "Daytime",
+    "season": "Season",
+    "day": "day",
+    "night": "night",
     "your_turn": "YOUR TURN",
     "enemy_turn": "ENEMY TURN",
-    "ally_turn": "ALLY TURN"
+    "ally_turn": "ALLY TURN",
+    "buy_menu": "Base Menu"
   },
   "units": {
-    "alissa": "Alissa"
+    "seraphina": "Seraphina"
   }
 }

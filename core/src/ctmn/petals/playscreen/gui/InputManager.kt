@@ -180,6 +180,11 @@ class InputManager(val guiStage: PlayGUIStage) {
 
             buttons--
 
+            if (!isScrollingMap)
+                guiStage.showUi()
+
+            if (isScrollingMap) isScrollingMap = false
+
             return false
         }
 

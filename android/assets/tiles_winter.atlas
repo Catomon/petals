@@ -1382,13 +1382,6 @@ items/crystal_shard
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
-  index: 3
-items/crystal_shard
-  rotate: false
-  xy: 69, 809
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
   index: 4
 items/crystal_shard
   rotate: false
@@ -1396,14 +1389,21 @@ items/crystal_shard
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
-  index: 5
+  index: 2
 items/crystal_shard
   rotate: false
   xy: 69, 809
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
-  index: 2
+  index: 3
+items/crystal_shard
+  rotate: false
+  xy: 69, 809
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 5
 items/crystal_shard
   rotate: false
   xy: 103, 843

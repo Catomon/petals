@@ -16,6 +16,7 @@ import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.*
 import ctmn.petals.story.faecampaign.FaerieStory
 import ctmn.petals.story.faecampaign.FaerieStorySave
+import ctmn.petals.strings
 import ctmn.petals.utils.logMsg
 import ctmn.petals.widgets.*
 
@@ -33,7 +34,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
 
     private val labelChooseLevel = newLabel("Select level")
 
-    private val returnButton = newTextButton("Return")
+    private val returnButton = newTextButton(strings.general.return_)
 
     private val table = VisTable()
     private val windowTable = VisTable()

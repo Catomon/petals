@@ -303,7 +303,7 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
 
                     tile.components.remove(CapturingComponent::class.java)
 
-                    playScreen.playStage.root.fire(TileCapturedEvent(tile))
+                    playScreen.fireEvent(TileCapturedEvent(tile))
                 } else {
                     unitOnTile.actionPoints = 0
                 }
@@ -356,7 +356,7 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                     unitOnTile.captureBase(newBase, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
                     unitOnTile.remove()
                     tile.components.remove(BaseBuildingComponent::class.java)
-                    //playStage.root.fire(BaseBuilt(tile))
+                    //fire(BaseBuilt(tile))
                 } else {
                     unitOnTile.actionPoints = 0
                 }

@@ -63,17 +63,17 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val mapPreview = MapPreview()
     private val changeMapButton = newIconButton("change")
 
-    private val fogOfWarCheckbox = VisCheckBox("Fog Of War")
-    private val daytimeButton = newTextButton("Daytime")
-    private val seasonButton = newTextButton("Season")
+    private val fogOfWarCheckbox = VisCheckBox(strings.general.fog_of_war)
+    private val daytimeButton = newTextButton(strings.general.daytime)
+    private val seasonButton = newTextButton(strings.general.season)
 
     private val roomProblemDrawable = VisUI.getSkin().getDrawable("room_status_problem")
     private val roomOkDrawable = VisUI.getSkin().getDrawable("room_status_ok")
     private val roomFailDrawable = VisUI.getSkin().getDrawable("room_status_fail")
     private val roomStatusImage = VisImage(roomProblemDrawable)
 
-    private val returnButton = newTextButton("Return")
-    private val confirmButton = newTextButton("Confirm").apply { isDisabled = true }
+    private val returnButton = newTextButton(strings.general.return_)
+    private val confirmButton = newTextButton(strings.general.confirm).apply { isDisabled = true }
 
     private var gameMode = GameMode.CRYSTALS
 
@@ -411,7 +411,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         }
 
         daytimeButton.userObject = PlayStage.DayTime.DAY
-        daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+        daytimeButton.setText("${strings.general.daytime}: " + (daytimeButton.userObject as PlayStage.DayTime).name)
         daytimeButton.addChangeListener {
             daytimeButton.userObject = when ((daytimeButton.userObject as PlayStage.DayTime)) {
                 PlayStage.DayTime.DAY -> PlayStage.DayTime.EVENING
@@ -419,13 +419,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 PlayStage.DayTime.NIGHT -> PlayStage.DayTime.DAY
             }
 
-            it.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+            it.setText("${strings.general.daytime}: " + (daytimeButton.userObject as PlayStage.DayTime).name)
 
             serverManager.sendLobbyState()
         }
 
         seasonButton.userObject = Season.SUMMER
-        seasonButton.setText("Season: " + (seasonButton.userObject as Season).name)
+        seasonButton.setText("${strings.general.season}: " + (seasonButton.userObject as Season).name)
         seasonButton.addChangeListener {
             seasonButton.userObject = when ((seasonButton.userObject as Season)) {
                 Season.SUMMER -> Season.WINTER
@@ -433,7 +433,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 else -> Season.SUMMER
             }
 
-            it.setText("Season: " + (seasonButton.userObject as Season).name)
+            it.setText("${strings.general.season}: " + (seasonButton.userObject as Season).name)
 
             assets.tilesAtlas = when (seasonButton.userObject) {
                 Season.WINTER -> assets.tilesWinterAtlas
@@ -566,7 +566,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         //todo fun updateWidgets
 
         daytimeButton.userObject = state.daytime
-        daytimeButton.setText("Daytime: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+        daytimeButton.setText("${strings.general.daytime}: " + (daytimeButton.userObject as PlayStage.DayTime).name)
 
         //set season
         if (seasonButton.userObject != state.season) {
@@ -578,7 +578,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         }
 
         seasonButton.userObject = state.season
-        seasonButton.setText("Season: " + (seasonButton.userObject as Season).name)
+        seasonButton.setText("${strings.general.season}: " + (seasonButton.userObject as Season).name)
 
         //..
         if (state.state == LobbyState.State.PLAYING)
@@ -925,9 +925,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 //        label.setAlignment(Align.center)
         val slot = this
         this@CustomGameSetupStage.addCover()
-        val win = VisWindow("Player Slot ${playerSlots.indexOf(this) + 1}")
+        val win = VisWindow("${strings.general.player_slot} ${playerSlots.indexOf(this) + 1}")
 
-        val moveHereButton = newTextButton("Move here").addChangeListener {
+        val moveHereButton = newTextButton(strings.general.move_here).addChangeListener {
             moveLocalPlayerToThisSlot()
 
             confirmButton.isDisabled =
@@ -937,9 +937,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val addEasyBotButton = newTextButton("Add Easy Bot").addChangeListener {
+        val addEasyBotButton = newTextButton(strings.general.add_easy_bot).addChangeListener {
             if (slot.player == null) {
-                slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId).also {
+                slot.player = Player(strings.general.player + "ABCDEFGH"[freePlayerId - 1], freePlayerId, freePlayerId).also {
                     it.species = speciesList.random()
                 }
                 slot.isAI = true
@@ -954,10 +954,10 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val addPlayerButton = newTextButton("Add Player").addChangeListener {
+        val addPlayerButton = newTextButton(strings.general.add_player).addChangeListener {
             if ((slot.player == null || slot.isAI) && hasFreeSlot) {
                 if (slot.player != null) slot.player = null
-                slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId).also {
+                slot.player = Player(strings.general.player + "ABCDEFGH"[freePlayerId - 1], freePlayerId, freePlayerId).also {
                     it.species = speciesList.random()
                 }
 
@@ -971,7 +971,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val makeGoblinButton = newTextButton("Set Goblin").addChangeListener {
+        val makeGoblinButton = newTextButton(strings.general.set_goblin).addChangeListener {
             if ((slot.player != null)) {
                 slot.setPlayerSpecies(goblin)
 
@@ -982,7 +982,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val makeFaerieButton = newTextButton("Set Faerie").addChangeListener {
+        val makeFaerieButton = newTextButton(strings.general.set_faerie).addChangeListener {
             if ((slot.player != null)) {
                 slot.setPlayerSpecies(fairy)
 
@@ -993,7 +993,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val removeButton = newTextButton("Remove").addChangeListener {
+        val removeButton = newTextButton(strings.general.remove).addChangeListener {
             if (slot.player != localPlayer && slot.player != null) {
                 removePlayer(slot.player!!)
 
@@ -1007,7 +1007,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val closeButton = newIconButton("cancel").addChangeListener {
+        val closeButton = newIconButton(strings.general.cancel).addChangeListener {
             win.remove()
             this@CustomGameSetupStage.removeCover()
         }

@@ -14,24 +14,25 @@ import ctmn.petals.screens.MenuScreen
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.multiplayer.client.GameClient
+import ctmn.petals.strings
 import ctmn.petals.utils.closeJmDNS
 import ctmn.petals.utils.startJmDNSAsClient
 import ctmn.petals.widgets.*
 
 class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
-    private val labelSameScreen = newLabel("Same Screen", "default")
-    private val passAndPlayButton = newTextButton("Pass and Play")
+    private val labelSameScreen = newLabel(strings.general.same_screen, "default")
+    private val passAndPlayButton = newTextButton(strings.general.pass_and_play)
 
-    private val labelLocalMp = newLabel("Local Multiplayer", "default")
-    private val serverLobbyButton = newTextButton("Host")
+    private val labelLocalMp = newLabel(strings.general.local_multiplayer, "default")
+    private val serverLobbyButton = newTextButton(strings.general.host)
     private val ipTextField = VisTextField()
 
     //private val clientLobbyButton = newTextButton("Connect")
     private val serverSearchButton = newImageButton("server_search")
     private val serverConnectButton = newImageButton("server_connect")
 
-    private val returnButton = newTextButton("Return")
+    private val returnButton = newTextButton(strings.general.return_)
 
     private val table = VisTable()
     private val windowTable = VisTable()
@@ -134,12 +135,12 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
     private fun searchServer() {
         serverSearchButton.isDisabled = true
 
-        val loadingCover = LoadingCover("Connecting...")
+        val loadingCover = LoadingCover(strings.general.connecting)
         addActor(loadingCover)
 
 
 
-        loadingCover.setLabelText("Looking for server...")
+        loadingCover.setLabelText(strings.general.looking_for_server)
 
         startJmDNSAsClient { result ->
             if (result) {
@@ -164,8 +165,8 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
 
                 addActor(
                     newNotifyWindow(
-                        "Unable to start JmDNS.\nCheck your network connection.",
-                        "Connect"
+                        "Unable to start JmDNS.\n${strings.general.check_your_network_connection}",
+                        strings.general.connect
                     )
                 )
 
@@ -180,7 +181,7 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
 
                 serverSearchButton.isDisabled = false
 
-                addActor(newNotifyWindow("No local servers found", "Connect"))
+                addActor(newNotifyWindow(strings.general.no_local_servers_found, strings.general.connect))
 
                 loadingCover.done()
 
@@ -193,7 +194,7 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
     private fun serverConnect() {
         serverConnectButton.isDisabled = true
 
-        val loadingCover = LoadingCover("Connecting...")
+        val loadingCover = LoadingCover(strings.general.connecting)
         addActor(loadingCover)
 
         GameClient.ConnectionData.host = ipTextField.text.ifEmpty { "localhost" }
@@ -209,7 +210,7 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
             addActor(
                 newNotifyWindow(
                     e.localizedMessage,
-                    "Connect"
+                    strings.general.connect
                 )
             )
         } finally {

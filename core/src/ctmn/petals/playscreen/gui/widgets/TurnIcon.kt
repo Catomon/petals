@@ -64,15 +64,15 @@ class TurnIcon : Actor() {
 
         when {
             player.id == playerTurnMaker.id -> {
-                label.setText(strings.play.your_turn)
+                label.setText(strings.general.your_turn)
                 animation.setFrames(yourTurnIcon)
             }
             playerTurnMaker.isAlly(player.teamId) -> {
-                label.setText(strings.play.ally_turn)
+                label.setText(strings.general.ally_turn)
                 animation.setFrames(allyTurnIcon)
             }
             else -> {
-                label.setText(strings.play.enemy_turn)
+                label.setText(strings.general.enemy_turn)
                 animation.setFrames(enemyTurnIcon)
             }
         }

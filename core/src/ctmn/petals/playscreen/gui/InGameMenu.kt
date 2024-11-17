@@ -6,7 +6,9 @@ import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.game
 import ctmn.petals.menu.startLevel
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.StoryPlayScreen
+import ctmn.petals.strings
 import ctmn.petals.widgets.StageCover
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newLabel
@@ -23,21 +25,27 @@ class InGameMenu(val playScreen: PlayScreen) : WidgetGroup() {
 
         with(menuTable) {
             setFillParent(true)
-            add(newLabel("Game Menu")).padBottom(16f)
+            add(newLabel(strings.general.game_menu)).padBottom(16f)
             row()
-            add(newTextButton("Continue").addChangeListener {
+            add(newTextButton(strings.general.continue_).addChangeListener {
                 this@InGameMenu.remove()
             })
             row()
             if (playScreen is StoryPlayScreen) {
-                add(newTextButton("Restart").addChangeListener {
+                add(newTextButton(strings.general.restart).addChangeListener {
                     game.startLevel(playScreen.story, playScreen.story.getScenario(playScreen.currentScenario.id))
                 })
                 row()
             }
-            add(newTextButton("Settings").apply { isDisabled = true })
+            add(newTextButton(strings.general.settings).addChangeListener {
+                game.screen = MenuScreen().also {
+                    playScreen.inSettingsScreen = true
+                    it.settingsStage.prevScreen = playScreen
+                    it.stage = it.settingsStage
+                }
+            })
             row()
-            add(newTextButton("End game").addChangeListener {
+            add(newTextButton(strings.general.end_game).addChangeListener {
                 playScreen.returnToMenuScreen()
             })
         }

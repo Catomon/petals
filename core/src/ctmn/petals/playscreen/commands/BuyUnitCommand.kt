@@ -54,7 +54,7 @@ class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int
         }
 
         //sent event to the PlayStage
-        playScreen.playStage.root.fire(UnitBoughtEvent(unitActor))
+        playScreen.fireEvent(UnitBoughtEvent(unitActor))
 
         //log
         Gdx.app.log(BuyUnitCommand::class.simpleName, "Unit $unitName was bought at $tileX:$tileY")

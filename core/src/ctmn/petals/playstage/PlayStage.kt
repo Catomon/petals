@@ -20,7 +20,6 @@ import ctmn.petals.unit.cUnit
 import ctmn.petals.utils.TintShader
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.tiledY
-import ctmn.petals.widgets.addNotifyWindow
 
 /** The stage of the game.
  * Do not use clear() for removing tiles and units. It's removing all layer groups as well as actors for drawing gui.
@@ -420,21 +419,17 @@ class PlayStage(
             if (event.stage == null) event.stage = stage
             event.target = this
 
-            try {
-                // Notify the target capture listeners.
-                notify(event, true)
-                if (event.isStopped) return event.isCancelled
+            // Notify the target capture listeners.
+            notify(event, true)
+            if (event.isStopped) return event.isCancelled
 
-                // Notify the target listeners.
-                notify(event, false)
-                if (!event.bubbles) return event.isCancelled
-                if (event.isStopped) return event.isCancelled
+            // Notify the target listeners.
+            notify(event, false)
+            if (!event.bubbles) return event.isCancelled
+            if (event.isStopped) return event.isCancelled
 
-                return event.isCancelled
-            } catch (e: Exception) {
-                e.printStackTrace()
-                addNotifyWindow(e.message ?: "null", "PlayStage listener exc.")
-            }
+            return event.isCancelled
+
 
             return event.isCancelled
         }

@@ -1,17 +1,59 @@
 {
-  "ui": {
-    "story": "История",
+  "general": {
+    "story": "Сюжет",
+    "levels": "Кампания",
+    "quickplay": "Быстрая игра",
     "match": "Матч",
+    "vsBot": "Против бота",
+    "vsPlayer": "Против игрока",
+    "profile": "Профиль",
     "editor": "Редактор",
     "settings": "Настройки",
-    "exit": "Выход"
-  },
-  "play": {
-    "your_turn": "Ваш ход",
-    "enemy_turn": "Вражеский ход",
-    "ally_turn": "Ход союзника"
+    "exit": "Выход",
+    "close": "Закрыть",
+    "return_": "Вернуться",
+    "confirm": "Подтвердить",
+    "fullscreen": "Полный экран",
+    "show_attack_range_border": "Показать границу\nдальности атаки",
+    "auto_end_turn": "Авто завершение хода",
+    "show_terrain_bonus": "Показать бонус от местности",
+    "target_fps": "Целевой FPS",
+    "music": "Музыка",
+    "sound": "Звук",
+    "language": "Язык",
+    "game_menu": "Игровое меню",
+    "continue_": "Продолжить",
+    "restart": "Перезапустить",
+    "end_game": "Завершить игру",
+    "fog_of_war": "Туман войны",
+    "daytime": "Дневное время",
+    "season": "Сезон",
+    "day": "день",
+    "night": "ночь",
+    "your_turn": "ВАШ ХОД",
+    "enemy_turn": "ХОД ВРАГА",
+    "ally_turn": "ХОД СОЮЗНИКА",
+    "buy_menu": "Меню базы",
+    "player_slot": "Игровое место",
+    "move_here": "Переместить сюда",
+    "add_easy_bot": "Добавить легкого бота",
+    "player": "Игрок",
+    "add_player": "Добавить игрока",
+    "set_goblin": "Установить гоблина",
+    "set_faerie": "Установить фею",
+    "remove": "Удалить",
+    "cancel": "Отмена",
+    "same_screen": "Один экран",
+    "pass_and_play": "Передать и играть",
+    "local_multiplayer": "Локальный многопользовательский режим",
+    "host": "Хост",
+    "connecting": "Подключение...",
+    "looking_for_server": "Поиск сервера...",
+    "check_your_network_connection": "Проверьте ваше сетевое подключение.",
+    "connect": "Подключиться",
+    "no_local_servers_found": "Локальные серверы не найдены"
   },
   "units": {
-    "alissa": "Алиса"
+    "seraphina": "Серафина"
   }
 }

@@ -9,9 +9,9 @@ import ctmn.petals.editor.*
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.map.MapConverted
 import ctmn.petals.playscreen.GameMode
+import ctmn.petals.strings
 import ctmn.petals.widgets.*
 import ctmn.petals.widgets.newTextButton
-import java.util.*
 
 class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (result: Result?) -> Unit) :
     Stage(menuScreen.viewport, menuScreen.batch) {
@@ -25,8 +25,8 @@ class MapSelectionStage(private val menuScreen: MenuScreen, var onResult: (resul
         it.setItems(Array(GameMode.values().filter { it != GameMode.STORY }.toTypedArray()))
     }
 
-    private val returnButton = newTextButton("Return")
-    private val confirmButton = newTextButton("Confirm")
+    private val returnButton = newTextButton(strings.general.return_)
+    private val confirmButton = newTextButton(strings.general.confirm)
 
     private val maps = Array<MapConverted>()
 

@@ -16,6 +16,7 @@ import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.Const.IS_RELEASE
 import ctmn.petals.Const.TREASURED_PETALS_STORY_ID
+import ctmn.petals.strings
 
 class StorySelectStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
@@ -25,8 +26,8 @@ class StorySelectStage(private val menuScreen: MenuScreen) : Stage(menuScreen.vi
 
     private val storyCoverImage = VisImage("images/story_cover")
     private val storiesList = ButtonsScrollPane()
-    private val returnButton = newTextButton("Return")
-    private val confirmButton = newTextButton("Confirm")
+    private val returnButton = newTextButton(strings.general.return_)
+    private val confirmButton = newTextButton(strings.general.confirm)
 
     private val table = VisTable()
 

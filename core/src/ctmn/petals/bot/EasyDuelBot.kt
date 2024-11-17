@@ -115,6 +115,9 @@ class EasyDuelBot(
         didISayNext = false
     }
 
+    //temporary; replace idleTime with WaitAction
+    private var halfCurTime = false
+
     override fun update(delta: Float) {
         if (isThinking) return
         if (isDone) return
@@ -130,7 +133,13 @@ class EasyDuelBot(
             }
 
             lastActionTime = 0f
-            curTime = 0f
+
+            curTime = if (halfCurTime) {
+                idleTime * 1.5f / 1.5f
+            } else {
+                0f
+            }
+
             return
         }
 
@@ -141,8 +150,15 @@ class EasyDuelBot(
             didISayNext = true
         }
 
-        if (currentCommand != null && lastActionTime > 0.75f) {
+        if (currentCommand != null) {
             if (cameraMoveAction != null) playScreen.actionManager.queueAction(cameraMoveAction!!)
+            if (currentCommand is MoveUnitCommand) {
+                if (!playScreen.fogOfWarManager.isVisible((currentCommand as MoveUnitCommand).tileX, (currentCommand as MoveUnitCommand).tileY))
+                    halfCurTime = true
+                else
+                    halfCurTime = false
+            }
+
             executeCommand(currentCommand!!)
             currentCommand = null
             isCommandExecuted = true
@@ -151,7 +167,7 @@ class EasyDuelBot(
             thinkingThread.start()
         }
 
-        if (isCommandExecuted && lastActionTime < 0.5f) {
+        if (isCommandExecuted) {
             curTime = 0f
             didISayWaiting = false
             didISayNext = false
@@ -478,13 +494,14 @@ class EasyDuelBot(
             if (moveToClosestUnit(unit)) return true
 
             if (!enemyUnits.isEmpty) {
-                val command = unit.moveTowardsCommand(enemyUnits.first().tiledX, enemyUnits.first().tiledX)
+                val command = unit.moveTowardsCommand(enemyUnits.first().tiledX, enemyUnits.first().tiledY)
                 if (command?.canExecute(playScreen) == true) {
                     playScreen.queueAction {
                         playScreen.guiStage.selectUnit(unit)
                     }
                     playScreen.moveCameraAction(unit.centerX, unit.centerY)
-                    playScreen.queueAction(WaitAction(0.30f))
+                    if (playScreen.fogOfWarManager.isVisible(command.tileX, command.tileY))
+                        playScreen.queueAction(WaitAction(0.30f))
 
                     queueCommand(command)
 
@@ -620,6 +637,9 @@ class EasyDuelBot(
 
                     if (moveCommand.canExecute(playScreen)) {
                         playScreen.moveCameraAction(unit.centerX, unit.centerY)
+
+                        if (playScreen.fogOfWarManager.isVisible(moveCommand.tileX, moveCommand.tileY))
+                            playScreen.queueAction(WaitAction(0.30f))
 
                         queueCommand(moveCommand)
 

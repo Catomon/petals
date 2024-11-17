@@ -559,6 +559,12 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		disabled: next_button_disabled
 		focusBorder: image_button_border
 	}
+	hide_ui: {
+		down: hide_ui_button_pressed
+		up: hide_ui_button
+		disabled: hide_ui_button_disabled
+		focusBorder: hide_ui_button_border
+	}
 	enter: {
 		down: enter_button_pressed
 		up: enter_button

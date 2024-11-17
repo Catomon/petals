@@ -25,8 +25,6 @@ import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.NoEnd
-import ctmn.petals.playscreen.gui.widgets.StoryDialog
-import ctmn.petals.playscreen.queueDialogAction
 import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.PlayScreenTemplate
@@ -45,16 +43,16 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
 
     private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "default")
 
-    private val storyButton = newTextButton(strings.ui.story).apply { isDisabled = true }
-    private val campaignButton = newTextButton(strings.ui.levels)
-    private val quickPlayButton = newTextButton(strings.ui.quickplay)
-    private val matchButton = newTextButton(strings.ui.match)
-    private val vsPlayerButton = newTextButton(strings.ui.vsPlayer)
-    private val vsBotButton = newTextButton(strings.ui.vsBot)
-    private val profileButton = newTextButton(strings.ui.profile).apply { isDisabled = true }
-    private val editorButton = newTextButton(strings.ui.editor)
-    private val settingsButton = newTextButton(strings.ui.settings)
-    private val exitButton = newTextButton(strings.ui.exit)
+    private val storyButton = newTextButton(strings.general.story).apply { isDisabled = true }
+    private val campaignButton = newTextButton(strings.general.levels)
+    private val quickPlayButton = newTextButton(strings.general.quickplay)
+    private val matchButton = newTextButton(strings.general.match)
+    private val vsPlayerButton = newTextButton(strings.general.vsPlayer)
+    private val vsBotButton = newTextButton(strings.general.vsBot)
+    private val profileButton = newTextButton(strings.general.profile).apply { isDisabled = true }
+    private val editorButton = newTextButton(strings.general.editor)
+    private val settingsButton = newTextButton(strings.general.settings)
+    private val exitButton = newTextButton(strings.general.exit)
 
     private val table = VisTable()
     private val table2 = VisTable()

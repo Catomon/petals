@@ -126,13 +126,16 @@ class StoryDialog(
         }
 
         label.setText(quote.text)
+
         label.wrap = false
         label.pack()
 
-        if (getCell(label).prefWidth > guiStage.camera.viewportWidth - 50) {
+        if (getCell(label).minWidth > guiStage.camera.viewportWidth - 50) {
             label.wrap = true
             getCell(label).prefWidth(guiStage.camera.viewportWidth - 50)
         }
+
+        getCell(label).maxWidth(guiStage.camera.viewportWidth - 50)
 
         pack()
 

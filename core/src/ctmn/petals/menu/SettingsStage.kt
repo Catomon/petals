@@ -1,5 +1,6 @@
 package ctmn.petals.menu
 
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.*
@@ -14,10 +15,10 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
 
     private val table = VisTable()
 
-    private val returnButton = newTextButton("Return")
-    private val confirmButton = newTextButton("Confirm")
+    private val returnButton = newTextButton(strings.general.return_)
+    private val confirmButton = newTextButton(strings.general.confirm)
 
-    private val fullscreenCB = VisCheckBox("Fullscreen")
+    private val fullscreenCB = VisCheckBox(strings.general.fullscreen)
     private val vSyncCB = VisCheckBox("vSync").addChangeListener {
         targetFpsSelectBox.isDisabled = it.isChecked
     }
@@ -29,9 +30,9 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
         }
     }
 
-    private val showAttachRangeCB = VisCheckBox("Show attack range\nborder")
-    private val autoEndTurnCB = VisCheckBox("Auto End Turn")
-    private val showTerrainBonusCB = VisCheckBox("Show terrain bonus")
+    private val showAttachRangeCB = VisCheckBox(strings.general.show_attack_range_border)
+    private val autoEndTurnCB = VisCheckBox(strings.general.auto_end_turn)
+    private val showTerrainBonusCB = VisCheckBox(strings.general.show_terrain_bonus)
 
     private val languageSelectBox = LanguageSelectBox()
     private var langLast = GamePref.locale
@@ -40,20 +41,32 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
     private val musicSlider = VisSlider(0f, 1f, 0.1f, false)
     private val soundSlider = VisSlider(0f, 1f, 0.1f, false)
 
+    var prevScreen: Screen? = null
+
     init {
         addEventListeners()
         setUpMainTable()
 
         returnButton.addChangeListener {
-            menuScreen.stage = menuScreen.menuStage
+            if (prevScreen != null) {
+                menuScreen.game.screen = prevScreen!!
+                prevScreen = null
+            } else {
+                menuScreen.stage = menuScreen.menuStage
+            }
         }
         confirmButton.addChangeListener {
             saveChanges()
 
-            if (langChanged)
-                menuScreen.game.screen = MenuScreen(menuScreen.game)
-            else
-                menuScreen.stage = menuScreen.menuStage
+            if (prevScreen != null) {
+                menuScreen.game.screen = prevScreen!!
+                prevScreen = null
+            } else {
+                if (langChanged)
+                    menuScreen.game.screen = MenuScreen(menuScreen.game)
+                else
+                    menuScreen.stage = menuScreen.menuStage
+            }
         }
     }
 
@@ -69,19 +82,19 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
                 add(vSyncCB).left()
                 row()
                 add(VisTable().apply {
-                    add(VisLabel("Target fps"))
+                    add(VisLabel(strings.general.target_fps))
                     add().expandX()
                     add(targetFpsSelectBox).right()
                 }).left().fillX()
                 row()
                 add(VisTable().apply {
-                    add(VisLabel("Music"))
+                    add(VisLabel(strings.general.music))
                     add().expandX()
                     add(musicSlider)
                 }).left().fillX()
                 row()
                 add(VisTable().apply {
-                    add(VisLabel("Sound"))
+                    add(VisLabel(strings.general.sound))
                     add().expandX()
                     add(soundSlider)
                 }).left().fillX()
@@ -99,7 +112,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
             row()
 
             add(VisTable().apply {
-                add(VisLabel("Language"))
+                add(VisLabel(strings.general.language))
                 add().expandX()
                 add(languageSelectBox).right()
             }).fillX().padLeft(15f).padRight(15f)
@@ -138,9 +151,9 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
 
                     langLast = GamePref.locale
 
-                    showAttachRangeCB.isChecked = GamePref.drawUnitAttackRange ?: false
-                    autoEndTurnCB.isChecked = GamePref.autoEndTurn ?: false
-                    showTerrainBonusCB.isChecked = GamePref.showTerrainBonus ?: false
+                    showAttachRangeCB.isChecked = GamePref.drawUnitAttackRange
+                    autoEndTurnCB.isChecked = GamePref.autoEndTurn
+                    showTerrainBonusCB.isChecked = GamePref.showTerrainBonus
 
                     languageSelectBox.items.forEach {
                         if (it.second == GamePref.locale)

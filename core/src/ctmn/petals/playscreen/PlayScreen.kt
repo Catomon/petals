@@ -51,6 +51,7 @@ import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.pvp.newPvPAlice
+import ctmn.petals.story.StoryPlayScreen
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
 import ctmn.petals.tile.*
@@ -59,6 +60,7 @@ import ctmn.petals.unit.actors.Dummy
 import ctmn.petals.unit.component.BurningComponent
 import ctmn.petals.unit.component.TileEffectComponent
 import ctmn.petals.utils.*
+import ctmn.petals.widgets.addNotifyWindow
 import ctmn.petals.widgets.newLabel
 import playScreen.PlayTurnCycleListener
 import kotlin.random.Random
@@ -135,6 +137,8 @@ open class PlayScreen(
 
     private val ambienceMusic =
         AudioManager.music("very_quiet_morning_meadow_forest.ogg").apply { isLooping = true; play(); volume *= 2f }
+
+    var inSettingsScreen = false
 
     init {
         discordRich(Rich.PLAYING)
@@ -364,6 +368,10 @@ open class PlayScreen(
         inputMultiplexer.addProcessor(playStage)
         inputMultiplexer.addProcessor(debugKeysProcessor)
 
+        setupInputProcessor()
+    }
+
+    private fun setupInputProcessor() {
         Gdx.input.inputProcessor = inputMultiplexer
     }
 
@@ -512,7 +520,7 @@ open class PlayScreen(
 
                 when {
                     youWon -> {
-                        labelGameOver.setText("YOU WON")
+                        labelGameOver.setText(if (this is StoryPlayScreen) "DONE!" else "YOU WON")
                         if (oneWinner) {
 
                         } else {
@@ -600,7 +608,13 @@ open class PlayScreen(
     fun fireEvent(event: Event) {
         if (initView)
             guiStage.root.fire(event)
-        playStage.root.fire(event)
+
+        try {
+            playStage.root.fire(event)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            guiStage.addNotifyWindow(title = "PlayStage listener exc.", message = e.localizedMessage)
+        }
     }
 
     override fun hide() {
@@ -609,6 +623,9 @@ open class PlayScreen(
 
     override fun show() {
         if (!isReady) throw IllegalStateException("PlayScreen.isReady is false")
+
+        inSettingsScreen = false
+        setupInputProcessor()
     }
 
     override fun pause() {

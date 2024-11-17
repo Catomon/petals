@@ -98,11 +98,12 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: R
     }
 
     override fun setScreen(screen: Screen?) {
-        if (this.screen is PlayScreen && this.screen != screen) {
-            this.screen.dispose()
+        val oldScreen = this.screen
+        if (oldScreen is PlayScreen && oldScreen != screen && !oldScreen.inSettingsScreen) { //todo just dispose before setScreen
+            oldScreen.dispose()
         }
 
-        if (this.screen is PlayScreen && screen !is PlayScreen) {
+        if (oldScreen is PlayScreen && screen !is PlayScreen && !oldScreen.inSettingsScreen) {
             assets.tilesAtlas = assets.tilesSummerAtlas
         }
 

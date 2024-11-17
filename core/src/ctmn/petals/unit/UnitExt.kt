@@ -603,7 +603,7 @@ fun UnitActor.die(playScreen: PlayScreen, killer: UnitActor? = null) {
 
     playScreen.queueAction(KillUnitAction(this))
 
-    playScreen.playStage.root.fire(UnitDiedEvent(this, killer))
+    playScreen.fireEvent(UnitDiedEvent(this, killer))
 }
 
 fun UnitActor.captureBase(base: TileActor, player: Player? = null) {

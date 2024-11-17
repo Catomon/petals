@@ -97,6 +97,7 @@ class PlayGUIStage(
     }
 
     //buttons
+    private val hideUiButton = newIconButton("hide_ui")
     private val zoomButton = newIconButton("zoom").apply { isVisible = false }
     private val infoButton = newIconButton("info").apply { isVisible = false }
     private val pauseButton = newIconButton("pause")
@@ -265,6 +266,11 @@ class PlayGUIStage(
         addActor(unitMiniMenu)
 
         //add widgets listeners
+
+        hideUiButton.addChangeListener {
+            hideUi()
+        }
+
         zoomButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 super.clicked(event, x, y)
@@ -728,7 +734,8 @@ class PlayGUIStage(
                 val unitsToRemove = mutableListOf<UnitActor>()
                 for (unit in unitsToMove) {
                     val waypoint = unit.get(WaypointComponent::class.java)!!
-                    val closestTile = unit.getClosestTileInMoveRange(waypoint.tileX, waypoint.tileY)
+                    val closestTile =
+                        unit.getClosestTileInMoveRange(waypoint.tileX, waypoint.tileY, includeUnitPosTile = true)
                     if (closestTile != null) {
                         val command = MoveUnitCommand(unit, closestTile.tiledX, closestTile.tiledY)
                         if (command.canExecute(playScreen)) {
@@ -752,7 +759,7 @@ class PlayGUIStage(
                 if (unitsToMove.isEmpty()
                     || playScreen.turnManager.currentPlayer != localPlayer
                     || unitsToMove.none { it.has(WaypointComponent::class.java) || it.canMove() }
-                    ) {
+                ) {
                     playScreen.commandManager.queueCommand(EndTurnCommand(localPlayer))
                     true
                 } else {
@@ -916,6 +923,10 @@ class PlayGUIStage(
             setFillParent(true)
             top()
             left()
+            add(VisTable().apply {
+                add(hideUiButton)
+            }).left()
+            row()
             add(tasksTable).left().top()
         })
 
@@ -942,13 +953,19 @@ class PlayGUIStage(
             }
 
             Input.Keys.M -> {
-                if (selectedUnit?.playerId == localPlayer.id)
-                selectedUnit?.add(
-                    WaypointComponent(
-                        tileSelectionDrawer.hoveringSprite.centerX().tiled(),
-                        tileSelectionDrawer.hoveringSprite.centerY().tiled()
-                    )
-                )
+                selectedUnit?.let { selectedUnit ->
+                    if (selectedUnit.playerId == localPlayer.id) {
+                        if (selectedUnit.del(WaypointComponent::class.java) == null) {
+                            selectedUnit.add(
+                                WaypointComponent(
+                                    tileSelectionDrawer.hoveringSprite.centerX().tiled(),
+                                    tileSelectionDrawer.hoveringSprite.centerY().tiled()
+                                )
+                            )
+                        }
+                    }
+                }
+
             }
         }
 
@@ -984,7 +1001,7 @@ class PlayGUIStage(
 
     fun selectUnit(unit: UnitActor?) {
         selectedUnit =
-            if (unit != null && (unit.stage == null || !unit.isAlive()))
+            if (unit != null && (unit.stage == null || !unit.isAlive() || !playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)))
                 null
             else
                 unit
@@ -1026,8 +1043,20 @@ class PlayGUIStage(
         }
     }
 
+    fun showUi() {
+        root.isVisible = true
+        unitInfoDrawer.isVisible = true
+    }
+
+    fun hideUi() {
+        root.isVisible = false
+        unitInfoDrawer.isVisible = false
+    }
+
     /** Fires @MapClickedEvent and, if mapClickListener has not changed, UnitClickedEvent TileClickedEvent */
     fun onMapClicked(clickX: Float, clickY: Float) {
+        showUi()
+
         if (mapClickDisabled) return
 
         val tiledX: Int = (clickX / TILE_SIZE).toInt()
