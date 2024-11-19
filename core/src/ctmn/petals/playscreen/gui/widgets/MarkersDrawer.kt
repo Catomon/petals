@@ -80,6 +80,12 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
                 drawMarker(batch)
             }
         }
+
+        if (playScreen.guiStage.isSettingWaypoint) {
+            val hover = playScreen.guiStage.tileSelectionDrawer.hoveringSprite
+            setPosition(hover.centerX(), hover.centerY())
+            drawMarker(batch)
+        }
     }
 
     override fun positionChanged() {

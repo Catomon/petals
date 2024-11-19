@@ -119,6 +119,7 @@ class PlayGUIStage(
     }
     private val buildButton = newIconButton("build").apply { isVisible = false }
     private val destroyTileButton = newIconButton("destroy_tile").apply { isVisible = false }
+    private val waypointButton = newIconButton("waypoint").apply { isVisible = false }
 
     //not widgets
     val tileSelectionDrawer = TileSelectionDrawer(this)
@@ -361,6 +362,12 @@ class PlayGUIStage(
             destroyTileButton.isVisible = false
         }
 
+        waypointButton.addChangeListener {
+            if (playScreen.turnManager.currentPlayer != localPlayer) return@addChangeListener
+
+            isSettingWaypoint = !isSettingWaypoint
+        }
+
         buildBaseButton.addChangeListener {
             selectedUnit?.let { unit ->
                 if (unit.isPlayerUnit(localPlayer)) {
@@ -405,10 +412,13 @@ class PlayGUIStage(
             buildBaseButton.isVisible = false
             buildButton.isVisible = false
             destroyTileButton.isVisible = false
+            waypointButton.isVisible = false
 
             unit ?: return@addListener false
 
             if (unit.isPlayerUnit(localPlayer) && unit.actionPoints > 0) {
+                waypointButton.isVisible = true
+
                 val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addListener false
 
                 buildBaseButton.isVisible = unit.canBuildBase()
@@ -901,6 +911,7 @@ class PlayGUIStage(
                 add(buildBaseButton)
                 add(buildButton)
                 add(destroyTileButton)
+                add(waypointButton)
             })
             row()
             add(abilitiesPanel)
@@ -965,7 +976,6 @@ class PlayGUIStage(
                         }
                     }
                 }
-
             }
         }
 
@@ -1109,6 +1119,21 @@ class PlayGUIStage(
         }
     }
 
+    fun setWaypointAtCursorPos() {
+        selectedUnit?.let { selectedUnit ->
+            if (selectedUnit.playerId == localPlayer.id) {
+                if (selectedUnit.del(WaypointComponent::class.java) == null) {
+                    selectedUnit.add(
+                        WaypointComponent(
+                            tileSelectionDrawer.hoveringSprite.centerX().tiled(),
+                            tileSelectionDrawer.hoveringSprite.centerY().tiled()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     fun onScreenResize(width: Int, height: Int) {
         (viewport as ExtendViewport).minWorldWidth = width / Const.GUI_SCALE
         (viewport as ExtendViewport).minWorldHeight = height / Const.GUI_SCALE
@@ -1161,9 +1186,16 @@ class PlayGUIStage(
         }
     }
 
+    var isSettingWaypoint = false
     inner class UnitSelectedCL : MapClickListener {
         override fun onTileClicked(tile: TileActor): Boolean {
             if (myTurn.isCurrent()) {
+                if (isSettingWaypoint) {
+                    setWaypointAtCursorPos()
+                    isSettingWaypoint = false
+                    return true
+                }
+
                 if (selectedUnit!!.canMove()) {
                     val command = MoveUnitCommand(selectedUnit!!, tile.tiledX, tile.tiledY)
                     if (command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)) {

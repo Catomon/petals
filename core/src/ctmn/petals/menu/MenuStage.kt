@@ -44,7 +44,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "default")
 
     private val storyButton = newTextButton(strings.general.story).apply { isDisabled = true }
-    private val campaignButton = newTextButton(strings.general.levels)
+    private val campaignButton = newTextButton("(OLD)" + strings.general.levels)
     private val quickPlayButton = newTextButton(strings.general.quickplay)
     private val matchButton = newTextButton(strings.general.match)
     private val vsPlayerButton = newTextButton(strings.general.vsPlayer)

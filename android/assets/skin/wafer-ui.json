@@ -449,6 +449,13 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		focusBorder: build_button_border
 	}
 
+	waypoint: {
+		disabled: waypoint_button_disabled
+		down: waypoint_button_pressed
+		up: waypoint_button
+		focusBorder: waypoint_button_border
+	}
+
 	destroy_tile: {
         disabled: destroy_tile_button_disabled
         down: destroy_tile_button_pressed
