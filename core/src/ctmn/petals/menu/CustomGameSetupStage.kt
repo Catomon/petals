@@ -1007,7 +1007,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             this@CustomGameSetupStage.removeCover()
         }
 
-        val closeButton = newIconButton(strings.general.cancel).addChangeListener {
+        val closeButton = newIconButton("cancel").addChangeListener {
             win.remove()
             this@CustomGameSetupStage.removeCover()
         }
