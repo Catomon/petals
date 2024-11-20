@@ -1,1 +1,4 @@
-![javaw_JeofQDeWa2](https://github.com/Catomon/petals/assets/52209538/8d669834-999d-44c2-bcda-119148f8352d)
+Fae's Feisty Fray / GPL v3.0 license.
+Turn based libgdx android/desktop game with mechanics like terrain/matchup bonuses, abilities, building, destruction. Has local/split-screen multiplayer, map editor and campaign mode.
+
+![java_QuGXYbX2AX](https://github.com/user-attachments/assets/af1e4991-28d6-4413-8593-061b19f46502)
