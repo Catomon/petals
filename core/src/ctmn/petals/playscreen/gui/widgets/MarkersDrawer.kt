@@ -26,12 +26,14 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
 
     private val waypointMark = assets.atlases.getRegion("gui/waypoint_mark")
     private val waypointAnimation = RegionAnimation(0.1f, assets.atlases.findRegions("gui/animated/waypoint_mark"))
+    private val unitWaypointAnimation = RegionAnimation(0.1f, assets.atlases.findRegions("gui/animated/unit_waypoint_mark"))
     private val sprite = newPlayPuiSprite(waypointMark)
 
     override fun act(delta: Float) {
         super.act(delta)
 
         waypointAnimation.update(delta)
+        unitWaypointAnimation.update(delta)
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
@@ -77,14 +79,14 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
         playScreen.guiStage.selectedUnit?.let { unit ->
             unit.get(WaypointComponent::class.java)?.let { waypoint ->
                 setPosition(waypoint.tileX.unTiled() + Const.TILE_SIZE_HALF, waypoint.tileY.unTiled() + Const.TILE_SIZE_HALF)
-                drawMarker(batch)
+                drawMarker(batch, true)
             }
         }
 
         if (playScreen.guiStage.isSettingWaypoint) {
             val hover = playScreen.guiStage.tileSelectionDrawer.hoveringSprite
             setPosition(hover.centerX(), hover.centerY())
-            drawMarker(batch)
+            drawMarker(batch, true)
         }
     }
 
@@ -94,10 +96,10 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
         sprite.setPositionByCenter(x, y)
     }
 
-    fun drawMarker(batch: Batch) {
+    fun drawMarker(batch: Batch, unitWaypoint: Boolean = false) {
         sprite.setRegion(waypointMark)
         sprite.draw(batch)
-        sprite.setRegion(waypointAnimation.currentFrame)
+        sprite.setRegion(if (unitWaypoint) unitWaypointAnimation.currentFrame else waypointAnimation.currentFrame)
         sprite.draw(batch)
     }
 }

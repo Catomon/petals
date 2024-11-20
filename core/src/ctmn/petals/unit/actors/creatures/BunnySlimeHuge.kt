@@ -11,7 +11,7 @@ import ctmn.petals.utils.getSurroundingTiles
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
 import kotlin.random.Random
 
-class SlimeHuge : UnitActor(
+class BunnySlimeHuge : UnitActor(
     UnitComponent(
         "slime_huge",
         300,
@@ -72,11 +72,11 @@ class SlimeHuge : UnitActor(
                             val freeTiles = playStage.getSurroundingTiles(tileX, tileY)
                             freeTiles.removeAll { it.isImpassable() }
                             for (tile in freeTiles) {
-                                val slime = SlimeLing()
+                                val slime = BunnySlimeLing()
                                 slime.setPosition(tile.tiledX, tile.tiledY)
                                 slime.playerId = playerId
                                 slime.teamId = teamId
-                                slime.followerOf(this@SlimeHuge, true)
+                                slime.followerOf(this@BunnySlimeHuge, true)
                                 slime.actionPoints = 0
 
                                 playStage.addActor(slime)

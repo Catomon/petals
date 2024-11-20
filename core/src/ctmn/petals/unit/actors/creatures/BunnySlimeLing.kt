@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.*
 
-class SlimeLing : UnitActor(
+class BunnySlimeLing : UnitActor(
     UnitComponent(
         "slime_ling",
         100,

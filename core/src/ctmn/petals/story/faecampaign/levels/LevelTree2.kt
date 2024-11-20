@@ -13,7 +13,7 @@ import ctmn.petals.story.Scenario
 import ctmn.petals.story.playScreen
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.actors.creatures.BigEvilTree
+import ctmn.petals.unit.actors.creatures.BigLivingTree
 import ctmn.petals.unit.cLeader
 import ctmn.petals.unit.leader
 
@@ -107,7 +107,7 @@ class LevelTree2 : Scenario(ID, "level_tree_2") {
 
         playScreen {
             playStage.getUnitsOfPlayer(players[2]).forEach {
-                if (it is BigEvilTree) {
+                if (it is BigLivingTree) {
                     it.leader(3, 2, false)
                     it.cLeader?.leaderDmgBuff = 15
                 }

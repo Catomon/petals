@@ -39,6 +39,8 @@ class BuyMenu : VisTable() {
 
     var unlockAll = false
 
+    var menuOpened = false
+
     init {
         setFillParent(true)
     }
@@ -47,14 +49,16 @@ class BuyMenu : VisTable() {
         check(stage != null)
 
         clear()
-        val buyMenuPane = BuyMenuPane(guiStage, base, player, availableUnits[player.id], unlockAll)
+        val buyMenuPane = BuyMenuPane(guiStage, base, player, availableUnits[player.id], unlockAll, this)
         val closeButton =
-            newTextButton(strings.general.close).addChangeListener { buyMenuPane.remove(); it.remove(); clear() }.addClickSound()
+            newTextButton(strings.general.close).addChangeListener { buyMenuPane.remove(); it.remove(); clear(); menuOpened = false }.addClickSound()
         add(VisLabel(strings.general.buy_menu)).center().padTop(6f).padBottom(10f)
         row()
         add(buyMenuPane).width(325f).center().fillY().expandY()
         row()
         add(closeButton).padBottom(16f).width(325f)
+
+        menuOpened = true
     }
 }
 
@@ -64,6 +68,7 @@ private class BuyMenuPane(
     val player: Player? = null,
     val filterUnits: Array<UnitActor>? = null,
     val unlockAll: Boolean = false,
+    val buyMenu: BuyMenu,
 ) : VisTable() {
 
     companion object {
@@ -115,6 +120,18 @@ private class BuyMenuPane(
             if (isWater && !unitActor.isWater) return
             if (!isWater && !unitActor.isLand && !unitActor.isAir) return
             val button = UnitButton(unitActor, cost, unlocked, requiredBuildings)
+            button.addListener {
+                if (it is InputEvent) {
+                    if (it.type == InputEvent.Type.enter) {
+                        guiStage.unitPanel.forUnit(unitActor)
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            }
             gridGroup.addButton(button)
         }
 
@@ -196,6 +213,8 @@ private class BuyMenuPane(
                 if (buyCommand.canExecute(guiStage.playScreen))
                     guiStage.playScreen.commandManager.queueCommand(buyCommand)
             }
+
+            buyMenu.menuOpened = false
 
             this@BuyMenuPane.remove()
         }

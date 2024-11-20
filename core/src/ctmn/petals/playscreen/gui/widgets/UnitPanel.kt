@@ -1,20 +1,18 @@
 package ctmn.petals.playscreen.gui.widgets
 
+import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.VisImage
+import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.Const
-import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.gui.PlayGUIStage
-import ctmn.petals.strings
 import ctmn.petals.unit.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.tiled
 import ctmn.petals.widgets.newLabel
-import ctmn.petals.unit.xpToLevelUp
-import com.badlogic.gdx.Gdx
-import com.kotcrab.vis.ui.VisUI
-import com.kotcrab.vis.ui.widget.VisImage
-import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.unit.UnitActor
 
 class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
 
@@ -44,41 +42,103 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
     private val expIcon = VisImage(VisUI.getSkin().getDrawable("exp_ic"))
     private val exp = newLabel("XP: X/X", "default")
 
+    private val unitIconDrawer = object : Actor() {
+        private val sprite = Sprite()
+
+        init {
+            setSize(32f, 32f)
+        }
+
+        override fun draw(batch: Batch?, parentAlpha: Float) {
+            if (unitActor?.isViewInitialized == true) {
+                sprite.setSize(width * 2, height * 2)
+                sprite.setPosition(x, y)
+                sprite.setRegion(unitActor!!.sprite!!)
+                sprite.draw(batch)
+            }
+        }
+    }
+
     init {
         if (drawBackground)
             setBackground("unit_panel_background")
 
         name = "unit_panel"
 
-//        add(unitName).top().left().padBottom(6f * 3f).padTop(1f * 3f).padRight(1f * 3f).padLeft(1f * 3f)
-//        row()
-        add(VisTable().apply {
-            add(hpIcon).left().size(5f * 3f).padBottom(1f * 3f).padRight(2f * 3f)
-            add(hp).left().bottom().width(15f * 3f)
-
-            add(mgIcon).left().size(5f * 3f).padBottom(1f * 3f).padRight(2f * 3f)
-            add(mg).left().bottom().width(15f * 3f)
-
-            add(levelIcon).left().size(5f * 3f).padBottom(1f * 3f).padRight(2f * 3f)
-            add(level).left().bottom()
-        }).padBottom(1f * 3f).left()
-        row()
-        add(VisTable().apply {
-            add(atkIcon).left().size(5f * 3f).padBottom(1f * 3f).padRight(2f * 3f)
-            add(atk).left().bottom().width(15f * 3f)
-
-            add(defIcon).left().size(5f * 3f).padBottom(1f * 3f).padRight(2f * 3f)
-            add(def).left().bottom().width(15f * 3f)
-
-            add(expIcon).left().size(5f * 3f).padBottom(1f * 3f).padRight(2f * 3f)
-            add(exp).left().bottom()
-        }).left().padBottom(2f * 3f)
-
-        pack()
+        setupHorizontally()
 
         table.add(this)
         table.setFillParent(true)
-        table.left().bottom()
+        table.left().bottom().pad(0f).padLeft(3f)
+
+        forUnit(null)
+    }
+
+    private fun setupHorizontally() {
+        add(unitIconDrawer).size(32f, 32f).left().padBottom(-12f)
+        row()
+        add(unitName).top().left().padRight(3f).padLeft(3f).padBottom(3f)
+        row()
+        add(VisTable().apply {
+            add(hpIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(hp).left().bottom().width(45f)
+
+            add(mgIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(mg).left().bottom().width(45f)
+
+            add(levelIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(level).left().bottom()
+        }).padBottom(3f).left()
+        row()
+        add(VisTable().apply {
+            add(atkIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(atk).left().bottom().width(45f)
+
+            add(defIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(def).left().bottom().width(45f)
+
+            add(expIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(exp).left().bottom()
+        }).left().padBottom(6f)
+        pack()
+    }
+
+    private fun setupVertically() {
+        add(unitIconDrawer).size(32f, 32f).left().padBottom(-12f)
+        row()
+        add(unitName).top().left().padRight(3f).padLeft(3f).padBottom(3f)
+        row()
+        add(VisTable().apply {
+            add(hpIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(hp).left().bottom().width(45f)
+            row()
+            add(atkIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(atk).left().bottom().width(45f)
+            row()
+            add(defIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(def).left().bottom().width(45f)
+            row()
+            add(mgIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(mg).left().bottom().width(45f)
+            row()
+            add(levelIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(level).left().bottom()
+            row()
+            add(expIcon).left().size(15f).padBottom(3f).padRight(6f)
+            add(exp).left().bottom()
+        }).padBottom(3f).left()
+        pack()
+    }
+
+    fun onScreenResize(width: Int, height: Int) {
+        clear()
+
+        if (width > height) {
+            setupHorizontally()
+        } else {
+            setupVertically()
+            //table.center().bottom().pad(0f).padBottom(26f * 3f)
+        }
     }
 
     override fun act(delta: Float) {
@@ -86,21 +146,21 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
 
         val focusedUnit = guiStage.playStage.getUnit(
             guiStage.tileSelectionDrawer.hoveringSprite.centerX().tiled(),
-            guiStage.tileSelectionDrawer.hoveringSprite.centerY().tiled())
+            guiStage.tileSelectionDrawer.hoveringSprite.centerY().tiled()
+        )
 
-        if (focusedUnit != null)
-            forUnit(focusedUnit)
-        else
-            forUnit(guiStage.selectedUnit)
-
-        if (Gdx.graphics.width > Gdx.graphics.height) {
-            table.left().bottom().pad(0f).padLeft(1f * 3f)
-        } else {
-            table.center().bottom().pad(0f).padBottom(26f * 3f)
+        if (!guiStage.buyMenu.menuOpened) {
+            if (focusedUnit != null) {
+                if (focusedUnit != unitActor)
+                    forUnit(focusedUnit)
+            } else {
+                if (guiStage.selectedUnit != unitActor)
+                    forUnit(guiStage.selectedUnit)
+            }
         }
     }
 
-    private fun forUnit(unitActor: UnitActor?) {
+    fun forUnit(unitActor: UnitActor?) {
         this.unitActor = unitActor
 
         if (unitActor == null) {
@@ -125,8 +185,7 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
             if (lvl < Const.MAX_LVL)
                 exp.setText("" + (cLevel.exp) + "/" + (xpToLevelUp((cLevel.lvl))))
             else exp.setText("" + (cLevel.exp) + "/" + (xpToLevelUp((cLevel.lvl - 1))))
-        }
-        else exp.setText("N")
+        } else exp.setText("N")
 
         pack()
     }

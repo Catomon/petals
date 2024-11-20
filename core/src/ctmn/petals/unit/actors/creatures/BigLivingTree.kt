@@ -9,7 +9,7 @@ import ctmn.petals.unit.Ability
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.getSurroundingTiles
 
-class BigEvilTree : UnitActor(
+class BigLivingTree : UnitActor(
     UnitComponent(
         "big_evil_tree",
         100,
@@ -59,7 +59,7 @@ class BigEvilTree : UnitActor(
                 return false
 
             freeTiles.forEach {
-                val owl = AngryOwl().followerOf(this@BigEvilTree, true).position(it.tiledX, it.tiledY)
+                val owl = AngryOwl().followerOf(this@BigLivingTree, true).position(it.tiledX, it.tiledY)
                 owl.teamId = teamId
                 owl.playerId = playerId
                 owl.actionPoints = 0

@@ -5,7 +5,7 @@ import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitIds.ROOT_TREE
 import ctmn.petals.unit.component.*
 
-class RootTree : UnitActor(
+class OldLivingTree : UnitActor(
     UnitComponent(
         ROOT_TREE,
         100,

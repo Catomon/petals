@@ -48,7 +48,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         var attackEffectFrame = 0f
     }
 
-    var characterName = pUnitComponent?.name ?: ""
+    var characterName = if (Const.DEBUG_MODE) this::class.simpleName.toString() else ""
 
     init {
         if (pUnitComponent != null) {
@@ -97,7 +97,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
         loadAnimations()
 
-        if (characterName.isEmpty()) characterName = unitComponent.name
+        if (characterName.isEmpty()) characterName = if (Const.DEBUG_MODE) this::class.simpleName.toString() else ""
     }
 
     protected open fun loadAnimations() {

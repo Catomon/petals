@@ -73,7 +73,7 @@ class PlayGUIStage(
     val buyMenu = BuyMenu()
 
     //panels and windows and stuff
-    private val unitPanel = UnitPanel(this)
+    val unitPanel = UnitPanel(this)
 
     val tasksTable = TasksTable()
     private val turnIcon = TurnIcon()
@@ -364,6 +364,8 @@ class PlayGUIStage(
 
         waypointButton.addChangeListener {
             if (playScreen.turnManager.currentPlayer != localPlayer) return@addChangeListener
+
+            selectedUnit?.del(WaypointComponent::class.java)
 
             isSettingWaypoint = !isSettingWaypoint
         }
@@ -1010,6 +1012,8 @@ class PlayGUIStage(
     }
 
     fun selectUnit(unit: UnitActor?) {
+        isSettingWaypoint = false
+
         selectedUnit =
             if (unit != null && (unit.stage == null || !unit.isAlive() || !playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)))
                 null
@@ -1150,6 +1154,8 @@ class PlayGUIStage(
             viewport.camera.position.x - viewport.camera.viewportWidth / 2,
             viewport.camera.position.y - viewport.camera.viewportHeight / 2
         )
+
+        unitPanel.onScreenResize(width, height)
     }
 
     /** What da click doin */
@@ -1201,8 +1207,8 @@ class PlayGUIStage(
                     if (command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)) {
                         selectUnit(selectedUnit)
                         return true
-                    } else selectUnit(null) //if unit can't move there
-                } else selectUnit(null) //if unit can't move
+                    } else selectUnit(null)
+                } else selectUnit(null)
             }
 
             return false

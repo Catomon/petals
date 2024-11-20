@@ -49,10 +49,10 @@ class InputManager(val guiStage: PlayGUIStage) {
             }
 
             override fun pan(x: Float, y: Float, deltaX: Float, deltaY: Float): Boolean {
-                if (Gdx.app.type == Application.ApplicationType.Android) {
+//                if (Gdx.app.type == Application.ApplicationType.Android) {
                     //if (buttons == 1)
                         //playStage.camera.translate(-deltaX / 2, deltaY / 2, 0f)
-                }
+//                }
 
                 return false
             }
@@ -152,7 +152,7 @@ class InputManager(val guiStage: PlayGUIStage) {
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             if (isStopped) return false
 
-            val touchPos = playStage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat()))
+//            val touchPos = playStage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat()))
 
             buttons++
 
@@ -176,14 +176,12 @@ class InputManager(val guiStage: PlayGUIStage) {
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             if (isStopped) return false
 
-            val touchPos = playStage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat()))
+//            val touchPos = playStage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat()))
 
             buttons--
 
             if (!isScrollingMap)
                 guiStage.showUi()
-
-            if (isScrollingMap) isScrollingMap = false
 
             return false
         }
@@ -195,7 +193,7 @@ class InputManager(val guiStage: PlayGUIStage) {
         override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
             if (isStopped) return false
 
-            val touchPos = playStage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat()))
+//            val touchPos = playStage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat()))
 
             val deltaX = startX - screenX.toFloat()
             val deltaY = screenY.toFloat() - startY

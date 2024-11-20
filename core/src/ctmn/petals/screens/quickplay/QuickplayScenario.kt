@@ -14,7 +14,7 @@ import ctmn.petals.story.Scenario
 import ctmn.petals.story.alissa.CreateUnit
 import ctmn.petals.story.playScreen
 import ctmn.petals.tile.components.PlayerIdComponent
-import ctmn.petals.unit.actors.creatures.SlimeHuge
+import ctmn.petals.unit.actors.creatures.BunnySlimeHuge
 import ctmn.petals.unit.player
 import ctmn.petals.unit.position
 
@@ -68,7 +68,7 @@ class QuickplayScenario : Scenario("Fae", "") {
             if (base != null)
                 queueAddUnitAction(CreateUnit.alice.player(player!!).position(base.tiledX, base.tiledY))
             queueAddUnitAction(
-                SlimeHuge().player(players[2]).position(playStage.tiledWidth / 2, playStage.tiledHeight / 2)
+                BunnySlimeHuge().player(players[2]).position(playStage.tiledWidth / 2, playStage.tiledHeight / 2)
             )
         }
     }

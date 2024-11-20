@@ -23,8 +23,8 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
 import ctmn.petals.unit.abilities.HealthPotionAbility
-import ctmn.petals.unit.actors.creatures.SlimeLing
-import ctmn.petals.unit.actors.creatures.SlimeTiny
+import ctmn.petals.unit.actors.creatures.BunnySlimeLing
+import ctmn.petals.unit.actors.creatures.BunnySlimeTiny
 
 class AliceLevel : Scenario("lv_1", "alice_slime2") {
 
@@ -80,9 +80,9 @@ class AliceLevel : Scenario("lv_1", "alice_slime2") {
         val alice = playScreen.alice()
         val stick = TileActor(TileData.get("stick")!!, 10, alice.tiledX + alice.movingRange, alice.tiledY)
         playStage.addActor(stick)
-        playStage.addActor(SlimeTiny().player(players[2]).position(stick.tiledX + 1, stick.tiledY))
+        playStage.addActor(BunnySlimeTiny().player(players[2]).position(stick.tiledX + 1, stick.tiledY))
 
-        val slimeLing = playStage.getUnit<SlimeLing>()!!
+        val slimeLing = playStage.getUnit<BunnySlimeLing>()!!
         slimeLing.item = assets.tilesAtlas.findRegion("items/book")
 
         playScreen {

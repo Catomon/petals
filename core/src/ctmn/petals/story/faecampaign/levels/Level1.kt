@@ -91,7 +91,7 @@ class Level1 : Scenario("lv_1", "level_0") {
             GoblinSword().player(players[1]).position(taskUnit.tiledX + taskUnit.movingRange + 1, taskUnit.tiledY)
         )
 
-//        val slimeLing = playStage.getUnit<SlimeLing>()!!
+//        val slimeLing = playStage.getUnit<BunnySlimeLing>()!!
 
         playScreen {
             queueDialogAction(

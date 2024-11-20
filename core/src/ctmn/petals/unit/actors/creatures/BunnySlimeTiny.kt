@@ -1,15 +1,17 @@
 package ctmn.petals.unit.actors.creatures
 
-import ctmn.petals.unit.*
+import ctmn.petals.unit.TerrainPropsPack
+import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.UnitIds.SLIME_TINY
 import ctmn.petals.unit.component.*
 
-class BigToad : UnitActor(
+class BunnySlimeTiny : UnitActor(
     UnitComponent(
-        "big_toad",
-        100,
-        10,
-        5,
-        6
+        SLIME_TINY,
+        50,
+        0,
+        4,
+        5
     )
 ) {
 
@@ -17,15 +19,15 @@ class BigToad : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
+                15,
                 20,
-                30,
                 1
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.slime))
-        add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.PIXIE] = 30 to 0
-        })
+        add(MatchUpBonusComponent())
         add(TraitComponent(fireVulnerability = 1.5f))
+
+        hitSounds = arrayOf("slime_hit.ogg")
     }
 }

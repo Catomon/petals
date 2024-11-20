@@ -13,8 +13,8 @@ import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playstage.*
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.creatures.BigEvilTree
-import ctmn.petals.unit.actors.creatures.SlimeHuge
+import ctmn.petals.unit.actors.creatures.BigLivingTree
+import ctmn.petals.unit.actors.creatures.BunnySlimeHuge
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.RoamingPosition
 import ctmn.petals.utils.*
@@ -392,7 +392,7 @@ class SimpleAI(
         if (unitAbilities != null && unitAbilities.abilities.isNotEmpty()) {
             val ability = unit.cAbilities!!.abilities.first()
             when (ability) {
-                is SlimeHuge.SlimeJumpAbility -> {
+                is BunnySlimeHuge.SlimeJumpAbility -> {
                     var freeTile: TileActor? = null
                     val enemyUnit: UnitActor? = playScreen.playStage.getUnits().apply {
                         removeAll {
@@ -418,7 +418,7 @@ class SimpleAI(
                         }
                     }
                 }
-                is BigEvilTree.SummonOwlsAbility -> {
+                is BigLivingTree.SummonOwlsAbility -> {
                     val command = UseAbilityCommand(
                         unit,
                         ability,

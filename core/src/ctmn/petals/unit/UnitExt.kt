@@ -788,10 +788,10 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
 
         is Slime -> 4
         is PinkSlimeLing -> 4
-        is SlimeLing -> 4
+        is BunnySlimeLing -> 4
         is SlimeBig -> 4
-        is SlimeHuge -> 4
-        is SlimeTiny -> 4
+        is BunnySlimeHuge -> 4
+        is BunnySlimeTiny -> 4
 
         is ObjRock -> -1
         is ObjBlob -> -1

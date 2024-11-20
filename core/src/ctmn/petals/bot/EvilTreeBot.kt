@@ -7,7 +7,7 @@ import ctmn.petals.playscreen.seqactions.CameraMoveAction
 import ctmn.petals.playscreen.commands.*
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.unit.*
-import ctmn.petals.unit.actors.creatures.BigEvilTree
+import ctmn.petals.unit.actors.creatures.BigLivingTree
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.Gdx
@@ -99,7 +99,7 @@ class EvilTreeBot(player: Player, playScreen: PlayScreen) : Bot(player, playScre
             if (unit.cAbilities?.abilities != null && !unit.cAbilities!!.abilities.isEmpty()) {
                 val ability = unit.cAbilities!!.abilities.first()
 
-                if (ability is BigEvilTree.SummonOwlsAbility) {
+                if (ability is BigLivingTree.SummonOwlsAbility) {
                     val command = UseAbilityCommand(
                         unit,
                         ability,

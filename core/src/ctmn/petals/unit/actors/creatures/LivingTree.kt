@@ -6,7 +6,7 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.component.*
 
-class EvilTree : UnitActor(
+class LivingTree : UnitActor(
     UnitComponent(
         "evil_tree",
         100,
