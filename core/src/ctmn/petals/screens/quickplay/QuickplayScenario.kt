@@ -52,6 +52,7 @@ class QuickplayScenario : Scenario("Fae", "") {
     override fun makeScenario(playScreen: PlayScreen) {
         super.makeScenario(playScreen)
 
+        playScreen.fogOfWarManager.drawDiscoverableFog = true
         playScreen.fogOfWarManager.drawFog = true
 
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))

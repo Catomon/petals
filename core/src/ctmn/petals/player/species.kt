@@ -48,7 +48,13 @@ interface SpeciesUnits {
     val buildings: Array<Building>
 }
 
-class Building(val name: String, val buildTime: Int, val cost: Int, val terrains: Array<String>, val requires: String = "")
+class Building(
+    val name: String,
+    val buildTime: Int,
+    val cost: Int,
+    val terrains: Array<String>,
+    val requires: String = "",
+)
 
 const val FAIRY_FORGE = "fairy_forge"
 const val FAIRY_ARCHERS_GUILD = "fairy_archers_guild"
@@ -56,6 +62,7 @@ const val FAIRY_ARMORY = "fairy_armory"
 const val FAIRY_CUCUMBER = "fairy_cucumber"
 const val FAIRY_FOLIA = "fairy_folia"
 const val FAIRY_AERTHYS = "fairy_aerthys"
+const val FAIRY_FLORAL_AEGIS = "fairy_floral_aegis"
 
 const val WATERLILY = "waterlily"
 const val PLANT_WALL = "plant_wall"
@@ -79,8 +86,8 @@ val fairySpecies = object : SpeciesUnits {
             add(FairyPike().cost(200), 1) //, listOf(FAIRY_FORGE)
             add(FairyBow().cost(300), 1, listOf(FAIRY_ARCHERS_GUILD))
 
-            add(FairyHealer().cost(300), 1, listOf(FAIRY_FORGE))
-            add(FairyShield().cost(300), 1, listOf(FAIRY_FORGE))
+            add(FairyHealer().cost(300), 1, listOf(FAIRY_FLORAL_AEGIS))
+            add(FairyShield().cost(300), 1, listOf(FAIRY_FLORAL_AEGIS))
 
             add(FairyAxe().cost(400), 1, listOf(FAIRY_FORGE))
             add(FairyHammer().cost(400), 1, listOf(FAIRY_FORGE))
@@ -100,6 +107,7 @@ val fairySpecies = object : SpeciesUnits {
     override val buildings: Array<Building> = Array<Building>().apply {
         add(Building(FAIRY_FORGE, 2, 200, Array<String>().apply { add("grass") }))
         add(Building(FAIRY_ARCHERS_GUILD, 3, 200, Array<String>().apply { add("grass") }))
+        add(Building(FAIRY_FLORAL_AEGIS, 2, 200, Array<String>().apply { add("grass") }))
         add(Building(FAIRY_AERTHYS, 3, 300, Array<String>().apply { add("grass") }, FAIRY_FORGE))
         add(Building(FAIRY_CUCUMBER, 3, 300, Array<String>().apply { add("grass") }, FAIRY_AERTHYS))
         add(Building(FAIRY_ARMORY, 4, 400, Array<String>().apply { add("grass") }, FAIRY_FORGE))
@@ -121,6 +129,7 @@ const val GOBLIN_ARMORY = "goblin_armory"
 const val GOBLIN_BEASTMOUNT = "goblin_beastmount"
 const val GOBLIN_FOUNDRY = "goblin_foundry"
 const val GOBLIN_ARSENAL = "goblin_arsenal"
+const val GOBLIN_AID_OUTPOST = "goblin_aid_outpost"
 
 const val BRIDGE = "bridge"
 const val WOODEN_WALL = "wooden_wall"
@@ -142,11 +151,12 @@ val goblinSpecies = object : SpeciesUnits {
             add(GoblinPike().cost(200), 1) //, listOf(GOBLIN_FORGE)
             add(GoblinBow().cost(300), 1, listOf(GOBLIN_ARCHERS_GUILD))
 
-            add(GoblinHealer().cost(300), 1, listOf(GOBLIN_FORGE))
+            add(GoblinHealer().cost(300), 1, listOf(GOBLIN_AID_OUTPOST))
 
             add(GoblinMace().cost(400), 1, listOf(GOBLIN_FORGE))
             add(GoblinWolf().cost(400), 1, listOf(GOBLIN_FORGE, GOBLIN_BEASTMOUNT))
             add(GoblinBoar().cost(400), 1, listOf(GOBLIN_FORGE))
+            add(GoblinBoarPike().cost(400), 1, listOf(GOBLIN_FORGE))
 
             add(GoblinMachete().cost(500), 1, listOf(GOBLIN_FORGE, GOBLIN_ARMORY))
             add(GoblinBomber().cost(500), 1, listOf(GOBLIN_FORGE, GOBLIN_ARSENAL))
@@ -164,6 +174,7 @@ val goblinSpecies = object : SpeciesUnits {
     override val buildings: Array<Building> = Array<Building>().apply {
         add(Building(GOBLIN_FORGE, 2, 200, Array<String>().apply { add("grass") }))
         add(Building(GOBLIN_ARCHERS_GUILD, 3, 200, Array<String>().apply { add("grass") }))
+        add(Building(GOBLIN_AID_OUTPOST, 2, 200, Array<String>().apply { add("grass") }))
         add(Building(GOBLIN_ARMORY, 3, 300, Array<String>().apply { add("grass") }, GOBLIN_FORGE))
         add(Building(GOBLIN_BEASTMOUNT, 3, 300, Array<String>().apply { add("grass") }, GOBLIN_FORGE))
         add(Building(GOBLIN_ARSENAL, 4, 400, Array<String>().apply { add("grass") }, GOBLIN_ARMORY))

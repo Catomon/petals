@@ -18,7 +18,7 @@ buildscript {
 allprojects {
     apply plugin: "eclipse"
 
-    version = '0.5'
+    version = '0.5.1'
     ext {
         appName = "Fae's Feisty Fray"
         gdxVersion = '1.12.1'

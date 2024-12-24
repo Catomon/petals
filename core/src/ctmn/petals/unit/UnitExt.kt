@@ -782,6 +782,7 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is GoblinPickaxe -> 2
         is GoblinBomber -> 2
         is GoblinMace -> 2
+        is GoblinBoarPike -> 2
 
         is Cherie -> 3
         is CherieSpearman -> 3
