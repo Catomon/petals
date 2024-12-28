@@ -54,7 +54,7 @@ class Level2 : Scenario("lv_2", "level_1") {
 
         playScreen {
             val fairyHelper = guiStage.charactersPanel.findActor<Actor>(CharactersPanel.CHARACTER_HELPER_FAIRY)
-            queueDialogAction(StoryDialog.Quote("The numbers you see on the tiles are attack/defense bonuses units can get on these tiles.\n" +
+            queueDialogAction(StoryDialog.Quote("The numbers you see on the tiles\n are attack/defense bonuses units\n can get on these tiles.\n" +
                     "The bonuses vary depending on the unit type", fairyHelper))
             queueDialogAction(StoryDialog.Quote("You can toggle visibility of terrain bonuses in the settings menu", fairyHelper))
 

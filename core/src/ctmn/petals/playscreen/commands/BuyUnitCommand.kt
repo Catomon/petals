@@ -58,8 +58,8 @@ class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int
 
         for (techName in player.techs) {
             val tech = Techs.map[techName]
-            if (tech?.targetType == Tech.TargetType.BoughtUnit && (tech.targetId.isEmpty() || tech.targetId == unitActor.selfName)) {
-                tech.applyTech(unitActor)
+            if (tech?.targetType == Tech.TargetType.BoughtUnit) {
+                tech.applyTechToUnit(unitActor)
             }
         }
 

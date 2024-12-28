@@ -229,7 +229,7 @@ fun UnitActor.inAttackRange(x: Int, y: Int): Boolean {
 
     val tiledDst = tiledDst(x, y, tiledX, tiledY)
 
-    return tiledDst > cAttack!!.attackRangeBlocked && tiledDst <= cAttack!!.attackRange
+    return tiledDst > cAttack!!.attackRangeMin && tiledDst <= cAttack!!.attackRange
 }
 
 fun UnitActor.isInRange(x: Int, y: Int, range: Int): Boolean {

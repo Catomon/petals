@@ -11,7 +11,7 @@ import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.utils.unTiled
 
 class PlagueAbility : Ability(
-    "flame",
+    "plague",
     Target.ALL, //Target.ENEMY_UNIT
     2,
     5,

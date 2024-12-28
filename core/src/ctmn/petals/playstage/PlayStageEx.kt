@@ -413,6 +413,18 @@ fun PlayStage.getCapturablesOf(player: Player): Array<TileActor> {
     return bases
 }
 
+fun PlayStage.getBuildings(player: Player): Array<TileActor> {
+    val buildings = Array<TileActor>()
+
+    for (tile in getTiles()) {
+        if (tile.isBuilding)
+            if (tile.cPlayerId?.playerId == player.id)
+                buildings.add(tile)
+    }
+
+    return buildings
+}
+
 fun PlayStage.getUnitOrTile(x: Int, y: Int): Actor? {
     return getUnit(x, y) ?: getTile(x, y)
 }

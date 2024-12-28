@@ -96,6 +96,7 @@ object Units {
         add(VillageSpearman())
         add(VillageSwordsman())
         add(GoblinBoarPike())
+        add(GoblinRatKing())
     }
 
     fun add(unit: UnitActor) : UnitActor {

@@ -1,6 +1,7 @@
 package ctmn.petals.player
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.abilities
@@ -20,10 +21,16 @@ open class Tech(
     val targetId: String,
     val time: Int,
     val buildingsNeeded: List<String>,
-    val applyTech: (Actor?) -> Unit,
+    protected val applyTech: (Actor?) -> Unit,
 ) {
     enum class TargetType {
         BoughtUnit
+    }
+
+    fun applyTechToUnit(unitActor: UnitActor) {
+        if (targetId.isEmpty() || targetId == unitActor.selfName) {
+            applyTech(unitActor)
+        }
     }
 }
 
@@ -43,6 +50,7 @@ class RatPlagueTech : Tech(
     { target ->
         target as UnitActor
         if (target.cAbilities == null) target.add(AbilitiesComponent())
-        target.abilities.add(PlagueAbility())
+        if (target.abilities.none { it is PlagueAbility })
+            target.abilities.add(PlagueAbility())
     }
 )

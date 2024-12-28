@@ -241,7 +241,7 @@ class PlayGUIStage(
 
     var mapClickDisabled = false
 
-    private val autoEndTurnEnabled get() = GamePref.autoEndTurn ?: false
+    private val autoEndTurnEnabled get() = playScreen.gameType != GameType.MULTIPLAYER && GamePref.autoEndTurn
 
     var forceMyTurnEnd = false
 
@@ -283,7 +283,8 @@ class PlayGUIStage(
         }
 
         potionButton.addChangeListener {
-            //todo technologies panel
+            addCover()
+            addActor(Potion(this@PlayGUIStage))
         }
 
         zoomButton.addListener(object : ClickListener() {
@@ -1044,7 +1045,11 @@ class PlayGUIStage(
         isSettingWaypoint = false
 
         selectedUnit =
-            if (unit != null && (unit.stage == null || !unit.isAlive() || !playScreen.fogOfWarManager.isVisible(unit.tiledX, unit.tiledY)))
+            if (unit != null && (unit.stage == null || !unit.isAlive() || !playScreen.fogOfWarManager.isVisible(
+                    unit.tiledX,
+                    unit.tiledY
+                ))
+            )
                 null
             else
                 unit
@@ -1222,6 +1227,7 @@ class PlayGUIStage(
     }
 
     var isSettingWaypoint = false
+
     inner class UnitSelectedCL : MapClickListener {
         override fun onTileClicked(tile: TileActor): Boolean {
             if (myTurn.isCurrent()) {

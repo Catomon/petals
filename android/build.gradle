@@ -22,7 +22,7 @@ android {
         minSdkVersion 26
         targetSdkVersion 33
         versionCode 17
-        versionName "0.5.1"
+        versionName "0.5.2"
         multiDexEnabled true
     }
     buildTypes {

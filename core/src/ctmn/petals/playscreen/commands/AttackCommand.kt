@@ -5,19 +5,19 @@ import com.badlogic.gdx.graphics.Color
 import ctmn.petals.Const
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.*
-import ctmn.petals.unit.*
+import ctmn.petals.playscreen.queueAction
 import ctmn.petals.playscreen.seqactions.AttackAction
+import ctmn.petals.playscreen.stageName
 import ctmn.petals.playstage.damageTile
-import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.*
 import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
 import ctmn.petals.unit.component.MoveAfterAttackComponent
 import ctmn.petals.unit.component.ReloadingComponent
-import ctmn.petals.utils.*
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
+import ctmn.petals.utils.getUnitsInRange
 import kotlin.math.max
-import kotlin.math.min
-import kotlin.random.Random
 
 class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Command() {
 
@@ -71,8 +71,8 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         var damageAttacker: (() -> Unit)? = null
         val postAttack: () -> Unit
 
-        val miss = if (Const.MISSES) Random.nextInt(1, 101) <= 5 else false
-        val crit = if (Const.CRITS) Random.nextInt(1, 101) <= 5 else false
+        val miss = if (Const.MISSES) playScreen.random.nextInt(1, 101) <= 5 else false
+        val crit = if (Const.CRITS) playScreen.random.nextInt(1, 101) <= 5 else false
 
         /** health */
         damageTarget = {
@@ -107,7 +107,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
                         it.dealDamage(
                             // randomize splash damage down to -5 (min damage is 1)
                             (max(
-                                Random.nextInt(
+                                playScreen.random.nextInt(
                                     attackerAttackC.attackSplashDamage - 5,
                                     attackerAttackC.attackSplashDamage
                                 ), 1
@@ -128,7 +128,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
             && !attackTypeNotOk
             && targetUnit.canAttack(attackerUnit)
             && attackerUnit.isUnitNear(targetUnit, 1)
-            && targetUnit.cAttack!!.attackRangeBlocked <= 0
+            && targetUnit.cAttack!!.attackRangeMin <= 0
             && ((!attackerUnit.isAir || (attackerUnit.isAir && targetUnit.isAir)) || targetUnit.attackRange > 1)
         ) {
             damageAttacker = {

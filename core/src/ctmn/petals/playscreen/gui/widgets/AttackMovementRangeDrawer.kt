@@ -100,10 +100,10 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
                     TerrainPropsPack.clear
                 ), guiStage.playStage
             )
-            if (unit.cAttack!!.attackRangeBlocked > 0)
+            if (unit.cAttack!!.attackRangeMin > 0)
                 minAttackRangeBorder.makeForMatrix(
                     guiStage.playStage.getMovementGrid(
-                        unit.cAttack!!.attackRangeBlocked,
+                        unit.cAttack!!.attackRangeMin,
                         unit.tiledX,
                         unit.tiledY,
                         TerrainPropsPack.clear
@@ -138,7 +138,7 @@ class AttackMovementRangeDrawer(val guiStage: PlayGUIStage) : Group() {
                 minAttackRangeBorder.show(isVisible)
             } else {
                 if (if (drawAttackRangeForRangedOnly) unit!!.attackRange > 1 else true) {
-                    minAttackRangeBorder.show(isVisible && unit!!.cAttack!!.attackRangeBlocked > 0)
+                    minAttackRangeBorder.show(isVisible && unit!!.cAttack!!.attackRangeMin > 0)
                 }
             }
         }
