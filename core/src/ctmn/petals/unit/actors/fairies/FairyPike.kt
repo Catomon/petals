@@ -34,6 +34,7 @@ class FairyPike : UnitActor(
             bonuses[UnitIds.CENTAUR_SPEAR] = Pair(10, 10)
             bonuses[UnitIds.CENTAUR_SWORD] = Pair(10, 10)
             bonuses[UnitIds.GOBLIN_BOAR] = Pair(20, 15)
+            bonuses[UnitIds.GOBLIN_BOAR_PIKE] = Pair(20, 15)
             bonuses[UnitIds.GOBLIN_WOLF] = Pair(20, 15)
             bonuses[UnitIds.GOBLIN_WYVERN] = Pair(0, 15)
         })

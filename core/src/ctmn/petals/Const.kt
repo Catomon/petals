@@ -37,7 +37,7 @@ object Const {
 
     private const val GUI_SCALE_MOBILE_LANDSCAPE = 1.25f
     private const val GUI_SCALE_MOBILE_PORTRAIT = 1.5f
-    private const val GUI_SCALE_PC = 1f
+    private val GUI_SCALE_PC get() = if (Gdx.graphics.width > 1600) 1.5f else 1f
     val GUI_SCALE
         get() =
             if (IS_MOBILE)
@@ -101,7 +101,7 @@ object Const {
     const val UNIT_ANIMATION_FRAME_DURATION = 0.5f
     const val TALKING_ANIMATION_DURATION = 3f
 
-    const val UNIT_MOVE_SPEED: Float = 200f
+    const val UNIT_MOVE_SPEED: Float = 150f
     const val UNIT_SHAKE_POWER = 3f
     const val UNIT_SHAKE_DURATION = 0.5f
 

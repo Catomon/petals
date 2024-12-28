@@ -2,9 +2,7 @@ package ctmn.petals.playscreen.gui.widgets
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
-import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Queue
@@ -15,13 +13,10 @@ import ctmn.petals.Const
 import ctmn.petals.Const.TALKING_ANIMATION_DURATION
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.playscreen.gui.PlayGUIStage
-import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
 import ctmn.petals.playscreen.triggers.OnActionCompleteTrigger
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.utils.centerX
-import ctmn.petals.utils.centerY
-import ctmn.petals.utils.setPosByCenter
+import ctmn.petals.utils.*
 import ctmn.petals.widgets.*
 
 public infix fun <A, B> A.said(that: B): Pair<A, B> = Pair(this, that)
@@ -36,7 +31,7 @@ class StoryDialog(
         Array<Quote>().apply { dialogs.forEach { add(Quote(it.first, it.second)) } })
 
     constructor(unit: UnitActor, vararg quotes: Quote) : this(
-        Array(quotes.onEach { if (it.unit == null) it.unit = unit })
+        Array(quotes.onEach { if (it.source == null) it.source = unit })
     )
 
     constructor(vararg quotes: Quote) : this(Array(quotes))
@@ -49,7 +44,7 @@ class StoryDialog(
     private val quoteTail = VisImage("unit_dialog_tail")
 
     private var quoteIndex = 0
-    private val currentQuote get() = if (quoteIndex >= quotes.size) null else quotes[quoteIndex]
+    val currentQuote get() = if (quoteIndex >= quotes.size) null else quotes[quoteIndex]
 
     var cameraMove = true
 
@@ -64,8 +59,15 @@ class StoryDialog(
         return this
     }
 
-    private val enterButton = newIconButton("enter").addChangeListener {
-        guiStage.nextDialogButton.press()
+    companion object {
+        const val PC_ENTER_BUTTON_NAME = "enter_button"
+    }
+
+    private val enterButton = newIconButton("enter").apply {
+        name = PC_ENTER_BUTTON_NAME
+        addChangeListener {
+            guiStage.nextDialogButton.press()
+        }
     }
 
     init {
@@ -84,20 +86,24 @@ class StoryDialog(
     override fun act(delta: Float) {
         super.act(delta)
 
-        if (currentQuote == null) return
+        val currentQuote = if (currentQuote == null) return else currentQuote
 
         if (Const.IS_DESKTOP)
             enterButton.setPosition(width - enterButton.width - 3, 5f)
 
-        if (currentQuote!!.unit == null)
+        if (currentQuote?.source == null)
             setPosition(guiStage.camera.position.x - width / 2, guiStage.camera.position.y - height / 2)
         else
-            setPositionFromSource(currentQuote!!.unit!!.centerX, currentQuote!!.unit!!.centerY)
+            setPositionFromSource(currentQuote.source!!)
     }
 
     fun nextQuote() {
         //remove talking animation
-        currentQuote?.unit?.setAnimation(null)
+        currentQuote?.source?.let { source ->
+            if (source is UnitActor) {
+                source.setAnimation(null)
+            }
+        }
 
         quoteIndex++
         if (quoteIndex >= quotes.size) {
@@ -106,7 +112,7 @@ class StoryDialog(
             quoteTail.isVisible = false
         } else {
             currentQuote?.let { quote ->
-                quote.unit?.let { if (it.playStageOrNull == null) nextQuote() }
+                quote.source?.let { if (it.stage == null) nextQuote() }
 
                 updateDialog(quote)
             }
@@ -115,7 +121,7 @@ class StoryDialog(
 
     //update dialog and unit dialog icon
     private fun updateDialog(quote: Quote) {
-        if (quote.unit == null) {
+        if (quote.source == null) {
             setBackground("dialog")
             if (addOkayButton)
                 add(okayButton).right()
@@ -139,16 +145,16 @@ class StoryDialog(
 
         pack()
 
-        val unit = quote.unit
+        val sourceActor = quote.source
 
-        if (unit != null) {
-            setPositionFromSource(unit.centerX, unit.centerY)
+        if (sourceActor != null) {
+            setPositionFromSource(sourceActor)
 
             if (cameraMove) {
                 isVisible = false
                 quoteTail.isVisible = false
 
-                val cameraMoveAction = CameraMoveAction(unit.centerX, unit.centerY)
+                val cameraMoveAction = CameraMoveAction(sourceActor.centerX, sourceActor.centerY)
                 guiStage.playScreen.actionManager.addAction(cameraMoveAction)
                 guiStage.playScreen.triggerManager.addTrigger(OnActionCompleteTrigger(cameraMoveAction).onTrigger {
 
@@ -158,15 +164,26 @@ class StoryDialog(
             }
 
             //set talking animation to unit
-            unit.setAnimation(unit.talkingAnimation, TALKING_ANIMATION_DURATION)
+            if (sourceActor is UnitActor)
+                sourceActor.setAnimation(sourceActor.talkingAnimation, TALKING_ANIMATION_DURATION)
         } else
             quoteTail.isVisible = false
     }
 
-    private fun setPositionFromSource(sX: Float, sY: Float, sourceWidth: Float = 16f, sourceHeight: Float = 16f) {
-        val center = guiStage.screenToStageCoordinates(guiStage.playStage.stageToScreenCoordinates(Vector2(sX, sY)))
+    private val tmpVec = Vector2()
+    private fun setPositionFromSource(sourceActor: Actor) {
+        val sourceWidth = if (sourceActor is UnitActor) 16f else sourceActor.width
+        val sourceHeight = if (sourceActor is UnitActor) 16f else sourceActor.height
+        val sourceStage: Stage = sourceActor.stage ?: let {
+            logErr("Dialog source stage is null")
+            return
+        }
+        tmpVec.set(sourceActor.centerX, sourceActor.centerY)
+        val sPos = sourceActor.localToStageCoordinates(tmpVec)
+        val (sX, sY) = sPos.x to sPos.y
+        val center = guiStage.screenToStageCoordinates(sourceStage.stageToScreenCoordinates(Vector2(sX, sY)))
         val top = guiStage.screenToStageCoordinates(
-            guiStage.playStage.stageToScreenCoordinates(
+            sourceStage.stageToScreenCoordinates(
                 Vector2(
                     sX,
                     sY + sourceHeight / 2
@@ -174,7 +191,7 @@ class StoryDialog(
             )
         )
         val bottom = guiStage.screenToStageCoordinates(
-            guiStage.playStage.stageToScreenCoordinates(
+            sourceStage.stageToScreenCoordinates(
                 Vector2(
                     sX,
                     sY - sourceHeight / 2
@@ -182,7 +199,7 @@ class StoryDialog(
             )
         )
         val left = guiStage.screenToStageCoordinates(
-            guiStage.playStage.stageToScreenCoordinates(
+            sourceStage.stageToScreenCoordinates(
                 Vector2(
                     sX - sourceWidth / 2,
                     sY
@@ -190,7 +207,7 @@ class StoryDialog(
             )
         )
         val right = guiStage.screenToStageCoordinates(
-            guiStage.playStage.stageToScreenCoordinates(
+            sourceStage.stageToScreenCoordinates(
                 Vector2(
                     sX + sourceWidth / 2,
                     sY
@@ -198,29 +215,30 @@ class StoryDialog(
             )
         )
 
-        val topFit = center.y < guiStage.camera.viewportHeight / 2
+        val camera = guiStage.camera
+        val topFit = center.y < camera.viewportHeight / 2
                 && center.y > 0f
                 && center.x > 0f
-                && center.x < guiStage.camera.viewportWidth
+                && center.x < camera.viewportWidth
+                && camera.viewportHeight - top.x > height
 
-        val bottomFit = center.y > guiStage.camera.viewportHeight / 2
-                && center.y < guiStage.camera.viewportHeight
+        val bottomFit = center.y > camera.viewportHeight / 2
+                && center.y < camera.viewportHeight
                 && center.x > 0f
-                && center.x < guiStage.camera.viewportWidth
+                && center.x < camera.viewportWidth
+                && camera.viewportHeight - (camera.viewportHeight - bottom.x) > height
 
-        val leftFit = center.x > guiStage.camera.viewportWidth / 2
-                && center.x < guiStage.camera.viewportWidth
-                && center.y < guiStage.camera.viewportHeight
+        val leftFit = center.x > camera.viewportWidth / 2
+                && center.x < camera.viewportWidth
+                && center.y < camera.viewportHeight
                 && center.y > height
-                && center.y < guiStage.camera.viewportHeight - height
-                && guiStage.camera.viewportWidth - (guiStage.camera.viewportWidth - left.x) > width
+                && camera.viewportWidth - (camera.viewportWidth - left.x) > width
 
-        val rightFit = center.x < guiStage.camera.viewportWidth / 2
+        val rightFit = center.x < camera.viewportWidth / 2
                 && center.x > 0f
-                && center.y < guiStage.camera.viewportHeight
+                && center.y < camera.viewportHeight
                 && center.y > height
-                && center.y < guiStage.camera.viewportHeight - height
-                && guiStage.camera.viewportWidth - right.x > width
+                && camera.viewportWidth - right.x > width
 
         val tailOffset = 4
         when {
@@ -244,6 +262,15 @@ class StoryDialog(
                 quoteTail.setPosByCenter(x + width / 2, y + height + tailOffset); quoteTail.rotation = 180f
             }
         }
+
+        if (topLeftCorner.y > camera.viewportHeight)
+            y = camera.viewportHeight - height
+        if (topLeftCorner.x < 0f)
+            x = 0f
+        if (bottomRightCorner.y < 0f)
+            y = 0f
+        if (bottomRightCorner.x > camera.viewportWidth)
+            x = camera.viewportWidth - width
     }
 
     override fun setStage(stage: Stage?) {
@@ -264,17 +291,25 @@ class StoryDialog(
         super.setStage(stage)
     }
 
-    class Quote(var text: String, var unit: UnitActor? = null)
+    class Quote(var text: String, var source: Actor? = null)
 
     class NextDialogButton(val guiStage: PlayGUIStage) : VisImageButton("next_dialog") {
 
         private var dialogs = Queue<StoryDialog>()
 
         fun press() {
+            val oldQuote = dialogs.last().currentQuote
             dialogs.last().nextQuote()
 
-            if (dialogs.last().currentQuote == null)
+            if (oldQuote != null) {
+                guiStage.root.fire(QuoteEndedEvent(oldQuote))
+            }
+
+            if (dialogs.last().currentQuote == null) {
                 dialogs.removeLast()
+            } else {
+                guiStage.root.fire(QuoteStartedEvent(dialogs.last().currentQuote!!))
+            }
 
             if (dialogs.isEmpty) {
                 isVisible = false
@@ -320,6 +355,8 @@ class StoryDialog(
             })
         }
 
+        fun hasDialogs() = !dialogs.isEmpty
+
         fun addDialog(dialog: StoryDialog) {
             isVisible = true
 
@@ -328,6 +365,13 @@ class StoryDialog(
             table.getCell(guiStage.endTurnButton).setActor(this)
 
             dialogs.addFirst(dialog)
+
+            if (dialog.currentQuote != null) {
+                guiStage.root.fire(QuoteStartedEvent(dialog.currentQuote!!))
+            }
         }
     }
+
+    class QuoteStartedEvent(val quote: Quote) : Event()
+    class QuoteEndedEvent(val quote: Quote) : Event()
 }

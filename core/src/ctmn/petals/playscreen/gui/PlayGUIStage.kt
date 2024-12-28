@@ -97,7 +97,10 @@ class PlayGUIStage(
     }
 
     //buttons
-    private val hideUiButton = newIconButton("hide_ui")
+    val charactersPanel = CharactersPanel(this)
+    val bookButton = newIconButton("book")
+    val potionButton = newIconButton("potion")
+    val hideUiButton = newIconButton("hide_ui")
     private val zoomButton = newIconButton("zoom").apply { isVisible = false }
     private val infoButton = newIconButton("info").apply { isVisible = false }
     private val pauseButton = newIconButton("pause")
@@ -266,10 +269,21 @@ class PlayGUIStage(
 
         addActor(unitMiniMenu)
 
+        addActor(charactersPanel)
+
         //add widgets listeners
 
         hideUiButton.addChangeListener {
             hideUi()
+        }
+
+        bookButton.addChangeListener {
+            addCover()
+            addActor(Book(this@PlayGUIStage))
+        }
+
+        potionButton.addChangeListener {
+            //todo technologies panel
         }
 
         zoomButton.addListener(object : ClickListener() {
@@ -724,6 +738,19 @@ class PlayGUIStage(
 
             false
         }
+
+        addCaptureListener {
+            if (it is InputEvent && nextDialogButton.hasDialogs() && it.target != nextDialogButton && it.target !is StoryDialog && it.target.name != StoryDialog.PC_ENTER_BUTTON_NAME) {
+                if (it.type == InputEvent.Type.keyDown && it.keyCode == Input.Keys.ENTER) {
+                    true
+                } else {
+                    it.cancel()
+                    false
+                }
+            } else {
+                false
+            }
+        }
     }
 
     private val unitsToMove = mutableListOf<UnitActor>()
@@ -938,6 +965,8 @@ class PlayGUIStage(
             left()
             add(VisTable().apply {
                 add(hideUiButton)
+                add(bookButton)
+                add(potionButton)
             }).left()
             row()
             add(tasksTable).left().top()

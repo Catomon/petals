@@ -76,6 +76,11 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: R
             showHideConsole()
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if (GameConsole.isVisible)
+                showHideConsole()
+        }
+
         super.render()
 
         GameConsole.console.draw()

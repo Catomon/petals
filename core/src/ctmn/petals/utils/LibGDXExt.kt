@@ -237,3 +237,10 @@ fun Sprite.centerY(): Float = y + height / 2
 fun Sprite.setPositionByCenter(x: Float, y: Float) {
     setPosition(x - width / 2, y - height / 2)
 }
+
+val Actor.topLeftCorner get() = Vector2(x, y + height)
+val Actor.topRightCorner get() = Vector2(x + width, y + height)
+val Actor.bottomLeftCorner get() = Vector2(x, y)
+val Actor.bottomRightCorner get() = Vector2(x + width, y)
+
+fun Camera.contains(x: Float, y: Float) = x > position.x - viewportWidth / 2 && x < position.x + viewportWidth / 2 && y > position.y - viewportHeight / 2 && y < position.y + viewportHeight / 2

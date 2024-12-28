@@ -5,11 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
-import com.kotcrab.vis.ui.widget.VisImage
-import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.VisTextButton
-import com.kotcrab.vis.ui.widget.VisWindow
+import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.Const
 import ctmn.petals.assets
 import ctmn.petals.bot.EasyDuelBot
@@ -25,6 +21,9 @@ import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.NoEnd
+import ctmn.petals.playscreen.gui.widgets.CharactersPanel
+import ctmn.petals.playscreen.gui.widgets.StoryDialog
+import ctmn.petals.playscreen.queueDialogAction
 import ctmn.petals.screens.LevelSelectScreen
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.PlayScreenTemplate
@@ -179,6 +178,17 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         }
 
         ps.ready()
+
+        val source = ps.guiStage.charactersPanel.findActor<Actor>(CharactersPanel.CHARACTER_HELPER_FAIRY)
+        ps.queueDialogAction(
+            StoryDialog(
+                StoryDialog.Quote(
+                    "Test test test test\n" +
+                            "Test test test test\n" +
+                            "Test test test test.\n", source
+                )
+            )
+        )
 
         game.screen = ps
     }

@@ -54,6 +54,8 @@ data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: 
 
     var species = fairy
 
+    var techs: MutableList<String> = mutableListOf()
+
     fun setFrom(player: Player) : Player {
         name = player.name
         id = player.id

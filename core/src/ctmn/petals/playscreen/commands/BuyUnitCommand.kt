@@ -4,6 +4,9 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.UnitBoughtEvent
 import ctmn.petals.unit.*
 import com.badlogic.gdx.Gdx
+import ctmn.petals.player.Tech
+import ctmn.petals.player.Techs
+import ctmn.petals.playscreen.selfName
 import ctmn.petals.tile.components.ActionCooldown
 import ctmn.petals.tile.isBase
 
@@ -51,6 +54,13 @@ class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int
         val tile = playScreen.playStage.getTile(tileX, tileY)
         if (tile?.isBase == true) {
             tile.add(ActionCooldown())
+        }
+
+        for (techName in player.techs) {
+            val tech = Techs.map[techName]
+            if (tech?.targetType == Tech.TargetType.BoughtUnit && (tech.targetId.isEmpty() || tech.targetId == unitActor.selfName)) {
+                tech.applyTech(unitActor)
+            }
         }
 
         //sent event to the PlayStage

@@ -63,6 +63,7 @@ const val FAIRY_CUCUMBER = "fairy_cucumber"
 const val FAIRY_FOLIA = "fairy_folia"
 const val FAIRY_AERTHYS = "fairy_aerthys"
 const val FAIRY_FLORAL_AEGIS = "fairy_floral_aegis"
+const val FAIRY_ACADEMY = "fairy_academy"
 
 const val WATERLILY = "waterlily"
 const val PLANT_WALL = "plant_wall"
@@ -96,6 +97,7 @@ val fairySpecies = object : SpeciesUnits {
             add(FairyBomber().cost(500), 1, listOf(FAIRY_AERTHYS, FAIRY_CUCUMBER))
             add(FairyGlaive().cost(600), 1, listOf(FAIRY_FORGE, FAIRY_ARMORY))
             add(FairyArmorSword().cost(600), 1, listOf(FAIRY_FORGE, FAIRY_ARMORY))
+            add(FairyMage().cost(700), 1, listOf(FAIRY_ACADEMY))
 
             add(FairyWaterplant().cost(600), 1)
             add(FairyCucumber().cost(1000), 1, listOf(FAIRY_FOLIA, FAIRY_CUCUMBER))
@@ -112,6 +114,7 @@ val fairySpecies = object : SpeciesUnits {
         add(Building(FAIRY_CUCUMBER, 3, 300, Array<String>().apply { add("grass") }, FAIRY_AERTHYS))
         add(Building(FAIRY_ARMORY, 4, 400, Array<String>().apply { add("grass") }, FAIRY_FORGE))
         add(Building(FAIRY_FOLIA, 4, 400, Array<String>().apply { add("grass") }, FAIRY_ARMORY))
+        add(Building(FAIRY_ACADEMY, 4, 400, Array<String>().apply { add("grass") }, FAIRY_FLORAL_AEGIS))
 
         add(Building(WATERLILY, 2, 50, Array<String>().apply { add("water", "swamp") }))
         add(Building(PLANT_WALL, 2, 100, Array<String>().apply { add("grass") }))
@@ -130,6 +133,7 @@ const val GOBLIN_BEASTMOUNT = "goblin_beastmount"
 const val GOBLIN_FOUNDRY = "goblin_foundry"
 const val GOBLIN_ARSENAL = "goblin_arsenal"
 const val GOBLIN_AID_OUTPOST = "goblin_aid_outpost"
+const val GOBLIN_SORCERY_TOWER = "goblin_sorcery_tower"
 
 const val BRIDGE = "bridge"
 const val WOODEN_WALL = "wooden_wall"
@@ -163,6 +167,7 @@ val goblinSpecies = object : SpeciesUnits {
 
             add(GoblinCrossbow().cost(600), 1, listOf(GOBLIN_ARSENAL, GOBLIN_ARCHERS_GUILD))
             add(GoblinWyvern().cost(600), 1, listOf(GOBLIN_FORGE, GOBLIN_BEASTMOUNT))
+            add(GoblinRatKing().cost(700), 1, listOf(GOBLIN_SORCERY_TOWER))
 
             add(GoblinShip().cost(600), 1)
             add(GoblinGalley().cost(1000), 1, listOf(GOBLIN_FOUNDRY, GOBLIN_ARSENAL))
@@ -179,7 +184,7 @@ val goblinSpecies = object : SpeciesUnits {
         add(Building(GOBLIN_BEASTMOUNT, 3, 300, Array<String>().apply { add("grass") }, GOBLIN_FORGE))
         add(Building(GOBLIN_ARSENAL, 4, 400, Array<String>().apply { add("grass") }, GOBLIN_ARMORY))
         add(Building(GOBLIN_FOUNDRY, 4, 400, Array<String>().apply { add("grass") }, GOBLIN_ARSENAL))
-
+        add(Building(GOBLIN_SORCERY_TOWER, 4, 400, Array<String>().apply { add("grass") }, GOBLIN_AID_OUTPOST))
 
         add(Building(BRIDGE, 2, 50, Array<String>().apply { add("water") }))
         add(Building(WOODEN_WALL, 2, 100, Array<String>().apply { add("grass") }))

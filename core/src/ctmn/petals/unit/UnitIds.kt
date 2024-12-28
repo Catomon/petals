@@ -19,6 +19,7 @@ object UnitIds {
     const val DOLL_AXE = "doll_axe"
     const val DOLL_PIKE = "doll_pike"
     const val DOLL_BOW = "doll_bow"
+    const val DOLL_MAGE = "doll_mage"
     const val DOLL_PEAS = "doll_cannon"
     const val DOLL_BOMBER = "doll_bomber"
     const val DOLL_HEALER = "doll_healer"
@@ -69,6 +70,7 @@ object UnitIds {
     const val GOBLIN_BOMBER = "goblin_bomber"
     const val GOBLIN_MACE = "goblin_mace"
     const val GOBLIN_BOAR_PIKE = "goblin_boar_pike"
+    const val GOBLIN_RAT_KING = "goblin_rat_king"
 
     const val ROOT_TREE = "root_tree"
     const val ANGRY_OWL = "angry_owl"

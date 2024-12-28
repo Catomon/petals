@@ -566,6 +566,16 @@ com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
 		disabled: next_button_disabled
 		focusBorder: image_button_border
 	}
+	book: {
+	down: book_button_pressed
+	up: book_button
+	focusBorder: medium_circle_button_border
+	}
+	potion: {
+		down: potion_button_pressed
+		up: potion_button
+		focusBorder: medium_circle_button_border
+	}
 	hide_ui: {
 		down: hide_ui_button_pressed
 		up: hide_ui_button

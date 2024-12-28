@@ -84,7 +84,7 @@ class InputManager(val guiStage: PlayGUIStage) {
 
         playStage.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                return true
+                return guiStage.actors.find { it is StageCover } == null
             }
 
             override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {

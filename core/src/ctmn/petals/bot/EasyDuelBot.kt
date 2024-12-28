@@ -72,7 +72,7 @@ class EasyDuelBot(
         }
     }
 
-    private val idleTime = 0.75f
+    private val idleTime = 0.4f
     private var curTime = 0f
 
     private var currentCommand: Command? = null
@@ -135,7 +135,7 @@ class EasyDuelBot(
             lastActionTime = 0f
 
             curTime = if (halfCurTime) {
-                idleTime * 1.5f / 1.5f
+                idleTime// * 1.5f / 1.5f
             } else {
                 0f
             }
@@ -174,7 +174,7 @@ class EasyDuelBot(
             isCommandExecuted = false
         }
 
-        isDone = lastActionTime > 1.5f && curTime > idleTime * 1.5f && playScreen.actionManager.isQueueEmpty
+        isDone = lastActionTime > 1.5f && curTime > idleTime && playScreen.actionManager.isQueueEmpty
     }
 
     private fun nextCommand(): Boolean {

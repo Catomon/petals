@@ -16,8 +16,10 @@ data class AttackComponent(
     var attackSplashDamage: Int = 0,
     var attackSplashRange: Int = 0, // 0 - no splash
     var attackType: String = ATTACK_TYPE_GROUND,
-    var environmentDmg: Int = 25
+    var environmentDmg: Int = 25,
     //var reloading: Int = 0,
+    var armorPen: Int = 0,
+    var armorBreak: Int = 0,
 ) : Component, CopyableComponent {
 
     override fun makeCopy(): Component {

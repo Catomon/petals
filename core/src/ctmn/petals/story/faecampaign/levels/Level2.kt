@@ -1,9 +1,11 @@
 package ctmn.petals.story.faecampaign.levels
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.gui.widgets.CharactersPanel
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
@@ -51,11 +53,12 @@ class Level2 : Scenario("lv_2", "level_1") {
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
 
         playScreen {
+            val fairyHelper = guiStage.charactersPanel.findActor<Actor>(CharactersPanel.CHARACTER_HELPER_FAIRY)
             queueDialogAction(StoryDialog.Quote("The numbers you see on the tiles are attack/defense bonuses units can get on these tiles.\n" +
-                    "The bonuses vary depending on the unit type"))
-            queueDialogAction(StoryDialog.Quote("You can toggle visibility of terrain bonuses in the settings menu"))
+                    "The bonuses vary depending on the unit type", fairyHelper))
+            queueDialogAction(StoryDialog.Quote("You can toggle visibility of terrain bonuses in the settings menu", fairyHelper))
 
-            queueDialogAction(StoryDialog.Quote("Use terrain bonuses to your advantage and defeat the enemy"))
+            queueDialogAction(StoryDialog.Quote("Use terrain bonuses to your advantage and defeat the enemy", fairyHelper))
 
             addTask(EliminateAllEnemyUnitsTask().description("Eliminate all enemy units")).addOnCompleteTrigger {
                 //gameOverSuccess()

@@ -1,5 +1,6 @@
 package ctmn.petals.story.faecampaign.levels
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const.APP_NAME
 import ctmn.petals.bot.EasyDuelBot
@@ -8,6 +9,7 @@ import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.AttackCommand
+import ctmn.petals.playscreen.gui.widgets.CharactersPanel
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.EndTurnTask
@@ -97,7 +99,8 @@ class Level1 : Scenario("lv_1", "level_0") {
             queueDialogAction(
                 StoryDialog.Quote(
                     "Welcome to the $APP_NAME. Lets look into the basics first." +
-                            "\nFollow the tasks on the top of the screen"
+                            "\nFollow the tasks on the top of the screen",
+                    guiStage.charactersPanel.findActor(CharactersPanel.CHARACTER_HELPER_FAIRY)
                 )
             ).addOnCompleteTrigger {
                 queueTask(
