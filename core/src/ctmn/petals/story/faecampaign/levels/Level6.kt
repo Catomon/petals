@@ -1,5 +1,6 @@
 package ctmn.petals.story.faecampaign.levels
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.fairyUnits
@@ -7,6 +8,7 @@ import ctmn.petals.player.goblinUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.gui.widgets.CharactersPanel
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.Task
 import ctmn.petals.playstage.getCapturablesOf
@@ -85,12 +87,14 @@ class Level6 : Scenario("lv_6", "level_bases") {
         }
 
         playScreen {
-            queueDialogAction(StoryDialog.Quote("To unlock certain units, you need to\n" +
-                    "order a Fairy Sower to create the structures specified in the base menu under each unit."))
+            val fairyHelper = guiStage.charactersPanel.findActor<Actor>(CharactersPanel.CHARACTER_HELPER_FAIRY)
+
+            queueDialogAction(fairyHelper, StoryDialog.Quote("To unlock certain units, you need to\n" +
+                    "order a Fairy Sower to create the structures\nspecified in the base menu under each unit."))
 
             addTurnCycleTrigger(1, players[0]).onTrigger {
-                queueDialogAction(StoryDialog.Quote("Enemy bases can be destroyed by most ground units"))
-                queueDialogAction(StoryDialog.Quote("Get your units on top of enemy base and destroy it")).addOnCompleteTrigger {
+                queueDialogAction(fairyHelper, StoryDialog.Quote("Enemy bases can be destroyed by most ground units"))
+                queueDialogAction(fairyHelper, StoryDialog.Quote("Get your units on top of the enemy base and destroy it")).addOnCompleteTrigger {
                     queueTask(object : Task() {
                         override var description: String? = "Destroy all enemy bases"
 
@@ -100,6 +104,7 @@ class Level6 : Scenario("lv_6", "level_bases") {
                         }
                     })
                 }
+                queueDialogAction(fairyHelper, StoryDialog.Quote("Now, excuse me; I have to leave you\nbecause I'm not yet programmed\nto assist you further."))
             }
         }
     }

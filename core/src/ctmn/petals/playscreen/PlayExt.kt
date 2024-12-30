@@ -1,5 +1,6 @@
 package ctmn.petals.playscreen
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
@@ -120,8 +121,8 @@ fun Task.stopCommands(): Task {
     return this
 }
 
-fun PlayScreen.queueDialogAction(unit: UnitActor, vararg quotes: StoryDialog.Quote): SeqAction {
-    return queueDialogAction(StoryDialog(unit, *quotes))
+fun PlayScreen.queueDialogAction(sourceActor: Actor, vararg quotes: StoryDialog.Quote): SeqAction {
+    return queueDialogAction(StoryDialog(sourceActor, *quotes))
 }
 
 fun PlayScreen.queueDialogAction(vararg quotes: StoryDialog.Quote): SeqAction {

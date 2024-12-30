@@ -38,12 +38,10 @@ import ctmn.petals.playscreen.events.*
 import ctmn.petals.playscreen.gui.GameOverMenu
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.gui.PlayStageCameraController
+import ctmn.petals.playscreen.gui.widgets.Book
 import ctmn.petals.playscreen.gui.widgets.FogOfWarDrawer
 import ctmn.petals.playscreen.gui.widgets.MarkersDrawer
-import ctmn.petals.playscreen.listeners.ActionEffectListener
-import ctmn.petals.playscreen.listeners.ItemPickUpListener
-import ctmn.petals.playscreen.listeners.PinkSlimeLingHealing
-import ctmn.petals.playscreen.listeners.TileLifeTimeListener
+import ctmn.petals.playscreen.listeners.*
 import ctmn.petals.playscreen.seqactions.SeqActionManager
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playscreen.tasks.TaskManager
@@ -167,6 +165,7 @@ open class PlayScreen(
         playStage.addListener(PinkSlimeLingHealing())
         playStage.addListener(ActionEffectListener(this))
         playStage.addListener(ItemPickUpListener(this))
+        playStage.addListener(BookListener(this))
         playStage.addListener {
             if (it is UnitMovedEvent) {
                 val unit = it.unit
@@ -489,6 +488,9 @@ open class PlayScreen(
                 }
             }
         }
+
+        GamePref.bookSave = Book.bookSave
+        GamePref.save()
 
         game.screen = MenuScreen(game)
     }

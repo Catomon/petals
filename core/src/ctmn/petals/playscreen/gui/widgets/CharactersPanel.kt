@@ -52,6 +52,8 @@ class CharactersPanel(val guiStage: PlayGUIStage) : VisTable() {
             setSize(18f, 18f)
 
             name = charName
+
+            isVisible = false
         }
 
         override fun act(delta: Float) {
@@ -65,6 +67,8 @@ class CharactersPanel(val guiStage: PlayGUIStage) : VisTable() {
             if (regs.isEmpty) return
             sprite.animation.setFrames(regs)
             drawable = SpriteDrawable(sprite)
+
+            isVisible = true
         }
 
         fun setIdle() {
@@ -72,6 +76,8 @@ class CharactersPanel(val guiStage: PlayGUIStage) : VisTable() {
             if (regs.isEmpty) regs = assets.guiAtlas.findRegions("portraits/" + "character_unknown")
             sprite.animation.setFrames(regs)
             drawable = SpriteDrawable(sprite)
+
+            isVisible = false
         }
     }
 }

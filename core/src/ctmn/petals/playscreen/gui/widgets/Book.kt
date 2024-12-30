@@ -1,11 +1,14 @@
 package ctmn.petals.playscreen.gui.widgets
 
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.*
-import ctmn.petals.player.getSpeciesUnits
+import ctmn.petals.GamePref
+import ctmn.petals.player.fairySpecies
+import ctmn.petals.player.goblinSpecies
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.unit.Units
@@ -17,20 +20,40 @@ import ctmn.petals.widgets.newTextButton
 
 class Book(val guiStage: PlayGUIStage) : VisTable() {
 
+    data class BookSave(
+        var units: MutableList<String> = mutableListOf(),
+        var matchups: MutableMap<String, MutableSet<String>> = mutableMapOf(),
+    )
+
+    companion object {
+        val bookSave = GamePref.bookSave
+    }
+
     private val unitsTable =
         VisTable().apply {
-            for (unitName in Units.names) {
+            for (unitName in Units.names.sortedBy {
+                when {
+                    fairySpecies.units.any { unit -> unit.unitActor.selfName == it } -> 1
+                    goblinSpecies.units.any { unit -> unit.unitActor.selfName == it } -> 2
+                    else -> 3
+                }
+            }) {
                 val unitActor = Units.find(unitName) ?: continue
-                if (getSpeciesUnits(guiStage.localPlayer.species).none { it.unitActor.selfName == unitName }) continue
+                if (!bookSave.units.contains(unitActor.selfName)) continue
+
+                val matchups = unitActor.cMatchUp?.filter { bookSave.matchups[unitName]?.contains(it.key) == true }
                 add(VisTable().apply {
                     add(VisImage(SpriteDrawable(Sprite(findUnitTextures(unitName, 1).firstOrNull())))).size(64f)
                     add(VisTable().apply {
                         add(VisLabel(unitActor::class.simpleName))
-                        row()
-                        add(VisLabel("Bonus against:").apply { setFontScale(0.75f) }).padTop(16f)
+                        if (matchups?.isNotEmpty() == true) {
+                            row()
+                            add(VisLabel("Bonus against:").apply { setFontScale(0.75f) }).padTop(16f)
+                        }
                     })
                 })
-                val matchups = unitActor.cMatchUp ?: continue
+
+                matchups ?: continue
 
                 row()
                 add(GridGroup(32f).also gridAlso@{ grid ->
@@ -85,5 +108,12 @@ class Book(val guiStage: PlayGUIStage) : VisTable() {
             stage?.removeCover()
             remove()
         }).width(325f)
+    }
+
+    override fun setStage(stage: Stage?) {
+        super.setStage(stage)
+
+        if (stage == null)
+            GamePref.bookSave = bookSave
     }
 }

@@ -32,6 +32,10 @@ fun newImageTextButton(text: String, drawableName: String): Button {
     return VisImageTextButton(text, VisUI.getSkin().newDrawable(drawableName)).addClickSound().addFocusBorder()
 }
 
+//fun newButton(): VisImageButton {
+//    return Button()
+//}
+
 fun newIconButton(styleName: String): VisImageButton {
     return VisImageButton(styleName).addClickSound().addFocusBorder()
 }

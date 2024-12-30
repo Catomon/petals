@@ -3,8 +3,8 @@ package ctmn.petals
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Preferences
 import ctmn.petals.editor.IS_MOBILE
+import ctmn.petals.playscreen.gui.widgets.Book
 import ctmn.petals.utils.*
-import java.lang.Exception
 import java.util.*
 
 fun GamePref.overridePrefs() {
@@ -108,6 +108,16 @@ object GamePref {
         get() = prefs.getBoolean("show_terrain_bonus", true)
         set(value) {
             prefs.putBoolean("show_terrain_bonus", value)
+        }
+
+    var bookSave: Book.BookSave
+        get() {
+            val bookJsonString = prefs.getString("book_save", "")
+            return if (bookJsonString.isEmpty()) Book.BookSave()
+            else fromGson(bookJsonString, Book.BookSave::class.java)
+        }
+        set(value) {
+            prefs.putString("book_save", value.toGson())
         }
 
     var player: UserSave

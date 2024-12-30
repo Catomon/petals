@@ -1,5 +1,6 @@
 package ctmn.petals.story.faecampaign.levels
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const
 import ctmn.petals.bot.EasyDuelBot
@@ -9,10 +10,11 @@ import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.BuildBaseCommand
+import ctmn.petals.playscreen.gui.widgets.CharactersPanel
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.*
+import ctmn.petals.playscreen.triggers.OnCaptureCrystalsTrigger
 import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
-import ctmn.petals.playscreen.triggers.TurnStartTrigger
 import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
 import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.playstage.getUnit
@@ -73,16 +75,19 @@ class Level5 : Scenario("lv_5", "level_capture") {
         }
 
         playScreen {
+            val fairyHelper = guiStage.charactersPanel.findActor<Actor>(CharactersPanel.CHARACTER_HELPER_FAIRY)
+
             queueDialogAction(
+                fairyHelper,
                 StoryDialog.Quote(
-                    "To get units, you need to create a base using a worker unit"
+                    "To get units, you need to create a base using a worker unit."
                 ),
                 StoryDialog.Quote(
                     "A base can be claimed only on plain terrain and shallow water." +
                             "It costs ${Const.BASE_BUILD_COST} and takes ${Const.BASE_BUILD_TIME} turns to make."
                 ),
                 StoryDialog.Quote(
-                    "Position Sower Fairy at the marked location and press 'Create Base' to begin planting a seed."
+                    "Position the Sower Fairy at the marked location and plant a seed."
                 )
             ).addOnCompleteTrigger {
                 val fairySower = playStage.getUnit<FairySower>()!!
@@ -93,31 +98,38 @@ class Level5 : Scenario("lv_5", "level_capture") {
                         fairySower.tiledX + 2,
                         fairySower.tiledY + 1,
                         true
-                    ).description("Move Fairy Sower")
+                    ).description("Move the Sower Fairy")
                 ).addOnCompleteTrigger {
+                    guiStage.actorHighlighter.targetActors.add(guiStage.buildBaseButton)
+
                     queueTask(ExecuteCommandTask(BuildBaseCommand::class, true).description("Create a base"))
                     addTurnCycleTrigger(3, players[0]).onTrigger {
                         queueDialogAction(
+                            fairyHelper,
                             StoryDialog.Quote(
                                 "Buy Sower Fairies to claim bases and capture crystal tiles."
                             ),
                             StoryDialog.Quote(
                                 "When you capture crystal tiles,\n" +
-                                        "they provide you with a certain amount of crystals each turn."
+                                        "they provide you with a certain number of crystals each turn."
                             ),
                             StoryDialog.Quote(
                                 "Use these crystals to create more units."
                             )
                         ).addOnCompleteTrigger {
                             addTask(BuyUnitsTask("Fairy Sower", UnitIds.DOLL_SOWER, 2))
-                            addTask(CaptureCrystalsTask()).addOnCompleteTrigger {
+                            addTask(CaptureCrystalsTask())
+                            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Repel the enemy's attack"))
+                            addTrigger(OnCaptureCrystalsTrigger(1)).onTrigger {
                                 queueDialogAction(
+                                    fairyHelper,
                                     StoryDialog.Quote(
-                                    "Each crystal tile can provide up to ${Const.CRYSTALS_CLUSTER} crystals.\n"
-                                ))
-                            }
-                            addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Repel the enemy's attack")).addOnCompleteTrigger {
-                                //gameOverSuccess()
+                                        "Each crystal tile can provide up to ${Const.CRYSTALS_CLUSTER} crystals."
+                                    ),
+                                    StoryDialog.Quote(
+                                        "Buy more units and repel the enemy's attack."
+                                    )
+                                )
                             }
                         }
                     }

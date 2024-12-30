@@ -1,5 +1,6 @@
 package ctmn.petals.story.faecampaign.levels
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.SpeciesUnitNotFoundExc
@@ -7,6 +8,7 @@ import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.gui.widgets.CharactersPanel
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
 import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.KeepPlayerUnitsAlive
@@ -79,16 +81,18 @@ class Level4 : Scenario("lv_4", "level_healer") {
         }
 
         playScreen {
+            val fairyHelper = guiStage.charactersPanel.findActor<Actor>(CharactersPanel.CHARACTER_HELPER_FAIRY)
+
             queueDialogAction(
                 StoryDialog.Quote("Some units will have abilities.\n" +
-                        "All abilities cost mana and have cooldowns."))
+                        "All abilities cost mana and have cooldowns.", fairyHelper))
 
             queueDialogAction(
                 StoryDialog.Quote("You got a Healer Fairy.\n" +
-                        "Keep your units close to her to heal them up"))
+                        "Keep your units close to her to heal them up", fairyHelper))
 
             queueDialogAction(
-                StoryDialog.Quote("Additionally, you can use her healing ability."))
+                StoryDialog.Quote("Additionally, you can use her healing ability.", fairyHelper))
 
             addTrigger(PlayerHasNoUnits(players[0])).onTrigger {
                 gameEndCondition.lose()

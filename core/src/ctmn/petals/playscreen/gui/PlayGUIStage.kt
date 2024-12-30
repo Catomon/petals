@@ -4,12 +4,14 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.VisUI
@@ -27,7 +29,9 @@ import ctmn.petals.GamePref
 import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
+import ctmn.petals.player.fairy
 import ctmn.petals.player.getSpeciesBuildings
+import ctmn.petals.player.goblin
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.*
 import ctmn.petals.playscreen.events.*
@@ -98,7 +102,9 @@ class PlayGUIStage(
 
     //buttons
     val charactersPanel = CharactersPanel(this)
-    val bookButton = newIconButton("book")
+    val bookButton = newIconButton("book").apply {
+        addActor(VisLabel("").apply { name = "notify"; setPosition(16f, 4f) })
+    }
     val potionButton = newIconButton("potion")
     val hideUiButton = newIconButton("hide_ui")
     private val zoomButton = newIconButton("zoom").apply { isVisible = false }
@@ -116,15 +122,17 @@ class PlayGUIStage(
     private val unitMiniMenu = UnitMiniMenu(this)
     val nextDialogButton = StoryDialog.NextDialogButton(this)
     private val captureButton = newIconButton("capture").apply { isVisible = false }
-    private val buildBaseButton = newIconButton("build_base").apply {
+    val buildBaseButton = newIconButton("build_base").apply {
         isVisible = false
-        add(VisTable().apply { add(VisLabel(BASE_BUILD_COST.toString())) })
+        addActor(VisLabel(BASE_BUILD_COST.toString()).apply { setPosition(16f, 4f) })
     }
     private val buildButton = newIconButton("build").apply { isVisible = false }
     private val destroyTileButton = newIconButton("destroy_tile").apply { isVisible = false }
     private val waypointButton = newIconButton("waypoint").apply { isVisible = false }
 
     //not widgets
+    val actorHighlighter = ActorHighlighter(this)
+    //playstage drawers
     val tileSelectionDrawer = TileSelectionDrawer(this)
     private val attackIconsDrawer = AttackIconsDrawer(this).also { it.isVisible = true }
     private val iconsDrawer = IconsDrawer(this)
@@ -266,10 +274,11 @@ class PlayGUIStage(
         addActor(abilityChooseDialogTable)
 
         addActor(buyMenu)
-
         addActor(unitMiniMenu)
 
         addActor(charactersPanel)
+
+        addActor(actorHighlighter)
 
         //add widgets listeners
 
@@ -280,6 +289,7 @@ class PlayGUIStage(
         bookButton.addChangeListener {
             addCover()
             addActor(Book(this@PlayGUIStage))
+            bookButton.findActor<VisLabel>("notify").setText("")
         }
 
         potionButton.addChangeListener {
@@ -439,6 +449,10 @@ class PlayGUIStage(
                 val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addListener false
 
                 buildBaseButton.isVisible = unit.canBuildBase()
+                if (buildBaseButton.isVisible) {
+                    buildBaseButton.style.imageUp = if (localPlayer.species == fairy) VisUI.getSkin().getDrawable("icons/pixie_nest")
+                    else VisUI.getSkin().getDrawable("icons/goblin_den.png")
+                }
                 buildBaseButton.isDisabled = !unit.canBuildBase(tile) || localPlayer.credits < BASE_BUILD_COST
 
                 buildButton.isVisible = unit.canBuild()
@@ -741,7 +755,8 @@ class PlayGUIStage(
         }
 
         addCaptureListener {
-            if (it is InputEvent && nextDialogButton.hasDialogs() && it.target != nextDialogButton && it.target !is StoryDialog && it.target.name != StoryDialog.PC_ENTER_BUTTON_NAME) {
+            if (it is InputEvent && nextDialogButton.hasDialogs() && it.target != pauseButton  && it.target != nextDialogButton && it.target !is StoryDialog && it.target.name != StoryDialog.PC_ENTER_BUTTON_NAME) {
+                if (root.findActor<InGameMenu>("game_menu") != null) return@addCaptureListener true
                 if (it.type == InputEvent.Type.keyDown && it.keyCode == Input.Keys.ENTER) {
                     true
                 } else {
@@ -965,9 +980,9 @@ class PlayGUIStage(
             top()
             left()
             add(VisTable().apply {
-                add(hideUiButton)
-                add(bookButton)
-                add(potionButton)
+                add(hideUiButton).size(60f)
+                add(bookButton).size(60f)
+                add(potionButton).size(60f)
             }).left()
             row()
             add(tasksTable).left().top()

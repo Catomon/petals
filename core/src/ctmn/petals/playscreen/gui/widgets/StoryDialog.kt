@@ -34,6 +34,10 @@ class StoryDialog(
         Array(quotes.onEach { if (it.source == null) it.source = unit })
     )
 
+    constructor(sourceActor: Actor, vararg quotes: Quote) : this(
+        Array(quotes.onEach { if (it.source == null) it.source = sourceActor })
+    )
+
     constructor(vararg quotes: Quote) : this(Array(quotes))
 
     constructor(text: String, unit: UnitActor? = null) : this(Array(arrayOf(Quote(text, unit))))
@@ -136,9 +140,9 @@ class StoryDialog(
         label.wrap = false
         label.pack()
 
-        if (getCell(label).minWidth > guiStage.camera.viewportWidth - 50) {
+        if (getCell(label).minWidth > guiStage.camera.viewportWidth - 120) {
             label.wrap = true
-            getCell(label).prefWidth(guiStage.camera.viewportWidth - 50)
+            getCell(label).prefWidth(guiStage.camera.viewportWidth - 120)
         }
 
         getCell(label).maxWidth(guiStage.camera.viewportWidth - 50)
@@ -178,7 +182,7 @@ class StoryDialog(
             logErr("Dialog source stage is null")
             return
         }
-        tmpVec.set(sourceActor.centerX, sourceActor.centerY)
+        tmpVec.set(sourceActor.width / 2, sourceActor.height / 2)
         val sPos = sourceActor.localToStageCoordinates(tmpVec)
         val (sX, sY) = sPos.x to sPos.y
         val center = guiStage.screenToStageCoordinates(sourceStage.stageToScreenCoordinates(Vector2(sX, sY)))
