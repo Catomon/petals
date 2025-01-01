@@ -389,6 +389,12 @@ fun UnitActor.isInAttackArea(unitActor: UnitActor): Boolean {
     return isInRange(unitActor.tiledX, unitActor.tiledY, attackRange)
 }
 
+fun UnitActor.cost(value: Int): UnitActor {
+    add(ShopComponent(value))
+
+    return this
+}
+
 fun UnitActor.isAlive(): Boolean {
     return health > 0
 }

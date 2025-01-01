@@ -104,7 +104,7 @@ class Level6 : Scenario("lv_6", "level_bases") {
                         }
                     })
                 }
-                queueDialogAction(fairyHelper, StoryDialog.Quote("Now, excuse me; I have to leave you\nbecause I'm not yet programmed\nto assist you further."))
+                queueDialogAction(fairyHelper, StoryDialog.Quote("Now, excuse me; I have to leave you\nbecause I'm not yet programmed\nto assist you further. Bye-bye."))
             }
         }
     }

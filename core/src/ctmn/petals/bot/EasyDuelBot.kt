@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Const
 import ctmn.petals.player.Player
-import ctmn.petals.player.getSpeciesUnits
+import ctmn.petals.player.Species
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.*
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
@@ -25,7 +25,7 @@ class EasyDuelBot(
     player: Player,
     playScreen: PlayScreen,
     private val speciesUnits: Array<UnitActor> = Array<UnitActor>().apply {
-        getSpeciesUnits(player.species).forEach {
+        Species.getSpeciesUnits(player.species).forEach {
             add(it.unitActor)
         }
     },
@@ -135,7 +135,7 @@ class EasyDuelBot(
             lastActionTime = 0f
 
             curTime = if (halfCurTime) {
-                idleTime// * 1.5f / 1.5f
+                idleTime// / 2f
             } else {
                 0f
             }

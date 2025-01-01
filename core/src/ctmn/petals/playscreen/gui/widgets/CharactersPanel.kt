@@ -49,7 +49,7 @@ class CharactersPanel(val guiStage: PlayGUIStage) : VisTable() {
         init {
 //            sprite.animation.playMode = Animation.PlayMode.NORMAL
             drawable = SpriteDrawable(sprite)
-            setSize(18f, 18f)
+            setSize(sprite.width, sprite.height)
 
             name = charName
 

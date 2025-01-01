@@ -11,8 +11,8 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.assets
-import ctmn.petals.player.Building
 import ctmn.petals.player.Player
+import ctmn.petals.player.Species
 import ctmn.petals.playscreen.commands.BuildCommand
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.playStageOrNull
@@ -30,7 +30,7 @@ class BuildMenu(
     val unit: UnitActor,
     val tile: TileActor,
     val player: Player,
-    val buildings: Array<Building>,
+    val buildings: Array<Species.Building>,
 ) : VisTable() {
 
     private val gridGroup = GridGroup(ICON_SIZE)

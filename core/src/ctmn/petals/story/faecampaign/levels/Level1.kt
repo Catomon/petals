@@ -15,6 +15,7 @@ import ctmn.petals.playscreen.tasks.EliminateAllEnemyUnitsTask
 import ctmn.petals.playscreen.tasks.EndTurnTask
 import ctmn.petals.playscreen.tasks.ExecuteCommandTask
 import ctmn.petals.playscreen.tasks.MoveUnitTask
+import ctmn.petals.playscreen.triggers.Trigger
 import ctmn.petals.playscreen.triggers.UnitsDiedTrigger
 import ctmn.petals.playstage.getUnitsOfEnemyOf
 import ctmn.petals.playstage.getUnitsOfPlayer
@@ -25,6 +26,7 @@ import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
 import ctmn.petals.unit.actors.fairies.FairySword
 import ctmn.petals.unit.actors.goblins.GoblinSword
+import ctmn.petals.utils.playerUnitsHasAction
 
 class Level1 : Scenario("lv_1", "level_0") {
 
@@ -96,6 +98,8 @@ class Level1 : Scenario("lv_1", "level_0") {
 //        val slimeLing = playStage.getUnit<BunnySlimeLing>()!!
 
         playScreen {
+            guiStage.actorHighlighter.targetActors.add(guiStage.nextDialogButton)
+
             queueDialogAction(
                 StoryDialog.Quote(
                     "Welcome to the $APP_NAME. Lets look into the basics first." +
@@ -116,6 +120,25 @@ class Level1 : Scenario("lv_1", "level_0") {
                             "While the unit is selected, press on the enemy in attack range to fight"
                         )
                     ).addOnCompleteTrigger {
+
+                        queueDialogAction(
+                            StoryDialog.Quote(
+                                "The button from the right shows how much units awaiting order right now.\n" +
+                                        "You can press it to select one.",
+                                guiStage.charactersPanel.findActor(CharactersPanel.CHARACTER_HELPER_FAIRY)
+                            )
+                        ).addOnCompleteTrigger {
+                            guiStage.actorHighlighter.targetActors.add(guiStage.unitsHaveActionsPanel.unitsHaveActionButton)
+                        }
+
+                        addTrigger(object : Trigger() {
+                            override fun check(delta: Float): Boolean {
+                                return playStage.playerUnitsHasAction(player).isEmpty
+                            }
+                        }).onTrigger {
+                            guiStage.actorHighlighter.targetActors.add(guiStage.endTurnButton)
+                        }
+
                         queueTask(EndTurnTask().description("Move other units and press End Turn button")).addOnCompleteTrigger {
                             val threeSlimes = Array<UnitActor>().apply {
                                 playStage.getUnitsOfPlayer(players[1].id).forEach { add(it) }

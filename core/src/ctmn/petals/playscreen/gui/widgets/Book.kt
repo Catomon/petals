@@ -1,20 +1,21 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.GamePref
-import ctmn.petals.player.fairySpecies
-import ctmn.petals.player.goblinSpecies
+import ctmn.petals.player.Species
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.unit.Units
 import ctmn.petals.unit.cMatchUp
 import ctmn.petals.unit.findUnitTextures
 import ctmn.petals.utils.removeCover
+import ctmn.petals.widgets.TextureRegionActor
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newTextButton
 
@@ -33,8 +34,8 @@ class Book(val guiStage: PlayGUIStage) : VisTable() {
         VisTable().apply {
             for (unitName in Units.names.sortedBy {
                 when {
-                    fairySpecies.units.any { unit -> unit.unitActor.selfName == it } -> 1
-                    goblinSpecies.units.any { unit -> unit.unitActor.selfName == it } -> 2
+                    Species.fairies.units[it] != null -> 1
+                    Species.goblins.units[it] != null -> 2
                     else -> 3
                 }
             }) {
@@ -42,13 +43,18 @@ class Book(val guiStage: PlayGUIStage) : VisTable() {
                 if (!bookSave.units.contains(unitActor.selfName)) continue
 
                 val matchups = unitActor.cMatchUp?.filter { bookSave.matchups[unitName]?.contains(it.key) == true }
-                add(VisTable().apply {
-                    add(VisImage(SpriteDrawable(Sprite(findUnitTextures(unitName, 1).firstOrNull())))).size(64f)
-                    add(VisTable().apply {
-                        add(VisLabel(unitActor::class.simpleName))
+                add(HorizontalGroup().apply {
+                    addActor(TextureRegionActor(findUnitTextures(unitName, 1).firstOrNull()).also {
+                        it.setSize(
+                            64f,
+                            64f
+                        )
+                    })
+                    addActor(VerticalGroup().apply {
+                        addActor(VisLabel(unitActor::class.simpleName))
+                        addActor(Actor().also { it.setSize(16f, 16f) })
                         if (matchups?.isNotEmpty() == true) {
-                            row()
-                            add(VisLabel("Bonus against:").apply { setFontScale(0.75f) }).padTop(16f)
+                            addActor(VisLabel("Bonus against:").apply { setFontScale(0.75f) })
                         }
                     })
                 })
@@ -60,15 +66,11 @@ class Book(val guiStage: PlayGUIStage) : VisTable() {
                     for (matchup in matchups) {
                         val matchUnit = Units.find(matchup.key) ?: continue
                         grid.addActor(
-                            VisImage(
-                                SpriteDrawable(
-                                    Sprite(
-                                        findUnitTextures(
-                                            matchUnit.selfName,
-                                            1
-                                        ).firstOrNull() ?: continue
-                                    )
-                                )
+                            TextureRegionActor(
+                                findUnitTextures(
+                                    matchUnit.selfName,
+                                    1
+                                ).firstOrNull() ?: continue
                             )
                         )
                     }

@@ -940,7 +940,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         val addEasyBotButton = newTextButton(strings.general.add_easy_bot).addChangeListener {
             if (slot.player == null) {
                 slot.player = Player(strings.general.player + "ABCDEFGH"[freePlayerId - 1], freePlayerId, freePlayerId).also {
-                    it.species = speciesList.random()
+                    it.species = Species.names.random()
                 }
                 slot.isAI = true
 
@@ -958,7 +958,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             if ((slot.player == null || slot.isAI) && hasFreeSlot) {
                 if (slot.player != null) slot.player = null
                 slot.player = Player(strings.general.player + "ABCDEFGH"[freePlayerId - 1], freePlayerId, freePlayerId).also {
-                    it.species = speciesList.random()
+                    it.species = Species.names.random()
                 }
 
                 serverManager.sendLobbyState()

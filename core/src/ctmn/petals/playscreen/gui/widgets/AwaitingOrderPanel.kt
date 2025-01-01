@@ -16,7 +16,7 @@ class AwaitingOrderPanel(private val guiStage: PlayGUIStage) : VisTable() {
     private val localPlayer = guiStage.localPlayer
     private val playStage = guiStage.playStage
 
-    private val unitsHaveActionButton = VisImageButton("units_have_action").addFocusBorder()
+    val unitsHaveActionButton = VisImageButton("units_have_action").addFocusBorder()
     private val unitsHaveActionCountLabel = newLabel("")
 
     init {

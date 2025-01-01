@@ -69,7 +69,7 @@ class Level3 : Scenario("lv_3", "level_2") {
 
             queueDialogAction(
                 StoryDialog.Quote(
-                    "You will be able to access unit info\nin the book by pressing that button",
+                    "You will be able to access unit info\nin the book by pressing the button above",
                     fairyHelper
                 )
             ).addOnCompleteTrigger {

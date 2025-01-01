@@ -4,14 +4,12 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.VisUI
@@ -29,9 +27,8 @@ import ctmn.petals.GamePref
 import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
+import ctmn.petals.player.Species
 import ctmn.petals.player.fairy
-import ctmn.petals.player.getSpeciesBuildings
-import ctmn.petals.player.goblin
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.commands.*
 import ctmn.petals.playscreen.events.*
@@ -111,7 +108,7 @@ class PlayGUIStage(
     private val infoButton = newIconButton("info").apply { isVisible = false }
     private val pauseButton = newIconButton("pause")
     val endTurnButton = newIconButton("end_turn")
-    private val unitsHaveActionButton = AwaitingOrderPanel(this)
+    val unitsHaveActionsPanel = AwaitingOrderPanel(this)
     private val unitsHaveWaypointButton = newIconButton("units_have_waypoint")
     private val backButtonStyle = VisUI.getSkin().get("back", VisImageButton.VisImageButtonStyle::class.java)
     private val cancelButtonStyle =
@@ -419,7 +416,7 @@ class PlayGUIStage(
                             unit,
                             playStage.getTile(unit)!!,
                             localPlayer,
-                            getSpeciesBuildings(localPlayer.species)
+                            Species.getSpeciesBuildings(localPlayer.species)
                         )
                     )
                 }
@@ -451,7 +448,7 @@ class PlayGUIStage(
                 buildBaseButton.isVisible = unit.canBuildBase()
                 if (buildBaseButton.isVisible) {
                     buildBaseButton.style.imageUp = if (localPlayer.species == fairy) VisUI.getSkin().getDrawable("icons/pixie_nest")
-                    else VisUI.getSkin().getDrawable("icons/goblin_den.png")
+                    else VisUI.getSkin().getDrawable("icons/goblin_den")
                 }
                 buildBaseButton.isDisabled = !unit.canBuildBase(tile) || localPlayer.credits < BASE_BUILD_COST
 

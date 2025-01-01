@@ -15,7 +15,7 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.assets
 import ctmn.petals.player.Player
-import ctmn.petals.player.getSpeciesUnits
+import ctmn.petals.player.Species
 import ctmn.petals.playscreen.commands.BuyUnitCommand
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.playStageOrNull
@@ -145,7 +145,7 @@ private class BuyMenuPane(
             }
         } else {
             //add species units
-            val speciesUnits = getSpeciesUnits(player.species)
+            val speciesUnits = Species.getSpeciesUnits(player.species)
             val lockedUnits = Array<UnitActor>()
             val tiles = playStage.getTiles()
             for (speciesUnit in speciesUnits) {

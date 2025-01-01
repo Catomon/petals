@@ -4,9 +4,9 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.assets
 import ctmn.petals.effects.AnimationEffect
 import ctmn.petals.player.Player
+import ctmn.petals.player.Species
 import ctmn.petals.player.fairy
 import ctmn.petals.player.goblin
-import ctmn.petals.player.speciesList
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.PlayStage
@@ -116,7 +116,7 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
     val species = pSpecies ?: when (playerId) {
         1 -> fairy
         2 -> goblin
-        else -> speciesList.random()
+        else -> Species.names.random()
     }
 
     when (crystalTile.terrain) {
@@ -125,7 +125,7 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
                 crystalTile.tileComponent.name = when (species) {
                     fairy -> Tiles.PIXIE_NEST
                     goblin -> Tiles.GOBLIN_DEN
-                    else -> speciesList.random()
+                    else -> Species.names.random()
                 }
             } else {
                 crystalTile.tileComponent.name = Tiles.LIFE_CRYSTAL
@@ -139,7 +139,7 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
                     crystalTile.tileComponent.name = when (species) {
                         fairy -> Tiles.PIXIE_NEST
                         goblin -> Tiles.GOBLIN_DEN
-                        else -> speciesList.random()
+                        else -> Species.names.random()
                     }
 
                     crystalTile.tileComponent.terrain = TerrainNames.base
@@ -149,7 +149,7 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
                     crystalTile.tileComponent.name = when (species) {
                         fairy -> Tiles.CRYSTAL_FAIRY
                         goblin -> Tiles.CRYSTAL_GOBLIN
-                        else -> speciesList.random()
+                        else -> Species.names.random()
                     }
                 }
             }

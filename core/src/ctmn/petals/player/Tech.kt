@@ -1,6 +1,7 @@
 package ctmn.petals.player
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ctmn.petals.player.Species.GOBLIN_SORCERY_TOWER
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
