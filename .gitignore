@@ -109,6 +109,7 @@ Thumbs.db
 /ios/IOSLauncher.app.dSYM
 
 ## Assets
+*.sai2
 *.save
 /android/assets/units.png
 /android/assets/units.atlas

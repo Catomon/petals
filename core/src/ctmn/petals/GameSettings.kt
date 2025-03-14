@@ -63,7 +63,7 @@ object GamePref {
         }
 
     var vSync: Boolean
-        get() = prefs.getBoolean("vSync", true)
+        get() = prefs.getBoolean("vSync", false)
         set(value) {
             prefs.putBoolean("vSync", value)
         }

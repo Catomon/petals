@@ -3,17 +3,13 @@ package ctmn.petals
 import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.utils.Logger
-import ctmn.petals.Const.IS_RELEASE
 import ctmn.petals.GamePref.fullscreen
 import ctmn.petals.GamePref.musicVolume
 import ctmn.petals.GamePref.targetFps
 import ctmn.petals.GamePref.vSync
 import ctmn.petals.GamePref.soundVolume
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.Season
-import ctmn.petals.screens.DevScreen
 import ctmn.petals.screens.LoadingScreen
-import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.GameConsole
 import ctmn.petals.utils.setMouseCursor
 

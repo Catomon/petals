@@ -30,7 +30,7 @@ public class DesktopLauncher {
         config.preferencesDirectory = "Documents/Fae's Feisty Fray";
         config.foregroundFPS = 60;
         config.backgroundFPS = 30;
-        config.vSyncEnabled = true;
+        config.vSyncEnabled = false;
         config.title = Const.APP_NAME + " (" + Const.APP_VER_NAME + ")";
         config.width = 854;
         config.height = 480;
