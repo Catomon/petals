@@ -247,6 +247,7 @@ fun UnitActor.canAttackNow(): Boolean {
 
 fun UnitActor.canAttackNow(unit: UnitActor): Boolean {
     //if (!isAir && unit.isAir && attackRange < 2) return false
+    if (isAlly(unit)) return false
     when {
         cAttack?.attackType == ATTACK_TYPE_AIR && !unit.isAir -> return false
         cAttack?.attackType == ATTACK_TYPE_GROUND && unit.isAir -> return false
@@ -280,7 +281,10 @@ fun UnitActor.canMove(tileX: Int, tileY: Int): Boolean {
     if (this.stage == null)
         return false
 
-    return playStage.getMovementGrid(this, true)[tileX][tileY] != 0
+    val moveGrid = playStage.getMovementGrid(this, true).getOrNull(tileX)?.getOrNull(tileY)
+    val isReachable = moveGrid != null && moveGrid != 0
+
+    return isReachable
             && canMove()
             && playStage.getTile(tileX, tileY)?.isPassableAndFree() ?: false
 }

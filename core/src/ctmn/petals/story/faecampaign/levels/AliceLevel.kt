@@ -66,10 +66,10 @@ class AliceLevel : Scenario("lv_1", "alice_slime2") {
 
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 3
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 3
+            simpleCommandProcessor.roamingIfNoAgro = true
+            simpleCommandProcessor.agroRange = 3
+            simpleCommandProcessor.permaAgro = false
+            simpleCommandProcessor.roamingMaxRange = 3
         })
         playScreen.fogOfWarManager.drawFog = false
 

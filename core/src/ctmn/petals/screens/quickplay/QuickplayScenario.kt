@@ -57,10 +57,10 @@ class QuickplayScenario : Scenario("Fae", "") {
 
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 1
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 2
+            simpleCommandProcessor.roamingIfNoAgro = true
+            simpleCommandProcessor.agroRange = 1
+            simpleCommandProcessor.permaAgro = false
+            simpleCommandProcessor.roamingMaxRange = 2
         })
 
         playScreen {

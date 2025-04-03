@@ -20,7 +20,7 @@ import ctmn.petals.unit.component.RoamingPosition
 import ctmn.petals.utils.*
 import ctmn.petals.utils.tiledX
 
-class SimpleAI(
+class SimpleCommandProcessor(
     val aiPlayer: Player,
     val playScreen: PlayScreen,
 ) {

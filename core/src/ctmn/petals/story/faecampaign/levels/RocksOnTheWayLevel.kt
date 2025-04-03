@@ -7,10 +7,7 @@ import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
-import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playscreen.gui.widgets.StoryDialog
-import ctmn.petals.playscreen.seqactions.SeqAction
-import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playscreen.tasks.KillUnitTask
 import ctmn.petals.playscreen.tasks.MoveAnyUnitTask
 import ctmn.petals.playscreen.triggers.PlayerHasNoUnits
@@ -74,16 +71,16 @@ class RocksOnTheWayLevel : Scenario(ID, "Rocks_in_the_way") {
         player.creditsPassiveReserve = 0
 
         playScreen.botManager.add(SimpleBot(players[1], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 2
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 2
+            simpleCommandProcessor.roamingIfNoAgro = true
+            simpleCommandProcessor.agroRange = 2
+            simpleCommandProcessor.permaAgro = false
+            simpleCommandProcessor.roamingMaxRange = 2
         })
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 2
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 2
+            simpleCommandProcessor.roamingIfNoAgro = true
+            simpleCommandProcessor.agroRange = 2
+            simpleCommandProcessor.permaAgro = false
+            simpleCommandProcessor.roamingMaxRange = 2
         })
 
         playScreen.fogOfWarManager.drawFog = true

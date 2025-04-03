@@ -70,10 +70,10 @@ class LevelSlime2 : Scenario(ID, "level_slime_2") {
             }
         }))
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 1
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 2
+            simpleCommandProcessor.roamingIfNoAgro = true
+            simpleCommandProcessor.agroRange = 1
+            simpleCommandProcessor.permaAgro = false
+            simpleCommandProcessor.roamingMaxRange = 2
         })
 
         playScreen.fogOfWarManager.drawFog = true

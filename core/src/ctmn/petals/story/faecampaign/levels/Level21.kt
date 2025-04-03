@@ -59,10 +59,10 @@ class Level21 : Scenario("lv_21", "level_21") {
 
         playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
         playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleAI.roamingIfNoAgro = true
-            simpleAI.agroRange = 1
-            simpleAI.permaAgro = false
-            simpleAI.roamingMaxRange = 3
+            simpleCommandProcessor.roamingIfNoAgro = true
+            simpleCommandProcessor.agroRange = 1
+            simpleCommandProcessor.permaAgro = false
+            simpleCommandProcessor.roamingMaxRange = 3
         })
 
         playScreen.fogOfWarManager.drawFog = true

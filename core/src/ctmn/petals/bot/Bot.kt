@@ -14,15 +14,15 @@ abstract class Bot(val player: Player, val playScreen: PlayScreen) {
 
     }
 
-    /** update if [isDone] != true */
+    /** Called by [BotManager] if [isDone] != true */
     abstract fun update(delta: Float)
 
-    /** Called on Bot turn start */
+    /** Called by [BotManager] on Bot's turn start */
     open fun onStart() {
         isDone = false
     }
 
-    /** Called on Bot turn end */
+    /** Called by [BotManager] on Bot's turn end */
     open fun onEnd() {
         isDone = true
     }

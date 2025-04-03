@@ -10,7 +10,7 @@ import kotlin.concurrent.thread
 
 class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
 
-    val simpleAI = SimpleAI(player, playScreen)
+    val simpleCommandProcessor = SimpleCommandProcessor(player, playScreen)
 
     private val idleTime = 0.5f
     private var elapsedTime = 0f
@@ -117,7 +117,7 @@ class SimpleBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen
 
                 val command =
                     try {
-                        simpleAI.makeCommand()
+                        simpleCommandProcessor.makeCommand()
                     } catch (e: Exception) {
                         isDone = true
 

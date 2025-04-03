@@ -13,7 +13,7 @@ import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.playstage.tiledDst
 
-class Waypoints(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
+class WaypointsBot(player: Player, playScreen: PlayScreen) : Bot(player, playScreen) {
 
     // change to queue
     val waypoints = Array<TilePosition>()
