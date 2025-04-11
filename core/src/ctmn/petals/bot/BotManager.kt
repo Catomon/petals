@@ -55,10 +55,7 @@ class BotManager(val playScreen: PlayScreen) {
     }
 
     fun add(botPlayer: Bot) {
-        //TODO FixMe
-        botPlayers.add(MidBot(botPlayer.player, botPlayer.playScreen))
-
-//        botPlayers.add(botPlayer)
+        botPlayers.add(botPlayer)
     }
 
     fun isBotPlayer(player: Player): Boolean {
