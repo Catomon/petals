@@ -4,6 +4,7 @@ import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.NextTurnEvent
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.bot.mediocre.MidBot
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.playscreen.commands.EndTurnCommand
 
@@ -54,7 +55,10 @@ class BotManager(val playScreen: PlayScreen) {
     }
 
     fun add(botPlayer: Bot) {
-        botPlayers.add(botPlayer)
+        //TODO FixMe
+        botPlayers.add(MidBot(botPlayer.player, botPlayer.playScreen))
+
+//        botPlayers.add(botPlayer)
     }
 
     fun isBotPlayer(player: Player): Boolean {

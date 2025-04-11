@@ -252,7 +252,7 @@ fun UnitActor.canAttackNow(unit: UnitActor): Boolean {
         cAttack?.attackType == ATTACK_TYPE_AIR && !unit.isAir -> return false
         cAttack?.attackType == ATTACK_TYPE_GROUND && unit.isAir -> return false
     }
-    return canAttackNow() && isInAttackArea(unit) && canAttack(unit)
+    return canAttackNow() && inAttackRange(unit.tiledX, unit.tiledY) && canAttack(unit)
 }
 
 fun UnitActor.canAttack(unit: UnitActor): Boolean {

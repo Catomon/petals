@@ -10,12 +10,10 @@ const val GUI_SPRITE_SCALE = 3f
 fun Int.toPlayScale() = (this * PLAY_SPRITE_SCALE).toInt()
 fun Float.toPlayScale() = this * PLAY_SPRITE_SCALE
 
-/** creates a sprite and makes it 4 times smaller */
 fun newPlaySprite(region: TextureRegion): Sprite {
     return Sprite(region).apply { setSize(width / PLAY_SPRITE_SCALE, height / PLAY_SPRITE_SCALE); setOriginCenter() }
 }
 
-/** creates a sprite and makes it 3 times smaller */
 fun newPlayPuiSprite(region: TextureRegion): Sprite {
     return Sprite(region).apply { setSize(width / GUI_SPRITE_SCALE, height / GUI_SPRITE_SCALE); setOriginCenter() }
 }
