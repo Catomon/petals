@@ -7,12 +7,12 @@ import kotlin.math.round
 object Const {
 
     // App:
-    const val APP_NAME = "Fae's Feisty Fray"
+    const val APP_NAME = "Fae's Feisty"
     const val APP_VER_NAME = "0.5.2-alpha"
     const val IS_RELEASE = false
     const val UNLOCK_LEVELS = true
-    const val USER_FOLDER = "Documents/Fae's Feisty Fray/"
-    const val LEGACY_USER_FOLDER = "Documents/Petals - F&GCC/"
+    const val USER_FOLDER = "Documents/Fae's Feisty/"
+    const val LEGACY_USER_FOLDER = "Documents/Fae's Feisty Fray/"
 
     const val CONSOLE_ENABLED = !IS_RELEASE
     const val DEBUG_MODE = !IS_RELEASE
@@ -25,9 +25,9 @@ object Const {
     const val SERVER_PORT = 7396
 
     //JmDNS
-    const val SERVICE_TYPE = "_faegame._upd.local."
-    const val SERVICE_NAME = "FaesFeistyFrayMp"
-    const val SERVICE_DESCRIPTION = "Fae's Feisty Fray multiplayer ip scan or something."
+    const val SERVICE_TYPE = "_faesfeisty._upd.local."
+    const val SERVICE_NAME = "Faes Feisty JmDNS"
+    const val SERVICE_DESCRIPTION = "Ip scan for quick join in multiplayer."
 
 
     // GUI:

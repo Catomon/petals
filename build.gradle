@@ -20,7 +20,7 @@ allprojects {
 
     version = '0.5.2'
     ext {
-        appName = "Fae's Feisty Fray"
+        appName = "Fae's Feisty"
         gdxVersion = '1.13.1'
         roboVMVersion = '2.3.10'
         box2DLightsVersion = '1.5'

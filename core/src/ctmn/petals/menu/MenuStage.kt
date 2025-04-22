@@ -139,10 +139,10 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         with(table2) {
             bottom()
             add(VisImage("icons/itch").addClickListener {
-                Gdx.net.openURI("https://monscout.itch.io/faesfeistyfray")
+                Gdx.net.openURI("https://ctmn.itch.io/")
             }.addClickSound())
             add(VisImage("icons/github").addClickListener {
-                Gdx.net.openURI("https://github.com/Catomon/petals")
+                Gdx.net.openURI("https://github.com/Catomon/")
             }.addClickSound())
         }
 
