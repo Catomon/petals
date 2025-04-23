@@ -24,7 +24,7 @@ import kotlin.math.min
 class EasyDuelBot(
     player: Player,
     playScreen: PlayScreen,
-    private val speciesUnits: Array<UnitActor> = Array<UnitActor>().apply {
+    val speciesUnits: Array<UnitActor> = Array<UnitActor>().apply {
         Species.getSpeciesUnits(player.species).forEach {
             add(it.unitActor)
         }

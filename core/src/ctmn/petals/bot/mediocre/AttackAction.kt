@@ -20,6 +20,8 @@ class AttackAction(val attackerUnit: UnitActor, private val bot: MidBot, val pla
     override val defaultPriority: Int = 50
 
     override fun evaluate(): Int {
+        priority = defaultPriority
+
         if (bot.enemyUnits.isEmpty()) return IMPOSSIBLE
 
         defenderUnit =

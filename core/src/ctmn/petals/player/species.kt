@@ -27,8 +27,6 @@ object Species {
     const val PLANT_WALL = "plant_wall"
     const val PLANT_TOWER = "plant_tower"
 
-//todo a building for healer and shield fairy
-
     val fairies = object : SpeciesUnits {
         override val species: String = fairy
         override val units: Map<String, SpeciesUnit> = mutableMapOf<String, SpeciesUnit>().apply {

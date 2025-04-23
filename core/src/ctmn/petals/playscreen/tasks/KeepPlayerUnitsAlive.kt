@@ -28,7 +28,7 @@ class KeepPlayerUnitsAlive(val player: Player) : Task() {
             if (event is UnitDiedEvent) {
                 if (event.unit.playerId == 1) {
                     complete(state = State.FAILED)
-                    logMsg("task failed")
+                    this@KeepPlayerUnitsAlive.logMsg("task failed")
                 }
             }
 
