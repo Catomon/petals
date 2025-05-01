@@ -70,6 +70,10 @@ fun tiledDst(unit: UnitActor, tile2: TileActor): Int {
     return tiledDst(unit.tiledX, unit.tiledY, tile2.tiledX, tile2.tiledY)
 }
 
+fun tiledDst(unit: UnitActor, unit2: UnitActor): Int {
+    return tiledDst(unit.tiledX, unit.tiledY, unit2.tiledX, unit2.tiledY)
+}
+
 fun PlayStage.zoomCameraByDefault() {
     (camera as OrthographicCamera).zoom = PLAY_CAMERA_ZOOM
 

@@ -25,7 +25,7 @@ class MidBot(
 ) : Bot(player, playScreen) {
 
     //constants
-    private val turnEndIdleThreshold = 2f
+    private val turnEndIdleThreshold = 1f
     private val afterActionIdle = 0.75f
     private val preActionIdle = 1f
     private val moveCamera = false
@@ -159,20 +159,34 @@ class MidBot(
         }
         possibleActions.addAll(useAbA)
 
+        val moveWorkerA = botUnits.values.mapNotNull { unit ->
+            val a = moveWorkerAction(unit)
+            if (a.evaluate() > 0) a else null
+        }
+        possibleActions.addAll(moveWorkerA)
+
         log.debug("process(): possibleActions: " + possibleActions.joinToString { it::class.simpleName ?: "null" }
             .ifBlank { "Empty" })
 
-        val empty = possibleActions.randomOrNull()?.let { action ->
-            val success = action.execute()
-            if (success)
-                waitTime = afterActionIdle
-            possibleActions.clear()
-        } == null
-
-        if (empty) {
+        if (possibleActions.isEmpty()) {
             log.debug("process(): No actions.")
             noActions = true
+            return
         }
+
+        val sorted = possibleActions.sortedByDescending { it.priority }
+        for (action in sorted) {
+            val success = action.execute()
+            if (success) {
+                break
+            } else {
+                log.error("An action was unsuccessful: ${action::class.simpleName}")
+            }
+        }
+
+        waitTime = afterActionIdle
+
+        possibleActions.clear()
     }
 
     private fun attackAction(unitActor: UnitActor): AttackAction {
@@ -181,6 +195,10 @@ class MidBot(
 
     private fun moveAction(unitActor: UnitActor): MoveAction {
         return MoveAction(unitActor, this@MidBot, playScreen)
+    }
+
+    private fun moveWorkerAction(unitActor: UnitActor): MoveWorkerAction {
+        return MoveWorkerAction(unitActor, this@MidBot, playScreen)
     }
 
     private fun buyAction(base: TileActor): BuyAction {
