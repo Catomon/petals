@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.PetalsGame
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.TimeAction
@@ -92,7 +92,7 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
         super.act(delta)
         if (isDone) {
             if (progress >= 100) {
-//                if (Const.IS_RELEASE)
+//                if (Config.IS_RELEASE)
                     game.screen = MenuScreen(game)
 //                else
 //                    game.screen = DevScreen(game)
@@ -116,12 +116,12 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
     override fun resize(width: Int, height: Int) {
         val viewport = viewport as ExtendViewport
         if (Gdx.app.type == Application.ApplicationType.Android)
-            if (Const.IS_PORTRAIT) {
-                viewport.minWorldWidth = width / Const.GUI_SCALE / 1.25F
-                viewport.minWorldHeight = height / Const.GUI_SCALE / 1.25F
+            if (Config.IS_PORTRAIT) {
+                viewport.minWorldWidth = width / Config.GUI_SCALE / 1.25F
+                viewport.minWorldHeight = height / Config.GUI_SCALE / 1.25F
             } else {
-                viewport.minWorldWidth = width / Const.GUI_SCALE
-                viewport.minWorldHeight = height / Const.GUI_SCALE
+                viewport.minWorldWidth = width / Config.GUI_SCALE
+                viewport.minWorldHeight = height / Config.GUI_SCALE
             }
 
         viewport.update(width, height)

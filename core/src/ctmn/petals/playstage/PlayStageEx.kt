@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const.PLAY_CAMERA_ZOOM
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config.PLAY_CAMERA_ZOOM
+import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.assets
 import ctmn.petals.effects.AnimationEffect
 import ctmn.petals.map.label.LabelActor

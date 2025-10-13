@@ -1,10 +1,8 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.playStage
-import ctmn.petals.tile.TileActor
-import ctmn.petals.tile.actors.newBurningForestTile
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.BurningComponent
 import ctmn.petals.utils.setPosByCenter
@@ -47,8 +45,8 @@ class PlagueAbility : Ability(
         val effect =
             ctmn.petals.effects.FlameAbilityEffect(activationRange, tileX, tileY, playScreen.assets)
         effect.setPosByCenter(
-            tileX.unTiled() + Const.TILE_SIZE / 2,
-            tileY.unTiled() + Const.TILE_SIZE / 2)
+            tileX.unTiled() + Config.TILE_SIZE / 2,
+            tileY.unTiled() + Config.TILE_SIZE / 2)
         playScreen.playStage.addActor(effect)
 
         castTime = effect.lifeTime

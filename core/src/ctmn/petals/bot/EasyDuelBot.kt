@@ -2,7 +2,7 @@ package ctmn.petals.bot
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.player.Player
 import ctmn.petals.player.Species
 import ctmn.petals.playscreen.*
@@ -562,7 +562,7 @@ class EasyDuelBot(
     }
 
     private fun moveToClosestUnit(unit: UnitActor): Boolean {
-        if (unit.cUnit.actionPoints < Const.ACTION_POINTS_MOVE_MIN) return false
+        if (unit.cUnit.actionPoints < Config.ACTION_POINTS_MOVE_MIN) return false
 
         // find the closest enemy unit
         var closestEnemyUnit =
@@ -665,9 +665,9 @@ class EasyDuelBot(
     private fun moveNCaptureCrystal(unit: UnitActor): Boolean {
         val playStage = playScreen.playStage
 
-        if (Const.EXPERIMENTAL) {
+        if (Config.EXPERIMENTAL) {
             if (unit.canBuildBase()) {
-                if (player.credits >= Const.BASE_BUILD_COST) {
+                if (player.credits >= Config.BASE_BUILD_COST) {
                     val incomeDiff = player.income(playScreen) / incomeNeededPerBase
                     if (incomeDiff >= 1) {
                         if (playStage.getCapturablesOf(player).filter { it.isBase }.size < 1 + (1 * incomeDiff)) {

@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.sprite

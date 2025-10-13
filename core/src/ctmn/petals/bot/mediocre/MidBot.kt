@@ -36,6 +36,9 @@ class MidBot(
     private var processingTime = 0f
     private var noActions = false
 
+    private var targetUnits = mutableListOf<Pair<String, Int>>() //unit id / amount
+    private var targetBuildings = mutableListOf<Pair<String, Int>>() //id / amount
+
     val enemyPlayers = mutableMapOf<Int, Player>()
     val enemyUnits = mutableMapOf<String, UnitActor>()
     val botUnits = mutableMapOf<String, UnitActor>()
@@ -175,16 +178,19 @@ class MidBot(
         }
 
         val sorted = possibleActions.sortedByDescending { it.priority }
+        var executed = false
         for (action in sorted) {
             val success = action.execute()
             if (success) {
+                executed = true
                 break
             } else {
                 log.error("An action was unsuccessful: ${action::class.simpleName}")
             }
         }
 
-        waitTime = afterActionIdle
+        if (executed)
+            waitTime = afterActionIdle
 
         possibleActions.clear()
     }
@@ -207,5 +213,12 @@ class MidBot(
 
     private fun useAbilityAction(unitActor: UnitActor): UseAbilityAction {
         return UseAbilityAction(unitActor, this@MidBot, playScreen)
+    }
+
+    fun evaluate() {
+        targetUnits.clear()
+        targetBuildings.clear()
+
+
     }
 }

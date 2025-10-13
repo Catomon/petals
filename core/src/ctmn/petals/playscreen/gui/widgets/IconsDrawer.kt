@@ -2,7 +2,7 @@ package ctmn.petals.playscreen.gui.widgets
 
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Actor
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.assets
 import ctmn.petals.newPlayPuiSprite
 import ctmn.petals.playscreen.gui.PlayGUIStage

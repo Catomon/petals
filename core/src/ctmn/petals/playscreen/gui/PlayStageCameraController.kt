@@ -1,12 +1,10 @@
 package ctmn.petals.playscreen.gui
 
 import com.badlogic.gdx.graphics.OrthographicCamera
-import ctmn.petals.Const
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config
 import ctmn.petals.player.Player
 import ctmn.petals.playstage.*
 import ctmn.petals.utils.*
-import kotlin.math.max
 
 class PlayStageCameraController(val playStage: PlayStage) {
 
@@ -140,7 +138,7 @@ class PlayStageCameraController(val playStage: PlayStage) {
     }
 
     fun zoomUp(z: Float) {
-        val maxZoomOut = if (Const.DEBUG_MODE) 999999f else this.maxZoomOut
+        val maxZoomOut = if (Config.DEBUG_MODE) 999999f else this.maxZoomOut
 
         camera.zoom += z
 

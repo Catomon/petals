@@ -1,29 +1,25 @@
 package ctmn.petals.playscreen.gui.widgets
 
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.GamePref
 import ctmn.petals.playscreen.events.UnitSelectedEvent
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.playStage
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playstage.PlayStage
-import ctmn.petals.playstage.getTileMovementCostMatrix
 import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.isInRange
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.unit.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
-import ctmn.petals.utils.unTiled
 
 class TerrainBonusDrawer(val guiStage: PlayGUIStage) : Actor() {
 
@@ -66,7 +62,7 @@ class TerrainBonusDrawer(val guiStage: PlayGUIStage) : Actor() {
 
         if (guiStage.mapClickListener != guiStage.unitSelectedCL) return
 
-        if (unitActor.actionPoints < Const.ACTION_POINTS_MOVE_MIN) return
+        if (unitActor.actionPoints < Config.ACTION_POINTS_MOVE_MIN) return
 
         val terrainProps = unitActor.cTerrainProps ?: return
 

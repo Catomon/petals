@@ -1,23 +1,17 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.EventListener
-import com.badlogic.gdx.scenes.scene2d.Stage
 import ctmn.petals.assets
 import ctmn.petals.newPlayPuiSprite
-import ctmn.petals.newPlaySprite
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.commands.BuildBaseCommand
-import ctmn.petals.playscreen.events.TaskBeginEvent
-import ctmn.petals.playscreen.events.TaskCompletedEvent
 import ctmn.petals.playscreen.tasks.*
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.unit.component.WaypointComponent
 import ctmn.petals.unit.isWorker
-import ctmn.petals.unit.playerIdByColor
 import ctmn.petals.utils.*
 
 class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
@@ -41,7 +35,7 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
             when (task) {
                 is MoveUnitTask -> {
                     if (playScreen.guiStage.selectedUnit == task.unit) {
-                        setPosition(task.x.unTiled() + Const.TILE_SIZE / 2, task.y.unTiled() + Const.TILE_SIZE / 2)
+                        setPosition(task.x.unTiled() + Config.TILE_SIZE / 2, task.y.unTiled() + Config.TILE_SIZE / 2)
                     } else {
                         setPosition(task.unit.centerX, task.unit.centerY)
                     }
@@ -50,7 +44,7 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
                 }
 
                 is MoveAnyUnitTask -> {
-                    setPosition(task.x.unTiled() + Const.TILE_SIZE / 2, task.y.unTiled() + Const.TILE_SIZE / 2)
+                    setPosition(task.x.unTiled() + Config.TILE_SIZE / 2, task.y.unTiled() + Config.TILE_SIZE / 2)
                     drawMarker(batch)
                 }
 
@@ -78,7 +72,7 @@ class MarkersDrawer(val playScreen: PlayScreen) : Actor() {
 
         playScreen.guiStage.selectedUnit?.let { unit ->
             unit.get(WaypointComponent::class.java)?.let { waypoint ->
-                setPosition(waypoint.tileX.unTiled() + Const.TILE_SIZE_HALF, waypoint.tileY.unTiled() + Const.TILE_SIZE_HALF)
+                setPosition(waypoint.tileX.unTiled() + Config.TILE_SIZE_HALF, waypoint.tileY.unTiled() + Config.TILE_SIZE_HALF)
                 drawMarker(batch, true)
             }
         }

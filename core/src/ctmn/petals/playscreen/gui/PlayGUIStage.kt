@@ -18,11 +18,11 @@ import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.AudioManager
-import ctmn.petals.Const
-import ctmn.petals.Const.BASE_BUILD_COST
-import ctmn.petals.Const.PLAY_GUI_VIEWPORT_HEIGHT
-import ctmn.petals.Const.PLAY_GUI_VIEWPORT_WIDTH
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config
+import ctmn.petals.Config.BASE_BUILD_COST
+import ctmn.petals.Config.PLAY_GUI_VIEWPORT_HEIGHT
+import ctmn.petals.Config.PLAY_GUI_VIEWPORT_WIDTH
+import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.GamePref
 import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.multiplayer.ClientPlayScreen
@@ -94,7 +94,7 @@ class PlayGUIStage(
         }
     private val creditsLabelTooltip = addTooltip(creditsLabel, "()", Align.bottom)
     private val fpsLabel = VisLabel().apply {
-        isVisible = Const.SHOW_FPS
+        isVisible = Config.SHOW_FPS
     }
 
     //buttons
@@ -195,7 +195,7 @@ class PlayGUIStage(
 
                 field is UnitSelectedCL && (value is SelectUnitCL || value is SeeInfoCL) -> {
                     // fire event
-                    AudioManager.sound("unit_deselect")
+                    AudioManager.playSound("unit_deselect")
                     prevSelectedUnit = null
                 }
             }
@@ -204,10 +204,10 @@ class PlayGUIStage(
                 is UnitSelectedCL -> {
                     if (selectedUnit != null) {
                         if (prevSelectedUnit != selectedUnit) {
-                            AudioManager.sound("unit_select")
+                            AudioManager.playSound("unit_select")
                         } else {
                             // assuming unit just moved
-//                            if (selectedUnit!!.actionPoints >= Const.ACTION_POINTS_ATTACK)
+//                            if (selectedUnit!!.actionPoints >= Config.ACTION_POINTS_ATTACK)
 //                            AudioManager.sound("unit_deselect")
                         }
                     }
@@ -1185,8 +1185,8 @@ class PlayGUIStage(
     }
 
     fun onScreenResize(width: Int, height: Int) {
-        (viewport as ExtendViewport).minWorldWidth = width / Const.GUI_SCALE
-        (viewport as ExtendViewport).minWorldHeight = height / Const.GUI_SCALE
+        (viewport as ExtendViewport).minWorldWidth = width / Config.GUI_SCALE
+        (viewport as ExtendViewport).minWorldHeight = height / Config.GUI_SCALE
 
         viewport.update(width, height)
 

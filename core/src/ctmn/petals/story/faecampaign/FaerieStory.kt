@@ -1,12 +1,12 @@
 package ctmn.petals.story.faecampaign
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.story.Story
 import ctmn.petals.story.faecampaign.levels.*
 
 class FaerieStory(storySave: FaerieStorySave = FaerieStorySave()) : Story(
     "Levels",
-    Const.FAERIE_CAMPAIGN_ID,
+    Config.FAERIE_CAMPAIGN_ID,
     storySave
 ) {
 

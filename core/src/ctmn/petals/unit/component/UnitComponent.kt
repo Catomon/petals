@@ -1,6 +1,6 @@
 package ctmn.petals.unit.component
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import com.badlogic.ashley.core.Component
@@ -21,7 +21,7 @@ data class UnitComponent(
     var teamID: Int = Team.NONE,
     var tiledX: Int = 0,
     var tiledY: Int = 0,
-    var actionPoints: Int = Const.ACTION_POINTS,
+    var actionPoints: Int = Config.ACTION_POINTS,
     var allies: MutableSet<Int> = mutableSetOf(),
 ) : Component, CopyableComponent {
 

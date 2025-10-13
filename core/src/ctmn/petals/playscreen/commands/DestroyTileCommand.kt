@@ -1,11 +1,10 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.Const.ACTION_POINTS_ATTACK
+import ctmn.petals.Config.ACTION_POINTS_ATTACK
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.playstage.destroyTile
-import ctmn.petals.playstage.removeTileSafely
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.DestroyingComponent

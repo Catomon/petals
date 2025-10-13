@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.effects.CreateEffect
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.seqactions.UpdateAction
@@ -39,8 +39,8 @@ class MeteoriteAbility : Ability(
         //create effect
         val effect = CreateEffect.meteorite
         effect.setPosByCenter(
-            tileX.unTiled() + Const.TILE_SIZE / 2,
-            tileY.unTiled() + Const.TILE_SIZE / 2
+            tileX.unTiled() + Config.TILE_SIZE / 2,
+            tileY.unTiled() + Config.TILE_SIZE / 2
         )
         playStage.addActor(effect)
 

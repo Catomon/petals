@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.assets
 import ctmn.petals.playscreen.playStage

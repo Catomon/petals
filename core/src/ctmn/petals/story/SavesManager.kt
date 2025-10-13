@@ -4,7 +4,7 @@ import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.Array
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.GamePref
 import ctmn.petals.utils.*
 
@@ -66,7 +66,7 @@ object SavesManager {
     fun checkSaveJsonVer(jsonString: String) : Int {
         val json = Gson().fromJson(jsonString, JsonObject::class.java)
         if (json.has("game_version")) {
-            val ver = Version.compareVersions(Const.APP_VER_NAME, json.get("game_version").asString)
+            val ver = Version.compareVersions(Config.APP_VER_NAME, json.get("game_version").asString)
             if (ver > 0)
                 logErr("Warn: Save version is older than the game version")
 

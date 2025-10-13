@@ -2,7 +2,7 @@ package ctmn.petals.bot
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.commands.AttackCommand
@@ -60,7 +60,7 @@ class SimpleCommandProcessor(
             // agro
             if (!permaAgro) {
                 if (!unit.isEnemyInAgroRange()) {
-                    if (roamingIfNoAgro && unit.actionPoints >= Const.ACTION_POINTS_MOVE_MIN) {
+                    if (roamingIfNoAgro && unit.actionPoints >= Config.ACTION_POINTS_MOVE_MIN) {
                         val command = unit.roam(1)
                         if (command != null) { ///
                             lastUnitTimes++
@@ -281,7 +281,7 @@ class SimpleCommandProcessor(
     /** returns move command in -[range] to [range] around unit
      * returns move command to move to leader if unit is a follower **/
     private fun UnitActor.roam(range: Int = 1) : MoveUnitCommand? {
-        if (actionPoints < Const.ACTION_POINTS_MOVE_MIN) return null
+        if (actionPoints < Config.ACTION_POINTS_MOVE_MIN) return null
 
         val roamPos = get(RoamingPosition::class.java) ?: add(RoamingPosition(tiledX, tiledY)) as RoamingPosition
 

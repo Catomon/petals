@@ -1,7 +1,7 @@
 package ctmn.petals.unit.actors
 
 import ctmn.petals.Assets
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.abilities.HealthPotionAbility
@@ -20,7 +20,7 @@ class Cherie : UnitActor(
     init {
         add(
             LeaderComponent(
-                Const.ALICE_LEADER_ID,
+                Config.ALICE_LEADER_ID,
                 2,
                 5,
                 0

@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.Queue
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.Const
-import ctmn.petals.Const.TALKING_ANIMATION_DURATION
+import ctmn.petals.Config
+import ctmn.petals.Config.TALKING_ANIMATION_DURATION
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.seqactions.CameraMoveAction
@@ -83,7 +83,7 @@ class StoryDialog(
         //row()
         //add().right()
 
-        if (Const.IS_DESKTOP)
+        if (Config.IS_DESKTOP)
             addActorAt(0, enterButton)
     }
 
@@ -92,7 +92,7 @@ class StoryDialog(
 
         val currentQuote = if (currentQuote == null) return else currentQuote
 
-        if (Const.IS_DESKTOP)
+        if (Config.IS_DESKTOP)
             enterButton.setPosition(width - enterButton.width - 3, 5f)
 
         if (currentQuote?.source == null)

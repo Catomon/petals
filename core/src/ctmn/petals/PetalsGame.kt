@@ -33,20 +33,20 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: R
     val assets = Assets()
 
     // to change through console
-    var debugMode = Const.DEBUG_MODE
+    var debugMode = Config.DEBUG_MODE
 
     override fun create() {
         onCreate.run()
 
         updateAppConfigToPrefs()
 
-        if (!Const.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
+        if (!Config.IS_RELEASE) Gdx.app.logLevel = Logger.DEBUG
 
-        if (Const.IS_DESKTOP) {
+        if (Config.IS_DESKTOP) {
             startDiscordRich()
         }
 
-        GameConsole.consoleDisabled = !Const.CONSOLE_ENABLED
+        GameConsole.consoleDisabled = !Config.CONSOLE_ENABLED
 
         GamePref.overridePrefs()
 
@@ -118,7 +118,7 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: R
     }
 
     override fun dispose() {
-        if (Const.IS_DESKTOP)
+        if (Config.IS_DESKTOP)
             stopDiscordRich()
 
         super.dispose()

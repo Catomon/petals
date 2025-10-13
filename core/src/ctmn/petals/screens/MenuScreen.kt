@@ -22,7 +22,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
     val batch = SpriteBatch()
 
-    private val music = AudioManager.music("snow_city.mp3").apply { isLooping = true }
+    private val music = AudioManager.createMusic("snow_city.mp3")
 
     private val background = ParallaxBackground(Array<MovingBackground>().apply {
         add(MovingBackground(assets.getTexture("1.png"), 1f))
@@ -79,7 +79,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
     override fun hide() {
         music.pause()
-        music.position = 0f
+        music.music.position = 0f
     }
 
     override fun show() {
@@ -96,12 +96,12 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
     override fun resize(width: Int, height: Int) {
         if (Gdx.app.type == Application.ApplicationType.Android)
-            if (Const.IS_PORTRAIT) {
-                viewport.minWorldWidth = width / Const.GUI_SCALE / 1.25F
-                viewport.minWorldHeight = height / Const.GUI_SCALE / 1.25F
+            if (Config.IS_PORTRAIT) {
+                viewport.minWorldWidth = width / Config.GUI_SCALE / 1.25F
+                viewport.minWorldHeight = height / Config.GUI_SCALE / 1.25F
             } else {
-                viewport.minWorldWidth = width / Const.GUI_SCALE
-                viewport.minWorldHeight = height / Const.GUI_SCALE
+                viewport.minWorldWidth = width / Config.GUI_SCALE
+                viewport.minWorldHeight = height / Config.GUI_SCALE
             }
 
         viewport.update(width, height)
@@ -118,7 +118,6 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
         menuStage.dispose()
         storySelectStage.dispose()
         batch.dispose()
-        music.dispose()
         AudioManager.disposeMusic()
     }
 }

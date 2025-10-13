@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.google.gson.JsonObject
 import ctmn.petals.*
-import ctmn.petals.Const.ACTION_POINTS_MOVE
-import ctmn.petals.Const.TILE_SIZE
-import ctmn.petals.Const.TILE_SIZE_X2
+import ctmn.petals.Config.ACTION_POINTS_MOVE
+import ctmn.petals.Config.TILE_SIZE
+import ctmn.petals.Config.TILE_SIZE_X2
 import ctmn.petals.effects.Animations
 import ctmn.petals.effects.MissileActor
 import ctmn.petals.playscreen.playStageOrNull
@@ -48,7 +48,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         var attackEffectFrame = 0f
     }
 
-    var characterName = if (Const.DEBUG_MODE) this::class.simpleName.toString() else ""
+    var characterName = if (Config.DEBUG_MODE) this::class.simpleName.toString() else ""
 
     init {
         if (pUnitComponent != null) {
@@ -66,14 +66,14 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     fun setIdleAnimation(name: String) {
         val regions = findUnitTextures(selfName, playerId)
-        defaultAnimation = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, regions)
+        defaultAnimation = RegionAnimation(Config.UNIT_ANIMATION_FRAME_DURATION, regions)
     }
 
     // should be called after setting up actor's playerID
     open fun initView(assets: Assets) {
         val regions = findUnitTextures(selfName, playerId)
 
-        defaultAnimation = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, regions)
+        defaultAnimation = RegionAnimation(Config.UNIT_ANIMATION_FRAME_DURATION, regions)
 
         viewComponent = if (regions.size > 1)
             AnimationViewComponent(defaultAnimation)
@@ -97,7 +97,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
         loadAnimations()
 
-        if (characterName.isEmpty()) characterName = if (Const.DEBUG_MODE) this::class.simpleName.toString() else ""
+        if (characterName.isEmpty()) characterName = if (Config.DEBUG_MODE) this::class.simpleName.toString() else ""
     }
 
     protected open fun loadAnimations() {

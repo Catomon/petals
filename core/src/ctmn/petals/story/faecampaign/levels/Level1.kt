@@ -1,8 +1,7 @@
 package ctmn.petals.story.faecampaign.levels
 
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const.APP_NAME
+import ctmn.petals.Config.APP_NAME
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer

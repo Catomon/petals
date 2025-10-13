@@ -1,6 +1,6 @@
 package ctmn.petals.utils
 
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.assets
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.playstage.PlayStage

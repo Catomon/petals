@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.unit.*
 import ctmn.petals.utils.centerX
@@ -182,7 +182,7 @@ class UnitPanel(val guiStage: PlayGUIStage) : VisTable() {
         if (unitActor.cLevel != null) {
             val cLevel = unitActor.cLevel!!
             val lvl = cLevel.lvl
-            if (lvl < Const.MAX_LVL)
+            if (lvl < Config.MAX_LVL)
                 exp.setText("" + (cLevel.exp) + "/" + (xpToLevelUp((cLevel.lvl))))
             else exp.setText("" + (cLevel.exp) + "/" + (xpToLevelUp((cLevel.lvl - 1))))
         } else exp.setText("N")

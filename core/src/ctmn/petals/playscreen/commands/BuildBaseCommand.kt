@@ -1,7 +1,7 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.Const.BASE_BUILD_COST
-import ctmn.petals.Const.BASE_BUILD_TIME
+import ctmn.petals.Config.BASE_BUILD_COST
+import ctmn.petals.Config.BASE_BUILD_TIME
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.tile.TileActor

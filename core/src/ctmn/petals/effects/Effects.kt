@@ -1,7 +1,7 @@
 package ctmn.petals.effects
 
 import com.badlogic.gdx.graphics.Color
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.assets
 import ctmn.petals.unit.UnitActor
 import com.badlogic.gdx.scenes.scene2d.Actor
@@ -13,7 +13,7 @@ import ctmn.petals.utils.centerY
 object Animations {
 
     val barrier = RegionAnimation(0.35f, assets.atlases.findRegions("effects/barrier"))
-    val waterWaves = RegionAnimation(Const.UNIT_ANIMATION_FRAME_DURATION, assets.atlases.findRegions("effects/unit_water"))
+    val waterWaves = RegionAnimation(Config.UNIT_ANIMATION_FRAME_DURATION, assets.atlases.findRegions("effects/unit_water"))
     val burning = RegionAnimation(0.4f, assets.atlases.findRegions("effects/burning"))
 
     fun update(delta: Float) {
@@ -77,8 +77,8 @@ object CreateEffect {
     fun damageUnit(unit: UnitActor, visual: Boolean = true, sound: Boolean = true) : UnitActor {
         unit.addAction(
             UnitShakeAction(
-                Const.UNIT_SHAKE_POWER,
-                Const.UNIT_SHAKE_DURATION
+                Config.UNIT_SHAKE_POWER,
+                Config.UNIT_SHAKE_DURATION
             )
         )
         assets.getSound("hit.ogg").play()

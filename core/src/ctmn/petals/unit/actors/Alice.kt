@@ -1,14 +1,13 @@
 package ctmn.petals.unit.actors
 
 import ctmn.petals.Assets
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
 import ctmn.petals.strings
 import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitIds.ALICE_ID
 import ctmn.petals.unit.UnitIds.DOLL_PIKE
-import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.RegionAnimation
 
@@ -44,7 +43,7 @@ class Alice : UnitActor(
 
         add(
             LeaderComponent(
-                Const.ALICE_LEADER_ID,
+                Config.ALICE_LEADER_ID,
             2,
             5,
             0

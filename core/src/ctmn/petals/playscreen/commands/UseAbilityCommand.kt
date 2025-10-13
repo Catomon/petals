@@ -1,11 +1,10 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.*
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.*
-import com.badlogic.gdx.Gdx
 import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.tiledDst
 import ctmn.petals.unit.abilities.SummonAbility
@@ -92,7 +91,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
         //ap
         if (ability.castAmounts == ability.castAmountsLeft)
-            unitCaster.actionPoints -= Const.ACTION_POINTS_ABILITY
+            unitCaster.actionPoints -= Config.ACTION_POINTS_ABILITY
 
         //reveal if invisible
         unitCaster.del(InvisibilityComponent::class.java)

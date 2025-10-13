@@ -2,7 +2,7 @@ package ctmn.petals.playscreen.commands
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.queueAction
@@ -37,14 +37,14 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
         if (!attackerUnit.canAttackNow(targetUnit)) return false
 
-        return attackerUnit.actionPoints >= Const.ACTION_POINTS_ATTACK_MIN
+        return attackerUnit.actionPoints >= Config.ACTION_POINTS_ATTACK_MIN
     }
 
     override fun execute(playScreen: PlayScreen): Boolean {
         val attackerUnit: UnitActor = playScreen.playStage.root.findActor(attackerUnitId)
         val targetUnit: UnitActor = playScreen.playStage.root.findActor(targetUnitId)
 
-        attackerUnit.actionPoints -= Const.ACTION_POINTS_ATTACK
+        attackerUnit.actionPoints -= Config.ACTION_POINTS_ATTACK
 
         attackerUnit.del(InvisibilityComponent::class.java)
         targetUnit.del(InvisibilityComponent::class.java)
@@ -71,8 +71,8 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         var damageAttacker: (() -> Unit)? = null
         val postAttack: () -> Unit
 
-        val miss = if (Const.MISSES) playScreen.random.nextInt(1, 101) <= 5 else false
-        val crit = if (Const.CRITS) playScreen.random.nextInt(1, 101) <= 5 else false
+        val miss = if (Config.MISSES) playScreen.random.nextInt(1, 101) <= 5 else false
+        val crit = if (Config.CRITS) playScreen.random.nextInt(1, 101) <= 5 else false
 
         /** health */
         damageTarget = {
@@ -123,7 +123,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
         //take damage if in target attack range
         val attackTypeNotOk = targetUnit.isAir && targetUnit.cAttack?.attackType == ATTACK_TYPE_GROUND
-        if (Const.ATTACK_BACK
+        if (Config.ATTACK_BACK
             && targetUnit.attackRange > 0
             && !attackTypeNotOk
             && targetUnit.canAttack(attackerUnit)
@@ -150,7 +150,7 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
             attackerUnit.get(MoveAfterAttackComponent::class.java)?.apply {
                 if (!attacked) {
-                    attackerUnit.actionPoints = Const.ACTION_POINTS
+                    attackerUnit.actionPoints = Config.ACTION_POINTS
                     attackerUnit.cUnit.movingRange = secondRange
                     attacked = true
                 }

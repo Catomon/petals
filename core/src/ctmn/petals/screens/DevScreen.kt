@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.AudioManager
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.PetalsGame
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.assets
@@ -46,7 +46,7 @@ class DevScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 720f))
         batch.projectionMatrix = viewport.camera.combined
 
         addWidgets()
-        AudioManager.sound("click")
+        AudioManager.playSound("click")
     }
 
     private fun addWidgets() { //todo move to settings and main screen
@@ -149,12 +149,12 @@ class DevScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 720f))
         val viewport = this.viewport as ExtendViewport
 
         if (Gdx.app.type == Application.ApplicationType.Android)
-            if (Const.IS_PORTRAIT)
+            if (Config.IS_PORTRAIT)
                 viewport.minWorldHeight = 240f
             else viewport.minWorldHeight = 180f // 180f is too small for custom match stage
 
-        (viewport as ExtendViewport).minWorldWidth = width / Const.GUI_SCALE
-        (viewport as ExtendViewport).minWorldHeight = height / Const.GUI_SCALE
+        (viewport as ExtendViewport).minWorldWidth = width / Config.GUI_SCALE
+        (viewport as ExtendViewport).minWorldHeight = height / Config.GUI_SCALE
 
         viewport.update(width, height)
 

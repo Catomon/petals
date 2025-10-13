@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.*
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.assets
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.editor.EditorScreen
@@ -40,7 +40,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
 
     private val bunnyImage = VisImage(assets.getTexture("bunny.png"))
 
-    private val label = newLabel(Const.APP_NAME + " " + Const.APP_VER_NAME, "default")
+    private val label = newLabel(Config.APP_NAME + " " + Config.APP_VER_NAME, "default")
 
     private val storyButton = newTextButton(strings.general.story).apply { isDisabled = true }
     private val campaignButton = newTextButton("(OLD)" + strings.general.levels)
@@ -62,7 +62,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             if (StoriesManager.size == 1) {
                 val story = StoriesManager.getStories().first()
 
-                if (Const.IS_RELEASE)
+                if (Config.IS_RELEASE)
                     menuScreen.startStory(story)
                 else
                     menuScreen.game.screen = LevelSelectScreen(game, story)
@@ -106,7 +106,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
                 add(campaignButton).bottom().width(300f).colspan(2)
                 row()
 
-                if (Const.DEBUG_MODE) {
+                if (Config.DEBUG_MODE) {
                     add(VisTextButton("RNG GEN TEST").addClickListener {
                         game.screen = QuickplayScreen(game)
                     })
@@ -125,7 +125,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
                 add(settingsButton).bottom().width(150f)
                 add(exitButton).bottom().width(150f)
                 row()
-                add(VisLabel("ver " + Const.APP_VER_NAME).apply {
+                add(VisLabel("ver " + Config.APP_VER_NAME).apply {
                     setFontScale(0.65f)
                     align(Align.center)
                 }).colspan(2).bottom().padTop(30f)

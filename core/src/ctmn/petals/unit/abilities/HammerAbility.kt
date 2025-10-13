@@ -1,13 +1,12 @@
 package ctmn.petals.unit.abilities
 
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.actors.actions.CameraShakeAction
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.addAction
 import ctmn.petals.playscreen.seqactions.ActorAction
-import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.shiftLayerAt
 import ctmn.petals.tile.TerrainNames
@@ -15,7 +14,6 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.*
 import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.utils.unTiled
-import kotlin.random.Random
 
 class HammerAbility : Ability("hammer") {
 
@@ -98,8 +96,8 @@ class HammerAbility : Ability("hammer") {
         //create effect
         val effect = ctmn.petals.effects.CreateEffect.earthcrack
         effect.setPosByCenter(
-            (tileX + 1).unTiled() + Const.TILE_SIZE,
-            (tileY + 1).unTiled() + Const.TILE_SIZE
+            (tileX + 1).unTiled() + Config.TILE_SIZE,
+            (tileY + 1).unTiled() + Config.TILE_SIZE
         )
         playStage.addActor(effect)
     }

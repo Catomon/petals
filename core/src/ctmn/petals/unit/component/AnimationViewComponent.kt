@@ -1,13 +1,12 @@
 package ctmn.petals.unit.component
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.utils.RegionAnimation
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const.TILE_SIZE
 
 class AnimationViewComponent(var animation: RegionAnimation) : ViewComponent() {
 
@@ -31,7 +30,7 @@ class AnimationViewComponent(var animation: RegionAnimation) : ViewComponent() {
 
                 animation.currentFrame
             } else {
-                animation.stateTime = Const.UNIT_ANIMATION_FRAME_DURATION
+                animation.stateTime = Config.UNIT_ANIMATION_FRAME_DURATION
 
                 animation.keyFrames.first()
             }

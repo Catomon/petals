@@ -1,17 +1,14 @@
 package ctmn.petals.playscreen.gui.widgets
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playscreen.gui.PlayGUIStage
 import ctmn.petals.playscreen.events.UnitSelectedEvent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.unTiled
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
 import ctmn.petals.playstage.PlayStage
@@ -28,7 +25,7 @@ class MovementCostDrawer(val guiStage: PlayGUIStage) : Actor() {
     init {
         isVisible = false
 
-        sprite.setSize(Const.TILE_SIZE.toFloat(), Const.TILE_SIZE.toFloat())
+        sprite.setSize(Config.TILE_SIZE.toFloat(), Config.TILE_SIZE.toFloat())
 
         costLabel.isVisible = false
         costLabel.setFontScale(0.25f)

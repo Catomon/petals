@@ -1,7 +1,7 @@
 package ctmn.petals.effects
 
 import ctmn.petals.Assets
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.unit.TerrainPropsPack
@@ -24,7 +24,7 @@ class FlameAbilityEffect(val range: Int, val tileX: Int, val tileY: Int, assets:
 
         sprite = newPlaySprite(animation!!.currentFrame)
 
-        setPosition(tileX.unTiled() + Const.TILE_SIZE / 2, tileY.unTiled() + Const.TILE_SIZE / 2)
+        setPosition(tileX.unTiled() + Config.TILE_SIZE / 2, tileY.unTiled() + Config.TILE_SIZE / 2)
     }
 
     override fun setStage(stage: Stage?) {
@@ -43,7 +43,7 @@ class FlameAbilityEffect(val range: Int, val tileX: Int, val tileY: Int, assets:
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         for (vector in vectors) {
-            sprite.setPositionByCenter(vector.x + Const.TILE_SIZE / 2, vector.y + Const.TILE_SIZE / 2)
+            sprite.setPositionByCenter(vector.x + Config.TILE_SIZE / 2, vector.y + Config.TILE_SIZE / 2)
             sprite.draw(batch)
         }
     }

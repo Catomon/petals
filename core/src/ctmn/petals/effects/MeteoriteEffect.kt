@@ -2,7 +2,7 @@ package ctmn.petals.effects
 
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.Stage
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.actors.actions.CameraShakeAction
 import ctmn.petals.assets
 import ctmn.petals.newPlaySprite
@@ -47,7 +47,7 @@ class MeteoriteEffect : EffectActor() {
             val explosion = FlameAbilityEffect(1, endX.tiled(), endY.tiled(), assets)
             stage.addActor(explosion)
             val particles = ExplosionParticles()
-            particles.setPosition(endX, endY - Const.TILE_SIZE / 2)
+            particles.setPosition(endX, endY - Config.TILE_SIZE / 2)
             stage.addActor(particles)
 
             lifeTime = 0f

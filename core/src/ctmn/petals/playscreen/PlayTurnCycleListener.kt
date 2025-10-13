@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.effects.FloatingUpIconLabel
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.GameMode
@@ -24,7 +24,6 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.getSurroundingTiles
-import kotlin.math.max
 
 class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener {
     override fun handle(event: Event): Boolean {
@@ -93,7 +92,7 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
         for (unit in playScreen.playStage.getUnitsOfPlayer(turnCycleEvent.nextPlayer)) {
             if (unit.isUnitNear(playScreen.playStage.getLeadUnit(unit.followerID) ?: continue, 1))
                 if (unit.health < unit.unitComponent.baseHealth)
-                    unit.heal(Const.HEALING_AMOUNT_NEAR_LEADER)
+                    unit.heal(Config.HEALING_AMOUNT_NEAR_LEADER)
         }
 
         //apply healing from bonus fields
@@ -182,7 +181,7 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
 
                 //reset units ap
                 if (unit.buffs.find { buff -> buff.name == "freeze" } == null)
-                    unit.actionPoints = Const.ACTION_POINTS
+                    unit.actionPoints = Config.ACTION_POINTS
 
                 //update abilities cooldowns
                 if (unit.cAbilities != null)
@@ -298,7 +297,7 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
                 if (cCapturing.turns <= 0) {
                     unitOnTile.captureBase(tile, playScreen.turnManager.getPlayerById(unitOnTile.playerId))
 
-                    if (Const.REMOVE_UNIT_AFTER_CAPTURE)
+                    if (Config.REMOVE_UNIT_AFTER_CAPTURE)
                         unitOnTile.remove()
 
                     tile.components.remove(CapturingComponent::class.java)

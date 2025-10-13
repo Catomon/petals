@@ -2,7 +2,7 @@ package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.bot.EasyDuelBot
 import ctmn.petals.player.SpeciesUnitNotFoundExc
 import ctmn.petals.player.fairyUnits
@@ -84,7 +84,7 @@ class Level5 : Scenario("lv_5", "level_capture") {
                 ),
                 StoryDialog.Quote(
                     "A base can be claimed only on plain terrain and shallow water." +
-                            "It costs ${Const.BASE_BUILD_COST} and takes ${Const.BASE_BUILD_TIME} turns to make."
+                            "It costs ${Config.BASE_BUILD_COST} and takes ${Config.BASE_BUILD_TIME} turns to make."
                 ),
                 StoryDialog.Quote(
                     "Position the Sower Fairy at the marked location and plant a seed."
@@ -124,7 +124,7 @@ class Level5 : Scenario("lv_5", "level_capture") {
                                 queueDialogAction(
                                     fairyHelper,
                                     StoryDialog.Quote(
-                                        "Each crystal tile can provide up to ${Const.CRYSTALS_CLUSTER} crystals."
+                                        "Each crystal tile can provide up to ${Config.CRYSTALS_CLUSTER} crystals."
                                     ),
                                     StoryDialog.Quote(
                                         "Buy more units and repel the enemy's attack."

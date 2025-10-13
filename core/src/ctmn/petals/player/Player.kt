@@ -1,7 +1,7 @@
 package ctmn.petals.player
 
 import com.badlogic.gdx.graphics.Color
-import ctmn.petals.Const
+import ctmn.petals.Config
 import kotlin.random.Random
 
 data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: Int = -1, var teamId: Int = -1) {
@@ -48,7 +48,7 @@ data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: 
     var allies: MutableSet<Int> = mutableSetOf()
 
     var credits = 0
-    var creditsPassiveReserve = Const.PLAYER_CREDITS_RESERVE
+    var creditsPassiveReserve = Config.PLAYER_CREDITS_RESERVE
 
     var isOutOfGame = false
 

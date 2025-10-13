@@ -3,8 +3,8 @@ package ctmn.petals.playscreen.gui.widgets
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Actor
-import ctmn.petals.Const
-import ctmn.petals.Const.BASE_RANGE_OF_VIEW
+import ctmn.petals.Config
+import ctmn.petals.Config.BASE_RANGE_OF_VIEW
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
@@ -49,7 +49,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
     private var updateFog = true
 
     init {
-        fogOfWarSprite.setSize(Const.TILE_SIZE, Const.TILE_SIZE)
+        fogOfWarSprite.setSize(Config.TILE_SIZE, Config.TILE_SIZE)
         fogOfWarSprite.setAlpha(spriteAlpha)
 
         playStage.addListener {
@@ -199,7 +199,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
         for ((i, _) in maxOfView.withIndex()) {
             for ((j, _) in maxOfView[i].withIndex()) {
                 if (maxOfView[i][j] <= 0) {
-                    fogOfWarSprite.setPosition(i * Const.TILE_SIZE, j * Const.TILE_SIZE)
+                    fogOfWarSprite.setPosition(i * Config.TILE_SIZE, j * Config.TILE_SIZE)
                     fogOfWarSprite.draw(batch)
 
                     playStage.getUnit(i, j)?.let { unit ->
@@ -217,7 +217,7 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
             for (y in fogDiscoverMap[x].indices) {
                 if (fogDiscoverMap[x][y] == 1) continue
 
-                fogOfWarSprite.setPosition((x - 1) * Const.TILE_SIZE, (y - 1) * Const.TILE_SIZE)
+                fogOfWarSprite.setPosition((x - 1) * Config.TILE_SIZE, (y - 1) * Config.TILE_SIZE)
                 fogOfWarSprite.draw(batch)
             }
         }

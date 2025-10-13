@@ -1,7 +1,7 @@
 package ctmn.petals.playscreen.seqactions
 
 import com.badlogic.gdx.graphics.Color
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.assets
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.effects.MissileActor
@@ -54,7 +54,7 @@ class AttackAction(
             ) {
                 if (!miss) {
                     if (!targetIsShaking) {
-                        targetUnit.addAction(UnitShakeAction(Const.UNIT_SHAKE_POWER, Const.UNIT_SHAKE_DURATION))
+                        targetUnit.addAction(UnitShakeAction(Config.UNIT_SHAKE_POWER, Config.UNIT_SHAKE_DURATION))
                         targetIsShaking = true
                     }
 
@@ -68,8 +68,8 @@ class AttackAction(
                 }
 
                 attackEffect = UnitAttackEffect(playScreen.assets)
-                attackEffect.x = targetUnit.x + Const.TILE_SIZE / 2
-                attackEffect.y = targetUnit.y + Const.TILE_SIZE / 2
+                attackEffect.x = targetUnit.x + Config.TILE_SIZE / 2
+                attackEffect.y = targetUnit.y + Config.TILE_SIZE / 2
                 playScreen.playStage.addActor(attackEffect)
 
                 playScreen.playStage.getTile(targetUnit)?.cutGrass()
@@ -105,7 +105,7 @@ class AttackAction(
 //            if (attackerUnit.cAnimationView?.animation == attackerUnit.attackAnimation) {
 //                if (attackerUnit.cAnimationView!!.animation.stateTime >= attackerUnit.cAnimationView!!.animation.animationDuration)
 //                    if (!targetIsShaking) {
-//                        targetUnit.addAction(UnitShakeAction(Const.UNIT_SHAKE_POWER, Const.UNIT_SHAKE_DURATION))
+//                        targetUnit.addAction(UnitShakeAction(Config.UNIT_SHAKE_POWER, Config.UNIT_SHAKE_DURATION))
 //                        targetIsShaking = true
 //                    }
 //            }

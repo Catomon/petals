@@ -2,8 +2,7 @@ package ctmn.petals.multiplayer
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import ctmn.petals.Const
-import ctmn.petals.actors.actions.TimeAction
+import ctmn.petals.Config
 import ctmn.petals.actors.actions.UpdateAction
 import ctmn.petals.multiplayer.json.GameStateSnapshot
 import ctmn.petals.multiplayer.json.LobbyState
@@ -14,16 +13,12 @@ import ctmn.petals.multiplayer.server.ClientRequestsQueue
 import ctmn.petals.multiplayer.server.ClientsController
 import ctmn.petals.multiplayer.server.GameServer
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.addAction
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.gui.floatingLabel
-import ctmn.petals.playscreen.seqactions.SeqAction
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.utils.fromGson
-import ctmn.petals.utils.printLess
 import ctmn.petals.utils.toGson
-import ctmn.petals.widgets.LoadingCover
 import ctmn.petals.widgets.newNotifyWindow
 
 class HostPlayScreen(
@@ -181,7 +176,7 @@ class HostPlayScreen(
 
         Gdx.app.log("HostPlayScreen", "All players are ready")
 
-        if (Const.DEBUG_MODE) {
+        if (Config.DEBUG_MODE) {
             playStage.addAction(UpdateAction {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
                     gameStateId++

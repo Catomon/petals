@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.kotcrab.vis.ui.FocusManager
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.*
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.editor.ui.TooltipLabel
 import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.game
@@ -339,7 +339,7 @@ class InterfaceStage(
             }
 
         val tableWidth = 160f
-        private val itemsInRow = if (Const.IS_MOBILE) 4 else 5
+        private val itemsInRow = if (Config.IS_MOBILE) 4 else 5
         private val itemSize = tableWidth / itemsInRow //32f
 
         private val selectedFrame = VisImage("selected_item_frame").apply {
@@ -665,7 +665,7 @@ class InterfaceStage(
                 mapsTable.newMapButton(map)
             }
 
-            if (!Const.IS_RELEASE) {
+            if (!Config.IS_RELEASE) {
                 mapsTable.add(VisLabel("- SCENARIOS -")).row()
                 for (map in ArrayList<MapItem>().apply {
                     val files = Gdx.files.local("maps/scenario")

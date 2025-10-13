@@ -1,16 +1,9 @@
 package ctmn.petals.desktop;
 
 import com.badlogic.gdx.Files;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.tools.bmfont.BitmapFontWriter;
-import ctmn.petals.Const;
+import ctmn.petals.Config;
 import ctmn.petals.GamePref;
 import ctmn.petals.PetalsGame;
 
@@ -27,11 +20,11 @@ public class DesktopLauncher {
         }
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.preferencesDirectory = "Documents/Fae's Feisty Fray";
+        config.preferencesDirectory = "Documents/Fae's Feisty";
         config.foregroundFPS = 60;
         config.backgroundFPS = 30;
         config.vSyncEnabled = false;
-        config.title = Const.APP_NAME + " (" + Const.APP_VER_NAME + ")";
+        config.title = Config.APP_NAME + " (" + Config.APP_VER_NAME + ")";
         config.width = 854;
         config.height = 480;
         config.pauseWhenBackground = false;

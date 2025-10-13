@@ -20,7 +20,6 @@ import ctmn.petals.utils.logMsg
 import ctmn.petals.utils.replaceColor
 import ctmn.petals.utils.rgba
 
-
 lateinit var assets: Assets
 
 class Assets : AssetManager() {
@@ -264,7 +263,7 @@ class Assets : AssetManager() {
 
             atl.textures.add(texture)
             atl.regions.forEach { it.texture = texture }
-        } else if (Const.IS_DESKTOP) {
+        } else if (Config.IS_DESKTOP) {
             print("Creating $name units texture")
             try {
                 createAndSaveUnitsTexture(atl, colors, name)
@@ -428,44 +427,4 @@ class Assets : AssetManager() {
         Color().rgba(85, 11, 33) to Color().rgba(72, 42, 24), // dark red
         Color().rgba(40, 29, 43) to Color().rgba(39, 23, 13), // very dark red
     )
-}
-
-object AudioManager {
-
-    var soundVolume = GamePref.soundVolume
-
-    var musicVolume = GamePref.musicVolume
-        set(value) {
-            field = value
-            currentMusic?.volume = value
-            currentMusic2?.volume = value
-        }
-
-    var currentMusic: Music? = null
-    var currentMusic2: Music? = null
-
-    fun music(name: String, slot: Int = -1): Music {
-        if (currentMusic == null || slot == 0) {
-            currentMusic = Gdx.audio.newMusic(Gdx.files.internal("music/$name"))
-            currentMusic?.volume = musicVolume
-            return currentMusic!!
-        } else {
-            currentMusic2 = Gdx.audio.newMusic(Gdx.files.internal("music/$name"))
-            currentMusic2?.volume = musicVolume
-            return currentMusic2!!
-        }
-    }
-
-    fun disposeMusic() {
-        currentMusic?.dispose()
-        currentMusic2?.dispose()
-    }
-
-    fun sound(name: String): Long {
-        return sound(assets.getSound("$name.ogg"))
-    }
-
-    private fun sound(sound: Sound): Long {
-        return sound.play(soundVolume)
-    }
 }

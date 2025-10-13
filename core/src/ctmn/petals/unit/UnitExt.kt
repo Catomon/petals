@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.assets
 import ctmn.petals.effects.CreateEffect
 import ctmn.petals.effects.FloatingLabelAnimation
@@ -208,8 +208,8 @@ fun UnitActor.setPositionOrNear(x: Int, y: Int, playStageOrNull: PlayStage? = nu
         val xOff = x + offset.first
         val yOff = y + offset.second
         if (playStage.getTile(xOff, yOff)?.isOccupied == false) {
-            this.x = (xOff * Const.TILE_SIZE).toFloat()
-            this.y = (yOff * Const.TILE_SIZE).toFloat()
+            this.x = (xOff * Config.TILE_SIZE).toFloat()
+            this.y = (yOff * Config.TILE_SIZE).toFloat()
             tiledX = xOff
             tiledY = yOff
 
@@ -269,7 +269,7 @@ fun UnitActor.canAttack(unit: UnitActor): Boolean {
 
 /** @return true if player has enough AP to move and has no Debuffs that are blocking it */
 fun UnitActor.canMove(): Boolean {
-    return actionPoints >= Const.ACTION_POINTS_MOVE_MIN && !buffs.any { it.name == "freeze" }
+    return actionPoints >= Config.ACTION_POINTS_MOVE_MIN && !buffs.any { it.name == "freeze" }
 }
 
 fun UnitActor.canMove(tile: TileActor): Boolean {
@@ -334,7 +334,7 @@ fun UnitActor.canDestroy(): Boolean {
 }
 
 fun UnitActor.canCapture(): Boolean {
-    if (Const.EXPERIMENTAL) {
+    if (Config.EXPERIMENTAL) {
         return selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
     }
 
@@ -544,7 +544,7 @@ fun UnitActor.killedBy(killer: UnitActor, playScreen: PlayScreen) {
     val thisUnit = this
     val leader = if (killer.isLeader) killer else playScreen.playStage.getLeadUnit(killer.followerID)
     if (!thisUnit.isAlly(killer) && leader != null) {
-        val exp = (if (thisUnit.isLeader) Const.EXP_GAIN_LEADER else Const.EXP_GAIN) * (thisUnit.cLevel?.lvl ?: 1)
+        val exp = (if (thisUnit.isLeader) Config.EXP_GAIN_LEADER else Config.EXP_GAIN) * (thisUnit.cLevel?.lvl ?: 1)
         leader.grantExp(exp, playScreen)
     } //else  playStage.commandManager.execute(GrantXpCommand(unitAttacker, unitDefender))
 
@@ -553,7 +553,7 @@ fun UnitActor.killedBy(killer: UnitActor, playScreen: PlayScreen) {
     if (thisUnit.isLeader && thisUnit.cLeader?.killUnitsOnDeath == true)
         for (unit in playScreen.playStage.getUnitsForLeader(thisUnit.leaderID, true)) {
             if (!unit.isAlly(killer) && leader != null) {
-                val exp = (if (unit.isLeader) Const.EXP_GAIN_LEADER else Const.EXP_GAIN) * (unit.cLevel?.lvl ?: 1)
+                val exp = (if (unit.isLeader) Config.EXP_GAIN_LEADER else Config.EXP_GAIN) * (unit.cLevel?.lvl ?: 1)
                 leader.grantExp(exp, playScreen)
             }
 
@@ -575,12 +575,12 @@ fun UnitActor.grantExp(amount: Int, playScreen: PlayScreen) {
     val oldLvl = cLevel.lvl
 
     //if enough exp to level up
-    while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < Const.MAX_LVL) {
+    while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < Config.MAX_LVL) {
         cLevel.exp -= xpToLevelUp(cLevel.lvl)
         cLevel.lvl++
 
-        if (cLevel.lvl >= Const.MAX_LVL)
-            cLevel.exp = xpToLevelUp(Const.MAX_LVL - 1)
+        if (cLevel.lvl >= Config.MAX_LVL)
+            cLevel.exp = xpToLevelUp(Config.MAX_LVL - 1)
 
         val label = FloatingLabelAnimation("LEVEL UP!", "default")
         label.color = Color.YELLOW
@@ -695,7 +695,7 @@ fun playerColorName(playerId: Int) =
  * @throws IllegalArgumentException if unit texture region [regionName] not found */
 fun UnitActor.createAnimation(
     regionName: String,
-    frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION,
+    frameDuration: Float = Config.UNIT_ANIMATION_FRAME_DURATION,
 ): RegionAnimation {
     val unitAtlas = assets.findUnitAtlas(playerId)
     unitAtlas.findRegions(regionName).also { teamFrames ->
@@ -717,7 +717,7 @@ fun UnitActor.createAnimation(
  * @returns null if unit texture region [regionName] not found */
 fun UnitActor.findAnimation(
     regionName: String,
-    frameDuration: Float = Const.UNIT_ANIMATION_FRAME_DURATION,
+    frameDuration: Float = Config.UNIT_ANIMATION_FRAME_DURATION,
     loop: Boolean = false,
 ): RegionAnimation? {
     val unitAtlas = assets.findUnitAtlas(playerId)
@@ -741,7 +741,7 @@ fun UnitActor.findAnimation(
 }
 
 fun xpToLevelUp(curLvl: Int) =
-    if (Const.NEED_MORE_EXP_PER_LVL) Const.EXP_TO_LEVEL_UP * curLvl else Const.EXP_TO_LEVEL_UP
+    if (Config.NEED_MORE_EXP_PER_LVL) Config.EXP_TO_LEVEL_UP * curLvl else Config.EXP_TO_LEVEL_UP
 
 fun findUnitTextures(unitName: String, playerId: Int): Array<TextureAtlas.AtlasRegion> {
     val unitAtlas = assets.findUnitAtlas(playerId)

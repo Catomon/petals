@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
@@ -38,8 +38,8 @@ class FogAbility : Ability(
 
         val effect = ctmn.petals.effects.CreateEffect.fog
         effect.setPosByCenter(
-            tileX.unTiled() + Const.TILE_SIZE / 2,
-            tileY.unTiled() + Const.TILE_SIZE / 2)
+            tileX.unTiled() + Config.TILE_SIZE / 2,
+            tileY.unTiled() + Config.TILE_SIZE / 2)
         playStage.addActor(effect)
 
         castTime = effect.lifeTime

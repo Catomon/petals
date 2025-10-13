@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisImageButton
-import ctmn.petals.Const.TILE_SIZE
+import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.assets
 import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.map.label.LabelActor

@@ -4,11 +4,11 @@ import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import kotlin.math.round
 
-object Const {
+object Config {
 
     // App:
     const val APP_NAME = "Fae's Feisty"
-    const val APP_VER_NAME = "0.5.2-alpha"
+    const val APP_VER_NAME = "0.5.3-alpha"
     const val IS_RELEASE = false
     const val UNLOCK_LEVELS = true
     const val USER_FOLDER = "Documents/Fae's Feisty/"

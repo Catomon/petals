@@ -133,8 +133,11 @@ open class PlayScreen(
 
     private val debugKeysProcessor by lazy { DebugKeysProcessor() }
 
+    private val music =
+        AudioManager.createMusic("crystal_patch.ogg")
+
     private val ambienceMusic =
-        AudioManager.music("very_quiet_morning_meadow_forest.ogg").apply { isLooping = true; play(); volume *= 2f }
+        AudioManager.createAmbience("very_quiet_morning_meadow_forest.ogg")
 
     var inSettingsScreen = false
 
@@ -620,7 +623,8 @@ open class PlayScreen(
     }
 
     override fun hide() {
-
+        music.pause()
+        ambienceMusic.pause()
     }
 
     override fun show() {
@@ -628,6 +632,9 @@ open class PlayScreen(
 
         inSettingsScreen = false
         setupInputProcessor()
+
+        music.play()
+        ambienceMusic.play()
     }
 
     override fun pause() {
@@ -651,8 +658,8 @@ open class PlayScreen(
 
         batch.dispose()
 
-        ambienceMusic.dispose()
         AudioManager.disposeMusic()
+        AudioManager.disposeAmbience()
     }
 
     private var gameState: GameStateSnapshot? = null

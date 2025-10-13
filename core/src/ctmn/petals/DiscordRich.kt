@@ -6,7 +6,7 @@ import net.arikia.dev.drpc.DiscordRichPresence
 import java.util.Scanner
 import kotlin.concurrent.thread
 
-var discordRichDisabled = !Const.IS_DESKTOP || Const.DISABLE_RICH
+var discordRichDisabled = !Config.IS_DESKTOP || Config.DISABLE_RICH
 
 fun startDiscordRich() {
     if (discordRichDisabled) return
@@ -31,7 +31,7 @@ fun discordRich(rich: Rich) {
 
     val presence = DiscordRichPresence().apply {
         largeImageKey = "big_icon"
-        largeImageText = Const.APP_NAME
+        largeImageText = Config.APP_NAME
 
         when (rich) {
             Rich.DEFAULT -> {

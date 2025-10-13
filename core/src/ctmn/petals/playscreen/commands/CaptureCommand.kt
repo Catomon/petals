@@ -1,7 +1,7 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.Const.ACTION_POINTS_ATTACK
-import ctmn.petals.Const.CAPTURE_TIME
+import ctmn.petals.Config.ACTION_POINTS_ATTACK
+import ctmn.petals.Config.CAPTURE_TIME
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.tile.*

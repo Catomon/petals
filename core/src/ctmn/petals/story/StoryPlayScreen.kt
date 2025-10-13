@@ -1,11 +1,11 @@
 package ctmn.petals.story
 
-import ctmn.petals.Const.PLAY_CAMERA_ZOOM_OUT_MAX_STORY
+import ctmn.petals.Config.PLAY_CAMERA_ZOOM_OUT_MAX_STORY
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.PetalsGame
 import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.utils.fadeOut
-import ctmn.petals.Const.PLAY_CAMERA_ZOOM_STORY
+import ctmn.petals.Config.PLAY_CAMERA_ZOOM_STORY
 import ctmn.petals.playscreen.gui.StoryGameOverMenu
 
 class StoryPlayScreen(

@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.effects.FloatingLabelAnimation
 import ctmn.petals.playscreen.events.UnitLevelUpEvent
@@ -27,7 +27,7 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
 
         val cLevel = unit.cLevel ?: return false
 
-        if (cLevel.lvl == Const.MAX_LVL) return false
+        if (cLevel.lvl == Config.MAX_LVL) return false
 
         return true
     }
@@ -46,12 +46,12 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
         val oldLvl = cLevel.lvl
 
         //if enough exp to level up
-        while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < Const.MAX_LVL) {
+        while (cLevel.exp >= xpToLevelUp(cLevel.lvl) && cLevel.lvl < Config.MAX_LVL) {
             cLevel.exp -= xpToLevelUp(cLevel.lvl)
             cLevel.lvl++
 
-            if (cLevel.lvl >= Const.MAX_LVL)
-                cLevel.exp = xpToLevelUp(Const.MAX_LVL - 1)
+            if (cLevel.lvl >= Config.MAX_LVL)
+                cLevel.exp = xpToLevelUp(Config.MAX_LVL - 1)
 
             val label = FloatingLabelAnimation("LEVEL UP!", "default")
             label.color = Color.YELLOW

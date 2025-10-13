@@ -13,7 +13,7 @@ fun GamePref.overridePrefs() {
 
 object GamePref {
 
-    const val PREF_FILE_NAME = "settings.xml"
+    private const val PREF_FILE_NAME = "settings.xml"
 
     private const val LEVEL = "level"
 
@@ -28,13 +28,13 @@ object GamePref {
                 Gdx.files.local("saves/")
             }
 
-            Gdx.files.external(Const.LEGACY_USER_FOLDER + "/saves/").exists() -> {
-                Gdx.files.external(Const.LEGACY_USER_FOLDER + "/saves/")
+            Gdx.files.external(Config.LEGACY_USER_FOLDER + "/saves/").exists() -> {
+                Gdx.files.external(Config.LEGACY_USER_FOLDER + "/saves/")
                     .apply { mkdirs() }
             }
 
             else -> {
-                Gdx.files.external(Const.USER_FOLDER + "/saves/")
+                Gdx.files.external(Config.USER_FOLDER + "/saves/")
                     .apply { mkdirs() }
             }
         }
@@ -42,7 +42,7 @@ object GamePref {
 
     // always set random if it is not release build (for testing)
     val clientId: String =
-        if (!Const.IS_RELEASE)
+        if (!Config.IS_RELEASE)
             UUID.randomUUID().toString()
         else
             if (prefs.contains("client_id"))

@@ -2,7 +2,7 @@ package ctmn.petals.playscreen.seqactions
 
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.assets
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.UnitMovedEvent
@@ -57,19 +57,19 @@ class MoveUnitAction(val unit: UnitActor, val startX: Int, val startY: Int, val 
     }
 
     override fun onStart(playScreen: PlayScreen): Boolean {
-        var distX = endX * Const.TILE_SIZE - unit.x
-        var distY = endY * Const.TILE_SIZE - unit.y
+        var distX = endX * Config.TILE_SIZE - unit.x
+        var distY = endY * Config.TILE_SIZE - unit.y
         if (distX < 0)
             distX *= -1f
         if (distY < 0)
             distY *= -1f
         val moveActionX = Actions.moveTo(
-            endX * Const.TILE_SIZE, unit.y,
-            distX / Const.UNIT_MOVE_SPEED
+            endX * Config.TILE_SIZE, unit.y,
+            distX / Config.UNIT_MOVE_SPEED
         )
         val moveActionY = Actions.moveTo(
-            endX * Const.TILE_SIZE,
-            endY * Const.TILE_SIZE, distY / Const.UNIT_MOVE_SPEED
+            endX * Config.TILE_SIZE,
+            endY * Config.TILE_SIZE, distY / Config.UNIT_MOVE_SPEED
         )
 
         queAction.addAction(moveActionX)

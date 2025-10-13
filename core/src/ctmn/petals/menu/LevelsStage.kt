@@ -8,9 +8,9 @@ import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
-import ctmn.petals.Const
-import ctmn.petals.Const.IS_RELEASE
-import ctmn.petals.Const.UNLOCK_LEVELS
+import ctmn.petals.Config
+import ctmn.petals.Config.IS_RELEASE
+import ctmn.petals.Config.UNLOCK_LEVELS
 import ctmn.petals.PetalsGame
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.story.*
@@ -40,7 +40,7 @@ class LevelsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpor
     private val windowTable = VisTable()
 
     private val story =
-        FaerieStory(SavesManager.getByStoryId<FaerieStorySave>(Const.FAERIE_CAMPAIGN_ID) ?: FaerieStorySave())
+        FaerieStory(SavesManager.getByStoryId<FaerieStorySave>(Config.FAERIE_CAMPAIGN_ID) ?: FaerieStorySave())
 
     inner class LevelButton(levelNum: Int, drawableName: String = "forest_level") : VisImageButton("level") {
 

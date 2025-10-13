@@ -67,7 +67,7 @@ private fun <T : BorderOwner> T.addFocusBorderP(): T {
     if (this !is Actor) throw IllegalArgumentException("This is not an Actor class")
     if (this !is Focusable) throw IllegalArgumentException("The actor class is not Focusable")
 
-//    if (!Const.IS_MOBILE) {
+//    if (!Config.IS_MOBILE) {
     addListener(object : ClickListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             focusGained()
@@ -150,5 +150,5 @@ fun <T : Actor> T.addChangeListener(listener: (actor: T) -> Unit): T {
 }
 
 fun <T : Actor> T.addClickSound(soundName: String = "click"): T {
-    return addClickListener { AudioManager.sound(soundName) } as T
+    return addClickListener { AudioManager.playSound(soundName) } as T
 }

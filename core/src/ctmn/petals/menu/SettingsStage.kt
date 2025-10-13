@@ -25,7 +25,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
 
     private val targetFpsSelectBox = VisSelectBox<Int>().apply {
         items = Array<Int>().apply {
-            if (!Const.IS_RELEASE) add(0)
+            if (!Config.IS_RELEASE) add(0)
             add(240, 120, 60, 30)
         }
     }
@@ -75,7 +75,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
             add(VisScrollPane(VisTable().apply {
                 setFillParent(true)
 
-                if (Const.IS_DESKTOP) {
+                if (Config.IS_DESKTOP) {
                     add(fullscreenCB).left()
                     row()
                 }
@@ -119,7 +119,7 @@ class SettingsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewp
 
             row()
 
-            if (Const.DEBUG_MODE) {
+            if (Config.DEBUG_MODE) {
                 add(VisTextButton("Reload Assets").addChangeListener {
                     game.runTexturePacker.run()
                     game.assets.clear()

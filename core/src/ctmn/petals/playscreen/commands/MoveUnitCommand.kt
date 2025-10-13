@@ -1,6 +1,6 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.queueAction
 import ctmn.petals.playscreen.selfName
@@ -27,7 +27,7 @@ class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Comm
         //        } else {
 
         //calculate AP
-        return unit.actionPoints >= Const.ACTION_POINTS_MOVE_MIN
+        return unit.actionPoints >= Config.ACTION_POINTS_MOVE_MIN
     }
 
     override fun execute(playScreen: PlayScreen): Boolean {
@@ -59,7 +59,7 @@ class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Comm
         unit.get(MoveAfterAttackComponent::class.java)?.apply {
             if (attacked) {
                 unit.cUnit.movingRange = normalRange
-                unit.actionPoints -= Const.ACTION_POINTS_ATTACK
+                unit.actionPoints -= Config.ACTION_POINTS_ATTACK
                 attacked = false
             }
         }

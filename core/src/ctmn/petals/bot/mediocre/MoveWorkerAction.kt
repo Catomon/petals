@@ -1,6 +1,6 @@
 package ctmn.petals.bot.mediocre
 
-import ctmn.petals.Const
+import ctmn.petals.Config
 import ctmn.petals.bot.BotAction
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
@@ -24,6 +24,10 @@ class MoveWorkerAction(val unit: UnitActor, private val bot: MidBot, val playScr
 
     private val incomeNeededPerBase = 300
 
+    private enum class MoveTarget {
+        BUILD_BASE, CAPTURE_CRYSTAL, BUILD_BUILDING, IDLE
+    }
+
     override fun evaluate(): Int {
         priority = defaultPriority
 
@@ -32,6 +36,15 @@ class MoveWorkerAction(val unit: UnitActor, private val bot: MidBot, val playScr
         if (bot.botUnits.isEmpty()) return IMPOSSIBLE
 
         return if (unit.canMove()) defaultPriority else IMPOSSIBLE
+
+//        if (hasBuildBaseTask) {
+//            moveToSafeTileCommand
+//            buildBaseCommand
+//        }
+//
+//        if (has)
+
+//        return
     }
 
     override fun execute(): Boolean {
@@ -69,7 +82,7 @@ class MoveWorkerAction(val unit: UnitActor, private val bot: MidBot, val playScr
 
     private fun buildBase(playStage: PlayStage): Boolean {
         if (unit.canBuildBase()) {
-            if (player.credits >= Const.BASE_BUILD_COST) {
+            if (player.credits >= Config.BASE_BUILD_COST) {
                 val incomeDiff = player.income(playScreen) / incomeNeededPerBase
                 if (incomeDiff >= 1) {
                     if (playStage.getCapturablesOf(player).filter { it.isBase }.size < 1 + (1 * incomeDiff)) {

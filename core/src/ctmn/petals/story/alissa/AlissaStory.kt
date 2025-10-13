@@ -1,6 +1,6 @@
 package ctmn.petals.story.alissa
 
-import ctmn.petals.Const.TREASURED_PETALS_STORY_ID
+import ctmn.petals.Config.TREASURED_PETALS_STORY_ID
 import ctmn.petals.story.Story
 
 class AlissaStory : Story(
