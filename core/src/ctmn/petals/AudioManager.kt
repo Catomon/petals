@@ -58,10 +58,14 @@ object AudioManager {
     }
 
     fun playSound(name: String): Long {
-        return playSound(assets.getSound("$name.ogg"))
+        return playSound(assets.getSound("$name.ogg"), 1f)
     }
 
-    private fun playSound(sound: Sound): Long {
-        return sound.play(soundVolume)
+    fun playSound(name: String, pitch: Float): Long {
+        return playSound(assets.getSound("$name.ogg"), pitch)
+    }
+
+    private fun playSound(sound: Sound, pitch: Float): Long {
+        return sound.play(soundVolume, pitch, 0f)
     }
 }

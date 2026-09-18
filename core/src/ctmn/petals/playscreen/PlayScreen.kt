@@ -133,8 +133,7 @@ open class PlayScreen(
 
     private val debugKeysProcessor by lazy { DebugKeysProcessor() }
 
-    private val music =
-        AudioManager.createMusic("crystal_patch.ogg")
+    private val music: AudioManager.GameMusic? = null;
 
     private val ambienceMusic =
         AudioManager.createAmbience("very_quiet_morning_meadow_forest.ogg")
@@ -623,7 +622,7 @@ open class PlayScreen(
     }
 
     override fun hide() {
-        music.pause()
+        music?.pause()
         ambienceMusic.pause()
     }
 
@@ -633,7 +632,7 @@ open class PlayScreen(
         inSettingsScreen = false
         setupInputProcessor()
 
-        music.play()
+        music?.play()
         ambienceMusic.play()
     }
 

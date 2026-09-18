@@ -1,6 +1,7 @@
 package ctmn.petals.playscreen.seqactions
 
 import com.badlogic.gdx.graphics.Color
+import ctmn.petals.AudioManager
 import ctmn.petals.Config
 import ctmn.petals.assets
 import ctmn.petals.effects.FloatingUpLabel
@@ -16,6 +17,7 @@ import ctmn.petals.unit.tiledX
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 import ctmn.petals.utils.getTile
+import kotlin.random.Random
 
 class AttackAction(
     val attackerUnit: UnitActor,
@@ -74,7 +76,7 @@ class AttackAction(
 
                 playScreen.playStage.getTile(targetUnit)?.cutGrass()
 
-                assets.getSound(attackerUnit.hitSounds.random()).play()
+                AudioManager.playSound(attackerUnit.hitSounds.random().replace(".ogg", ""), 1.1f - Random.nextFloat() * 0.20f)
 
                 attackerAttacked = true
             }
