@@ -6,6 +6,15 @@ import kotlin.math.round
 
 object Config {
 
+    /**
+     * Set from the desktop launcher to skip the menu and start a bot vs bot spectate match.
+     * See [ctmn.petals.screens.BotVsBotScenario].
+     */
+    var botTest = false
+
+    /** Difficulty used by [botTest]: "easy", "normal" or "hard". */
+    var botTestDifficulty = "normal"
+
     // App:
     const val APP_NAME = "Fae's Feisty"
     const val APP_VER_NAME = "0.5.3-alpha"

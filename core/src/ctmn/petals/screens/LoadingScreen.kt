@@ -92,10 +92,10 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
         super.act(delta)
         if (isDone) {
             if (progress >= 100) {
-//                if (Config.IS_RELEASE)
-                    game.screen = MenuScreen(game)
-//                else
-//                    game.screen = DevScreen(game)
+                game.screen = if (Config.botTest)
+                    BotVsBotScenario.createFromConfig(game)
+                else
+                    MenuScreen(game)
             }
 
             progress = 100

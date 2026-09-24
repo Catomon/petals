@@ -14,6 +14,22 @@ public class DesktopLauncher {
 
         boolean windowed = arg.length == 1 && arg[0].equals("windowed");
 
+        boolean botTest = false;
+        String botDifficulty = "normal";
+        for (String a : arg) {
+            String lower = a.toLowerCase();
+            if (lower.equals("botvsbot") || lower.equals("bottest") || lower.equals("--bot-test")) {
+                botTest = true;
+            } else if (lower.equals("easy") || lower.equals("normal") || lower.equals("hard")) {
+                botDifficulty = lower;
+            }
+        }
+
+        if (botTest) {
+            Config.INSTANCE.setBotTest(true);
+            Config.INSTANCE.setBotTestDifficulty(botDifficulty);
+        }
+
         if (packAndExit) {
             RunTexturePacker.pack();
             return;
