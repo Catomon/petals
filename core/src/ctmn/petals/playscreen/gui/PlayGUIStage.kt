@@ -421,63 +421,19 @@ class PlayGUIStage(
                     )
                 }
             }
-
-            buildButton.isVisible = false
         }
 
-        addListener {
-            val unit: UnitActor? = when (it) {
-                is UnitSelectedEvent -> it.unit
-                is UnitMovedEvent -> it.unit
+        addListener { event ->
+            val unit: UnitActor? = when (event) {
+                is UnitSelectedEvent -> event.unit
+                is UnitMovedEvent -> event.unit
+                is CommandExecutedEvent,
+                is ActionCompletedEvent,
+                is NextTurnEvent -> selectedUnit
                 else -> return@addListener false
             }
 
-            captureButton.isVisible = false
-            buildBaseButton.isVisible = false
-            buildButton.isVisible = false
-            destroyTileButton.isVisible = false
-            waypointButton.isVisible = false
-
-            unit ?: return@addListener false
-
-            if (unit.isPlayerUnit(localPlayer) && unit.actionPoints > 0) {
-                waypointButton.isVisible = true
-
-                val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return@addListener false
-
-                buildBaseButton.isVisible = unit.canBuildBase()
-                if (buildBaseButton.isVisible) {
-                    buildBaseButton.style.imageUp = if (localPlayer.species == fairy) VisUI.getSkin().getDrawable("icons/pixie_nest")
-                    else VisUI.getSkin().getDrawable("icons/goblin_den")
-                }
-                buildBaseButton.isDisabled = !unit.canBuildBase(tile) || localPlayer.credits < BASE_BUILD_COST
-
-                buildButton.isVisible = unit.canBuild()
-                buildButton.isDisabled = !unit.canBuild(tile)
-
-                destroyTileButton.isVisible = unit.canDestroy(
-                    tile,
-                    playScreen.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId
-                )
-                destroyTileButton.isDisabled = !unit.canDestroy(
-                    tile,
-                    playScreen.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId
-                )
-
-                if (!tile.isCapturable) return@addListener false
-
-                captureButton.isVisible = unit.canCapture()
-
-                if (tile.cPlayerId?.playerId == localPlayer.id) {
-                    //captureButton.isDisabled = true
-                    captureButton.isVisible = false
-                    return@addListener false
-                }
-
-                captureButton.isDisabled = !unit.canCapture(tile)
-
-                //if (unit.canCapture(tile)) return@addListener false
-            }
+            updateUnitActionButtons(unit)
 
             false
         }
@@ -1043,6 +999,60 @@ class PlayGUIStage(
 //        batch.end()
 
         super.draw()
+    }
+
+    /**
+     * Recomputes which action buttons (build base / build / capture / destroy / waypoint) are
+     * shown for [unit]. Must be called whenever the unit's state can change: selection, move,
+     * any executed command, a finished action, and turn start (action points reset).
+     */
+    private fun updateUnitActionButtons(unit: UnitActor?) {
+        captureButton.isVisible = false
+        buildBaseButton.isVisible = false
+        buildButton.isVisible = false
+        destroyTileButton.isVisible = false
+        waypointButton.isVisible = false
+
+        unit ?: return
+
+        if (!unit.isPlayerUnit(localPlayer) || unit.actionPoints <= 0) return
+
+        waypointButton.isVisible = true
+
+        val tile = playStage.getTile(unit.tiledX, unit.tiledY) ?: return
+
+        buildBaseButton.isVisible = unit.canBuildBase()
+        if (buildBaseButton.isVisible) {
+            buildBaseButton.style.imageUp = if (localPlayer.species == fairy) VisUI.getSkin().getDrawable("icons/pixie_nest")
+            else VisUI.getSkin().getDrawable("icons/goblin_den")
+        }
+        buildBaseButton.isDisabled = !unit.canBuildBase(tile) || localPlayer.credits < BASE_BUILD_COST
+
+        buildButton.isVisible = unit.canBuild()
+        buildButton.isDisabled = !unit.canBuild(tile)
+
+        destroyTileButton.isVisible = unit.canDestroy(
+            tile,
+            playScreen.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId
+        )
+        destroyTileButton.isDisabled = !unit.canDestroy(
+            tile,
+            playScreen.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId
+        )
+
+        if (!tile.isCapturable) return
+
+        captureButton.isVisible = unit.canCapture()
+
+        if (tile.cPlayerId?.playerId == localPlayer.id) {
+            //captureButton.isDisabled = true
+            captureButton.isVisible = false
+            return
+        }
+
+        captureButton.isDisabled = !unit.canCapture(tile)
+
+        //if (unit.canCapture(tile)) return@addListener false
     }
 
     fun reset() {
