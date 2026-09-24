@@ -4,6 +4,11 @@ import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a rank-and-file goblin.
+ * Role: unused leftover base goblin.
+ * Notes: not registered in the shop and has no cost; kept as a reference/placeable actor.
+ */
 class Goblin : UnitActor(
     UnitComponent(
         "goblin",

@@ -5,6 +5,11 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.*
 
 
+/**
+ * Appearance: a goblin commander.
+ * Role: unused leftover.
+ * Notes: not registered in the shop and has no LeaderComponent despite the name.
+ */
 class GoblinLeader : UnitActor(
     UnitComponent(
         "goblin_leader",

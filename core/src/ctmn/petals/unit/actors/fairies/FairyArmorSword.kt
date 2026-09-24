@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_ARMOR_SWORD
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy in ornate plate armor wielding a sword.
+ * Role: elite line melee (600, damage 60-80, defense 30).
+ * Notes: requires Forge + Armory.
+ */
 class FairyArmorSword : UnitActor(
     UnitComponent(
         DOLL_ARMOR_SWORD,

@@ -7,6 +7,12 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds.PIXIE
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a tiny winged fairy, barely bigger than a flower.
+ * Role: cheap flying scout (50).
+ * Notes: uses flier movement (crosses water/chasm) but is a LAND type, so it can be hit by
+ * ground units once it stops. No Follower. Its job is cheap vision, not fighting.
+ */
 class FairyPixie : UnitActor(
     UnitComponent(
         PIXIE,

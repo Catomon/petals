@@ -5,6 +5,11 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds.GOBLIN_SHIP
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a small goblin boat.
+ * Role: water melee (600, damage 45-60).
+ * Notes: waterOnly movement; requires no building, but only buyable at a water base.
+ */
 class GoblinShip : UnitActor(
     UnitComponent(
         GOBLIN_SHIP,

@@ -7,6 +7,11 @@ import ctmn.petals.unit.UnitIds.DOLL_HAMMER
 import ctmn.petals.unit.abilities.HammerAbility
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy with a warhammer.
+ * Role: heavy melee (400).
+ * Notes: HammerAbility; requires the Forge.
+ */
 class FairyHammer : UnitActor(
     UnitComponent(
         DOLL_HAMMER,

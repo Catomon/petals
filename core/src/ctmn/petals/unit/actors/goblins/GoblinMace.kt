@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.abilities.HammerAbility
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a goblin with a heavy mace.
+ * Role: heavy melee (400).
+ * Notes: HammerAbility; requires the Forge.
+ */
 class GoblinMace : UnitActor(
     UnitComponent(
         UnitIds.GOBLIN_MACE,

@@ -10,6 +10,11 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
+/**
+ * Appearance: a fairy-operated cannon that fires clusters of hard peas/seeds.
+ * Role: siege artillery (1000, range 5, min range 2, splash).
+ * Notes: moves only 2 tiles; Reloading. Requires Folia + Cucumber.
+ */
 class FairyPeas : UnitActor(
     UnitComponent(
         DOLL_PEAS,

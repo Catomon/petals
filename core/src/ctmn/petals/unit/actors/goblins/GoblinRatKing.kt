@@ -8,6 +8,11 @@ import ctmn.petals.unit.UnitIds.GOBLIN_BOW
 import ctmn.petals.unit.UnitIds.GOBLIN_RAT_KING
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a goblin rat king.
+ * Role: caster (700) - WORK IN PROGRESS.
+ * Notes: gated behind Config.WIP_CONTENT; the plague/research mechanic is not implemented yet.
+ */
 class GoblinRatKing : UnitActor(
     UnitComponent(
         GOBLIN_RAT_KING,

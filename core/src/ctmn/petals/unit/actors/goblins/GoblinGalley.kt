@@ -9,6 +9,11 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
+/**
+ * Appearance: an armed goblin galley.
+ * Role: water ranged (1000, range 4).
+ * Notes: waterOnly movement; requires Foundry + Arsenal.
+ */
 class GoblinGalley : UnitActor(
     UnitComponent(
         GOBLIN_GALLEY,

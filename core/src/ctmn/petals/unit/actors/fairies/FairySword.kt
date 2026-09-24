@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_SWORD
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy with a short sword.
+ * Role: basic line melee (100).
+ * Notes: no building required. Matchup bonus vs slimes/blobs.
+ */
 class FairySword : UnitActor(
     UnitComponent(
         DOLL_SWORD,
@@ -17,7 +22,6 @@ class FairySword : UnitActor(
 ) {
 
     init {
-        add(ShopComponent(100))
         add(SummonableComponent(10))
         add(FollowerComponent())
         add(

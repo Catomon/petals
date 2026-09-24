@@ -9,6 +9,12 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.unit.movingRange
 
 
+/**
+ * Appearance: a larger winged fairy carrying a sword; very mobile.
+ * Role: premium skirmisher (400, damage 55-70).
+ * Notes: flier movement but a LAND type (flies to reposition, then fights on the ground and can
+ * be hit back). MoveAfterAttack; requires Forge + Aerthys. Not the cheap scout: that is the Pixie.
+ */
 class FairyScout : UnitActor(
     UnitComponent(
         DOLL_SCOUT,

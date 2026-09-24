@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_GLAIVE
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a heavily armored fairy with a glaive.
+ * Role: defensive elite melee (600, defense 35).
+ * Notes: requires Forge + Armory.
+ */
 class FairyGlaive : UnitActor(
     UnitComponent(
         DOLL_GLAIVE,

@@ -6,6 +6,12 @@ import ctmn.petals.unit.UnitIds.GOBLIN_SCOUT
 import ctmn.petals.unit.component.*
 
 
+/**
+ * Appearance: a goblin floating on a small hot-air balloon.
+ * Role: cheap flying scout (50, damage 5-20).
+ * Notes: flier movement but a LAND type, so ground units can still hit it once it lands. No
+ * Follower. This is the goblin cheap scout; the FairyScout is a different, premium unit.
+ */
 class GoblinScout : UnitActor(
     UnitComponent(
         GOBLIN_SCOUT,

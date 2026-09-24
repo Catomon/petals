@@ -8,6 +8,11 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.unit.movingRange
 
 
+/**
+ * Appearance: a goblin riding a wolf.
+ * Role: fast mounted skirmisher (400, damage 55-70, move 5).
+ * Notes: MoveAfterAttack; uses the 'horse' terrain profile; requires Forge + Beastmount.
+ */
 class GoblinWolf : UnitActor(
     UnitComponent(
         "goblin_wolf",

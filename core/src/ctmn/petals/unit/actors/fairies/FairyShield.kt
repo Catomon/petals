@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_SHIELD
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy carrying a large shield.
+ * Role: defensive support (300, defense 20).
+ * Notes: projects a small defense aura (+5) around itself. Requires Floral Aegis.
+ */
 class FairyShield : UnitActor(
     UnitComponent(
      DOLL_SHIELD,

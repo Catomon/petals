@@ -33,6 +33,12 @@ open class UnitStat(
 //    maxDamage = 60,
 //)
 
+/**
+ * Appearance: a waterborne plant-fairy.
+ * Role: water melee (600, damage 45-60).
+ * Notes: waterOnly movement; requires no building. Only placeable/buyable at a water base.
+ * This file also defines the experimental UnitStat helper used by a few units.
+ */
 class FairyWaterplant : UnitActor(
     UnitComponent(
         FairyWaterplantStat.id,

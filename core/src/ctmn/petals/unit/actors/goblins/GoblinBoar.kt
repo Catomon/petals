@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.component.*
 
 
+/**
+ * Appearance: a goblin riding a boar, swinging a ball-and-chain flail.
+ * Role: mounted melee (400, damage 50-60, move 5).
+ * Notes: the flail gives it more damage than the pike boar. 'horse' terrain; requires the Forge.
+ */
 class GoblinBoar : UnitActor(
     UnitComponent(
         "goblin_boar",

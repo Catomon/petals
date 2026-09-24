@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.DOLL_PIKE
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy with a long pike.
+ * Role: defensive line melee (200, defense 15).
+ * Notes: no building required. Pike matchup bonuses vs cavalry/boar-type units.
+ */
 class FairyPike : UnitActor(
     UnitComponent(
         DOLL_PIKE,
@@ -17,7 +22,6 @@ class FairyPike : UnitActor(
 ) {
 
     init {
-        add(ShopComponent(100))
         add(SummonableComponent(10))
         add(FollowerComponent())
         add(

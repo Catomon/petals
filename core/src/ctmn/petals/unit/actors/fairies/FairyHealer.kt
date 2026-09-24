@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds.DOLL_HEALER
 import ctmn.petals.unit.abilities.HealingTouchAbility
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy healer with a staff.
+ * Role: support (300).
+ * Notes: HealingTouch (50+25 per level, range 2) plus a small healing field. Requires Floral Aegis.
+ */
 class FairyHealer : UnitActor(
     UnitComponent(
         DOLL_HEALER,

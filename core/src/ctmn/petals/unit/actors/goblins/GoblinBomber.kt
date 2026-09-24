@@ -9,6 +9,11 @@ import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
+/**
+ * Appearance: a goblin lobbing bombs.
+ * Role: ranged splash bomber (500, range 3, splash 35).
+ * Notes: Reloading 1; requires Forge + Arsenal.
+ */
 class GoblinBomber : UnitActor(
     UnitComponent(
         GOBLIN_BOMBER,

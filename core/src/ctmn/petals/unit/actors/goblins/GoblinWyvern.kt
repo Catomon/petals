@@ -7,6 +7,12 @@ import ctmn.petals.unit.UnitIds.GOBLIN_WYVERN
 import ctmn.petals.unit.component.*
 
 
+/**
+ * Appearance: a goblin riding a wyvern.
+ * Role: elite flying skirmisher (600, damage 65-80, hits air).
+ * Notes: flier movement but a LAND type by design (it dives down to fight, so ground can hit
+ * back). Requires Forge + Beastmount.
+ */
 class GoblinWyvern : UnitActor(
     UnitComponent(
         GOBLIN_WYVERN,

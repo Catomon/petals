@@ -5,6 +5,11 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds.GOBLIN_GIANT
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a huge goblin.
+ * Role: elite bruiser (1200, 500 hp, defense 30).
+ * Notes: giant terrain profile; requires Armory + Foundry.
+ */
 class GoblinGiant : UnitActor(
     UnitComponent(
         GOBLIN_GIANT,

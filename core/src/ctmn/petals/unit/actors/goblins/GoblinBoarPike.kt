@@ -7,6 +7,12 @@ import ctmn.petals.unit.UnitIds.GOBLIN_BOAR_PIKE
 import ctmn.petals.unit.component.*
 
 
+/**
+ * Appearance: a goblin on a boar carrying a long pike.
+ * Role: defensive mounted pike (400, damage 40-50, defense 25).
+ * Notes: lower damage than the flail Boar, but tankier and gets matchup bonuses vs some units.
+ * 'horse' terrain; requires the Forge.
+ */
 class GoblinBoarPike : UnitActor(
     UnitComponent(
         GOBLIN_BOAR_PIKE,

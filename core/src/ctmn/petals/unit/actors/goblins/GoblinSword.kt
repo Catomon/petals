@@ -6,6 +6,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.GOBLIN_SWORD
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a goblin with a sword.
+ * Role: basic line melee (100, damage 25-40).
+ * Notes: no building required. Slightly higher max damage than the fairy sword.
+ */
 class GoblinSword : UnitActor(
     UnitComponent(
         GOBLIN_SWORD,

@@ -8,6 +8,11 @@ import ctmn.petals.unit.UnitIds.GOBLIN_MACHETE
 import ctmn.petals.unit.UnitIds.ROOT
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy swinging a big battle axe.
+ * Role: heavy melee (400, damage 60-80, defense 20).
+ * Notes: requires the Forge. Matchup bonus vs evil trees/roots.
+ */
 class FairyAxe : UnitActor(
     UnitComponent(
         DOLL_AXE,
@@ -19,7 +24,6 @@ class FairyAxe : UnitActor(
 ) {
 
     init {
-        add(ShopComponent(100))
         add(SummonableComponent(30))
         add(FollowerComponent())
         add(

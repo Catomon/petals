@@ -4,6 +4,11 @@ import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitIds.DOLL_SOWER
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a fairy carrying a watering can / seed pouch.
+ * Role: worker (100).
+ * Notes: the fairy builder. Builds bases and captures crystal tiles; it has no real attack.
+ */
 class FairySower : UnitActor(
     UnitComponent(
         DOLL_SOWER,

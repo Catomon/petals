@@ -21,8 +21,8 @@ class HealthPotionAbility : Ability(
     0,
 ) {
 
-    private val baseHealing = 30
-    private val healing: Int get() = baseHealing + 15 * level
+    private val baseHealing = 40
+    private val healing: Int get() = baseHealing + 20 * level
 
     override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
         val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)

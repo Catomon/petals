@@ -7,6 +7,11 @@ import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.UnitIds.GOBLIN_BOW
 import ctmn.petals.unit.component.*
 
+/**
+ * Appearance: a goblin archer with a bow.
+ * Role: ranged (300, range 3, hits air).
+ * Notes: Reloading 1; requires the Archers Guild.
+ */
 class GoblinBow : UnitActor(
     UnitComponent(
         GOBLIN_BOW,
