@@ -145,7 +145,7 @@ val UnitActor.sprite: Sprite?
 
 val UnitActor.canAttackAir get() = cAttack?.attackType == ATTACK_TYPE_ALL || cAttack?.attackType == ATTACK_TYPE_AIR
 
-val UnitActor.isWorker get() = selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
+val UnitActor.isWorker get() = selfName == UnitIds.FAIRY_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
 
 val UnitActor.isBuilding
     get() = playStageOrNull?.getTile(this)?.get(BuildingComponent::class.java)?.playerId == playerId
@@ -297,7 +297,7 @@ fun UnitActor.addAttackDamage(amount: Int) {
 }
 
 fun UnitActor.canBuildBase(): Boolean {
-    return (selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE)
+    return (selfName == UnitIds.FAIRY_SOWER || selfName == UnitIds.GOBLIN_PICKAXE)
 }
 
 fun UnitActor.canBuildBase(tile: TileActor): Boolean {
@@ -305,7 +305,7 @@ fun UnitActor.canBuildBase(tile: TileActor): Boolean {
 }
 
 fun UnitActor.canBuild(): Boolean {
-    return (selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE)
+    return (selfName == UnitIds.FAIRY_SOWER || selfName == UnitIds.GOBLIN_PICKAXE)
 }
 
 fun UnitActor.canBuild(tile: TileActor): Boolean {
@@ -319,15 +319,15 @@ fun UnitActor.canDestroy(tile: TileActor, tileTeamId: Int? = null): Boolean {
 }
 
 fun UnitActor.canDestroy(): Boolean {
-    return (selfName != UnitIds.DOLL_SOWER
+    return (selfName != UnitIds.FAIRY_SOWER
             && selfName != UnitIds.GOBLIN_PICKAXE
 //            && selfName != UnitIds.GOBLIN_GIANT
 //            && selfName != UnitIds.HUNTER
             && selfName != UnitIds.GOBLIN_SCOUT
             && selfName != UnitIds.PIXIE
-            && selfName != UnitIds.CUCUMBER
+            && selfName != UnitIds.WATER_BUD
             && selfName != UnitIds.GOBLIN_CATAPULT
-            && selfName != UnitIds.DOLL_PEAS
+            && selfName != UnitIds.FAIRY_SLINGER
             && !isLeader
             && !(isAir && cAttack?.attackType == ATTACK_TYPE_GROUND)
             )
@@ -335,7 +335,7 @@ fun UnitActor.canDestroy(): Boolean {
 
 fun UnitActor.canCapture(): Boolean {
     // Capturing is a worker-only job.
-    return selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
+    return selfName == UnitIds.FAIRY_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
 }
 
 fun UnitActor.canCapture(tile: TileActor): Boolean {
@@ -748,8 +748,8 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         is FairyAxe -> 1
         is FairyBomber -> 1
         is FairyBow -> 1
-        is FairyPeas -> 1
-        is FairyCucumber -> 1
+        is FairySlinger -> 1
+        is WaterBud -> 1
         is FairyHealer -> 1
         is FairyHunter -> 1
         is FairyPike -> 1

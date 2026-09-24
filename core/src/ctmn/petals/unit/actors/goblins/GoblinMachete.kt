@@ -34,10 +34,10 @@ class GoblinMachete : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.CUCUMBER] = Pair(25, 0)
+            bonuses[UnitIds.WATER_BUD] = Pair(25, 0)
             bonuses[UnitIds.CATAPULT] = Pair(25, 0)
             bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(25, 0)
-            bonuses[UnitIds.DOLL_BOW] = Pair(25, 0)
+            bonuses[UnitIds.FAIRY_BOW] = Pair(25, 0)
             bonuses[UnitIds.EVIL_TREE] = 25 to 0
         })
     }

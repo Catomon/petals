@@ -4,20 +4,20 @@ import ctmn.petals.effects.MissileActor
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.CUCUMBER
+import ctmn.petals.unit.UnitIds.WATER_BUD
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
 /**
- * Appearance: an underwater plant creature: a closed flower with long leaves that spits a
- * projectile. (Old name "cucumber"; rename pending.)
+ * Appearance: an underwater plant creature: a closed bud with tentacles that spits a projectile
+ * (no flower/bloom is visible).
  * Role: water siege / spitter (cannot hit adjacent tiles).
- * Notes: waterOnly movement; requires Folia + the cucumber building.
+ * Notes: waterOnly movement; requires Folia + the Bloomery building.
  */
-class FairyCucumber : UnitActor(
+class WaterBud : UnitActor(
     UnitComponent(
-        CUCUMBER,
+        WATER_BUD,
         100,
         0,
         2,

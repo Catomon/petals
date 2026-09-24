@@ -3,7 +3,7 @@ package ctmn.petals.unit.actors.fairies
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.DOLL_GLAIVE
+import ctmn.petals.unit.UnitIds.FAIRY_GLAIVE
 import ctmn.petals.unit.component.*
 
 /**
@@ -13,7 +13,7 @@ import ctmn.petals.unit.component.*
  */
 class FairyGlaive : UnitActor(
     UnitComponent(
-        DOLL_GLAIVE,
+        FAIRY_GLAIVE,
         100,
         35,
         4,
@@ -33,13 +33,13 @@ class FairyGlaive : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.DOLL_BOW] = Pair(0, 25)
+            bonuses[UnitIds.FAIRY_BOW] = Pair(0, 25)
             bonuses[UnitIds.GOBLIN_BOW] = Pair(0, 25)
             bonuses[UnitIds.GOBLIN_CROSSBOW] = Pair(0, 25)
             bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(0, 10)
             bonuses[UnitIds.GOBLIN_GALLEY] = Pair(0, 10)
-            bonuses[UnitIds.CUCUMBER] = Pair(0, 10)
-            bonuses[UnitIds.DOLL_PEAS] = Pair(0, 10)
+            bonuses[UnitIds.WATER_BUD] = Pair(0, 10)
+            bonuses[UnitIds.FAIRY_SLINGER] = Pair(0, 10)
 
             bonuses[UnitIds.CAVALRY] = Pair(25, 15)
             bonuses[UnitIds.FALLEN_KNIGHT] = Pair(25, 15)

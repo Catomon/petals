@@ -1,7 +1,7 @@
 package ctmn.petals.unit.actors.fairies
 
 import ctmn.petals.unit.*
-import ctmn.petals.unit.UnitIds.DOLL_SOWER
+import ctmn.petals.unit.UnitIds.FAIRY_SOWER
 import ctmn.petals.unit.component.*
 
 /**
@@ -11,7 +11,7 @@ import ctmn.petals.unit.component.*
  */
 class FairySower : UnitActor(
     UnitComponent(
-        DOLL_SOWER,
+        FAIRY_SOWER,
         100,
         0,
         3,
@@ -20,7 +20,7 @@ class FairySower : UnitActor(
     )
 ) {
 
-    val buildingAnimation = findAnimation(DOLL_SOWER + "_building", loop = true)
+    val buildingAnimation = findAnimation(FAIRY_SOWER + "_building", loop = true)
 
     init {
         add(FollowerComponent())

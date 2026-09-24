@@ -60,7 +60,7 @@ object Tiles {
     const val FAIRY_AERTHYS = "fairy_aerthys"
     const val FAIRY_ARCHERS_GUILD = "fairy_archers_guild"
     const val FAIRY_ARMORY = "fairy_armory"
-    const val FAIRY_CUCUMBER = "fairy_cucumber"
+    const val FAIRY_BLOOMERY = "fairy_bloomery"
     const val FAIRY_FOLIA = "fairy_folia"
     const val FAIRY_FORGE = "fairy_forge"
     const val GOBLIN_ARCHERS_GUILD = "goblin_archers_guild"

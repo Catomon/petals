@@ -2,10 +2,10 @@ package ctmn.petals.unit
 
 import ctmn.petals.Config.MAX_LVL
 import ctmn.petals.story.alissa.CreateUnit
-import ctmn.petals.unit.UnitIds.DOLL_AXE
-import ctmn.petals.unit.UnitIds.DOLL_BOW
-import ctmn.petals.unit.UnitIds.DOLL_PIKE
-import ctmn.petals.unit.UnitIds.DOLL_SWORD
+import ctmn.petals.unit.UnitIds.FAIRY_AXE
+import ctmn.petals.unit.UnitIds.FAIRY_BOW
+import ctmn.petals.unit.UnitIds.FAIRY_PIKE
+import ctmn.petals.unit.UnitIds.FAIRY_SWORD
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.unit.actors.Alice
 import kotlin.math.ceil
@@ -64,10 +64,10 @@ object StoryAliceLevelUp : LevelUp<Alice>() {
                 if (lvl >= 7) summonAbility.cooldown = 1
 
 
-                if (lvl >= 1) summoner.units.add(DOLL_PIKE)
-                if (lvl >= 2) summoner.units.add(DOLL_SWORD)
-                if (lvl >= 3) summoner.units.add(DOLL_BOW)
-                if (lvl >= 4) summoner.units.add(DOLL_AXE)
+                if (lvl >= 1) summoner.units.add(FAIRY_PIKE)
+                if (lvl >= 2) summoner.units.add(FAIRY_SWORD)
+                if (lvl >= 3) summoner.units.add(FAIRY_BOW)
+                if (lvl >= 4) summoner.units.add(FAIRY_AXE)
 
                 when (lvl) {
                     3 -> summoner.maxUnits = max(summoner.maxUnits, 5)

@@ -3,7 +3,7 @@ package ctmn.petals.unit.actors.fairies
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.DOLL_SHIELD
+import ctmn.petals.unit.UnitIds.FAIRY_SHIELD
 import ctmn.petals.unit.component.*
 
 /**
@@ -13,7 +13,7 @@ import ctmn.petals.unit.component.*
  */
 class FairyShield : UnitActor(
     UnitComponent(
-     DOLL_SHIELD,
+     FAIRY_SHIELD,
     100,
     20,
     3,
@@ -34,8 +34,8 @@ class FairyShield : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.CUCUMBER] = 0 to 15
-            bonuses[UnitIds.DOLL_BOW] = 0 to 15
+            bonuses[UnitIds.WATER_BUD] = 0 to 15
+            bonuses[UnitIds.FAIRY_BOW] = 0 to 15
             bonuses[UnitIds.GOBLIN_BOW] = 0 to 15
             bonuses[UnitIds.GOBLIN_CATAPULT] = 0 to 15
         })

@@ -42,9 +42,9 @@ class GoblinRatKing : UnitActor(
         }))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.ANGRY_OWL] = 25 to 0
-            bonuses[UnitIds.DOLL_BOMBER] = 25 to 0
+            bonuses[UnitIds.FAIRY_BOMBER] = 25 to 0
             bonuses[UnitIds.GOBLIN_WYVERN] = 25 to 0
-            bonuses[UnitIds.DOLL_SCOUT] = 25 to 0
+            bonuses[UnitIds.FAIRY_SCOUT] = 25 to 0
             bonuses[UnitIds.PIXIE] = 25 to 0
         })
 

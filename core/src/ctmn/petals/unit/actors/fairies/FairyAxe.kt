@@ -2,7 +2,7 @@ package ctmn.petals.unit.actors.fairies
 
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds.DOLL_AXE
+import ctmn.petals.unit.UnitIds.FAIRY_AXE
 import ctmn.petals.unit.UnitIds.EVIL_TREE
 import ctmn.petals.unit.UnitIds.GOBLIN_MACHETE
 import ctmn.petals.unit.UnitIds.ROOT
@@ -15,7 +15,7 @@ import ctmn.petals.unit.component.*
  */
 class FairyAxe : UnitActor(
     UnitComponent(
-        DOLL_AXE,
+        FAIRY_AXE,
         100,
         20,
         4,

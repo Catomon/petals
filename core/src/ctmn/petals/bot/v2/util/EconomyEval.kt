@@ -36,7 +36,7 @@ object EconomyEval {
     /** Cheap, fast, weak flyers meant for vision, not for fighting. */
     private val scoutUnitIds = setOf(UnitIds.PIXIE, UnitIds.GOBLIN_SCOUT)
 
-    private val siegeUnitIds = setOf(UnitIds.CATAPULT, UnitIds.GOBLIN_CATAPULT, UnitIds.DOLL_PEAS)
+    private val siegeUnitIds = setOf(UnitIds.CATAPULT, UnitIds.GOBLIN_CATAPULT, UnitIds.FAIRY_SLINGER)
 
     private const val MAX_DEFENSIVE_BUILDINGS = 2
 

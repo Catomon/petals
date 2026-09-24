@@ -59,11 +59,11 @@ val newPvPAlice get() = Alice().apply {
     })
     add(SummonerComponent().apply {
         maxUnits = 25
-        units.add(UnitIds.DOLL_SWORD)
-        units.add(UnitIds.DOLL_PIKE)
-        units.add(UnitIds.DOLL_BOW)
-        units.add(UnitIds.DOLL_AXE)
-        units.add(UnitIds.CUCUMBER)
+        units.add(UnitIds.FAIRY_SWORD)
+        units.add(UnitIds.FAIRY_PIKE)
+        units.add(UnitIds.FAIRY_BOW)
+        units.add(UnitIds.FAIRY_AXE)
+        units.add(UnitIds.WATER_BUD)
     })
 
     add(

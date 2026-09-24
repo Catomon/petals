@@ -4,7 +4,7 @@ import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.DOLL_MAGE
+import ctmn.petals.unit.UnitIds.FAIRY_MAGE
 import ctmn.petals.unit.component.*
 
 /**
@@ -14,7 +14,7 @@ import ctmn.petals.unit.component.*
  */
 class FairyMage : UnitActor(
     UnitComponent(
-        DOLL_MAGE,
+        FAIRY_MAGE,
         100,
         0,
         4,
@@ -44,9 +44,9 @@ class FairyMage : UnitActor(
         }))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.ANGRY_OWL] = 25 to 0
-            bonuses[UnitIds.DOLL_BOMBER] = 25 to 0
+            bonuses[UnitIds.FAIRY_BOMBER] = 25 to 0
             bonuses[UnitIds.GOBLIN_WYVERN] = 25 to 0
-            bonuses[UnitIds.DOLL_SCOUT] = 25 to 0
+            bonuses[UnitIds.FAIRY_SCOUT] = 25 to 0
             bonuses[UnitIds.PIXIE] = 25 to 0
         })
 

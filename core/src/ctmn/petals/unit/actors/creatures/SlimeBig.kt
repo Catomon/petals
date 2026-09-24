@@ -25,8 +25,8 @@ class SlimeBig : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.slime))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.DOLL_BOW] = Pair(0, 25)
-            bonuses[UnitIds.DOLL_PIKE] = 0 to 25
+            bonuses[UnitIds.FAIRY_BOW] = Pair(0, 25)
+            bonuses[UnitIds.FAIRY_PIKE] = 0 to 25
         })
 
         hitSounds = arrayOf("slime_hit.ogg")

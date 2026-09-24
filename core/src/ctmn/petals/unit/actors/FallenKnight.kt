@@ -29,8 +29,8 @@ class FallenKnight : UnitActor(
             bonuses[UnitIds.SW0RDMAN] = Pair(15, 15)
             bonuses[UnitIds.BOWMAN] = Pair(15, 0)
             bonuses[UnitIds.CATAPULT] = Pair(15, 0)
-            bonuses[UnitIds.DOLL_SWORD] = Pair(15, 15)
-            bonuses[UnitIds.DOLL_BOW] = Pair(15, 0)
+            bonuses[UnitIds.FAIRY_SWORD] = Pair(15, 15)
+            bonuses[UnitIds.FAIRY_BOW] = Pair(15, 0)
         })
     }
 }

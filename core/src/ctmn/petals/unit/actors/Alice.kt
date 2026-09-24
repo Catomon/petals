@@ -7,7 +7,7 @@ import ctmn.petals.player.Team
 import ctmn.petals.strings
 import ctmn.petals.unit.*
 import ctmn.petals.unit.UnitIds.ALICE_ID
-import ctmn.petals.unit.UnitIds.DOLL_PIKE
+import ctmn.petals.unit.UnitIds.FAIRY_PIKE
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.RegionAnimation
 
@@ -57,7 +57,7 @@ class Alice : UnitActor(
             )
         )
         add(AbilitiesComponent().apply { mana = 50 })
-        add(SummonerComponent().apply { units.add(DOLL_PIKE) })
+        add(SummonerComponent().apply { units.add(FAIRY_PIKE) })
 
         add(LevelComponent(
             1,

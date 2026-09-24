@@ -18,7 +18,7 @@ object Species {
     const val FAIRY_FORGE = "fairy_forge"
     const val FAIRY_ARCHERS_GUILD = "fairy_archers_guild"
     const val FAIRY_ARMORY = "fairy_armory"
-    const val FAIRY_CUCUMBER = "fairy_cucumber"
+    const val FAIRY_BLOOMERY = "fairy_bloomery"
     const val FAIRY_FOLIA = "fairy_folia"
     const val FAIRY_AERTHYS = "fairy_aerthys"
     const val FAIRY_FLORAL_AEGIS = "fairy_floral_aegis"
@@ -50,16 +50,16 @@ object Species {
             add(FairyHammer().cost(400), 1, listOf(FAIRY_FORGE))
             add(FairyScout().cost(400), 1, listOf(FAIRY_FORGE, FAIRY_AERTHYS))
 
-            add(FairyBomber().cost(500), 1, listOf(FAIRY_AERTHYS, FAIRY_CUCUMBER))
+            add(FairyBomber().cost(500), 1, listOf(FAIRY_AERTHYS, FAIRY_BLOOMERY))
             add(FairyGlaive().cost(600), 1, listOf(FAIRY_FORGE, FAIRY_ARMORY))
             add(FairyArmorSword().cost(600), 1, listOf(FAIRY_FORGE, FAIRY_ARMORY))
             if (Config.WIP_CONTENT)
                 add(FairyMage().cost(700), 1, listOf(FAIRY_ACADEMY))
 
             add(FairyWaterplant().cost(600), 1)
-            add(FairyCucumber().cost(1000), 1, listOf(FAIRY_FOLIA, FAIRY_CUCUMBER))
+            add(WaterBud().cost(1000), 1, listOf(FAIRY_FOLIA, FAIRY_BLOOMERY))
 
-            add(FairyPeas().cost(1000), 1, listOf(FAIRY_FOLIA, FAIRY_CUCUMBER))
+            add(FairySlinger().cost(1000), 1, listOf(FAIRY_FOLIA, FAIRY_BLOOMERY))
             add(FairyHunter().cost(1200), 1, listOf(FAIRY_FOLIA))
         }
 
@@ -68,7 +68,7 @@ object Species {
             add(Building(FAIRY_ARCHERS_GUILD, 3, 200, Array<String>().apply { add("grass") }))
             add(Building(FAIRY_FLORAL_AEGIS, 2, 200, Array<String>().apply { add("grass") }))
             add(Building(FAIRY_AERTHYS, 3, 300, Array<String>().apply { add("grass") }, FAIRY_FORGE))
-            add(Building(FAIRY_CUCUMBER, 3, 300, Array<String>().apply { add("grass") }, FAIRY_AERTHYS))
+            add(Building(FAIRY_BLOOMERY, 3, 300, Array<String>().apply { add("grass") }, FAIRY_AERTHYS))
             add(Building(FAIRY_ARMORY, 4, 400, Array<String>().apply { add("grass") }, FAIRY_FORGE))
             add(Building(FAIRY_FOLIA, 4, 400, Array<String>().apply { add("grass") }, FAIRY_ARMORY))
             if (Config.WIP_CONTENT)

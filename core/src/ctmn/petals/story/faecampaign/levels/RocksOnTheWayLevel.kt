@@ -77,8 +77,8 @@ class RocksOnTheWayLevel : Scenario(ID, "Rocks_in_the_way") {
         playScreen.fogOfWarManager.drawDiscoverableFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also { units ->
             fairyUnits.units.filter { unit ->
-                unit.selfName == UnitIds.DOLL_HAMMER
-                        || unit.selfName == UnitIds.DOLL_SOWER
+                unit.selfName == UnitIds.FAIRY_HAMMER
+                        || unit.selfName == UnitIds.FAIRY_SOWER
             }.forEach {
                 units.add(it)
             }
@@ -110,7 +110,7 @@ class RocksOnTheWayLevel : Scenario(ID, "Rocks_in_the_way") {
             }
 
             addTrigger(UnitAddedTrigger(players[0].id)).onTrigger {
-                if (playStage.getUnitsOfPlayer(players[0].id).any { it.selfName == UnitIds.DOLL_HAMMER }) {
+                if (playStage.getUnitsOfPlayer(players[0].id).any { it.selfName == UnitIds.FAIRY_HAMMER }) {
                     if (!unitFairyHammerMade) {
                         queueAddUnitAction(maceGoblin ?: throw IllegalStateException("Where's mace goblin???"), true)
 

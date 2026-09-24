@@ -3,7 +3,7 @@ package ctmn.petals.unit.actors.fairies
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.DOLL_HAMMER
+import ctmn.petals.unit.UnitIds.FAIRY_HAMMER
 import ctmn.petals.unit.abilities.HammerAbility
 import ctmn.petals.unit.component.*
 
@@ -14,7 +14,7 @@ import ctmn.petals.unit.component.*
  */
 class FairyHammer : UnitActor(
     UnitComponent(
-        DOLL_HAMMER,
+        FAIRY_HAMMER,
         100,
         25,
         4,

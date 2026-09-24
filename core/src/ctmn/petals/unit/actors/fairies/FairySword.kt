@@ -3,7 +3,7 @@ package ctmn.petals.unit.actors.fairies
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.DOLL_SWORD
+import ctmn.petals.unit.UnitIds.FAIRY_SWORD
 import ctmn.petals.unit.component.*
 
 /**
@@ -13,7 +13,7 @@ import ctmn.petals.unit.component.*
  */
 class FairySword : UnitActor(
     UnitComponent(
-        DOLL_SWORD,
+        FAIRY_SWORD,
         100,
         5,
         4,

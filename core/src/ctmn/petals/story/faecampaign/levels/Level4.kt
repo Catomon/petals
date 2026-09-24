@@ -62,7 +62,7 @@ class Level4 : Scenario("lv_4", "level_healer") {
 
         val playerUnits = playScreen.playStage.getUnitsOfPlayer(players[0])
         result = when {
-            playerUnits.size >= initialUnits / 2 && playerUnits.any { it.selfName == UnitIds.DOLL_HEALER } -> 3
+            playerUnits.size >= initialUnits / 2 && playerUnits.any { it.selfName == UnitIds.FAIRY_HEALER } -> 3
             playerUnits.size >= initialUnits / 2 -> 2
             else -> 1
         }
@@ -77,7 +77,7 @@ class Level4 : Scenario("lv_4", "level_healer") {
         playScreen.botManager.add(BotFactory.create(players[1], playScreen))
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {
-            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_AXE } ?: throw SpeciesUnitNotFoundExc())
+            it.add(fairyUnits.units.find { it.selfName == UnitIds.FAIRY_AXE } ?: throw SpeciesUnitNotFoundExc())
         }
 
         playScreen {

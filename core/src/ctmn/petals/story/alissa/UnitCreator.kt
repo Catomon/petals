@@ -26,7 +26,7 @@ object CreateUnit {
 //                activationRange = 1
 //                value = 25 }
 //        summonAbility.cost = 5
-//        summoner.units.add(UnitIds.DOLL_PIKE)
+//        summoner.units.add(UnitIds.FAIRY_PIKE)
 //        cSummoner!!.giveAP = true
     }
 }

@@ -5,20 +5,20 @@ import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.ONE_TILE
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds.DOLL_PEAS
+import ctmn.petals.unit.UnitIds.FAIRY_SLINGER
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
 /**
  * Appearance: a plant creature: a flower on four legs with two long leaf-arms that throws a
- * projectile. (Old name/id "doll_cannon"; rename pending.)
+ * projectile.
  * Role: land siege artillery (long range, cannot hit adjacent tiles, splash).
- * Notes: moves slowly; Reloading. Requires Folia + the cucumber building.
+ * Notes: moves slowly; Reloading. Requires Folia + the Bloomery building.
  */
-class FairyPeas : UnitActor(
+class FairySlinger : UnitActor(
     UnitComponent(
-        DOLL_PEAS,
+        FAIRY_SLINGER,
         100,
         5,
         2,
@@ -29,7 +29,7 @@ class FairyPeas : UnitActor(
     override val attackEffect: MissileActor get() = MissileActor().also { it.setStart(centerX, centerY + 5) }
 
     companion object Stat : UnitStat(
-        DOLL_PEAS,
+        FAIRY_SLINGER,
         100,
         60,
         70

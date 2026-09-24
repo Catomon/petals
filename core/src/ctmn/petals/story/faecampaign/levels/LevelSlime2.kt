@@ -73,14 +73,14 @@ class LevelSlime2 : Scenario(ID, "level_slime_2") {
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also { units ->
             fairyUnits.units.filter { unit ->
-                unit.selfName == UnitIds.DOLL_SOWER
-                        || unit.selfName == UnitIds.DOLL_AXE
-                        || unit.selfName == UnitIds.DOLL_SWORD
-                        || unit.selfName == UnitIds.DOLL_PIKE
-                        || unit.selfName == UnitIds.DOLL_BOW
-                        || unit.selfName == UnitIds.DOLL_SCOUT
-                        || unit.selfName == UnitIds.DOLL_HEALER
-                        || unit.selfName == UnitIds.DOLL_SHIELD
+                unit.selfName == UnitIds.FAIRY_SOWER
+                        || unit.selfName == UnitIds.FAIRY_AXE
+                        || unit.selfName == UnitIds.FAIRY_SWORD
+                        || unit.selfName == UnitIds.FAIRY_PIKE
+                        || unit.selfName == UnitIds.FAIRY_BOW
+                        || unit.selfName == UnitIds.FAIRY_SCOUT
+                        || unit.selfName == UnitIds.FAIRY_HEALER
+                        || unit.selfName == UnitIds.FAIRY_SHIELD
             }.forEach {
                 units.add(it)
             }

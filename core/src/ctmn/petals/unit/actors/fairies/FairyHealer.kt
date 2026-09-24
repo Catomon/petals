@@ -2,7 +2,7 @@ package ctmn.petals.unit.actors.fairies
 
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.UnitIds.DOLL_HEALER
+import ctmn.petals.unit.UnitIds.FAIRY_HEALER
 import ctmn.petals.unit.abilities.HealingTouchAbility
 import ctmn.petals.unit.component.*
 
@@ -13,7 +13,7 @@ import ctmn.petals.unit.component.*
  */
 class FairyHealer : UnitActor(
     UnitComponent(
-        DOLL_HEALER,
+        FAIRY_HEALER,
     100,
     0,
     4,

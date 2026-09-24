@@ -68,10 +68,10 @@ class Level5 : Scenario("lv_5", "level_capture") {
         playScreen.botManager.add(BotFactory.create(players[1], playScreen))
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {
-            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_SOWER } ?: throw SpeciesUnitNotFoundExc())
-            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_SWORD } ?: throw SpeciesUnitNotFoundExc())
-            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_PIKE } ?: throw SpeciesUnitNotFoundExc())
-//            it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_AXE } ?: throw SpeciesUnitNotFoundExc())
+            it.add(fairyUnits.units.find { it.selfName == UnitIds.FAIRY_SOWER } ?: throw SpeciesUnitNotFoundExc())
+            it.add(fairyUnits.units.find { it.selfName == UnitIds.FAIRY_SWORD } ?: throw SpeciesUnitNotFoundExc())
+            it.add(fairyUnits.units.find { it.selfName == UnitIds.FAIRY_PIKE } ?: throw SpeciesUnitNotFoundExc())
+//            it.add(fairyUnits.units.find { it.selfName == UnitIds.FAIRY_AXE } ?: throw SpeciesUnitNotFoundExc())
         }
 
         playScreen {
@@ -117,7 +117,7 @@ class Level5 : Scenario("lv_5", "level_capture") {
                                 "Use these crystals to create more units."
                             )
                         ).addOnCompleteTrigger {
-                            addTask(BuyUnitsTask("Fairy Sower", UnitIds.DOLL_SOWER, 2))
+                            addTask(BuyUnitsTask("Fairy Sower", UnitIds.FAIRY_SOWER, 2))
                             addTask(CaptureCrystalsTask())
                             addTask(EliminateAllEnemyUnitsTask(enemyUnits).description("Repel the enemy's attack"))
                             addTrigger(OnCaptureCrystalsTrigger(1)).onTrigger {

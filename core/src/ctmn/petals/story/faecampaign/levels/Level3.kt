@@ -91,7 +91,7 @@ class Level3 : Scenario("lv_3", "level_2") {
                         if (isDone) return@addListener false
                         if (it is ActionCompletedEvent) {
                             if (it.action is AttackAction) {
-                                if (it.action.attackerUnit.selfName == UnitIds.DOLL_PIKE) {
+                                if (it.action.attackerUnit.selfName == UnitIds.FAIRY_PIKE) {
                                     if (it.action.targetUnit.selfName == UnitIds.GOBLIN_BOAR) {
                                         isDone = true
                                     }

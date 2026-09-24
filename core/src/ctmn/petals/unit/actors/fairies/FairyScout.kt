@@ -4,7 +4,7 @@ import ctmn.petals.tile.TerrainNames
 import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
-import ctmn.petals.unit.UnitIds.DOLL_SCOUT
+import ctmn.petals.unit.UnitIds.FAIRY_SCOUT
 import ctmn.petals.unit.component.*
 import ctmn.petals.unit.movingRange
 
@@ -18,7 +18,7 @@ import ctmn.petals.unit.movingRange
  */
 class FairyScout : UnitActor(
     UnitComponent(
-        DOLL_SCOUT,
+        FAIRY_SCOUT,
         100,
         15,
         4,
@@ -47,10 +47,10 @@ class FairyScout : UnitActor(
             get(TerrainNames.swamp).mv(0)
         }))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.CUCUMBER] = Pair(25, 0)
+            bonuses[UnitIds.WATER_BUD] = Pair(25, 0)
             bonuses[UnitIds.CATAPULT] = Pair(25, 0)
             bonuses[UnitIds.GOBLIN_CATAPULT] = Pair(25, 0)
-            bonuses[UnitIds.DOLL_BOW] = Pair(25, 0)
+            bonuses[UnitIds.FAIRY_BOW] = Pair(25, 0)
             bonuses[UnitIds.CROSSBOWMAN] = Pair(25, 0)
         })
     }

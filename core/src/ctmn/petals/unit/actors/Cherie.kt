@@ -39,7 +39,7 @@ class Cherie : UnitActor(
             mana = 25
         })
 //        add(SummonerComponent().apply {
-//            addUnit(UnitIds.DOLL_PIKE, 10)
+//            addUnit(UnitIds.FAIRY_PIKE, 10)
 //        })
 
         add(

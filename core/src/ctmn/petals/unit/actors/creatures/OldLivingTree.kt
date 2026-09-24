@@ -26,8 +26,8 @@ class OldLivingTree : UnitActor(
         )
         add(TerrainPropComponent(TerrainPropsPack.foot))
         add(MatchUpBonusComponent().apply {
-            bonuses[UnitIds.DOLL_PIKE] = Pair(0, 15)
-            bonuses[UnitIds.DOLL_BOW] = Pair(0, 25)
+            bonuses[UnitIds.FAIRY_PIKE] = Pair(0, 15)
+            bonuses[UnitIds.FAIRY_BOW] = Pair(0, 25)
         })
     }
 

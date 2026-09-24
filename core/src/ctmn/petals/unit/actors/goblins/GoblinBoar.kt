@@ -36,8 +36,8 @@ class GoblinBoar : UnitActor(
             bonuses[UnitIds.BOWMAN] = Pair(30, 0)
             bonuses[UnitIds.CROSSBOWMAN] = Pair(30, 0)
             bonuses[UnitIds.CATAPULT] = Pair(25, 0)
-            bonuses[UnitIds.DOLL_BOW] = Pair(30, 0)
-            bonuses[UnitIds.DOLL_SWORD] = Pair(25, 10)
+            bonuses[UnitIds.FAIRY_BOW] = Pair(30, 0)
+            bonuses[UnitIds.FAIRY_SWORD] = Pair(25, 10)
         })
     }
 }
