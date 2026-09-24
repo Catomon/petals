@@ -128,8 +128,8 @@ object Config {
     const val HEALING_AMOUNT_NEAR_LEADER = 10
     const val KILL_CREDITS_SLIME_HUGE = 1000
     const val KILL_CREDITS_SLIME_LING = 200
-    const val CRYSTALS_CLUSTER = 2000
-    const val PLAYER_CREDITS_RESERVE = 2000
+    const val CRYSTALS_CLUSTER = 2500
+    const val PLAYER_CREDITS_RESERVE = 2500
     const val REMOVE_UNIT_AFTER_CAPTURE = false
     const val CAPTURE_TIME = 2
     const val BASE_BUILD_TIME = 3

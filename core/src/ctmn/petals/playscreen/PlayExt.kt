@@ -22,7 +22,7 @@ fun Player.income(playScreen: PlayScreen): Int {
     var income = if (creditsPassiveReserve > 0) playScreen.creditsPassiveIncome else 0
     playScreen.playStage.getCapturablesOf(this).forEach { tile ->
         if (tile.isBase) {
-            //income += playScreen.creditsPerBase
+            income += playScreen.creditsIncomePerBase
         }
         else if (tile.isCrystal) income += playScreen.calcCreditsPerCluster(this)
     }
@@ -33,10 +33,9 @@ fun Player.income(playScreen: PlayScreen): Int {
 fun Player.incomeReserve(playScreen: PlayScreen): Int {
     var incomeReserve = creditsPassiveReserve
     playScreen.playStage.getCapturablesOf(this).forEach { tile ->
-        if (tile.isCrystal) also {
-            incomeReserve += tile.get(CrystalsComponent::class.java)?.amount ?: 0
+        if (tile.isCrystal) {
+            incomeReserve += tile.get(CrystalsComponent::class.java)?.amount ?: playScreen.creditsPerCluster
         }
-        else if (tile.isCrystal) incomeReserve += playScreen.creditsPerCluster
     }
 
     return incomeReserve
