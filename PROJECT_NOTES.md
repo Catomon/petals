@@ -169,15 +169,10 @@ objective, a trigger fires on a game event.
 - `Config.DEBUG_MODE` / `CONSOLE_ENABLED` control debug behavior in non-release builds.
 - `Config.WIP_CONTENT` gates unfinished content (mage, rat king, their buildings, research).
 
-## Tooling gotchas in this environment
+## Tooling gotchas
 
-- Gradle 7.5 does not support very new JDKs. If a build fails with
-  `Unsupported class file major version`, run Gradle with a JDK 17.
-- The Kotlin daemon and an IDE language server (VSCodium's Java extension) can hold locks on
-  `core/build`, causing `Could not delete ... classes/kotlin/main/...`. Stop the Gradle/Kotlin
-  daemons and delete `core/build`, or run Gradle with `--no-daemon`.
-- Unit tests live in `core/test` and run with `:core:test`. The test source set is separate
-  from `src/` because `src/` is entirely the main source set.
+See the "Build and run" section of `AGENTS.md` for the JDK requirement, the daemon/IDE file
+lock issue on `core/build`, and where unit tests live.
 
 ## Where to change common things
 

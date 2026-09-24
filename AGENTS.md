@@ -36,6 +36,13 @@ On macOS/Linux use `./gradlew` instead.
 Note: Gradle 7.5 does not support very new JDKs. If a build fails with "Unsupported
 class file major version", point `JAVA_HOME` at a JDK 17 for that command.
 
+If a build fails with `Could not delete ... core/build/classes/kotlin/main/...`, a leftover
+Kotlin daemon or an IDE language server is holding a file lock. Stop the Gradle/Kotlin daemons
+and delete `core/build`, or run Gradle with `--no-daemon`.
+
+Unit tests live in `core/test` (not under `src/`, because `src/` is entirely the main source
+set) and run with `:core:test`.
+
 The desktop app opens a window and blocks until closed. When running it from automation,
 run it in the background or with a timeout if you only need startup logs. A stale
 save-version warning on boot is normal and harmless.
