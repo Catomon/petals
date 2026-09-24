@@ -12,9 +12,9 @@ import ctmn.petals.utils.centerY
 
 /**
  * Appearance: a fairy flying high above the ground, dropping exploding spiked cucumber seeds.
- * Role: air bomber (500).
+ * Role: air bomber.
  * Notes: AIR type that can only attack GROUND by design (it is too high to be reached by ground
- * melee, and it drops bombs downwards). Splash damage 30. Requires Aerthys + Cucumber.
+ * melee, and it drops bombs downwards). Splash damage. Requires Aerthys + Cucumber building.
  */
 class FairyBomber : UnitActor(
     UnitComponent(

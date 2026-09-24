@@ -9,7 +9,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a fairy with a warhammer.
- * Role: heavy melee (400).
+ * Role: heavy melee.
  * Notes: HammerAbility; requires the Forge.
  */
 class FairyHammer : UnitActor(

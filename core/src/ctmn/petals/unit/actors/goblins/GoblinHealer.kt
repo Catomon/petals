@@ -8,8 +8,8 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin medic carrying potions.
- * Role: support (300).
- * Notes: HealthPotion (40+20 per level, melee range 1, short cooldown). Requires the Aid Outpost.
+ * Role: support.
+ * Notes: HealthPotion (melee range, short cooldown). Requires the Aid Outpost.
  */
 class GoblinHealer : UnitActor(
     UnitComponent(

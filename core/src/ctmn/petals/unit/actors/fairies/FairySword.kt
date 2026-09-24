@@ -8,7 +8,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a fairy with a short sword.
- * Role: basic line melee (100).
+ * Role: basic line melee.
  * Notes: no building required. Matchup bonus vs slimes/blobs.
  */
 class FairySword : UnitActor(

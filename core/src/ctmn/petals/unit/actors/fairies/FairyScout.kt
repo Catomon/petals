@@ -11,9 +11,10 @@ import ctmn.petals.unit.movingRange
 
 /**
  * Appearance: a larger winged fairy carrying a sword; very mobile.
- * Role: premium skirmisher (400, damage 55-70).
+ * Role: premium skirmisher.
  * Notes: flier movement but a LAND type (flies to reposition, then fights on the ground and can
- * be hit back). MoveAfterAttack; requires Forge + Aerthys. Not the cheap scout: that is the Pixie.
+ * be hit back). MoveAfterAttack; requires Forge + Aerthys. Not the cheap scout: that is the
+ * Pixie. The GoblinScout is a separate, balloon-based cheap scout, not this unit's counterpart.
  */
 class FairyScout : UnitActor(
     UnitComponent(

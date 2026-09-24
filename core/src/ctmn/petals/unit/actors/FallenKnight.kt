@@ -24,7 +24,7 @@ class FallenKnight : UnitActor(
                 1
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.horse))
+        add(TerrainPropComponent(TerrainPropsPack.rider))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.SW0RDMAN] = Pair(15, 15)
             bonuses[UnitIds.BOWMAN] = Pair(15, 0)

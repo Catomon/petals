@@ -10,7 +10,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a fairy swinging a big battle axe.
- * Role: heavy melee (400, damage 60-80, defense 20).
+ * Role: heavy melee, hard hitting with decent defense.
  * Notes: requires the Forge. Matchup bonus vs evil trees/roots.
  */
 class FairyAxe : UnitActor(

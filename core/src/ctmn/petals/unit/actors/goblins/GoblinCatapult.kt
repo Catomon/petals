@@ -13,8 +13,8 @@ import ctmn.petals.utils.centerY
 
 /**
  * Appearance: a goblin-crewed catapult.
- * Role: siege artillery (1000, range 5, min range 2, splash).
- * Notes: moves only 2 tiles; Reloading. Requires Arsenal + Foundry.
+ * Role: siege artillery (long range, cannot hit adjacent tiles, splash).
+ * Notes: moves slowly; Reloading. Requires Arsenal + Foundry.
  */
 class GoblinCatapult : UnitActor(
     UnitComponent(

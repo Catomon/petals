@@ -139,7 +139,7 @@ object TerrainPropsPack {
         put(highgrass, 1)
     }
 
-    val horse = TerrainProps().apply {
+    val rider = TerrainProps().apply {
         put(grass, 0, 0, 0)
         put(forest, 2, 0, 5)
         put(mountains, 3, 5, 10)

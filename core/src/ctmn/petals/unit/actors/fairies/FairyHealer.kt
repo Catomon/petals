@@ -8,8 +8,8 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a fairy healer with a staff.
- * Role: support (300).
- * Notes: HealingTouch (50+25 per level, range 2) plus a small healing field. Requires Floral Aegis.
+ * Role: support.
+ * Notes: HealingTouch (strong, long range) plus a small healing field. Requires Floral Aegis.
  */
 class FairyHealer : UnitActor(
     UnitComponent(

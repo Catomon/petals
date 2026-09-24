@@ -10,8 +10,8 @@ import ctmn.petals.unit.movingRange
 
 /**
  * Appearance: a goblin riding a wolf.
- * Role: fast mounted skirmisher (400, damage 55-70, move 5).
- * Notes: MoveAfterAttack; uses the 'horse' terrain profile; requires Forge + Beastmount.
+ * Role: fast mounted skirmisher.
+ * Notes: MoveAfterAttack; uses the 'rider' terrain profile; requires Forge + Beastmount.
  */
 class GoblinWolf : UnitActor(
     UnitComponent(
@@ -33,7 +33,7 @@ class GoblinWolf : UnitActor(
             )
         )
         add(MoveAfterAttackComponent(movingRange, 2))
-        add(TerrainPropComponent(TerrainPropsPack.horse.copy().apply {
+        add(TerrainPropComponent(TerrainPropsPack.rider.copy().apply {
             get(TerrainNames.forest).mv(1).ad(15, 5)
             get(TerrainNames.mountains).mv(2)
         }))

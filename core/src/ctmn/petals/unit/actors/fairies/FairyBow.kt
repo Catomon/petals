@@ -9,8 +9,8 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a fairy archer with a bow.
- * Role: ranged (300, range 3, hits air).
- * Notes: Reloading 1; requires the Archers Guild. Good on hills/mountains/towers.
+ * Role: ranged, can hit air.
+ * Notes: Reloading. Requires the Archers Guild. Good on hills/mountains/towers.
  */
 class FairyBow : UnitActor(
     UnitComponent(

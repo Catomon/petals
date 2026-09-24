@@ -34,10 +34,10 @@ open class UnitStat(
 //)
 
 /**
- * Appearance: a waterborne plant-fairy.
- * Role: water melee (600, damage 45-60).
- * Notes: waterOnly movement; requires no building. Only placeable/buyable at a water base.
- * This file also defines the experimental UnitStat helper used by a few units.
+ * Appearance: a plant creature shaped like a lily pad with teeth.
+ * Role: water melee.
+ * Notes: waterOnly movement; requires no building, but is only buyable/placeable at a water
+ * base. This file also defines the experimental UnitStat helper used by a few units.
  */
 class FairyWaterplant : UnitActor(
     UnitComponent(

@@ -8,7 +8,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a fairy in ornate plate armor wielding a sword.
- * Role: elite line melee (600, damage 60-80, defense 30).
+ * Role: elite line melee.
  * Notes: requires Forge + Armory.
  */
 class FairyArmorSword : UnitActor(

@@ -7,7 +7,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin miner with a pickaxe.
- * Role: worker (100).
+ * Role: worker.
  * Notes: the goblin builder. Builds bases and captures crystal tiles; it has no real attack.
  */
 class GoblinPickaxe : UnitActor(

@@ -8,7 +8,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a heavily armored fairy with a glaive.
- * Role: defensive elite melee (600, defense 35).
+ * Role: defensive elite melee.
  * Notes: requires Forge + Armory.
  */
 class FairyGlaive : UnitActor(

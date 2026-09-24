@@ -9,9 +9,8 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin on a boar carrying a long pike.
- * Role: defensive mounted pike (400, damage 40-50, defense 25).
- * Notes: lower damage than the flail Boar, but tankier and gets matchup bonuses vs some units.
- * 'horse' terrain; requires the Forge.
+ * Role: defensive mounted pike.
+ * Notes: trades damage for defense and pike matchup bonuses. 'rider' terrain; requires the Forge.
  */
 class GoblinBoarPike : UnitActor(
     UnitComponent(
@@ -32,7 +31,7 @@ class GoblinBoarPike : UnitActor(
                 1
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.horse))
+        add(TerrainPropComponent(TerrainPropsPack.rider))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.SW0RDMAN] = Pair(25, 10)
             bonuses[UnitIds.BOWMAN] = Pair(30, 0)

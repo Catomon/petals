@@ -8,7 +8,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin with a spear/pike.
- * Role: defensive line melee (200, defense 15).
+ * Role: defensive line melee.
  * Notes: no building required. The goblin answer to cavalry/boar-type units.
  */
 class GoblinPike : UnitActor(

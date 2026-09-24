@@ -6,8 +6,9 @@ import ctmn.petals.unit.UnitIds.HUNTER
 import ctmn.petals.unit.component.*
 
 /**
- * Appearance: a giant fairy hunter.
- * Role: elite bruiser (1200, 500 hp, 30 defense).
+ * Appearance: a large plant creature, short and snake-like, with a closed flower head full of
+ * teeth.
+ * Role: elite bruiser.
  * Notes: giant terrain profile; requires Folia.
  */
 class FairyHunter : UnitActor(

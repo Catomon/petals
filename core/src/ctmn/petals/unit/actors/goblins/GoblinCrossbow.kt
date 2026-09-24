@@ -9,8 +9,8 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin with a heavy crossbow.
- * Role: long-range (600, range 4, hits air).
- * Notes: Reloading 1; requires Arsenal + Archers Guild.
+ * Role: long-range, can hit air.
+ * Notes: Reloading. Requires Arsenal + Archers Guild.
  */
 class GoblinCrossbow : UnitActor(
     UnitComponent(

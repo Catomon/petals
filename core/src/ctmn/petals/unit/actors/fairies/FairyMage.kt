@@ -9,7 +9,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a fairy mage in a pointed hat.
- * Role: caster (700) - WORK IN PROGRESS.
+ * Role: caster - WORK IN PROGRESS.
  * Notes: gated behind Config.WIP_CONTENT; its abilities are not implemented yet.
  */
 class FairyMage : UnitActor(

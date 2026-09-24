@@ -11,9 +11,10 @@ import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
 /**
- * Appearance: a fairy-operated cannon that fires clusters of hard peas/seeds.
- * Role: siege artillery (1000, range 5, min range 2, splash).
- * Notes: moves only 2 tiles; Reloading. Requires Folia + Cucumber.
+ * Appearance: a plant creature: a flower on four legs with two long leaf-arms that throws a
+ * projectile. (Old name/id "doll_cannon"; rename pending.)
+ * Role: land siege artillery (long range, cannot hit adjacent tiles, splash).
+ * Notes: moves slowly; Reloading. Requires Folia + the cucumber building.
  */
 class FairyPeas : UnitActor(
     UnitComponent(

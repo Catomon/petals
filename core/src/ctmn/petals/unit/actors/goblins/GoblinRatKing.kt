@@ -10,7 +10,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin rat king.
- * Role: caster (700) - WORK IN PROGRESS.
+ * Role: caster - WORK IN PROGRESS.
  * Notes: gated behind Config.WIP_CONTENT; the plague/research mechanic is not implemented yet.
  */
 class GoblinRatKing : UnitActor(

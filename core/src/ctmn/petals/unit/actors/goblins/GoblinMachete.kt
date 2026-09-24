@@ -9,7 +9,7 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin with a machete, moving fast and aggressive.
- * Role: aggressive line melee (500, damage 60-80, move 6).
+ * Role: aggressive line melee.
  * Notes: requires Forge + Armory.
  */
 class GoblinMachete : UnitActor(

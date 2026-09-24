@@ -10,8 +10,8 @@ import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
 /**
- * Appearance: an armed goblin galley.
- * Role: water ranged (1000, range 4).
+ * Appearance: an armed goblin boat with a cannon; attacks from range.
+ * Role: water ranged.
  * Notes: waterOnly movement; requires Foundry + Arsenal.
  */
 class GoblinGalley : UnitActor(

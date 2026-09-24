@@ -8,8 +8,8 @@ import ctmn.petals.unit.component.*
 
 /**
  * Appearance: a goblin riding a boar, swinging a ball-and-chain flail.
- * Role: mounted melee (400, damage 50-60, move 5).
- * Notes: the flail gives it more damage than the pike boar. 'horse' terrain; requires the Forge.
+ * Role: mounted melee.
+ * Notes: the flail gives it more damage than the pike boar. 'rider' terrain; requires the Forge.
  */
 class GoblinBoar : UnitActor(
     UnitComponent(
@@ -30,7 +30,7 @@ class GoblinBoar : UnitActor(
                 1
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.horse))
+        add(TerrainPropComponent(TerrainPropsPack.rider))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.SW0RDMAN] = Pair(25, 10)
             bonuses[UnitIds.BOWMAN] = Pair(30, 0)

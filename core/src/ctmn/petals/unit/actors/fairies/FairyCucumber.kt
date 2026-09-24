@@ -10,9 +10,10 @@ import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
 
 /**
- * Appearance: a huge cucumber creature/fairy lobbing heavy seeds.
- * Role: water siege (1000, range 5, min range 2).
- * Notes: waterOnly movement; cannot hit adjacent tiles. Requires Folia + Cucumber.
+ * Appearance: an underwater plant creature: a closed flower with long leaves that spits a
+ * projectile. (Old name "cucumber"; rename pending.)
+ * Role: water siege / spitter (cannot hit adjacent tiles).
+ * Notes: waterOnly movement; requires Folia + the cucumber building.
  */
 class FairyCucumber : UnitActor(
     UnitComponent(

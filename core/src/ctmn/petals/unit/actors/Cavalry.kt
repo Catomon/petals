@@ -26,7 +26,7 @@ class Cavalry : UnitActor(
                 1
             )
         )
-        add(TerrainPropComponent(TerrainPropsPack.horse))
+        add(TerrainPropComponent(TerrainPropsPack.rider))
         add(MatchUpBonusComponent().apply {
             bonuses[UnitIds.SW0RDMAN] = Pair(30, 30)
             bonuses[UnitIds.BOWMAN] = Pair(25, 0)
