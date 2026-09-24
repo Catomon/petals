@@ -66,7 +66,7 @@ class BotCapabilities(
             val ownedBases = playStage.getBases(player)
             val hasOwnedBase = ownedBases.size > 0
 
-            val capturables = playStage.getTiles().filter { it.isCapturable && it.canBeCapturedBy(player) }
+            val capturables = playStage.getTiles().filter { it.isCrystal && it.canBeCapturedBy(player) }
             val hasCapturable = capturables.isNotEmpty()
 
             val hasShopUnits = speciesUnits.any { it.cShop != null }

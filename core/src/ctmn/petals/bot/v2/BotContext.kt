@@ -15,6 +15,7 @@ import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isBase
 import ctmn.petals.tile.isBuilding
 import ctmn.petals.tile.isCapturable
+import ctmn.petals.tile.isCrystal
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.tile.isWaterBase
 import ctmn.petals.unit.UnitActor
@@ -72,8 +73,9 @@ class BotContext(val bot: AiBot) {
         enemyBuildings = playStage.getTiles().filter {
             it.isBuilding && it.cPlayerId?.playerId != null && it.cPlayerId?.playerId != playerId
         }
+        // Only crystal tiles are capturable. Bases can only be destroyed.
         capturables = playStage.getTiles().filter {
-            it.isCapturable && it.cPlayerId?.playerId != playerId
+            it.isCrystal && it.cPlayerId?.playerId != playerId
         }
         income = player.income(playScreen)
     }

@@ -7,6 +7,7 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.actionPoints
 import ctmn.petals.unit.canCapture
 import ctmn.petals.unit.canMove
+import ctmn.petals.tile.isCrystal
 import ctmn.petals.bot.v2.util.Pathing
 import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
@@ -23,7 +24,7 @@ class CaptureAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
         if (unit.actionPoints <= 0) return IMPOSSIBLE
 
         val tile = bot.playStage.getTile(unit.tiledX, unit.tiledY)
-        if (tile != null && unit.canCapture(tile)) {
+        if (tile != null && tile.isCrystal && unit.canCapture(tile)) {
             val cmd = CaptureCommand(unit, tile)
             if (cmd.canExecute(bot.playScreen)) {
                 captureCommand = cmd
