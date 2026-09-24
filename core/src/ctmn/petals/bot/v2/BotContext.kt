@@ -14,7 +14,6 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isBase
 import ctmn.petals.tile.isBuilding
-import ctmn.petals.tile.isCapturable
 import ctmn.petals.tile.isCrystal
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.tile.isWaterBase

@@ -11,7 +11,6 @@ import ctmn.petals.playstage.getBuildings
 import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.TerrainNames
-import ctmn.petals.tile.isCapturable
 import ctmn.petals.tile.isCrystal
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.cShop

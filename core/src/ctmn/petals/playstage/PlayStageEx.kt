@@ -409,7 +409,7 @@ fun PlayStage.getCapturablesOf(player: Player): Array<TileActor> {
     val bases = Array<TileActor>()
 
     for (tile in getTiles()) {
-        if (tile.isCapturable)
+        if (tile.isOwnable)
             if (tile.cPlayerId?.playerId == player.id)
                 bases.add(tile)
     }

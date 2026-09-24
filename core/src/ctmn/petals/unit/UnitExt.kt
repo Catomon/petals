@@ -339,7 +339,7 @@ fun UnitActor.canCapture(): Boolean {
 }
 
 fun UnitActor.canCapture(tile: TileActor): Boolean {
-    return tile.isCapturable && canCapture() && tile.cPlayerId?.playerId != playerId
+    return tile.isCrystal && canCapture() && tile.cPlayerId?.playerId != playerId
 }
 
 fun UnitActor.isPlayerUnit(player: Player): Boolean {

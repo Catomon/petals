@@ -19,9 +19,14 @@ import ctmn.petals.utils.centerY
 /** @returns true if tile is occupied by a unit */
 
 val TileActor.isBuilding get() = terrain == TerrainNames.building || terrain == TerrainNames.crystals
-val TileActor.isCapturable get() = terrain == TerrainNames.base || terrain == TerrainNames.crystals
 val TileActor.isBase get() = terrain == TerrainNames.base
 val TileActor.isCrystal get() = terrain == TerrainNames.crystals
+
+/** Tiles that a player can own and earn income from. Bases are ownable but not capturable. */
+val TileActor.isOwnable get() = isBase || isCrystal
+
+/** Only crystal tiles can be captured. Bases can only be destroyed. */
+val TileActor.isCapturable get() = isCrystal
 val TileActor.cPlayerId get() = get(PlayerIdComponent::class.java)
 val TileActor.cReplaceWith get() = get(ReplaceWithComponent::class.java)
 val TileActor.cLifeTime get() = get(LifeTimeComponent::class.java)

@@ -6,9 +6,10 @@ import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.playstage.destroyTile
 import ctmn.petals.tile.TileActor
+import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.DestroyingComponent
-import ctmn.petals.tile.isCapturable
+import ctmn.petals.tile.isBase
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.InvisibilityComponent
 
@@ -22,8 +23,8 @@ class DestroyTileCommand(val unitId: String, val baseId: String) : Command() {
 
         if (unit.actionPoints <= 0) return false
 
-        if (!tile.isCapturable)
-            throw IllegalArgumentException("The tile terrain is not capturable")
+        if (!(tile.isBase || tile.terrain == TerrainNames.building))
+            throw IllegalArgumentException("The tile terrain is not destroyable")
 
         if (!unit.canDestroy(tile, playScreen.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId))
             return false

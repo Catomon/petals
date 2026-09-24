@@ -13,7 +13,7 @@ import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.getUnits
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.tile.isBase
-import ctmn.petals.tile.isCapturable
+import ctmn.petals.tile.isOwnable
 
 abstract class GameEndCondition(val id: String) {
 
@@ -264,7 +264,7 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
     private fun checkOvertime(player: Player, playScreen: PlayScreen): Boolean {
         //todo get bases of team
         return playScreen.playStage.getCapturablesOf(player).size >= playScreen.playStage.getTiles()
-            .filter { it.isCapturable }.size * 0.70f
+            .filter { it.isOwnable }.size * 0.70f
     }
 
     override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
