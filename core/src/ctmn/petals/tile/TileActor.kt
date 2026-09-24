@@ -1,5 +1,6 @@
 package ctmn.petals.tile
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.ComponentMapper
 import ctmn.petals.Assets
 import ctmn.petals.Config.TILE_SIZE
@@ -15,6 +16,7 @@ import ctmn.petals.tile.components.*
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.gson
 import ctmn.petals.utils.serialization.Jsonable
+import ctmn.petals.utils.serialization.SyncedComponent
 import java.io.FileNotFoundException
 import java.util.*
 import kotlin.random.Random
@@ -192,11 +194,9 @@ open class TileActor(
         unitJsonObject.addProperty("id", name)
 
         for (component in components.components) {
-            if (component is ViewComponent) continue
-            if (component is TileViewComponent) continue
+            if (component !is SyncedComponent) continue
 
-            val json = gson.toJsonTree(component)
-            unitJsonObject.add(component.javaClass.simpleName, json)
+            unitJsonObject.add(component.javaClass.name, gson.toJsonTree(component))
         }
 
         return unitJsonObject
@@ -204,22 +204,16 @@ open class TileActor(
 
     override fun fromJsonObject(json: JsonObject) {
         //tileComponent.name = json.get("name").asString
-        name = json.get("id")?.asString ?: name
+        json.get("id")?.let { if (!it.isJsonNull) name = it.asString }
 
-        for ((name, value) in json.entrySet()) {
-            when (name) {
-                "TileComponent" -> components.add(gson.fromJson(value, TileComponent::class.java))
-                "CapturingComponent" -> components.add(gson.fromJson(value, CapturingComponent::class.java))
-                "LifeTimeComponent" -> components.add(gson.fromJson(value, LifeTimeComponent::class.java))
-                "PlayerIdComponent" -> components.add(gson.fromJson(value, PlayerIdComponent::class.java))
-                "ReplaceWithComponent" -> components.add(gson.fromJson(value, ReplaceWithComponent::class.java))
-                "ActionCooldown" -> components.add(gson.fromJson(value, ActionCooldown::class.java))
-                "BaseBuildingComponent" -> components.add(gson.fromJson(value, BaseBuildingComponent::class.java))
-                "BuildingComponent" -> components.add(gson.fromJson(value, BuildingComponent::class.java))
-                "DestroyingComponent" -> components.add(gson.fromJson(value, DestroyingComponent::class.java))
-                "CrystalsComponent" -> components.add(gson.fromJson(value, CrystalsComponent::class.java))
-                "HealthComponent" -> components.add(gson.fromJson(value, HealthComponent::class.java))
-            }
+        for ((key, value) in json.entrySet()) {
+            if (key == "name" || key == "id") continue
+
+            val componentClass = runCatching {
+                Class.forName(key).asSubclass(Component::class.java)
+            }.getOrNull() ?: continue
+
+            components.add(gson.fromJson(value, componentClass))
         }
 
         setPosition(tiledX, tiledY)

@@ -1,5 +1,7 @@
 package ctmn.petals.unit.component
 
+import ctmn.petals.utils.serialization.SyncedComponent
+
 import ctmn.petals.Config
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
@@ -23,7 +25,7 @@ data class UnitComponent(
     var tiledY: Int = 0,
     var actionPoints: Int = Config.ACTION_POINTS,
     var allies: MutableSet<Int> = mutableSetOf(),
-) : Component, CopyableComponent {
+) : SyncedComponent, CopyableComponent {
 
     val baseHealth = health
 

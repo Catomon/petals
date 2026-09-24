@@ -19,6 +19,7 @@ import ctmn.petals.tile.isFluid
 import ctmn.petals.unit.component.*
 import ctmn.petals.utils.*
 import ctmn.petals.utils.serialization.Jsonable
+import ctmn.petals.utils.serialization.SyncedComponent
 
 open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsonable {
 
@@ -149,13 +150,9 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         unitJsonObject.addProperty("id", name)
 
         for (component in components.components) {
-            if (component is ViewComponent) continue
-            if (component is MatchUpBonusComponent) continue
-            if (component is TerrainPropComponent) continue
-            if (component is ShopComponent) continue
+            if (component !is SyncedComponent) continue
 
-            val json = gson.toJsonTree(component)
-            unitJsonObject.add(component.javaClass.simpleName, json)
+            unitJsonObject.add(component.javaClass.name, gson.toJsonTree(component))
         }
 
         return unitJsonObject
@@ -164,12 +161,16 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     override fun fromJsonObject(json: JsonObject) {
         check(cUnit.name == json.get("name").asString)
 
-        name = json.get("id")?.asString ?: name
+        json.get("id")?.let { if (!it.isJsonNull) name = it.asString }
 
-        for (componentClass in Components.classes) {
-            val jsonComponent = json.get(componentClass.simpleName) ?: continue
+        for ((key, value) in json.entrySet()) {
+            if (key == "name" || key == "id") continue
 
-            add(gson.fromJson(jsonComponent, componentClass))
+            val componentClass = runCatching {
+                Class.forName(key).asSubclass(Component::class.java)
+            }.getOrNull() ?: continue
+
+            add(gson.fromJson(value, componentClass))
         }
 
         //updateView()
@@ -203,7 +204,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     protected var showWaterEffect = true
     private var isWater = false
-    private var waterSprite = newPlaySprite(Animations.waterWaves.currentFrame)
+    private val waterSprite by lazy { newPlaySprite(Animations.waterWaves.currentFrame) }
     private var underWaterOffset = 12f
 
     override fun draw(batch: Batch, parentAlpha: Float) {

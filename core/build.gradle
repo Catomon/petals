@@ -7,12 +7,22 @@ sourceCompatibility = 1.8
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
+sourceSets {
+    test {
+        java.srcDirs = ["test"]
+        kotlin.srcDirs = ["test"]
+    }
+}
+
 eclipse.project.name = appName + "-core"
 repositories {
     mavenCentral()
 }
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
+    testImplementation "junit:junit:4.13.2"
 }
 compileKotlin {
     kotlinOptions {

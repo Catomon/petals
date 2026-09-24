@@ -1,5 +1,7 @@
 package ctmn.petals.tile.components
 
+import ctmn.petals.utils.serialization.SyncedComponent
+
 import com.badlogic.ashley.core.Component
 
 data class TileComponent(
@@ -8,4 +10,4 @@ data class TileComponent(
     var layer: Int = 1,
     var tiledX: Int = 0,
     var tiledY: Int = 0,
-) : Component
+) : SyncedComponent

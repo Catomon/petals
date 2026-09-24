@@ -1,5 +1,7 @@
 package ctmn.petals.unit.component
 
+import ctmn.petals.utils.serialization.SyncedComponent
+
 import com.badlogic.ashley.core.Component
 import ctmn.petals.utils.CopyableComponent
 
@@ -10,7 +12,7 @@ data class SummonerComponent(
 
     var giveAP: Boolean = false,
     var maxUnits: Int = 4,
-) : Component, CopyableComponent {
+) : SyncedComponent, CopyableComponent {
 
     override fun makeCopy(): Component {
         return SummonerComponent(mutableSetOf<String>().apply { addAll(this@SummonerComponent.units) }, selectedUnit, giveAP, maxUnits)
