@@ -22,8 +22,12 @@ Gradle wrapper is checked in. Kotlin 1.9, libGDX 1.13, Ashley ECS, VisUI.
 - Compile core: `.\gradlew.bat :core:compileKotlin`
 - Compile desktop: `.\gradlew.bat :desktop:classes`
 - Run the game: `.\gradlew.bat :desktop:run`
+- Run unit tests: `.\gradlew.bat :core:test` (tests live in `core/test`)
 
 On macOS/Linux use `./gradlew` instead.
+
+Note: Gradle 7.5 does not support very new JDKs. If a build fails with "Unsupported
+class file major version", point `JAVA_HOME` at a JDK 17 for that command.
 
 The desktop app opens a window and blocks until closed. When running it from automation,
 run it in the background or with a timeout if you only need startup logs. A stale
@@ -48,6 +52,9 @@ This is the quickest smoke test for gameplay and for AI changes.
   over time) are handled by a turn cycle listener rather than in commands.
 - Units and tiles are defined as Kotlin classes/code, with sprites and map references keyed
   by string ids. There is no external data file for unit stats.
+- Components that take part in serialized game state implement the `SyncedComponent` marker.
+  That marker is the single place to opt a component in, instead of manual allow/ignore
+  lists. Serialized components are keyed by their fully qualified class name.
 - AI lives in `ctmn.petals.bot.v2`: a single configurable bot with an EASY/NORMAL/HARD
   difficulty and a small factory. It scores possible actions and plays through the same
   commands a human uses (buy, build, capture, attack, abilities, destroy, move). It detects
