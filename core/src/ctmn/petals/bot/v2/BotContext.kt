@@ -17,6 +17,7 @@ import ctmn.petals.tile.isBuilding
 import ctmn.petals.tile.isCrystal
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.tile.isWaterBase
+import ctmn.petals.tile.components.BuildingComponent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.followerID
 import ctmn.petals.unit.isFollower
@@ -105,6 +106,16 @@ class BotContext(val bot: AiBot) {
 
     fun ownsBuilding(buildingName: String): Boolean =
         ownBuildings.any { it.selfName == buildingName }
+
+    /** True if the building is finished OR currently under construction by this player. */
+    fun ownsOrBuilding(buildingName: String): Boolean {
+        if (ownsBuilding(buildingName)) return true
+        return playStage.getTiles().any { tile ->
+            tile.get(BuildingComponent::class.java)?.let {
+                it.playerId == playerId && it.buildingName == buildingName
+            } == true
+        }
+    }
 
     fun isWaterBase(base: TileActor): Boolean = base.isWaterBase
 }

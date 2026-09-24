@@ -6,8 +6,13 @@ import ctmn.petals.bot.v2.AiBot
 import ctmn.petals.bot.v2.Difficulty
 import ctmn.petals.player.Species
 import ctmn.petals.playscreen.selfName
+import ctmn.petals.playstage.getTiles
+import ctmn.petals.playstage.tiledDst
+import ctmn.petals.tile.cPlayerId
+import ctmn.petals.tile.components.BuildingComponent
 import ctmn.petals.tile.isWaterBase
 import ctmn.petals.unit.Ability
+import ctmn.petals.unit.TerrainPropsPack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.UnitIds
 import ctmn.petals.unit.cAbilities
@@ -18,6 +23,9 @@ import ctmn.petals.unit.isAir
 import ctmn.petals.unit.isWater
 import ctmn.petals.unit.isWorker
 import ctmn.petals.unit.movingRange
+import ctmn.petals.unit.tiledX
+import ctmn.petals.unit.tiledY
+import ctmn.petals.utils.getSurroundingTiles
 
 /** Economy decisions: what to buy, what to build and when to expand. */
 object EconomyEval {
@@ -29,6 +37,14 @@ object EconomyEval {
     private val scoutUnitIds = setOf(UnitIds.PIXIE, UnitIds.GOBLIN_SCOUT)
 
     private val siegeUnitIds = setOf(UnitIds.CATAPULT, UnitIds.GOBLIN_CATAPULT, UnitIds.DOLL_PEAS)
+
+    private const val MAX_DEFENSIVE_BUILDINGS = 2
+
+    /** How close an enemy has to be to a base before the bot considers walls. */
+    private const val DEFENSE_THREAT_RANGE = 6
+
+    /** Terrain is "strong" if it gives at least this much combat bonus. */
+    private const val STRONG_TERRAIN_BONUS = 8
 
     private enum class UnitRole { WORKER, SCOUT, HEALER, SIEGE, RANGED, AIR, WATER, MELEE }
 
@@ -81,6 +97,25 @@ object EconomyEval {
 
     fun isUnlocked(bot: AiBot, unit: UnitActor): Boolean =
         requiredBuildings(bot, unit.selfName).all { bot.context.ownsBuilding(it) }
+
+    /** True if this unit still fills a gap in the current army composition. */
+    fun isUnitWanted(bot: AiBot, unit: UnitActor): Boolean {
+        val role = roleOf(unit)
+        if (role == UnitRole.WORKER) return bot.context.workers.size < bot.difficulty.maxWorkers
+        if (role == UnitRole.SCOUT) return bot.playScreen.fogOfWarManager.drawFog
+
+        val targets = targetsFor(bot.difficulty)
+        val count = bot.context.units.count { roleOf(it) == role }
+        return when (role) {
+            UnitRole.HEALER -> count < targets.healer
+            UnitRole.RANGED -> count < targets.ranged
+            UnitRole.SIEGE -> count < targets.siege
+            UnitRole.MELEE -> count < targets.melee
+            UnitRole.AIR -> count < targets.air
+            UnitRole.WATER -> count < targets.melee
+            else -> false
+        }
+    }
 
     /**
      * Name of a unit to buy at a free base, or null if nothing is worth buying.
@@ -144,28 +179,82 @@ object EconomyEval {
         return null
     }
 
-    /** Building to construct next, or null. */
+    /**
+     * Building to construct next, or null.
+     *
+     * The bot will:
+     * - build a tech building only when it unlocks a unit the army actually wants,
+     * - never build a second copy of a building that is finished or under construction,
+     * - only build walls/towers when a base is threatened and lacks strong terrain nearby,
+     *   and never more than [MAX_DEFENSIVE_BUILDINGS] of them.
+     */
     fun chooseBuilding(bot: AiBot, speciesUnits: Array<UnitActor>): Species.Building? {
         val ctx = bot.context
         val player = ctx.player
         val buildings = runCatching { Species.getSpeciesBuildings(player.species) }.getOrNull() ?: return null
+        if (buildings.size == 0) return null
 
-        val desired = speciesUnits
-            .filter { it.cShop != null && !isUnlocked(bot, it) }
-            .flatMap { requiredBuildings(bot, it.selfName) }
-            .distinct()
-            .filter { !ctx.ownsBuilding(it) }
-
-        val affordable = buildings.filter { building ->
+        val buildable = buildings.filter { building ->
             player.credits >= building.cost &&
-                !ctx.ownsBuilding(building.name) &&
+                !ctx.ownsOrBuilding(building.name) &&
                 (building.requires.isEmpty() || ctx.ownsBuilding(building.requires))
         }
+        if (buildable.isEmpty()) return null
 
-        affordable.firstOrNull { it.name in desired }?.let { return it }
+        // Tech buildings that unlock a unit we actually want.
+        val desired = speciesUnits
+            .filter { it.cShop != null && !isUnlocked(bot, it) && isUnitWanted(bot, it) }
+            .flatMap { requiredBuildings(bot, it.selfName) }
+            .distinct()
 
-        // defensive fallback
-        return affordable.firstOrNull { it.name.contains("wall") || it.name.contains("tower") }
+        buildable.firstOrNull { it.name in desired }?.let { return it }
+
+        // Defensive structures: rare, deliberate.
+        if (defensiveBuildingCount(bot) < MAX_DEFENSIVE_BUILDINGS && needsDefense(bot)) {
+            buildable
+                .filter { it.name.contains("wall") || it.name.contains("tower") }
+                .minByOrNull { it.cost }
+                ?.let { return it }
+        }
+
+        return null
+    }
+
+    private fun defensiveBuildingCount(bot: AiBot): Int {
+        val ctx = bot.context
+        val completed = ctx.ownBuildings.count {
+            it.selfName.contains("wall") || it.selfName.contains("tower")
+        }
+        val inProgress = ctx.playStage.getTiles().count { tile ->
+            tile.get(BuildingComponent::class.java)?.let {
+                it.playerId == ctx.playerId &&
+                    (it.buildingName.contains("wall") || it.buildingName.contains("tower"))
+            } == true
+        }
+        return completed + inProgress
+    }
+
+    /**
+     * True when an enemy is close to one of our bases AND that base does not already sit
+     * next to strong defensive terrain (mountains/forest/tower/fortress...).
+     */
+    private fun needsDefense(bot: AiBot): Boolean {
+        val ctx = bot.context
+        if (ctx.enemies.isEmpty() || ctx.ownBases.isEmpty()) return false
+
+        for (base in ctx.ownBases) {
+            val threatened = ctx.enemies.any {
+                tiledDst(it.tiledX, it.tiledY, base.tiledX, base.tiledY) <= DEFENSE_THREAT_RANGE
+            }
+            if (!threatened) continue
+
+            val hasStrongTerrain = bot.playStage.getSurroundingTiles(base.tiledX, base.tiledY).any { tile ->
+                val props = TerrainPropsPack.foot[tile.terrain]
+                (props.defenseBonus + props.attackBonus) >= STRONG_TERRAIN_BONUS
+            }
+            if (!hasStrongTerrain) return true
+        }
+        return false
     }
 
     fun shouldBuildBase(bot: AiBot): Boolean {

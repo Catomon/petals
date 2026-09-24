@@ -15,6 +15,12 @@ object Config {
     /** Difficulty used by [botTest]: "easy", "normal" or "hard". */
     var botTestDifficulty = "normal"
 
+    /**
+     * Work-in-progress content that should not show up in normal play yet:
+     * Fairy Mage, Goblin Rat King, their buildings and the research/tech mechanic.
+     */
+    const val WIP_CONTENT = false
+
     // App:
     const val APP_NAME = "Fae's Feisty"
     const val APP_VER_NAME = "0.5.3-alpha"

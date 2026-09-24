@@ -86,7 +86,10 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
     }
 
     override fun execute(): Boolean {
-        buildCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
+        buildCommand?.let {
+            com.badlogic.gdx.Gdx.app.debug("AiBot", "${bot.player.name} builds ${it.buildingName}")
+            return bot.playScreen.commandManager.queueCommand(it, bot.playerID)
+        }
         moveCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
         return false
     }

@@ -1,6 +1,7 @@
 package ctmn.petals.player
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ctmn.petals.Config
 import ctmn.petals.player.Species.GOBLIN_SORCERY_TOWER
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.unit.UnitActor
@@ -36,9 +37,11 @@ open class Tech(
 }
 
 object Techs {
-    val map = mapOf<String, Tech>(
-        TECH_GOBLIN_PLAGUE_ABILITY to RatPlagueTech()
-    )
+    val map: Map<String, Tech> =
+        if (Config.WIP_CONTENT)
+            mapOf<String, Tech>(TECH_GOBLIN_PLAGUE_ABILITY to RatPlagueTech())
+        else
+            emptyMap()
 }
 
 class RatPlagueTech : Tech(
