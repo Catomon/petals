@@ -1,7 +1,7 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.scenes.scene2d.Actor
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.*
@@ -56,7 +56,7 @@ class Level3 : Scenario("lv_3", "level_2") {
         super.makeScenario(playScreen)
 
         playScreen.guiStage.showCredits = false
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen))
 
         playScreen {
             val fairyHelper = guiStage.charactersPanel.findActor<Actor>(CharactersPanel.CHARACTER_HELPER_FAIRY)

@@ -16,7 +16,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import ctmn.petals.AudioManager
 import ctmn.petals.Config
 import ctmn.petals.PetalsGame
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.assets
 import ctmn.petals.map.labels
 import ctmn.petals.map.loadMap
@@ -88,7 +88,7 @@ class DevScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 720f))
             GameMode.CRYSTALS_LEADERS,
             players.first(),
         ).apply {
-            botManager.add(EasyDuelBot(players[1], this))
+            botManager.add(BotFactory.create(players[1], this))
             fogOfWarManager.drawFog = false
         }
 

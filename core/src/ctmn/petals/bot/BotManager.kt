@@ -1,7 +1,6 @@
 package ctmn.petals.bot
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.bot.mediocre.MidBot
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.PlayScreen
@@ -54,11 +53,8 @@ class BotManager(val playScreen: PlayScreen) {
         }
     }
 
-    fun add(botPlayer: Bot) {
-        if (botPlayer is EasyDuelBot)
-            botPlayers.add(MidBot(botPlayer.player, botPlayer.playScreen, botPlayer.speciesUnits))
-        else
-            botPlayers.add(botPlayer)
+    fun add(bot: Bot) {
+        botPlayers.add(bot)
     }
 
     fun isBotPlayer(player: Player): Boolean {

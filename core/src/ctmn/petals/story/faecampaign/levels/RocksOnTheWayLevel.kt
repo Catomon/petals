@@ -1,7 +1,7 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.bot.SimpleBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.Player
 import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
@@ -70,18 +70,8 @@ class RocksOnTheWayLevel : Scenario(ID, "Rocks_in_the_way") {
         val player = player!!
         player.creditsPassiveReserve = 0
 
-        playScreen.botManager.add(SimpleBot(players[1], playScreen).apply {
-            simpleCommandProcessor.roamingIfNoAgro = true
-            simpleCommandProcessor.agroRange = 2
-            simpleCommandProcessor.permaAgro = false
-            simpleCommandProcessor.roamingMaxRange = 2
-        })
-        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleCommandProcessor.roamingIfNoAgro = true
-            simpleCommandProcessor.agroRange = 2
-            simpleCommandProcessor.permaAgro = false
-            simpleCommandProcessor.roamingMaxRange = 2
-        })
+        playScreen.botManager.add(BotFactory.campaign(players[1], playScreen, permaAgro = false, agroRange = 2, roamingIfNoAgro = true, roamingMaxRange = 2))
+        playScreen.botManager.add(BotFactory.campaign(players[2], playScreen, permaAgro = false, agroRange = 2, roamingIfNoAgro = true, roamingMaxRange = 2))
 
         playScreen.fogOfWarManager.drawFog = true
         playScreen.fogOfWarManager.drawDiscoverableFog = true

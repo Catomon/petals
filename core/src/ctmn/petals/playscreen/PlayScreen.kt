@@ -18,7 +18,7 @@ import com.strongjoshua.console.LogLevel
 import com.strongjoshua.console.annotation.ConsoleDoc
 import ctmn.petals.*
 import ctmn.petals.bot.BotManager
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.map.MapConverted
 import ctmn.petals.map.labels
@@ -747,7 +747,7 @@ open class PlayScreen(
                 return
             }
 
-            botManager.add(EasyDuelBot(player, this@PlayScreen))
+            botManager.add(BotFactory.create(player, this@PlayScreen))
 
             GameConsole.console.log("Added AI for player $player")
         }

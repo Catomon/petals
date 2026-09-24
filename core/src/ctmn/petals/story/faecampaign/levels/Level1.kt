@@ -2,7 +2,7 @@ package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Config.APP_NAME
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
@@ -66,7 +66,7 @@ class Level1 : Scenario("lv_1", "level_0") {
         val player = player!!
 
         playScreen.guiStage.showCredits = false
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen))
         playScreen.fogOfWarManager.drawFog = false
 
         //        gameEndCondition.win()

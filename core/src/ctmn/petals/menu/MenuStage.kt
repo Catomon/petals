@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.*
 import ctmn.petals.Config
 import ctmn.petals.assets
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.editor.EditorScreen
 import ctmn.petals.game
 import ctmn.petals.map.labels
@@ -170,7 +170,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             GameMode.CRYSTALS_LEADERS,
             players.first(),
         ).apply {
-            botManager.add(EasyDuelBot(players[1], this))
+            botManager.add(BotFactory.create(players[1], this))
             fogOfWarManager.drawFog = false
         }
 

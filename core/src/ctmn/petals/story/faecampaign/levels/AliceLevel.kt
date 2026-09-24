@@ -2,8 +2,7 @@ package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.assets
-import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.bot.SimpleBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
@@ -64,13 +63,8 @@ class AliceLevel : Scenario("lv_1", "alice_slime2") {
 
         val player = player!!
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
-        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleCommandProcessor.roamingIfNoAgro = true
-            simpleCommandProcessor.agroRange = 3
-            simpleCommandProcessor.permaAgro = false
-            simpleCommandProcessor.roamingMaxRange = 3
-        })
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen))
+        playScreen.botManager.add(BotFactory.campaign(players[2], playScreen, permaAgro = false, agroRange = 3, roamingIfNoAgro = true, roamingMaxRange = 3))
         playScreen.fogOfWarManager.drawFog = false
 
         //        gameEndCondition.win()

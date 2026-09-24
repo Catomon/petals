@@ -1,6 +1,6 @@
 package ctmn.petals.story.faecampaign.levels
 
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.newBluePlayer
 import ctmn.petals.player.newRedPlayer
 import ctmn.petals.playscreen.CaptureBases
@@ -46,7 +46,7 @@ class Level14 : Scenario("lv_14", "level_lakeroad") {
 
         val player = player!!
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen))
 
         playScreen.fogOfWarManager.drawFog = true
 

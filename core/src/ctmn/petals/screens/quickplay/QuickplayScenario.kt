@@ -1,7 +1,6 @@
 package ctmn.petals.screens.quickplay
 
-import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.bot.SimpleBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.map.MapGenerator
 import ctmn.petals.player.Player
 import ctmn.petals.player.newBluePlayer
@@ -55,13 +54,8 @@ class QuickplayScenario : Scenario("Fae", "") {
         playScreen.fogOfWarManager.drawDiscoverableFog = true
         playScreen.fogOfWarManager.drawFog = true
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
-        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleCommandProcessor.roamingIfNoAgro = true
-            simpleCommandProcessor.agroRange = 1
-            simpleCommandProcessor.permaAgro = false
-            simpleCommandProcessor.roamingMaxRange = 2
-        })
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen))
+        playScreen.botManager.add(BotFactory.campaign(players[2], playScreen, permaAgro = false, agroRange = 1, roamingIfNoAgro = true, roamingMaxRange = 2))
 
         playScreen {
             val base =

@@ -1,8 +1,7 @@
 package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.bot.EasyDuelBot
-import ctmn.petals.bot.SimpleBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.*
 import ctmn.petals.playscreen.*
 import ctmn.petals.playstage.getUnitsOfPlayer
@@ -53,7 +52,7 @@ class LevelSlime2 : Scenario(ID, "level_slime_2") {
 
         val player = player!!
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen, Array<UnitActor>().also { units ->
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen, Array<UnitActor>().also { units ->
             goblinUnits.units.forEach {
                 when (it.selfName) {
                     UnitIds.GOBLIN_SWORD,
@@ -69,12 +68,7 @@ class LevelSlime2 : Scenario(ID, "level_slime_2") {
                 }
             }
         }))
-        playScreen.botManager.add(SimpleBot(players[2], playScreen).apply {
-            simpleCommandProcessor.roamingIfNoAgro = true
-            simpleCommandProcessor.agroRange = 1
-            simpleCommandProcessor.permaAgro = false
-            simpleCommandProcessor.roamingMaxRange = 2
-        })
+        playScreen.botManager.add(BotFactory.campaign(players[2], playScreen, permaAgro = false, agroRange = 1, roamingIfNoAgro = true, roamingMaxRange = 2))
 
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also { units ->

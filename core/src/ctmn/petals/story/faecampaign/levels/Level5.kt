@@ -3,7 +3,7 @@ package ctmn.petals.story.faecampaign.levels
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.Config
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.SpeciesUnitNotFoundExc
 import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.newBluePlayer
@@ -65,7 +65,7 @@ class Level5 : Scenario("lv_5", "level_capture") {
 
         val player = player!!
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen))
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen))
         playScreen.fogOfWarManager.drawFog = true
         playScreen.guiStage.buyMenu.availableUnits[player.id] = Array<UnitActor>().also {
             it.add(fairyUnits.units.find { it.selfName == UnitIds.DOLL_SOWER } ?: throw SpeciesUnitNotFoundExc())

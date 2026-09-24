@@ -72,7 +72,6 @@ object Config {
     const val PLAY_CAMERA_ZOOM_OUT_MAX_STORY = 320f
 
     // Gameplay:
-    const val EXPERIMENTAL: Boolean = true
     const val TILE_SIZE: Float = 16f
     const val TILE_SIZE_X2: Float = TILE_SIZE * 2f
     const val TILE_SIZE_HALF: Float = TILE_SIZE / 2

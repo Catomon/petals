@@ -301,7 +301,7 @@ fun UnitActor.canBuildBase(): Boolean {
 }
 
 fun UnitActor.canBuildBase(tile: TileActor): Boolean {
-    return canBuildBase() && tile.terrain == TerrainNames.grass || tile.terrain == TerrainNames.water
+    return canBuildBase() && (tile.terrain == TerrainNames.grass || tile.terrain == TerrainNames.water)
 }
 
 fun UnitActor.canBuild(): Boolean {
@@ -334,20 +334,8 @@ fun UnitActor.canDestroy(): Boolean {
 }
 
 fun UnitActor.canCapture(): Boolean {
-    if (Config.EXPERIMENTAL) {
-        return selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
-    }
-
-    return (selfName != UnitIds.GOBLIN_GIANT
-            && selfName != UnitIds.HUNTER
-            && selfName != UnitIds.GOBLIN_SCOUT
-            && selfName != UnitIds.PIXIE
-            && selfName != UnitIds.CUCUMBER
-            && selfName != UnitIds.GOBLIN_CATAPULT
-            && selfName != UnitIds.DOLL_PEAS
-            && !isLeader
-            && !(isAir && cAttack?.attackType == ATTACK_TYPE_GROUND)
-            )
+    // Capturing is a worker-only job.
+    return selfName == UnitIds.DOLL_SOWER || selfName == UnitIds.GOBLIN_PICKAXE
 }
 
 fun UnitActor.canCapture(tile: TileActor): Boolean {

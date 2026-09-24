@@ -2,7 +2,7 @@ package ctmn.petals.story.faecampaign.levels
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.bot.EasyDuelBot
+import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.player.fairyUnits
 import ctmn.petals.player.goblinUnits
 import ctmn.petals.player.newBluePlayer
@@ -55,7 +55,7 @@ class Level6 : Scenario("lv_6", "level_bases") {
 
         val player = player!!
 
-        playScreen.botManager.add(EasyDuelBot(players[1], playScreen, Array<UnitActor>().also { units ->
+        playScreen.botManager.add(BotFactory.create(players[1], playScreen, Array<UnitActor>().also { units ->
             goblinUnits.units.forEach {
                 when (it.selfName) {
                     UnitIds.GOBLIN_SWORD,
