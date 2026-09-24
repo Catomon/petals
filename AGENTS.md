@@ -1,0 +1,103 @@
+# AGENTS.md
+
+General notes for anyone (human or AI) starting a new session on this repository.
+
+## What this is
+
+Fae's Feisty is a turn based tactics game (Advance Wars style) with economy and base
+building. Built with libGDX in Kotlin, targeting desktop and Android. Features include
+terrain and matchup bonuses, abilities, building and destroying, fog of war, hot seat and
+local multiplayer, a map editor and a story campaign.
+
+## Tech / modules
+
+- `core/` - all game logic and UI (Kotlin, root package `ctmn.petals`).
+- `desktop/` - LWJGL desktop launcher (Java).
+- `android/` - Android launcher. All game assets live in `android/assets/`.
+
+Gradle wrapper is checked in. Kotlin 1.9, libGDX 1.13, Ashley ECS, VisUI.
+
+## Build and run (Windows, PowerShell)
+
+- Compile core: `.\gradlew.bat :core:compileKotlin`
+- Compile desktop: `.\gradlew.bat :desktop:classes`
+- Run the game: `.\gradlew.bat :desktop:run`
+
+On macOS/Linux use `./gradlew` instead.
+
+The desktop app opens a window and blocks until closed. When running it from automation,
+run it in the background or with a timeout if you only need startup logs. A stale
+save-version warning on boot is normal and harmless.
+
+## Handy run arguments
+
+- Bot vs bot spectate (two AI players plus a third spectator player, fixed map):
+  `.\gradlew.bat :desktop:run --args="botvsbot"`
+- Optional difficulty: `--args="botvsbot hard"` or `"botvsbot easy"` (default normal).
+
+This is the quickest smoke test for gameplay and for AI changes.
+
+## Architecture in a nutshell
+
+- The active game screen orchestrates the battle: a scene2d `PlayStage`, a turn manager, a
+  command manager, a sequence-action manager (animations and effects), a bot manager and
+  the play GUI.
+- Player intent is expressed as Commands. Each command has a `canExecute` validation and an
+  `execute` that mutates game state and queues sequence actions for the visuals.
+- Turn start/end effects (income, action point reset, capture and build progress, damage
+  over time) are handled by a turn cycle listener rather than in commands.
+- Units and tiles are defined as Kotlin classes/code, with sprites and map references keyed
+  by string ids. There is no external data file for unit stats.
+- AI lives in `ctmn.petals.bot.v2`: a single configurable bot with an EASY/NORMAL/HARD
+  difficulty and a small factory. It scores possible actions and plays through the same
+  commands a human uses (buy, build, capture, attack, abilities, destroy, move). It detects
+  at runtime whether a map has an economy, so the same bot also works on campaign maps with
+  no buildings or resources.
+
+## Game rules worth remembering
+
+- Only worker units can capture tiles and construct buildings.
+- Only crystal tiles are capturable. Bases and buildings cannot be captured, only destroyed.
+- An "ownable" tile is a crystal or a base; ownership drives income and win conditions.
+- The turn cycle resets action points, pays income, and ticks captures/builds/destroys.
+- Most balance numbers live in `ctmn.petals.Config` or in the individual unit classes.
+
+## Conventions
+
+- Kotlin, 4-space indentation, package-per-feature under `ctmn.petals`.
+- In code comments and player-facing text, avoid the em dash character.
+- Unit and tile class docs should describe appearance, role and design intent, but should
+  NOT hardcode exact stats, because those go stale when values change.
+- New AI work goes in `ctmn.petals.bot.v2`; the older bots were removed.
+- Prefer going through existing command classes for any player action.
+
+## Assets and renames (important gotcha)
+
+Sprite regions and map entries reference units/tiles by their string id. Renaming an id
+means updating all of:
+
+1. the id constant and every code reference,
+2. the region name in the relevant `.atlas` file(s) under `android/assets/`,
+3. any `.ptmap` map files that place that unit or tile.
+
+Icon lookups are also keyed by id. Forgetting the atlas or maps silently produces missing
+sprites, not compile errors.
+
+## Experimental / work in progress
+
+- `Config.WIP_CONTENT` gates unfinished content (the mage and rat king units, their
+  buildings, and the research/tech mechanic). Keep it off unless you are working on those.
+- Some stat helpers and systems are experimental; check before assuming they are used.
+
+## Testing tips
+
+- Use the bot vs bot spectate argument as a smoke test and watch the log for exceptions and
+  for a healthy mix of buy/build/capture/attack/destroy commands.
+- A missing sprite shows up as a "Unit textures not found" log line rather than a crash.
+- The bot runs on the main thread and can be expensive if it scans the whole map for every
+  unit; keep an eye on frame hitches after AI changes.
+
+## Git
+
+- Check `git status` before committing, the tree sometimes has unrelated in-progress work.
+- Keep commit messages short and focused.
