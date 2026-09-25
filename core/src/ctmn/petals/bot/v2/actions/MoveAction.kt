@@ -55,7 +55,9 @@ class MoveAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
         }
 
         val objective = Targeting.objective(bot, unit) ?: return IMPOSSIBLE
-        val avoidThreat = unit.health <= unit.cUnit.baseHealth / 4
+        // More aggressive difficulties keep pushing at lower health.
+        val cautiousAt = (unit.cUnit.baseHealth * (0.45f - 0.25f * bot.difficulty.aggression)).toInt()
+        val avoidThreat = unit.health <= cautiousAt
         return queue(stepTo(objective.first, objective.second, avoidThreat = avoidThreat), 40)
     }
 
@@ -70,7 +72,7 @@ class MoveAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
             val tiles = Pathing.reachableTiles(bot.playStage, unit).filter {
                 tiledDst(it.first, it.second, anchor.first, anchor.second) <= settings.roamingMaxRange
             }
-            tiles.randomOrNull()?.let { bot.playStage.getTile(it.first, it.second) }
+            tiles.randomOrNull(bot.random)?.let { bot.playStage.getTile(it.first, it.second) }
         } ?: return IMPOSSIBLE
 
         return queue(step, 30)

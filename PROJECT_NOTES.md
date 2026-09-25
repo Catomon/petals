@@ -120,11 +120,27 @@ objective, a trigger fires on a game event.
   their turn start and `onEnd()` when the next player's `NextTurnEvent` fires.
 - When a bot's `isDone` becomes true, `BotManager` queues `EndTurnCommand` for it.
 - The current AI lives in `ctmn.petals.bot.v2`: single `AiBot` with a `Difficulty`
-  (EASY/NORMAL/HARD) and a `BotFactory`. It plays through the same commands a human uses and
-  detects at runtime whether a map has an economy.
+  (EASY/NORMAL/HARD/INSANE) and a `BotFactory`. It plays through the same commands a human
+  uses and detects at runtime whether a map has an economy.
+- Difficulty scales how well the bot plays, not which units it may buy: `skill` (how often it
+  misreads the board and plays a runner-up action), `ambition` (army and economy size) and
+  `aggression` (how long wounded units keep pushing). EASY gates abilities, buildings and
+  expansion; INSANE gets a bonus income cheat.
+- `ArmyPlanner` decides buys, buildings and expansion from map size, bases, crystals, turn
+  phase, enemy composition, credits and the roles from `UnitRoles` (WORKER, SCOUT, HEALER,
+  RANGED, ARTILLERY, SKIRMISHER, AIR, WATER, MELEE). It buys the best value unit for a role
+  instead of the cheapest, and keeps a reserve for the next unlock.
+- `CombatEval` uses deterministic average damage from `calculateDmgDefStats`, so evaluation
+  never consumes the game RNG. Bots have their own seeded `AiBot.random`.
+- gdx `Array` iterators cannot be used nested. Materialize with `toList()` before iterating a
+  bot's `speciesUnits` inside another loop over it (this crashed every buy once).
+- Logging goes through `ctmn.petals.utils.GameLog`. Errors always print; `botlog` enables the
+  balance lines from `BotLog` (map summary, per-turn army state, buys with role slots and
+  scored runners-up, builds, cheat payouts, turn action counts); `verboselog` enables engine
+  chatter (assets, event logger, turn manager, GUI listener changes, command logs).
 - Run a bot vs bot spectate match with:
-  `.\gradlew.bat :desktop:run --args="botvsbot"` (optional `easy` / `normal` / `hard`).
-  It loads a fixed map, makes two AI players and a spectator third player.
+  `.\gradlew.bat :desktop:run --args="botvsbot"` (optional `easy` / `normal` / `hard` /
+  `insane`, plus `botlog` and/or `verboselog`).
 
 ## Sprites and ids
 

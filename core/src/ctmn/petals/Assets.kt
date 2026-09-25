@@ -15,8 +15,8 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.playerColorName
+import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.logErr
-import ctmn.petals.utils.logMsg
 import ctmn.petals.utils.replaceColor
 import ctmn.petals.utils.rgba
 
@@ -119,7 +119,7 @@ class Assets : AssetManager() {
     fun findUnitAtlas(playerId: Int): TextureAtlas = findUnitAtlas(playerColorName(playerId))
 
     private fun addUnitAtlases() {
-        logMsg("Loading units atlases...")
+        GameLog.verbose("Assets", "Loading units atlases...")
 
         loadUnitsAtlasByColor("units_blue", bluePlayerColors)
         loadUnitsAtlasByColor("units_red", redPlayerColors)
@@ -130,11 +130,11 @@ class Assets : AssetManager() {
         loadUnitsAtlasByColor("units_pink", pinkPlayerColors)
         loadUnitsAtlasByColor("units_brown", brownPlayerColors)
 
-        logMsg("Loading units atlases V")
+        GameLog.verbose("Assets", "Loading units atlases V")
     }
 
     fun beginLoadingAll() {
-        Gdx.app.debug(Assets::class.simpleName, "Loading textures...")
+        GameLog.verbose("Assets", "Loading textures...")
 
         //texture atlas
         load(UNITS_ATLAS, TextureAtlas::class.java)
@@ -153,9 +153,9 @@ class Assets : AssetManager() {
         load("3.png", Texture::class.java)
         load("4.png", Texture::class.java)
 
-        Gdx.app.debug(Assets::class.simpleName, "Loading textures V")
+        GameLog.verbose("Assets", "Loading textures V")
 
-        Gdx.app.debug(Assets::class.simpleName, "Loading sounds...")
+        GameLog.verbose("Assets", "Loading sounds...")
         fun loadSound(name: String) {
             load("$soundsFolderName/$name", Sound::class.java)
         }
@@ -175,7 +175,7 @@ class Assets : AssetManager() {
         loadSound("slime_hit.ogg")
         loadSound("bow.ogg")
 
-        Gdx.app.debug(Assets::class.simpleName, "Loading sounds V")
+        GameLog.verbose("Assets", "Loading sounds V")
 
 //FileHandle.list() not working in jar and isDirectory returns false even if it's a directory
 //        for (file in Gdx.files.internal(soundsFolderName).list()) {
@@ -267,9 +267,9 @@ class Assets : AssetManager() {
             print("Creating $name units texture")
             try {
                 createAndSaveUnitsTexture(atl, colors, name)
-                logMsg(" V")
+                GameLog.verbose("Assets", " V")
             } catch (e: Exception) {
-                logMsg(" X")
+                logErr("$name texture creation failed")
                 e.printStackTrace()
             }
         } else logErr("$name units texture is missing and won't be created (non-desktop device).")

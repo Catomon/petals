@@ -2,7 +2,8 @@ package ctmn.petals.bot.v2.actions
 
 import ctmn.petals.Config
 import ctmn.petals.bot.v2.AiBot
-import ctmn.petals.bot.v2.util.EconomyEval
+import ctmn.petals.bot.v2.BotLog
+import ctmn.petals.bot.v2.util.ArmyPlanner
 import ctmn.petals.bot.v2.util.Pathing
 import ctmn.petals.playscreen.commands.BuildBaseCommand
 import ctmn.petals.playscreen.commands.MoveUnitCommand
@@ -25,11 +26,12 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
 
     private var buildCommand: BuildBaseCommand? = null
     private var moveCommand: MoveUnitCommand? = null
+    private var buildTile: TileActor? = null
 
     override fun evaluate(): Int {
         if (!bot.capabilities.canBuildBase) return IMPOSSIBLE
         if (!unit.canBuildBase()) return IMPOSSIBLE
-        if (!EconomyEval.shouldBuildBase(bot)) return IMPOSSIBLE
+        if (!ArmyPlanner.shouldBuildBase(bot)) return IMPOSSIBLE
         if (bot.player.credits < Config.BASE_BUILD_COST) return IMPOSSIBLE
         if (unit.actionPoints <= 0) return IMPOSSIBLE
 
@@ -38,6 +40,7 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
             val cmd = BuildBaseCommand(unit, here)
             if (cmd.canExecute(bot.playScreen)) {
                 buildCommand = cmd
+                buildTile = here
                 return 78
             }
         }
@@ -78,8 +81,10 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
 
     override fun execute(): Boolean {
         buildCommand?.let {
-            com.badlogic.gdx.Gdx.app.debug("AiBot", "${bot.player.name} builds a base")
-            return bot.playScreen.commandManager.queueCommand(it, bot.playerID)
+            val queued = bot.playScreen.commandManager.queueCommand(it, bot.playerID)
+            val tile = buildTile
+            if (queued && tile != null) BotLog.buildBase(bot, Config.BASE_BUILD_COST, tile)
+            return queued
         }
         moveCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
         return false

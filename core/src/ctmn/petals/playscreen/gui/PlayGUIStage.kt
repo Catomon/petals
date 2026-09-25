@@ -159,7 +159,7 @@ class PlayGUIStage(
             field.onExit?.invoke()
             value.onEnter?.invoke()
 
-            logMsg("State changed: ${field.name} -> ${value.name}")
+            GameLog.verbose("PlayGUIStage", "State changed: ${field.name} -> ${value.name}")
 
             field = value
         }
@@ -234,7 +234,10 @@ class PlayGUIStage(
                 }
             }
 
-            logMsg("MapClickListener changed: ${field::class.simpleName} -> ${value::class.simpleName}")
+            GameLog.verbose(
+                "PlayGUIStage",
+                "MapClickListener changed: ${field::class.simpleName} -> ${value::class.simpleName}"
+            )
 
             if (field !is BlockedCL) //why
                 field = value
@@ -783,7 +786,7 @@ class PlayGUIStage(
             return
         }
 
-        logMsg("PlayStage UI set up.")
+        GameLog.verbose("PlayGUIStage", "PlayStage UI set up.")
 
         playStage.addActor(Actor().apply { name = "been_set_up_mark" })
 

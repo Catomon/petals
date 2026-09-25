@@ -1,6 +1,5 @@
 package ctmn.petals.bot.v2
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.bot.Bot
 import ctmn.petals.bot.v2.actions.AbilityAction
@@ -22,6 +21,8 @@ import ctmn.petals.unit.canAttackNow
 import ctmn.petals.unit.canDestroy
 import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
+import ctmn.petals.utils.GameLog
+import kotlin.random.Random
 
 /**
  * A complete, difficulty configurable bot that plays with the same rules as a human:
@@ -40,6 +41,12 @@ class AiBot(
     val context = BotContext(this)
     val playStage get() = playScreen.playStage
 
+    /**
+     * AI-local RNG. Evaluation never touches the game RNG, so bot turns cannot change
+     * combat rolls or disturb multiplayer determinism.
+     */
+    val random = Random(BOT_SEED + player.id * 7919)
+
     /** The roster the bot may buy. Campaign levels can override it with custom creatures. */
     val speciesUnits: Array<UnitActor> = settings.speciesUnits ?: Array<UnitActor>().apply {
         runCatching { Species.getSpeciesUnits(player.species) }
@@ -56,6 +63,9 @@ class AiBot(
     private val attempts = HashMap<String, Int>()
     private val blocked = HashSet<String>()
 
+    /** Actions successfully issued this turn, for the balance log. */
+    private val actionsThisTurn = HashMap<String, Int>()
+
     /** Starting position for scripted roaming units, keyed by unit name. */
     private val roamingPositions = HashMap<String, Pair<Int, Int>>()
 
@@ -66,6 +76,7 @@ class AiBot(
 
     override fun levelCreated(playStage: PlayStage) {
         super.levelCreated(playStage)
+        BotLog.resetMatch()
         refreshCapabilities()
     }
 
@@ -75,12 +86,23 @@ class AiBot(
         idle = 0f
         attempts.clear()
         blocked.clear()
+        actionsThisTurn.clear()
         context.refresh()
         refreshCapabilities()
+
+        BotLog.mapSummaryIfNeeded(playScreen)
+        BotLog.turnStart(this)
+
+        // INSANE is the only difficulty allowed to cheat: it gets bonus credits each turn.
+        if (difficulty.incomeBonus > 0) {
+            player.credits += difficulty.incomeBonus
+            BotLog.incomeBonus(this, difficulty.incomeBonus)
+        }
     }
 
     override fun onEnd() {
         super.onEnd()
+        BotLog.turnEnd(this, actionsThisTurn)
         attempts.clear()
         blocked.clear()
     }
@@ -105,7 +127,7 @@ class AiBot(
         if (action == null) {
             idle += difficulty.actionDelay
             if (idle >= difficulty.endTurnDelay) {
-                Gdx.app.debug("AiBot", "${player.name}: no actions, ending turn.")
+                BotLog.noActions(this)
                 done()
             }
             return
@@ -115,8 +137,16 @@ class AiBot(
         val signature = action.signature()
         if (blocked.contains(signature)) return
 
-        val success = runCatching { action.execute() }.getOrDefault(false)
-        if (!success) {
+        val success = try {
+            action.execute()
+        } catch (t: Throwable) {
+            GameLog.error("AiBot", "execute failed for ${action.signature()}", t)
+            false
+        }
+        if (success) {
+            val kind = actionKind(action)
+            actionsThisTurn[kind] = (actionsThisTurn[kind] ?: 0) + 1
+        } else {
             val count = (attempts[signature] ?: 0) + 1
             attempts[signature] = count
             if (count >= 2) blocked.add(signature)
@@ -160,17 +190,45 @@ class AiBot(
         return bestOf(movement)
     }
 
+    /**
+     * Picks the highest scoring action. Lower skill means the bot more often misreads the
+     * board and plays a runner-up instead of the best move it can see.
+     */
     private fun bestOf(actions: List<BotAction>): BotAction? {
-        var best: BotAction? = null
-        var bestScore = 0
+        val scored = ArrayList<Pair<BotAction, Int>>()
         for (action in actions) {
             if (blocked.contains(action.signature())) continue
-            val score = runCatching { action.evaluate() }.getOrDefault(0)
-            if (score > bestScore) {
-                bestScore = score
-                best = action
+            val score = try {
+                action.evaluate()
+            } catch (t: Throwable) {
+                GameLog.error("AiBot", "evaluate failed for ${action.signature()}", t)
+                0
             }
+            if (score > 0) scored.add(action to score)
         }
-        return best
+        if (scored.isEmpty()) return null
+
+        val ranked = scored.sortedByDescending { it.second }
+
+        val mistakeChance = MISTAKE_RATE * (1f - difficulty.skill)
+        if (ranked.size > 1 && random.nextFloat() < mistakeChance) {
+            val pool = ranked.drop(1).take(MISTAKE_POOL).map { it.first }
+            return pool.random(random)
+        }
+
+        return ranked.first().first
+    }
+
+    private fun actionKind(action: BotAction): String =
+        action.signature().substringBefore('@').substringBefore(':')
+
+    private companion object {
+        const val BOT_SEED = 0x5EED
+
+        /** Chance multiplier for picking a runner-up action at zero skill. */
+        const val MISTAKE_RATE = 0.5f
+
+        /** How many runner-up actions can be picked by mistake. */
+        const val MISTAKE_POOL = 3
     }
 }

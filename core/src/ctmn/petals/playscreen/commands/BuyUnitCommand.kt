@@ -3,12 +3,12 @@ package ctmn.petals.playscreen.commands
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.UnitBoughtEvent
 import ctmn.petals.unit.*
-import com.badlogic.gdx.Gdx
 import ctmn.petals.player.Tech
 import ctmn.petals.player.Techs
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.tile.components.ActionCooldown
 import ctmn.petals.tile.isBase
+import ctmn.petals.utils.GameLog
 
 class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int = -1, val tileX: Int, val tileY: Int, val leaderId: Int = -1) : Command() {
 
@@ -67,7 +67,7 @@ class BuyUnitCommand(val unitName: String, val buyerPlayerId: Int, var cost: Int
         playScreen.fireEvent(UnitBoughtEvent(unitActor))
 
         //log
-        Gdx.app.log(BuyUnitCommand::class.simpleName, "Unit $unitName was bought at $tileX:$tileY")
+        GameLog.verbose("BuyUnitCommand", "Unit $unitName was bought at $tileX:$tileY")
 
         return true
     }

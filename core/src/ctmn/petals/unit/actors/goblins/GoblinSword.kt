@@ -26,7 +26,7 @@ class GoblinSword : UnitActor(
         add(
             AttackComponent(
                 25,
-                40,
+                35,
                 1
             )
         )

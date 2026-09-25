@@ -27,7 +27,7 @@ class GoblinBow : UnitActor(
         add(
             AttackComponent(
                 20,
-                30,
+                35,
                 3,
                 attackType = ATTACK_TYPE_ALL,
                 environmentDmg = 15

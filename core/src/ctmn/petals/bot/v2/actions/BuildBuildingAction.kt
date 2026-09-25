@@ -1,7 +1,8 @@
 package ctmn.petals.bot.v2.actions
 
 import ctmn.petals.bot.v2.AiBot
-import ctmn.petals.bot.v2.util.EconomyEval
+import ctmn.petals.bot.v2.BotLog
+import ctmn.petals.bot.v2.util.ArmyPlanner
 import ctmn.petals.bot.v2.util.Pathing
 import ctmn.petals.playscreen.commands.BuildCommand
 import ctmn.petals.playscreen.commands.MoveUnitCommand
@@ -27,6 +28,7 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
 
     private var buildCommand: BuildCommand? = null
     private var moveCommand: MoveUnitCommand? = null
+    private var buildTile: TileActor? = null
 
     override fun evaluate(): Int {
         if (!bot.capabilities.canBuildBuildings) return IMPOSSIBLE
@@ -34,7 +36,7 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
         if (!unit.canBuild()) return IMPOSSIBLE
         if (unit.actionPoints <= 0) return IMPOSSIBLE
 
-        val building = EconomyEval.chooseBuilding(bot, bot.speciesUnits) ?: return IMPOSSIBLE
+        val building = ArmyPlanner.chooseBuilding(bot, bot.speciesUnits) ?: return IMPOSSIBLE
         if (bot.player.credits < building.cost) return IMPOSSIBLE
 
         val here = bot.playStage.getTile(unit.tiledX, unit.tiledY)
@@ -42,7 +44,8 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
             val cmd = BuildCommand(building.name, building.buildTime, building.cost, unit, here)
             if (cmd.canExecute(bot.playScreen)) {
                 buildCommand = cmd
-                return 66
+                buildTile = here
+                return 68
             }
         }
 
@@ -87,8 +90,10 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
 
     override fun execute(): Boolean {
         buildCommand?.let {
-            com.badlogic.gdx.Gdx.app.debug("AiBot", "${bot.player.name} builds ${it.buildingName}")
-            return bot.playScreen.commandManager.queueCommand(it, bot.playerID)
+            val queued = bot.playScreen.commandManager.queueCommand(it, bot.playerID)
+            val tile = buildTile
+            if (queued && tile != null) BotLog.build(bot, it.buildingName, it.cost, tile)
+            return queued
         }
         moveCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
         return false

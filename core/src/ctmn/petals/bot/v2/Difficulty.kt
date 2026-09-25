@@ -1,8 +1,16 @@
 package ctmn.petals.bot.v2
 
 /**
- * Tunes the same [AiBot] brain. Higher difficulty reacts faster, makes better trades,
- * uses abilities/buildings and expands its economy more aggressively.
+ * Tunes the same [AiBot] brain. Difficulty does not decide which units the bot is allowed to
+ * want: every difficulty runs the same planner and composition rules, so the army it fields
+ * is a consequence of how well it plays the economy.
+ *
+ * - [skill] controls decision quality. Lower skill means the bot more often picks a runner-up
+ *   action instead of the best one it can see.
+ * - [ambition] scales how large an army and economy the bot aims for.
+ * - [aggression] is how long wounded units keep pushing without support.
+ * - [useAbilities], [useBuildings] and [expandBases] gate whole systems for [EASY].
+ * - [incomeBonus] is a deliberate cheat reserved for [INSANE].
  */
 enum class Difficulty(
     val displayName: String,
@@ -10,47 +18,61 @@ enum class Difficulty(
     val actionDelay: Float,
     /** seconds with no available action before ending the turn */
     val endTurnDelay: Float,
-    /** 0..1; used for risk tolerance and focus fire */
+    /** 0..1 decision quality: 1 means it always picks the best action it can see */
     val skill: Float,
+    /** 0..1 scales army size targets and economy ambition */
+    val ambition: Float,
+    /** 0..1 how far wounded units keep pushing without support */
+    val aggression: Float,
     val useAbilities: Boolean,
     val useBuildings: Boolean,
     val expandBases: Boolean,
-    /** how many workers the bot tries to keep alive */
-    val maxWorkers: Int,
-    /** 0..1; how far units are willing to push without support */
-    val aggression: Float,
+    /** Extra credits granted at the start of each of this bot's turns. INSANE only. */
+    val incomeBonus: Int = 0,
 ) {
     EASY(
         displayName = "Easy",
         actionDelay = 0.9f,
         endTurnDelay = 1.5f,
-        skill = 0.35f,
+        skill = 0.3f,
+        ambition = 0.4f,
+        aggression = 0.4f,
         useAbilities = false,
         useBuildings = false,
         expandBases = false,
-        maxWorkers = 1,
-        aggression = 0.4f,
     ),
     NORMAL(
         displayName = "Normal",
         actionDelay = 0.5f,
         endTurnDelay = 1.0f,
-        skill = 0.65f,
+        skill = 0.7f,
+        ambition = 0.7f,
+        aggression = 0.7f,
         useAbilities = true,
         useBuildings = true,
         expandBases = true,
-        maxWorkers = 2,
-        aggression = 0.7f,
     ),
     HARD(
         displayName = "Hard",
         actionDelay = 0.3f,
         endTurnDelay = 0.7f,
         skill = 1.0f,
+        ambition = 1.0f,
+        aggression = 1.0f,
         useAbilities = true,
         useBuildings = true,
         expandBases = true,
-        maxWorkers = 3,
-        aggression = 1.0f,
+    ),
+    INSANE(
+        displayName = "Insane",
+        actionDelay = 0.2f,
+        endTurnDelay = 0.5f,
+        skill = 1.0f,
+        ambition = 1.15f,
+        aggression = 1.1f,
+        useAbilities = true,
+        useBuildings = true,
+        expandBases = true,
+        incomeBonus = 150,
     ),
 }

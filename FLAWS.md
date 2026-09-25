@@ -42,13 +42,12 @@ Legend:
    *Direction:* pass assets/screen dependencies explicitly where practical; keep the global
    only as a thin entry point.
 
-4. **AI uses the game's RNG and runs on the main thread.**
-   `calculateDmgDef` calls the shared `playScreen.random` to estimate damage, so the AI
-   consumes and advances the game RNG during "thinking". This makes the AI non-deterministic,
-   disturbs any RNG-based replay/lockstep thinking, and the whole evaluation happens on the
-   main thread, which can hitch on big maps.
-   *Direction:* use an AI-local seeded RNG for estimate-only math, and/or move evaluation off
-   the main thread (or cache movement/eval results per turn).
+4. **AI evaluation runs on the main thread.**
+   Bot turns are computed during `PlayScreen.update`, so a full evaluation can hitch on big
+   maps. The RNG half of this is fixed: `CombatEval` now uses deterministic average damage
+   from `calculateDmgDefStats`, and `AiBot` has its own seeded RNG, so thinking no longer
+   consumes `playScreen.random`.
+   *Direction:* move evaluation off the main thread, or cache movement/eval results per turn.
 
 5. **String ids are the only link between code, sprites and maps.**
    Unit/tile ids index atlas regions and `.ptmap` entries. Renaming or adding an id requires
@@ -166,9 +165,11 @@ Legend:
     *Direction:* make identity immutable, or stop using value equality for players.
 
 25. **Inconsistent logging.**
-    A mix of `Gdx.app.log`, `Gdx.app.error`, `logErr`, `println` and `Logger`. Hard to filter
-    or silence.
-    *Direction:* one logging facade with categories.
+    A mix of `Gdx.app.log`, `Gdx.app.error`, `logErr`, `println` and `Logger`. `GameLog` now
+    offers always-on errors plus gated `balance` and `verbose` categories, and the noisiest
+    call sites (assets, event logger, turn manager, GUI listener changes, bot actions) go
+    through it. Many other call sites still use `logMsg`/`Gdx.app.*` directly.
+    *Direction:* migrate the remaining call sites to `GameLog`, one area at a time.
 
 26. **Silent asset fallbacks.**
     `findUnitTextures` falls back to a generic "unit" sprite when a unit texture is missing,

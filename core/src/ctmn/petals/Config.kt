@@ -12,8 +12,14 @@ object Config {
      */
     var botTest = false
 
-    /** Difficulty used by [botTest]: "easy", "normal" or "hard". */
+    /** Difficulty used by [botTest]: "easy", "normal", "hard" or "insane". */
     var botTestDifficulty = "normal"
+
+    /** Bot balance logging, enabled by the `botlog` desktop argument. */
+    var botLog = false
+
+    /** Verbose engine logging, enabled by the `verboselog` desktop argument. */
+    var verboseLog = false
 
     /**
      * Work-in-progress content that should not show up in normal play yet:
@@ -124,7 +130,6 @@ object Config {
     // Other logic
     const val BASE_BUILD_COST = 200
     const val BASE_RANGE_OF_VIEW = 2
-    const val GOLD_PER_BASE = 100
     const val HEALING_AMOUNT_NEAR_LEADER = 10
     const val KILL_CREDITS_SLIME_HUGE = 1000
     const val KILL_CREDITS_SLIME_LING = 200

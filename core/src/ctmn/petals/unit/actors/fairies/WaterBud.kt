@@ -33,8 +33,8 @@ class WaterBud : UnitActor(
         add(FollowerComponent())
         add(
             AttackComponent(
+                45,
                 60,
-                70,
                 5,
                 2
             )

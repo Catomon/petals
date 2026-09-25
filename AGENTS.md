@@ -15,6 +15,9 @@ local multiplayer, a map editor and a story campaign.
   combat, serialization, bots, maps, GUI, dev tools and tooling gotchas.
 - `ECONOMY.md` - how credits and income work right now.
 - `FLAWS.md` - prioritized technical debt and suggested fix order.
+- `docs/index.md` - short topic notes split by task (AI design, economy design, game design,
+  logging, gotchas, working style). Read only the file that matches what you are working on
+  instead of reading everything.
 
 ## Tech / modules
 
@@ -51,7 +54,12 @@ save-version warning on boot is normal and harmless.
 
 - Bot vs bot spectate (two AI players plus a third spectator player, fixed map):
   `.\gradlew.bat :desktop:run --args="botvsbot"`
-- Optional difficulty: `--args="botvsbot hard"` or `"botvsbot easy"` (default normal).
+- Optional difficulty: `--args="botvsbot hard"` or `"botvsbot easy"` / `"botvsbot insane"`
+  (default normal).
+- Bot balance logging (map resources, per-turn army, every buy with its role slot and the
+  scored runners-up): add `botlog`, e.g. `--args="botvsbot hard botlog"`.
+- Verbose engine logging (asset loading, event logger, turn manager, GUI listener changes):
+  add `verboselog`. Neither flag is needed for normal play or smoke tests.
 
 This is the quickest smoke test for gameplay and for AI changes.
 

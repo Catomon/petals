@@ -32,6 +32,7 @@ object BotVsBotScenario {
         val difficulty = when (Config.botTestDifficulty.lowercase()) {
             "easy" -> Difficulty.EASY
             "hard" -> Difficulty.HARD
+            "insane" -> Difficulty.INSANE
             else -> Difficulty.NORMAL
         }
         return create(game, difficulty)

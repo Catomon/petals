@@ -28,13 +28,6 @@ class FairySlinger : UnitActor(
 
     override val attackEffect: MissileActor get() = MissileActor().also { it.setStart(centerX, centerY + 5) }
 
-    companion object Stat : UnitStat(
-        FAIRY_SLINGER,
-        100,
-        60,
-        70
-    )
-
     init {
         actionPointsMove = 2
         animationProps.attackEffectFrame = 0f

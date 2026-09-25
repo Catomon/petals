@@ -44,7 +44,7 @@ class PlayTurnCycleListener(private val playScreen: PlayScreen) : EventListener 
             }
 
             val capturables = playScreen.playStage.getCapturablesOf(nextPlayer)
-            val creditsPerCluster = playScreen.calcCreditsPerCluster(nextPlayer)
+            val creditsPerCluster = playScreen.calcCreditsPerCluster()
             //capturables income
             for (capturable in capturables) {
                 if (capturable.isCrystal) {

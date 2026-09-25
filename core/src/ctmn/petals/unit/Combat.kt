@@ -8,6 +8,7 @@ import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.getLeadUnit
 import ctmn.petals.playstage.getUnitsForTeam
 import ctmn.petals.unit.component.BonusFieldComponent
+import ctmn.petals.utils.GameLog
 import java.lang.IllegalStateException
 import kotlin.random.Random
 
@@ -38,7 +39,19 @@ val UnitActor.combatDefenseHpMod: Float
         return modifierHealth / 4 + 0.75f
     }
 
-fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, Int> {
+/** Final combat stats before the damage roll. */
+data class DamageDefense(
+    val minDamage: Int,
+    val maxDamage: Int,
+    val defense: Int,
+)
+
+/**
+ * Deterministic damage and defense for [unit] against [vsUnit], after terrain, matchup,
+ * leader and buff modifiers. The AI evaluates with this so "thinking" never consumes the
+ * game RNG.
+ */
+fun PlayScreen.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageDefense {
     val playStage = unit.playStageOrNull
 
     var defense = unit.defense
@@ -77,8 +90,8 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
         minDMG += first
         maxDMG += first
         defense += second
-        Gdx.app.debug(
-            AttackCommand::class.simpleName,
+        GameLog.verbose(
+            "AttackCommand",
             "${unit.name} matchup bonus: A${first}; D${second}"
         )
     }
@@ -122,5 +135,11 @@ fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, In
 
     defense = (defense * defenseMod).toInt()
 
-    return Pair(randomInt(minDMG, maxDMG), defense)
+    return DamageDefense(minDMG, maxDMG, defense)
+}
+
+/** Rolls the damage for one attack. Uses the game RNG on purpose. */
+fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, Int> {
+    val stats = calculateDmgDefStats(unit, vsUnit)
+    return randomInt(stats.minDamage, stats.maxDamage) to stats.defense
 }

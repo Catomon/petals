@@ -27,7 +27,8 @@ class GoblinGiant : UnitActor(
             AttackComponent(
                 55,
                 70,
-                1
+                1,
+                environmentDmg = 75
             )
         )
         add(TerrainPropComponent(TerrainPropsPack.giant))

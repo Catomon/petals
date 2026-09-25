@@ -2,7 +2,7 @@ package ctmn.petals.playscreen.seqactions
 
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.*
-import com.badlogic.gdx.Gdx
+import ctmn.petals.utils.GameLog
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Queue
 
@@ -71,7 +71,7 @@ class SeqActionManager(val playScreen: PlayScreen) {
         if (started)
             playScreen.fireEvent(ActionStartedEvent(action))
         else
-            Gdx.app.log("[ActionManager]", "Action.onStart() returned false: $action")
+            GameLog.verbose("ActionManager", "Action.onStart() returned false: $action")
 
         return started
     }

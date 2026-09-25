@@ -4,7 +4,7 @@ import ctmn.petals.player.Player
 import ctmn.petals.playscreen.events.NextRoundEvent
 import ctmn.petals.playscreen.events.NextTurnEvent
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
-import com.badlogic.gdx.utils.Logger
+import ctmn.petals.utils.GameLog
 import java.lang.IllegalStateException
 
 class TurnManager(val playScreen: PlayScreen) {
@@ -43,8 +43,6 @@ class TurnManager(val playScreen: PlayScreen) {
     val previousPlayer get() = if (turn - 1 >= 0) players[turn - 1] else players[players.size - 1]
     val nextPlayer get() = if (turn + 1 < players.size) players[turn + 1] else players[0]
 
-    private val logger = Logger("TurnManager", Logger.INFO)
-
     fun nextTurn() {
         if (playScreen.isGameOver)
             return
@@ -74,7 +72,7 @@ class TurnManager(val playScreen: PlayScreen) {
         playScreen.fireEvent(NextTurnEvent(lastPlayer, nextPlayer))
 
         //log
-        logger.info("Next Turn: ${currentPlayer.name}")
+        GameLog.verbose("TurnManager", "Next Turn: ${currentPlayer.name}")
     }
 
     private fun nextRound() {
@@ -85,7 +83,7 @@ class TurnManager(val playScreen: PlayScreen) {
         playScreen.fireEvent(NextRoundEvent(round))
 
         //log
-        logger.info("Next Round: ${round + 1}")
+        GameLog.verbose("TurnManager", "Next Round: ${round + 1}")
     }
 
     fun getPlayerById(id: Int): Player? {

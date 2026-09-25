@@ -15,15 +15,24 @@ public class DesktopLauncher {
         boolean windowed = arg.length == 1 && arg[0].equals("windowed");
 
         boolean botTest = false;
+        boolean botLog = false;
+        boolean verboseLog = false;
         String botDifficulty = "normal";
         for (String a : arg) {
             String lower = a.toLowerCase();
             if (lower.equals("botvsbot") || lower.equals("bottest") || lower.equals("--bot-test")) {
                 botTest = true;
-            } else if (lower.equals("easy") || lower.equals("normal") || lower.equals("hard")) {
+            } else if (lower.equals("easy") || lower.equals("normal") || lower.equals("hard") || lower.equals("insane")) {
                 botDifficulty = lower;
+            } else if (lower.equals("botlog") || lower.equals("--bot-log")) {
+                botLog = true;
+            } else if (lower.equals("verboselog") || lower.equals("--verbose-log")) {
+                verboseLog = true;
             }
         }
+
+        Config.INSTANCE.setBotLog(botLog);
+        Config.INSTANCE.setVerboseLog(verboseLog);
 
         if (botTest) {
             Config.INSTANCE.setBotTest(true);

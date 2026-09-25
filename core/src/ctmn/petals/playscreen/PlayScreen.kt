@@ -103,8 +103,6 @@ open class PlayScreen(
     var creditsPassiveIncome = 100
     var creditsPassiveIncomeMax = 2000
     var creditsPerBase = 100
-    /** Recurring credits each owned base produces every turn (sustainable late game income). */
-    var creditsIncomePerBase = 50
     var creditsPerCluster = 100 //classic 75
 
     var season = Season.SUMMER

@@ -7,7 +7,7 @@ import ctmn.petals.playstage.tiledDst
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.cAttack
 import ctmn.petals.unit.cUnit
-import ctmn.petals.unit.calculateDmgDef
+import ctmn.petals.unit.calculateDmgDefStats
 import ctmn.petals.unit.canAttackNow
 import ctmn.petals.unit.health
 import ctmn.petals.unit.isAlly
@@ -20,9 +20,17 @@ import ctmn.petals.unit.tiledY
 /** Pure combat math helpers so actions share the same evaluation. */
 object CombatEval {
 
-    fun expectedDamage(playScreen: PlayScreen, attacker: UnitActor, defender: UnitActor): Int =
-        runCatching { playScreen.calculateDmgDef(attacker, defender).first }
-            .getOrDefault(attacker.minDamage)
+    /**
+     * Average damage after the defender's defense. Deterministic on purpose: evaluating a
+     * move must never consume the game RNG.
+     */
+    fun expectedDamage(playScreen: PlayScreen, attacker: UnitActor, defender: UnitActor): Int {
+        val attack = runCatching { playScreen.calculateDmgDefStats(attacker, defender) }.getOrNull()
+        val defense = runCatching { playScreen.calculateDmgDefStats(defender, attacker) }.getOrNull()
+        val roll = if (attack == null) attacker.minDamage.toFloat()
+        else (attack.minDamage + attack.maxDamage) / 2f
+        return (roll - (defense?.defense ?: 0)).toInt().coerceAtLeast(0)
+    }
 
     fun canHit(attacker: UnitActor, defender: UnitActor): Boolean =
         runCatching { attacker.canAttackNow(defender) }.getOrDefault(false)
