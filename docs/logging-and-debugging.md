@@ -30,13 +30,14 @@ Stable prefixes and key=value pairs, so lines are easy to read and easy to grep:
 
 - match summary: map size, resource node count and total deposit, bases per player, bot
   factions, difficulties and starting state. Emitted once, from the first bot turn.
-- per turn: credits, income, bases, free bases, unit count, tech reserve, total spent, and how
-  full each role slot is, plus the current unit list.
+- per turn: credits, income, bases, free bases, owned crystals, unit count, tech reserve,
+  total spent, and how full each role slot is, plus the current unit list.
 - each buy: unit, price, credits left, role, slot before and after, value score, the runners up
   it beat, and the base position.
 - each build and base: cost, credits left, position, and which units the building unlocks.
-- cheat payouts, idle turns, and a per turn action count (buy, capture, attack, build, ability,
-  move, and so on).
+- cheat payouts, idle turns, and a per turn command count. It counts commands actually issued,
+  and approach moves are reported as moves, so "capture" means a capture command, not walking
+  towards a crystal.
 
 ## How to read it for tuning
 

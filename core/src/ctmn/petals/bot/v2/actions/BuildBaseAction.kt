@@ -91,4 +91,6 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
     }
 
     override fun signature(): String = "buildBase:${unit.name}"
+
+    override fun commandKind(): String = if (buildCommand != null) "buildBase" else "move"
 }

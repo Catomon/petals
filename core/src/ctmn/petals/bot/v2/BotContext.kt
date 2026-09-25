@@ -17,6 +17,7 @@ import ctmn.petals.tile.isBuilding
 import ctmn.petals.tile.isCrystal
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.tile.isWaterBase
+import ctmn.petals.tile.components.BaseBuildingComponent
 import ctmn.petals.tile.components.BuildingComponent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.followerID
@@ -44,6 +45,13 @@ class BotContext(val bot: AiBot) {
         private set
     var ownBases: List<TileActor> = emptyList()
         private set
+
+    /** Bases currently under construction by this player. */
+    var basesUnderConstruction: Int = 0
+        private set
+
+    /** Owned plus under construction: the production capacity already committed to. */
+    val baseCount: Int get() = ownBases.size + basesUnderConstruction
     var enemyBases: List<TileActor> = emptyList()
         private set
     var ownBuildings: List<TileActor> = emptyList()
@@ -64,6 +72,9 @@ class BotContext(val bot: AiBot) {
         units = playStage.getUnitsOfPlayer(player).toList()
         enemies = playStage.getUnitsOfEnemyOf(player).toList()
         ownBases = playStage.getBases(player).toList()
+        basesUnderConstruction = playStage.getTiles().count { tile ->
+            tile.get(BaseBuildingComponent::class.java)?.playerId == playerId
+        }
         enemyBases = playStage.getTiles().filter {
             it.isBase && it.cPlayerId?.playerId != null && it.cPlayerId?.playerId != playerId
         }

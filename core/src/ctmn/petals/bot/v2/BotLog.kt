@@ -84,6 +84,7 @@ object BotLog {
         val ctx = bot.context
         val round = bot.playScreen.turnManager.round + 1
         val targets = ArmyPlanner.roleTargets(bot)
+        val crystals = bot.playStage.getCapturablesOf(ctx.player).count { it.isCrystal }
         val roles = UnitRole.values().mapNotNull { role ->
             val target = targets[role] ?: 0
             val count = ctx.units.count { UnitRoles.of(it) == role }
@@ -91,8 +92,9 @@ object BotLog {
         }
         GameLog.balance(
             "r=$round ${bot.player.name} START credits=${ctx.player.credits} income=${ctx.income} " +
-                "bases=${ctx.ownBases.size} free=${ctx.freeOwnedBases().size} units=${ctx.units.size} " +
-                "reserve=${ArmyPlanner.nextTechReserve(bot)} spent=${spent[bot.playerID] ?: 0} " +
+                "bases=${ctx.ownBases.size} building=${ctx.basesUnderConstruction} " +
+                "free=${ctx.freeOwnedBases().size} crystals=$crystals " +
+                "units=${ctx.units.size} reserve=${ArmyPlanner.nextTechReserve(bot)} spent=${spent[bot.playerID] ?: 0} " +
                 "army=[${roles.joinToString(" ")}]"
         )
 
@@ -178,7 +180,7 @@ object BotLog {
         if (!GameLog.balanceEnabled || actions.isEmpty()) return
         val summary = actions.entries.sortedBy { it.key }.joinToString(" ") { "${it.key}=${it.value}" }
         GameLog.balance(
-            "r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} END $summary " +
+            "r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} END cmds $summary " +
                 "spentTotal=${spent[bot.playerID] ?: 0}"
         )
     }

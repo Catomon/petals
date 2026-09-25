@@ -50,4 +50,6 @@ class CaptureAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
     }
 
     override fun signature(): String = "capture:${unit.name}"
+
+    override fun commandKind(): String = if (captureCommand != null) "capture" else "move"
 }

@@ -144,7 +144,7 @@ class AiBot(
             false
         }
         if (success) {
-            val kind = actionKind(action)
+            val kind = action.commandKind()
             actionsThisTurn[kind] = (actionsThisTurn[kind] ?: 0) + 1
         } else {
             val count = (attempts[signature] ?: 0) + 1
@@ -218,9 +218,6 @@ class AiBot(
 
         return ranked.first().first
     }
-
-    private fun actionKind(action: BotAction): String =
-        action.signature().substringBefore('@').substringBefore(':')
 
     private companion object {
         const val BOT_SEED = 0x5EED

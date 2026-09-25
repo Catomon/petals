@@ -52,4 +52,6 @@ class DestroyAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
     }
 
     override fun signature(): String = "destroy:${unit.name}"
+
+    override fun commandKind(): String = if (destroyCommand != null) "destroy" else "move"
 }

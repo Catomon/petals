@@ -214,10 +214,11 @@ object ArmyPlanner {
         if (ctx.combatUnits.size < 2 && ctx.enemies.isNotEmpty()) return false
 
         // Bases are production slots and vision, not income. Expand for capacity: enough
-        // slots to keep the army coming, plus a little room on large maps.
+        // slots to keep the army coming, plus a little room on large maps. Count bases still
+        // under construction so several workers cannot start a batch and overshoot the cap.
         val areaBonus = if (bot.playStage.tiledWidth * bot.playStage.tiledHeight >= 900) 1 else 0
         val target = 2 + (bot.difficulty.ambition * 2f).roundToInt() + areaBonus
-        return ctx.ownBases.size < target.coerceAtMost(MAX_BASES)
+        return ctx.baseCount < target.coerceAtMost(MAX_BASES)
     }
 
     private fun chasesUpgrades(bot: AiBot): Boolean =
@@ -239,7 +240,7 @@ object ArmyPlanner {
      */
     private fun roleTargets(bot: AiBot, units: List<UnitActor>): Map<UnitRole, Int> {
         val ctx = bot.context
-        val production = ctx.ownBases.size.coerceAtMost(6)
+        val production = ctx.baseCount.coerceAtMost(6)
         val scale = bot.difficulty.ambition * mapEconomyScale(bot)
         val roster = units.map { UnitRoles.of(it) }.toSet()
         val phase = phaseOf(bot)
