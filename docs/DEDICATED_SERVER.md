@@ -97,16 +97,30 @@ Turn timers are off by default, as requested.
 - Verified: core, desktop and server compile; a headless bot match runs; an 8 client load
   test formed 4 concurrent matches and exchanged turns with no exceptions.
 
+## Client
+
+- `ctmn.petals.menu.LobbiesStage` is the lobby browser: enter a display name, connect to a
+  server by address, browse its lobbies and join one, create a lobby, or use the quick match
+  queue. It is reachable from the main menu through the Match and Vs Player buttons, and it
+  keeps the old local and LAN host flow one button away.
+- `ctmn.petals.multiplayer.OnlinePlayScreen` plays a server match. It builds the map from the
+  `map_json` in `match_found`, mirrors the battle locally for the view, applies accepted
+  commands from other players, and sends its own commands to the server. A rejection or a
+  state gap is repaired with a server snapshot.
+- `ctmn.petals.net.ServerClient` is the protocol client both the screens and the headless
+  `FakeClient` use.
+- The player display name is stored in `GamePref.displayName` and edited in the lobby screen.
+
 ## Remaining
 
-1. Client game screens: `LobbiesStage` (LAN discovery plus server lobby list, create, join),
-   `QueueStage` (searching plus cancel) and `OnlinePlayScreen` (local mirror of the battle,
-   optimistic own commands, rollback and snapshot on rejection, reconnect by `clientId`).
-2. Per player fog of war filtering of snapshots. The server currently sends full snapshots.
+1. Per player fog of war filtering of snapshots. The server currently sends full snapshots.
    Extract the visibility computation from `FogOfWarDrawer` into `sim` and filter
    `GameStateSnapshot` per viewer.
-3. Lobby map and settings editing through the server (currently a lobby uses the server map
-   pool and fog defaults).
-4. Reconnect grace period and disconnect handling in matches.
-5. Scale pass: snapshot throttling, rate limits, per session budgets, and a larger load test
+2. Lobby map and settings editing (the lobby currently takes a random map from the server
+   pool with fog on), plus LAN server discovery with JmDNS in the lobby browser.
+3. Reconnect grace period and disconnect handling in matches.
+4. Scale pass: snapshot throttling, rate limits, per session budgets, and a larger load test
    (roughly 24 matches and 100 connections).
+5. An end to end test with two real game clients. The screens compile and the protocol is
+   covered by the fake client load test, but the UI flow still needs a manual pass with two
+   game instances.

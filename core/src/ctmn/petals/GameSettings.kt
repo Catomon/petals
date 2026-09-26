@@ -20,6 +20,7 @@ object GamePref {
     private const val LOCALE = "locale"
     private const val DRAW_UNIT_ATK_RANGE = "draw_unit_attack_range"
     private const val SHOW_AI_GUI = "show_ai_gui"
+    private const val DISPLAY_NAME = "display_name"
 
     var prefs: Preferences = Gdx.app.getPreferences(PREF_FILE_NAME)
     val savesFolder =
@@ -103,6 +104,15 @@ object GamePref {
         set(value) {
             prefs.putBoolean(SHOW_AI_GUI, value)
         }
+
+    /** Player chosen name, shown in online lobbies and matches. */
+    var displayName: String
+        get() = prefs.getString(DISPLAY_NAME, defaultDisplayName())
+        set(value) {
+            prefs.putString(DISPLAY_NAME, value.trim().take(24).ifBlank { defaultDisplayName() })
+        }
+
+    private fun defaultDisplayName(): String = "Player" + java.util.Random().nextInt(100, 1000)
 
     var showTerrainBonus: Boolean
         get() = prefs.getBoolean("show_terrain_bonus", true)
