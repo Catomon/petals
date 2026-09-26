@@ -74,6 +74,8 @@ class OnlinePlayScreen(
 
         fogOfWarManager.drawFog = match.fogOfWar
 
+        setDefaultPlayerIdToLabels()
+
         ready()
 
         registerListener()

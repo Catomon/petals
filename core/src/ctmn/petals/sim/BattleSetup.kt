@@ -40,6 +40,7 @@ object BattleSetup {
         battle.turnManager.currentPlayer = players.first()
         battle.localPlayer = players.first()
 
+        battle.setupDefaultPlayerIds()
         battle.setupSpawnPoints()
         battle.startFirstTurn()
 

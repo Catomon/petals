@@ -271,9 +271,22 @@ open class Battle {
         }
     }
 
+    /**
+     * Gives every `player` label its player id, the same defaulting the client does through
+     * `PlayScreen.setDefaultPlayerIdToLabels`. Without it no base has an owner and the end
+     * condition immediately considers everyone defeated.
+     */
+    fun setupDefaultPlayerIds() {
+        for (label in field.labelActors.filter { it.selfName == "player" }) {
+            if (label.data["player_id"] != null) continue
+
+            val id = label.data["id"]?.toIntOrNull() ?: continue
+            label.data.put("player_id", (id + 1).toString())
+        }
+    }
+
     /** Assigns map player labels to bases and spawns, ported from `PlayScreen`. */
-    fun setupSpawnPoints() {
-        val map = this.map ?: return
+    fun setupSpawnPoints() {        val map = this.map ?: return
 
         for (label in field.labelActors.filter { it.selfName == "player" }) {
             val playerId = label.data["player_id"]?.toInt()

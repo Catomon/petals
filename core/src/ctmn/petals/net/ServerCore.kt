@@ -375,6 +375,7 @@ class ServerCore(val config: ServerConfig) {
             gameEndCondition = CaptureBases(),
             gameMode = try { GameMode.valueOf(gameMode) } catch (e: Exception) { GameMode.CRYSTALS },
             season = Season.SUMMER,
+            turnTimeLimitSeconds = config.turnTimeLimitSeconds,
         )
         battle.clientControlled = true
 
@@ -427,6 +428,9 @@ class ServerCore(val config: ServerConfig) {
         val clientIds = HashMap<Int, String>()
         var lastCommandTime = System.nanoTime()
 
+        private var deadlinePlayerId = -1
+        private var deadlineAt = 0L
+
         val isFinished: Boolean get() = battle.isGameOver
 
         init {
@@ -438,12 +442,49 @@ class ServerCore(val config: ServerConfig) {
 
         fun tick(dt: Float) {
             battle.update(dt)
+            checkTurnTimeout()
 
             if (battle.isGameOver) {
                 val ended = MatchEnded()
                 ended.winners.addAll(battle.gameEndCondition.winners)
                 connectionFor().forEach { sendTo(it, Msg.MATCH_ENDED, "", ended) }
             }
+        }
+
+        /**
+         * Ends a stalled turn when the server was configured with a turn time limit.
+         * The limit is off by default, so matches only auto advance when asked for.
+         */
+        private fun checkTurnTimeout() {
+            val limit = battle.turnTimeLimitSeconds
+            if (limit <= 0 || battle.isGameOver) return
+
+            val current = battle.turnManager.currentPlayer.id
+
+            if (current != deadlinePlayerId) {
+                deadlinePlayerId = current
+                deadlineAt = System.currentTimeMillis() + limit * 1000L
+                return
+            }
+
+            if (System.currentTimeMillis() < deadlineAt) return
+
+            deadlinePlayerId = -1
+
+            val endTurn = ctmn.petals.playscreen.commands.EndTurnCommand(current)
+            if (!endTurn.canExecute(battle)) return
+
+            if (!endTurn.execute(battle)) return
+            battle.commandManager.onCommand?.invoke(endTurn)
+
+            val broadcast = MatchCommandBroadcast()
+            broadcast.stateId = battle.gameStateId
+            broadcast.playerId = current
+            broadcast.commandName = "EndTurnCommand"
+            broadcast.commandJson = endTurn.toGson()
+            connectionFor().forEach { sendTo(it, Msg.MATCH_COMMAND_BROADCAST, "", broadcast) }
+
+            GameLog.info("ServerCore", "Match $id: player $current ran out of time")
         }
 
         fun onCommand(connection: ClientConnection, requestId: String, request: MatchCommand) {
