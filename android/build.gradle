@@ -1,5 +1,5 @@
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -21,8 +21,8 @@ android {
         applicationId "ctmn.petals"
         minSdkVersion 26
         targetSdkVersion 33
-        versionCode 17
-        versionName "0.5.3"
+        versionCode 18
+        versionName "0.5.4"
         multiDexEnabled true
     }
     buildTypes {
@@ -33,7 +33,6 @@ android {
     }
 
     dependencies {
-        implementation 'com.android.support:multidex:1.0.3'
     }
 }
 

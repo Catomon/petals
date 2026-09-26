@@ -13,7 +13,10 @@ object Targeting {
         val ctx = bot.context
 
         ctx.nearestEnemy(unit)?.let { return it.tiledX to it.tiledY }
-        ctx.nearestEnemyBase(unit)?.let { return it.tiledX to it.tiledY }
+        // Roaming creature bots never push to bases: they only react to units.
+        if (bot.settings.attackBuildings) {
+            ctx.nearestEnemyBase(unit)?.let { return it.tiledX to it.tiledY }
+        }
         ctx.capturables.minByOrNull { tiledDst(unit.tiledX, unit.tiledY, it.tiledX, it.tiledY) }
             ?.let { return it.tiledX to it.tiledY }
 

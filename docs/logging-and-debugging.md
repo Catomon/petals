@@ -47,6 +47,12 @@ Stable prefixes and key=value pairs, so lines are easy to read and easy to grep:
 - Is expansion deliberate, and does it stop at a sensible number of bases?
 - Are buys, captures, builds and attacks all happening, or is one category missing?
 
+## Capturing logs from a packaged app image
+
+A bundled-JRE launcher exe does not forward the game's stdout or stderr. Run the image's own
+java executable from its `jre` folder directly on its jar with output redirected; the game and
+the logs are identical, and that is how crash traces were captured.
+
 ## Caveats
 
 - Normal logs go to stdout, errors go to stderr. A run that "does nothing" may still be

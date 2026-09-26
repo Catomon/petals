@@ -21,4 +21,9 @@ data class AiBotSettings(
     val agroRange: Int = 6,
     val roamingIfNoAgro: Boolean = false,
     val roamingMaxRange: Int = 3,
+    /**
+     * When false the bot never targets buildings or bases, only units. Scripted roaming
+     * creatures use this so monsters do not march across the map to siege.
+     */
+    val attackBuildings: Boolean = true,
 )

@@ -14,11 +14,11 @@ import ctmn.petals.bot.v2.actions.MoveAction
 import ctmn.petals.player.Player
 import ctmn.petals.player.Species
 import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.PlayStage
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.canAttackNow
 import ctmn.petals.unit.canDestroy
+import ctmn.petals.unit.component.RoamingPosition
 import ctmn.petals.unit.tiledX
 import ctmn.petals.unit.tiledY
 import ctmn.petals.utils.GameLog
@@ -66,12 +66,16 @@ class AiBot(
     /** Actions successfully issued this turn, for the balance log. */
     private val actionsThisTurn = HashMap<String, Int>()
 
-    /** Starting position for scripted roaming units, keyed by unit name. */
-    private val roamingPositions = HashMap<String, Pair<Int, Int>>()
-
+    /**
+     * Starting position for scripted roaming units. Stored on the unit itself so several
+     * creatures of the same type each keep their own patrol anchor (map units have no name).
+     */
     fun roamingAnchor(unit: UnitActor): Pair<Int, Int> {
-        val key = unit.name ?: unit.selfName
-        return roamingPositions.getOrPut(key) { unit.tiledX to unit.tiledY }
+        val existing = unit.get(RoamingPosition::class.java)
+        if (existing != null) return existing.tiledX to existing.tiledY
+
+        unit.add(RoamingPosition(unit.tiledX, unit.tiledY))
+        return unit.tiledX to unit.tiledY
     }
 
     override fun levelCreated(playStage: PlayStage) {
@@ -177,7 +181,7 @@ class AiBot(
                 tactical.add(BuildBuildingAction(this, worker))
             }
         }
-        if (capabilities.canDestroy) {
+        if (capabilities.canDestroy && settings.attackBuildings) {
             for (unit in context.units) {
                 if (unit.canDestroy()) tactical.add(DestroyAction(this, unit))
             }

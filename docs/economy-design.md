@@ -1,6 +1,6 @@
 # Economy design notes
 
-The intent behind credits. Exact defaults live in `../ECONOMY.md` and in code.
+The intent behind credits. Exact defaults live in `ECONOMY.md` and in code.
 
 ## Sources
 

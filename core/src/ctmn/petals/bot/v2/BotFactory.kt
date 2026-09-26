@@ -37,6 +37,7 @@ object BotFactory {
         agroRange: Int = 6,
         roamingIfNoAgro: Boolean = false,
         roamingMaxRange: Int = 3,
+        attackBuildings: Boolean = false,
     ): AiBot = AiBot(
         player,
         playScreen,
@@ -46,6 +47,7 @@ object BotFactory {
             agroRange = agroRange,
             roamingIfNoAgro = roamingIfNoAgro,
             roamingMaxRange = roamingMaxRange,
+            attackBuildings = attackBuildings,
         ),
     )
 

@@ -1,9 +1,9 @@
 # Session docs index
 
 These notes are split by topic on purpose. Read only the file that matches what you are about
-to do, then go to the code for exact values and type names. The older top level docs
-(`../AGENTS.md`, `../PROJECT_NOTES.md`, `../ECONOMY.md`, `../FLAWS.md`) still hold the exact
-numbers, current wiring and known debt.
+to do, then go to the code for exact values and type names. The bigger reference docs
+(`PROJECT_NOTES.md`, `ECONOMY.md`, `FLAWS.md`) and `../AGENTS.md` hold the exact numbers,
+current wiring and known debt.
 
 ## What to read when
 
@@ -13,6 +13,7 @@ numbers, current wiring and known debt.
 | Touch income, costs, bases or crystals | `economy-design.md` |
 | Change units, factions, armor or content gating | `game-design.md` |
 | Add debug output, or tune the AI with spectate logs | `logging-and-debugging.md` |
+| Build or package the game for desktop, Android, a launcher exe or an app image | `builds-and-release.md` |
 | Hit something weird and want to save time | `gotchas.md` |
 
 ## Working style (learned in this project's sessions)

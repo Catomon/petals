@@ -53,6 +53,19 @@ this file explains the intent and the traps.
 - Easy may also have whole systems disabled (abilities, buildings, expansion).
 - Cheating (extra income) is reserved for a separate top difficulty.
 
+## Scripted campaign creatures
+
+Story levels use the same bot with the campaign settings instead of a separate class:
+
+- aggro range on or off (perma aggro, or react only when a unit comes close),
+- patrol radius: roam around a per unit anchor, and leave it only while aggroed,
+- no building or base targeting: creatures fight units only. A bot that cannot attack
+  buildings must not take a destroy action, and its movement objective must not fall back to
+  enemy bases. Both paths exist, so gate both.
+- Patrol anchors must be per unit. Map placed units have no name, so keying anchors by name
+  makes every creature of the same type share one anchor. The anchor is stored on the unit
+  instead.
+
 ## When changing the AI
 
 - Run a bot vs bot spectate with the balance log on (`logging-and-debugging.md`) and look for:

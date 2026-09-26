@@ -1,7 +1,7 @@
 # Project Notes and Gotchas
 
 Practical, non-obvious things learned while working on Fae's Feisty. Meant to save a new
-session time. See also `AGENTS.md` (general), `FLAWS.md` (technical debt) and `ECONOMY.md`.
+session time. See also `../AGENTS.md` (general), `FLAWS.md` (technical debt) and `ECONOMY.md`.
 
 ## The command pipeline
 
@@ -144,12 +144,13 @@ objective, a trigger fires on a game event.
 
 ## Sprites and ids
 
-- Unit and tile ids are also atlas region names. `units.atlas` holds base sprites; the
-  per-color atlases are generated from it by tinting, so you only edit `units.atlas`.
-- `findUnitTextures` falls back to a generic "unit" region if a texture is missing, so a
-  mistyped id shows wrong art instead of an error.
-- Renaming an id requires updating: the id constant, every code reference, the `.atlas`
-  region(s), and any `.ptmap` that places that unit or tile.
+- Unit and tile ids are also atlas region names, and the regions come from the source image
+  file names under the asset texture folders. The atlases themselves are generated.
+- Missing unit art falls back to a generic "unit" region and only logs, so a mistyped id shows
+  wrong art instead of an error. Missing building art throws in the buy menu and crashes.
+- Renaming an id touches the id constant, every code reference, the source art name (summer
+  and winter tiles are separate), a texture repack, the generated colored unit textures, and
+  any `.ptmap` that places it. Full procedure in `gotchas.md`.
 
 ## Maps and the editor
 
@@ -159,7 +160,11 @@ objective, a trigger fires on a game event.
 - `assignPlayersToSpawnPoints` (called from `ready()`) matches player labels to base tiles.
 - Map extras can override some per-map settings, e.g. `EXTRA_CREDITS_PER_BASE`,
   `EXTRA_CREDITS_PER_CLUSTER`, and `game_mode`.
-- Seasons swap the tile atlas (`season` -> summer/winter) when a level is set.
+- Leader spawn labels must live in the markers layer. If they end up in the units layer, the
+  loader tries to read them as units and logs `Unit not found`.
+- Seasons swap the tile atlas (`season` -> summer/winter) when a level is set. Keep the summer
+  and winter tile sources in sync, a rename in one season only crashes when that season is
+  played.
 
 ## Multiplayer snapshot flow
 

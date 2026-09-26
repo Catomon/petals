@@ -1,7 +1,7 @@
 # Game design notes
 
 Design intent this project keeps coming back to. Exact values and type names live in code and
-in `../ECONOMY.md`; this file is about the reasoning behind them.
+in `ECONOMY.md`; this file is about the reasoning behind them.
 
 ## Core loop
 

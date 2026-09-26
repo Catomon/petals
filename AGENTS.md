@@ -11,13 +11,13 @@ local multiplayer, a map editor and a story campaign.
 
 ## Project docs
 
-- `PROJECT_NOTES.md` - practical notes: command pipeline, events, action points, terrain,
+- `docs/PROJECT_NOTES.md` - practical notes: command pipeline, events, action points, terrain,
   combat, serialization, bots, maps, GUI, dev tools and tooling gotchas.
-- `ECONOMY.md` - how credits and income work right now.
-- `FLAWS.md` - prioritized technical debt and suggested fix order.
+- `docs/ECONOMY.md` - how credits and income work right now.
+- `docs/FLAWS.md` - prioritized technical debt and suggested fix order.
 - `docs/index.md` - short topic notes split by task (AI design, economy design, game design,
-  logging, gotchas, working style). Read only the file that matches what you are working on
-  instead of reading everything.
+  logging, builds, gotchas, working style). Read only the file that matches what you are
+  working on instead of reading everything.
 
 ## Tech / modules
 

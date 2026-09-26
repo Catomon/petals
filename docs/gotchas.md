@@ -50,6 +50,21 @@ A parallel static stat table experiment once existed for a couple of units and w
 it has been removed. Define unit stats in the unit types directly. If you ever want shared stat
 data, build one source of truth and wire everything to it. Do not leave two.
 
+## Id renames must reach the art sources
+
+Unit and tile ids are atlas region names, and the regions come from source image file names
+under the asset texture folders. Renaming an id in code is not enough:
+
+1. rename the source images (units, and both the summer and the winter tile folders),
+2. run the texture packer,
+3. delete the generated colored unit textures and run the desktop game through Gradle so the
+   loader recreates them. Running the packaged jar can skip creation because its embedded
+   copies still satisfy the existence check.
+
+Two behaviors to remember: a missing unit region falls back to a placeholder sprite and only
+logs, while a missing building region throws inside the buy menu and kills the game. That is
+why a code rename can look fine for units and still crash when a base is selected.
+
 ## Silence is not success
 
 Missing sprite lookups fall back to a generic sprite and only log. A rename mistake looks
