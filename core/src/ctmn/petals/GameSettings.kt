@@ -125,7 +125,6 @@ object GamePref {
             return try {
                 fromGson(decryptData(prefs.getString("player"), generateSecretKey("cringe")), UserSave::class.java)
             } catch (e: Exception) {
-                e.printStackTrace()
                 UserSave()
             }
         }
@@ -138,10 +137,6 @@ object GamePref {
             player = UserSave("trash", 1, 2)
             prefs.flush()
         }
-
-        println(prefs.getString("player"))
-        println()
-        println(decryptData(prefs.getString("player"), generateSecretKey("cringe")))
     }
 
     fun save() {

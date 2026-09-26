@@ -13,8 +13,8 @@ import ctmn.petals.bot.v2.actions.DestroyAction
 import ctmn.petals.bot.v2.actions.MoveAction
 import ctmn.petals.player.Player
 import ctmn.petals.player.Species
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playstage.PlayStage
+import ctmn.petals.sim.Battle
+import ctmn.petals.sim.BattleField
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.canAttackNow
 import ctmn.petals.unit.canDestroy
@@ -33,13 +33,19 @@ import kotlin.random.Random
  */
 class AiBot(
     player: Player,
-    playScreen: PlayScreen,
+    battle: Battle,
     val settings: AiBotSettings = AiBotSettings(),
-) : Bot(player, playScreen) {
+) : Bot(player, battle) {
 
     val difficulty get() = settings.difficulty
     val context = BotContext(this)
-    val playStage get() = playScreen.playStage
+    val field get() = battle.field
+
+    /**
+     * Whether the battle uses fog of war. Fog is a client rendering concern, so the headless
+     * server always leaves it false. The scene2d client can set it when it creates the bot.
+     */
+    var fogOfWar: Boolean = false
 
     /**
      * AI-local RNG. Evaluation never touches the game RNG, so bot turns cannot change
@@ -55,7 +61,7 @@ class AiBot(
     }
 
     var capabilities: BotCapabilities =
-        BotCapabilities.detect(player, playScreen, speciesUnits, settings.forceCombatOnly)
+        BotCapabilities.detect(player, battle, speciesUnits, settings.forceCombatOnly)
         private set
 
     private var elapsed = 0f
@@ -78,8 +84,8 @@ class AiBot(
         return unit.tiledX to unit.tiledY
     }
 
-    override fun levelCreated(playStage: PlayStage) {
-        super.levelCreated(playStage)
+    override fun levelCreated(field: BattleField) {
+        super.levelCreated(field)
         BotLog.resetMatch()
         refreshCapabilities()
     }
@@ -94,7 +100,7 @@ class AiBot(
         context.refresh()
         refreshCapabilities()
 
-        BotLog.mapSummaryIfNeeded(playScreen)
+        BotLog.mapSummaryIfNeeded(battle)
         BotLog.turnStart(this)
 
         // INSANE is the only difficulty allowed to cheat: it gets bonus credits each turn.
@@ -112,13 +118,13 @@ class AiBot(
     }
 
     private fun refreshCapabilities() {
-        capabilities = BotCapabilities.detect(player, playScreen, speciesUnits, settings.forceCombatOnly)
+        capabilities = BotCapabilities.detect(player, battle, speciesUnits, settings.forceCombatOnly)
     }
 
     override fun update(delta: Float) {
         if (isDone) return
 
-        if (playScreen.actionManager.hasActions) {
+        if (battle.isActionsBusy) {
             elapsed = 0f
             return
         }

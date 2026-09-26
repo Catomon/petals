@@ -1,38 +1,37 @@
 package ctmn.petals.multiplayer.json
 
 import com.google.gson.JsonObject
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playstage.getAllTilesAndUnits
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.UnitActor
 
-//todo copy
-class GameStateSnapshot(playScreen: PlayScreen) {
+class GameStateSnapshot(battle: Battle) {
 
-    val localPlayer = playScreen.localPlayer
+    val localPlayer = battle.localPlayer
 
-    val gameStateId = playScreen.gameStateId
+    val gameStateId = battle.gameStateId
 
-    val players = playScreen.turnManager.players
-    val aiPlayers = ArrayList<Int>().apply { playScreen.botManager.botPlayers.forEach { add(it.playerID) } }
-    val turn = playScreen.turnManager.turn
+    val players = battle.turnManager.players.map { it }
+    val aiPlayers = ArrayList<Int>().apply { battle.botManager.botPlayers.forEach { add(it.playerID) } }
+    val turn = battle.turnManager.turn
 
-    val gameEndCondition = playScreen.gameEndCondition.id
+    val gameEndCondition = battle.gameEndCondition.id
 
-    val friendlyFire = playScreen.friendlyFire
+    val friendlyFire = battle.friendlyFire
 
-    val isGameOver = playScreen.isGameOver
+    val isGameOver = battle.isGameOver
 
-    val idCounter = playScreen.playStage.idCounter
+    val idCounter = battle.field.idCounter
 
-    val randomSeed = playScreen.randomSeed
-    val randomCount = playScreen.randomCount
+    val randomSeed = battle.randomSeed
+    val randomCount = battle.randomCount
 
     val tiles = mutableListOf<JsonObject>()
     val units = mutableListOf<JsonObject>()
 
     init {
-        val actors = playScreen.playStage.getAllTilesAndUnits()
+        val actors = battle.field.getAllTilesAndUnits()
         for (actor in actors) {
             when (actor) {
                 is TileActor -> {

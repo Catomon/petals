@@ -22,7 +22,7 @@ class GoblinPickaxe : UnitActor(
     )
 ) {
 
-    val buildingAnimation = findAnimation(GOBLIN_PICKAXE + "_building", loop = true)
+    val buildingAnimation by lazy { findAnimation(GOBLIN_PICKAXE + "_building", loop = true) }
 
     init {
         add(FollowerComponent())

@@ -23,10 +23,10 @@ class CaptureAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
         if (!unit.canCapture()) return IMPOSSIBLE
         if (unit.actionPoints <= 0) return IMPOSSIBLE
 
-        val tile = bot.playStage.getTile(unit.tiledX, unit.tiledY)
+        val tile = bot.field.getTile(unit.tiledX, unit.tiledY)
         if (tile != null && tile.isCrystal && unit.canCapture(tile)) {
             val cmd = CaptureCommand(unit, tile)
-            if (cmd.canExecute(bot.playScreen)) {
+            if (cmd.canExecute(bot.battle)) {
                 captureCommand = cmd
                 return 80
             }
@@ -35,17 +35,17 @@ class CaptureAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
         if (!unit.canMove()) return IMPOSSIBLE
 
         val target = bot.context.nearestCapturable(unit) ?: return IMPOSSIBLE
-        val step = Pathing.stepTowards(bot.playStage, unit, target.tiledX, target.tiledY) ?: return IMPOSSIBLE
+        val step = Pathing.stepTowards(bot.field, unit, target.tiledX, target.tiledY) ?: return IMPOSSIBLE
         val cmd = MoveUnitCommand(unit, step.tiledX, step.tiledY)
-        if (!cmd.canExecute(bot.playScreen)) return IMPOSSIBLE
+        if (!cmd.canExecute(bot.battle)) return IMPOSSIBLE
 
         moveCommand = cmd
         return 55
     }
 
     override fun execute(): Boolean {
-        captureCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
-        moveCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
+        captureCommand?.let { return bot.battle.commandManager.queueCommand(it, bot.playerID) }
+        moveCommand?.let { return bot.battle.commandManager.queueCommand(it, bot.playerID) }
         return false
     }
 

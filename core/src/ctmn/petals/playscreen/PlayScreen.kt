@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Action
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -20,6 +21,8 @@ import ctmn.petals.*
 import ctmn.petals.bot.BotManager
 import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.effects.FloatingUpLabel
+import ctmn.petals.effects.FloatingUpIconLabel
+import ctmn.petals.effects.HealthChangeEffect
 import ctmn.petals.map.MapConverted
 import ctmn.petals.map.labels
 import ctmn.petals.map.tiles
@@ -42,6 +45,7 @@ import ctmn.petals.playscreen.gui.widgets.Book
 import ctmn.petals.playscreen.gui.widgets.FogOfWarDrawer
 import ctmn.petals.playscreen.gui.widgets.MarkersDrawer
 import ctmn.petals.playscreen.listeners.*
+import ctmn.petals.playscreen.seqactions.SeqAction
 import ctmn.petals.playscreen.seqactions.SeqActionManager
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playscreen.tasks.TaskManager
@@ -49,6 +53,7 @@ import ctmn.petals.playscreen.triggers.TriggerManager
 import ctmn.petals.playstage.*
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.pvp.newPvPAlice
+import ctmn.petals.sim.Battle
 import ctmn.petals.story.StoryPlayScreen
 import ctmn.petals.story.gameOverFailure
 import ctmn.petals.story.gameOverSuccess
@@ -65,7 +70,7 @@ import kotlin.random.Random
 
 open class PlayScreen(
     val game: PetalsGame = ctmn.petals.game,
-) : Screen {
+) : Battle(), Screen {
 
     /** Just telling if we ever gonna init [guiStage] */
     var initView = true
@@ -73,58 +78,19 @@ open class PlayScreen(
     val batch = SpriteBatch()
     val assets = game.assets
 
-    var map: MapConverted? = null
-    var levelId: String? = null
-
-    val unitsData = Units
-    val tilesData = TileData
-
     val playStage = PlayStage(batch)
     lateinit var guiStage: PlayGUIStage
 
     /** Add new processors in [initGui] */
     val inputMultiplexer = InputMultiplexer()
 
-    lateinit var localPlayer: Player
-
-    val turnManager = TurnManager(this)
-    val commandManager = CommandManager(this)
     val taskManager = TaskManager(this)
     val triggerManager = TriggerManager(this)
     val actionManager = SeqActionManager(this)
-    val botManager = BotManager(this)
 
     val fogOfWarManager = FogOfWarDrawer(this)
 
     val playStageCameraController = PlayStageCameraController(playStage)
-
-    var friendlyFire = false
-
-    var creditsPassiveIncome = 100
-    var creditsPassiveIncomeMax = 2000
-    var creditsPerBase = 100
-    var creditsPerCluster = 100 //classic 75
-
-    var season = Season.SUMMER
-    var gameType = GameType.STORY
-    var gameMode = GameMode.STORY
-    var gameEndCondition: GameEndCondition = CaptureBases()
-    var isGameOver = false
-
-    var gameStateId = 1
-
-    var randomCount = 0
-    var randomSeed = Random.nextInt(0, 9999999)
-        set(value) {
-            random = Random(value)
-            randomCount = 0
-            field = value
-        }
-    var random = Random(randomSeed)
-        get() {
-            randomCount++
-            return field
-        }
 
     private val backImage = TiledBackground(Sprite(Texture("background_tile.png")))
 
@@ -143,9 +109,66 @@ open class PlayScreen(
     init {
         discordRich(Rich.PLAYING)
 
+        attachField(playStage)
+
         playStageSetup()
 
         commandManager.onCommand = CommandManagerOnCommandHandler()::onCommand
+
+        addEventListener { event -> forwardToStages(event); false }
+    }
+
+    override val isActionsBusy: Boolean get() = !actionManager.isQueueEmpty
+
+    private fun forwardToStages(event: Event) {
+        if (initView && ::guiStage.isInitialized)
+            guiStage.root.fire(event)
+
+        try {
+            playStage.root.fire(event)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            if (::guiStage.isInitialized)
+                guiStage.addNotifyWindow(title = "PlayStage listener exc.", message = e.localizedMessage)
+        }
+    }
+
+    override fun showFloatingLabel(text: String, color: Color?, x: Float, y: Float) {
+        val label = FloatingUpLabel(text)
+        color?.let { label.color = it }
+        label.setPosition(x - label.width / 4, y)
+        playStage.addActor(label)
+    }
+
+    override fun showFloatingIconLabel(text: String, icon: String, x: Float, y: Float) {
+        playStage.addActor(FloatingUpIconLabel(text, icon, 15f).also {
+            it.label.color = Color.SKY
+            it.setPosition(x, y)
+        })
+    }
+
+    override fun showHealthChange(unit: UnitActor, amount: Int) {
+        playStage.addActor(HealthChangeEffect(unit, amount))
+    }
+
+    override fun onTileOwnerChangedView(tile: TileActor) {
+        if (tile.tileViewComponent != null) tile.initView()
+    }
+
+    override fun onUnitDiedView(unit: UnitActor) {
+        actionManager.queueAction(ctmn.petals.playscreen.seqactions.KillUnitAction(unit))
+    }
+
+    override fun queueSeqAction(action: SeqAction) {
+        actionManager.queueAction(action)
+    }
+
+    override fun queueSeqActionFirst(action: SeqAction) {
+        actionManager.queueFirst(action)
+    }
+
+    override fun showEffect(effect: Actor) {
+        playStage.addActor(effect)
     }
 
     private fun playStageSetup() {
@@ -158,48 +181,9 @@ open class PlayScreen(
         // stop touch events if an action is processing
         playStage.addCaptureListener(TouchEventsBlockOnActionListener())
 
-        // game logic
-        playStage.addListener(PlayTurnCycleListener(this))
-        playStage.addListener(EndConditionListener())
-
-        // less important game logic
-        playStage.addListener(TileLifeTimeListener(playStage))
-        playStage.addListener(PinkSlimeLingHealing())
+        // view only listeners. Simulation rules live in Battle and are registered there.
         playStage.addListener(ActionEffectListener(this))
-        playStage.addListener(ItemPickUpListener(this))
         playStage.addListener(BookListener(this))
-        playStage.addListener {
-            if (it is UnitMovedEvent) {
-                val unit = it.unit
-                val tile = playStage.getTile(unit.tiledX, unit.tiledY)
-                if (!unit.isAir && tile != null) {
-                    when {
-                        tile.terrain == TerrainNames.lava -> {
-                            unit.dealDamage(Damage.LAVA, playScreen = this@PlayScreen)
-                            unit.add(TileEffectComponent(turnManager.currentPlayer.id))
-                        }
-
-                        tile.isBurning -> {
-                            unit.dealDamage(Damage.BURN, playScreen = this@PlayScreen)
-                            unit.add(BurningComponent(turnManager.currentPlayer.id))
-                        }
-
-                        tile.terrain == TerrainNames.chasm -> {
-                            unit.dealDamage(Damage.CHASM, playScreen = this@PlayScreen)
-                            unit.add(TileEffectComponent(turnManager.currentPlayer.id))
-                        }
-
-                        else -> unit.del(TileEffectComponent::class.java)
-                    }
-                }
-            }
-
-            if (it is ActionCompletedEvent) {
-                checkGameEndCondition()
-            }
-
-            false
-        }
 
         playStage.addListener {
             when (it) {
@@ -222,7 +206,7 @@ open class PlayScreen(
         }
     }
 
-    fun update(delta: Float) {
+    override fun update(delta: Float) {
         playStageCameraController.update(delta)
 
         botManager.update(delta)
@@ -497,128 +481,45 @@ open class PlayScreen(
         game.screen = MenuScreen(game)
     }
 
-    private var gameEnding = false
-
-    private fun checkGameEndCondition() {
-        if (isGameOver || gameEnding) return
-
-        for (player in turnManager.players) {
-            player.isOutOfGame =
-                player.isOutOfGame || gameEndCondition.checkPlayerOutOfGame(player, this@PlayScreen) == true
-        }
-
-        if (gameEndCondition.check(this)) {
-            gameEnding = true
-
-            queueAction {
-                val labelGameOver = newLabel("GAME OVER").also { it.isVisible = false }
-                labelGameOver.setFontScale(2f)
-
-                val winners = gameEndCondition.winners
-                val youWon = winners.contains(localPlayer.id)
-                val draw = winners.size == 0
-                val enemyWon = !draw && !youWon
-                val oneWinner = winners.size == 1
-
-                logMsg("Game Over. Winners: ${winners.joinToString()}; teamId: ${turnManager.getPlayerById(winners.firstOrNull() ?: -1)?.teamId ?: ""}")
-
-                when {
-                    youWon -> {
-                        labelGameOver.setText(if (this is StoryPlayScreen) "DONE!" else "YOU WON")
-                        if (oneWinner) {
-
-                        } else {
-
-                        }
-                    }
-
-                    enemyWon -> {
-                        labelGameOver.setText("YOU LOSE")
-                        if (oneWinner) {
-
-                        } else {
-
-                        }
-                    }
-
-                    draw -> {
-                        labelGameOver.setText("DRAW")
-                    }
-                }
-
-                guiStage.addActor(labelGameOver)
-                labelGameOver.setPosition(
-                    guiStage.camera.position.x - labelGameOver.width / 2,
-                    guiStage.camera.position.y
-                )
-                labelGameOver.isVisible = true
-                labelGameOver.addAction(Actions.delay(3f, object : Action() {
-                    override fun act(delta: Float): Boolean {
-                        labelGameOver.remove()
-                        gameOver()
-                        return true
-                    }
-                }))
-            }
-        }
-    }
-
-    fun gameOver() {
-        if (isGameOver) return
-
-        gameEnding = true
-        isGameOver = true
-        fireEvent(GameOverEvent())
-
-        onGameOver()
-    }
-
-    open fun onGameOver() {
+    override fun onGameOver() {
         val winners = gameEndCondition.winners
         val youWon = winners.contains(localPlayer.id)
         val draw = winners.size == 0
         val enemyWon = !draw && !youWon
-        val oneWinner = winners.size == 1
+
+        logMsg("Game Over. Winners: ${winners.joinToString()}; teamId: ${turnManager.getPlayerById(winners.firstOrNull() ?: -1)?.teamId ?: ""}")
+
+        val labelGameOver = newLabel("GAME OVER").also { it.isVisible = false }
+        labelGameOver.setFontScale(2f)
+        labelGameOver.setText(
+            when {
+                youWon -> if (this is StoryPlayScreen) "DONE!" else "YOU WON"
+                enemyWon -> "YOU LOSE"
+                else -> "DRAW"
+            }
+        )
+
+        guiStage.addActor(labelGameOver)
+        labelGameOver.setPosition(
+            guiStage.camera.position.x - labelGameOver.width / 2,
+            guiStage.camera.position.y
+        )
+        labelGameOver.isVisible = true
+        labelGameOver.addAction(Actions.delay(3f, object : Action() {
+            override fun act(delta: Float): Boolean {
+                labelGameOver.remove()
+                return true
+            }
+        }))
 
         val message = when {
-            youWon -> {
-                if (oneWinner) {
-
-                } else {
-
-                }
-                "Victory!"
-            }
-
-            enemyWon -> {
-                if (oneWinner) {
-
-                } else {
-
-                }
-                "Defeat"
-            }
-
-            draw -> {
-                "Draw"
-            }
-
+            youWon -> "Victory!"
+            enemyWon -> "Defeat"
+            draw -> "Draw"
             else -> "Game Over"
         }
 
         guiStage.addActor(GameOverMenu(message, this))
-    }
-
-    fun fireEvent(event: Event) {
-        if (initView)
-            guiStage.root.fire(event)
-
-        try {
-            playStage.root.fire(event)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            guiStage.addNotifyWindow(title = "PlayStage listener exc.", message = e.localizedMessage)
-        }
     }
 
     override fun hide() {
@@ -662,17 +563,6 @@ open class PlayScreen(
     }
 
     private var gameState: GameStateSnapshot? = null
-
-    private inner class EndConditionListener : EventListener {
-        override fun handle(event: Event): Boolean {
-            if (event is NextTurnEvent && event.previousPlayer != event.nextPlayer) {
-                /** see [ready] fireEvent line */
-                checkGameEndCondition()
-            }
-
-            return false
-        }
-    }
 
     private inner class TouchEventsBlockOnActionListener : EventListener {
         override fun handle(event: Event): Boolean {

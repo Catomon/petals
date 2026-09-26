@@ -3,15 +3,14 @@ package ctmn.petals.unit.abilities
 import com.badlogic.gdx.graphics.Color
 import ctmn.petals.Config
 import ctmn.petals.effects.HealingEffect
-import ctmn.petals.effects.HealthChangeEffect
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playstage.getPositionsArray
-import ctmn.petals.playscreen.playStage
+import ctmn.petals.sim.Battle
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
+import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.BarrierComponent
-import ctmn.petals.utils.setPosByCenter
-import ctmn.petals.utils.unTiled
 
 class PersonalBarrierAbility : Ability(
     "personal_barrier",
@@ -25,22 +24,22 @@ class PersonalBarrierAbility : Ability(
     private val baseAmount = 25
     private val amount: Int get() = baseAmount + 5 * level
 
-    override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+        val actors = getTargets(battle.field, unitCaster, tileX, tileY)
 
         for (actor in actors) {
             val unit = actor as UnitActor
 
             unit.add(BarrierComponent(amount))
 
-            unit.playStage.addActor(HealthChangeEffect(unit, amount).apply { color = Color.YELLOW })
+            battle.showFloatingLabel("+$amount", Color.YELLOW, unit.centerX, unit.centerY)
         }
 
-        val effect = HealingEffect(getPositionsArray(actors), playScreen.assets) //todo barrier effect
+        val effect = HealingEffect(getPositionsArray(actors), ctmn.petals.assets) //todo barrier effect
         effect.setPosByCenter(
-            tileX.unTiled() + Config.TILE_SIZE / 2,
-            tileY.unTiled() + Config.TILE_SIZE / 2)
-        playScreen.playStage.addActor(effect)
+            tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
+            tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
+        battle.queueSeqAction(effect)
 
         castTime = effect.lifeTime
 

@@ -37,9 +37,7 @@ fun MapSave.convertActors(): ArrayList<Actor> {
                     }
 
                     convertedActors.add(
-                        TileActor(tileData.name, tileData.terrain, layer.id, actor.x, actor.y).also { tile ->
-                            tile.initView()
-                        }
+                        TileActor(tileData.name, tileData.terrain, layer.id, actor.x, actor.y)
                     )
                 }
 
@@ -51,7 +49,12 @@ fun MapSave.convertActors(): ArrayList<Actor> {
             layer.id == CanvasActorsPackage.UNITS_LAYER ->
                 for (actor in layer.actors) {
                     val unit = Units.find(actor.id)
-                        ?.also { it.position(actor.x, actor.y).player(playerIdByUnitSpecies(it)) }
+                        ?.also {
+                            val unitPlayerId = playerIdByUnitSpecies(it)
+                            it.playerId = unitPlayerId
+                            it.teamId = unitPlayerId
+                            it.position(actor.x, actor.y)
+                        }
                     if (unit == null) {
                         logErr("Unit not found: ${actor.id}")
                         continue

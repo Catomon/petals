@@ -1,11 +1,7 @@
 package ctmn.petals.unit.abilities
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.effects.CreateEffect
-import ctmn.petals.effects.EffectActor
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.queueAction
-import ctmn.petals.playscreen.seqactions.WaitAction
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.*
 import ctmn.petals.utils.*
 import ctmn.petals.utils.tiledX
@@ -21,9 +17,8 @@ class LightningAbility : Ability(
 
     private var damage: Int = 15 + 5 * level
 
-    override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        val playStage = playScreen.playStage
-        val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+        val actors = getTargets(battle.field, unitCaster, tileX, tileY)
 
         val lightedUnits = Array<UnitActor>()
         actors.firstOrNull { it is UnitActor && it.tiledX == tileX && it.tiledY == tileY }?.let {
@@ -35,7 +30,7 @@ class LightningAbility : Ability(
             repeat = false
 
             for (unit in lightedUnits) {
-                val surroundingUnits = playStage.getSurroundingUnits(unit).filter { actors.contains(it) }
+                val surroundingUnits = battle.field.getSurroundingUnits(unit).filter { actors.contains(it) }
                 val notLighted = surroundingUnits.filterNot { lightedUnits.contains(it, false) }
                 if (notLighted.isEmpty()) continue
 
@@ -44,25 +39,26 @@ class LightningAbility : Ability(
             }
         }
 
-//        for (unit in lightedUnits) {
-//            if (!playScreen.friendlyFire && unit.isAlly(unitCaster)) continue
-//
-//            unit.dealDamage(damage, unitCaster, playScreen)
-//        }
+        //resolve damage immediately, then only play the effects
+        for (unit in lightedUnits) {
+            if (!battle.friendlyFire && unit.isAlly(unitCaster)) continue
 
-        var lastEffect: EffectActor? = null
+            unit.dealDamage(damage, unitCaster, battle)
+        }
+
+        var lastEffect: ctmn.petals.effects.EffectActor? = null
 
         for (unit in lightedUnits) {
             val effect =
                 if (unit.tiledX == tileX && unit.tiledY == tileY)
-                    CreateEffect.lightning
+                    ctmn.petals.effects.CreateEffect.lightning
                 else
-                    CreateEffect.lightningDot
+                    ctmn.petals.effects.CreateEffect.lightningDot
 
             effect.setPosition(unit.centerX, unit.centerY)
 
             if (unit.tiledX != tileX || unit.tiledY != tileY)
-                playStage.addActor(effect)
+                battle.queueSeqAction(effect)
             else
                 lastEffect = effect
 
@@ -70,17 +66,8 @@ class LightningAbility : Ability(
                 castTime = effect.lifeTime
         }
 
-        playScreen.queueAction(WaitAction(castTime))
-        playScreen.queueAction {
-            for (unit in lightedUnits) {
-                if (!playScreen.friendlyFire && unit.isAlly(unitCaster)) continue
-
-                unit.dealDamage(damage, unitCaster, playScreen)
-            }
-        }
-
         if (lastEffect != null)
-            playStage.addActor(lastEffect)
+            battle.queueSeqAction(lastEffect)
 
         return true
     }

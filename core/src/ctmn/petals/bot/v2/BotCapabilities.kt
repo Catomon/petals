@@ -4,12 +4,12 @@ import com.badlogic.gdx.utils.Array
 import ctmn.petals.Config
 import ctmn.petals.player.Player
 import ctmn.petals.player.Species
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.getBases
 import ctmn.petals.playstage.getBuildings
 import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.getUnitsOfPlayer
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.isCrystal
 import ctmn.petals.unit.UnitActor
@@ -39,7 +39,7 @@ class BotCapabilities(
     companion object {
         fun detect(
             player: Player,
-            playScreen: PlayScreen,
+            battle: Battle,
             speciesUnits: Array<UnitActor>,
             forceCombatOnly: Boolean,
         ): BotCapabilities {
@@ -56,21 +56,21 @@ class BotCapabilities(
                 )
             }
 
-            val playStage = playScreen.playStage
-            val units = playStage.getUnitsOfPlayer(player).toList()
+            val field = battle.field
+            val units = field.getUnitsOfPlayer(player).toList()
 
             val workers = units.filter { it.isWorker }
             val hasWorkers = workers.isNotEmpty() || speciesUnits.any { it.isWorker }
 
-            val ownedBases = playStage.getBases(player)
+            val ownedBases = field.getBases(player)
             val hasOwnedBase = ownedBases.size > 0
 
-            val capturables = playStage.getTiles().filter { it.isCrystal && it.canBeCapturedBy(player) }
+            val capturables = field.getTiles().filter { it.isCrystal && it.canBeCapturedBy(player) }
             val hasCapturable = capturables.isNotEmpty()
 
             val hasShopUnits = speciesUnits.any { it.cShop != null }
 
-            val buildableTerrain = playStage.getTiles().any {
+            val buildableTerrain = field.getTiles().any {
                 it.terrain == TerrainNames.grass || it.terrain == TerrainNames.water
             }
 

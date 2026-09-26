@@ -1,29 +1,26 @@
 package ctmn.petals.unit
 
-import com.badlogic.gdx.Gdx
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.commands.AttackCommand
-import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.getLeadUnit
 import ctmn.petals.playstage.getUnitsForTeam
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.utils.GameLog
 import java.lang.IllegalStateException
-import kotlin.random.Random
 
-fun PlayScreen.randomInt(min: Int, max: Int): Int {
+fun Battle.randomInt(min: Int, max: Int): Int {
     val modMinDamage: Int = (min.toFloat()).toInt()
     val modMaxDamage: Int = (max.toFloat()).toInt()
 
     return random.nextInt(modMinDamage, modMaxDamage + 1)
 }
 
-fun PlayScreen.randomInt75(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+fun Battle.randomInt75(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
 
-fun PlayScreen.randomInt50(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+fun Battle.randomInt50(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
 
-fun PlayScreen.randomInt25(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+fun Battle.randomInt25(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
 
 /** up to 50% damage and 25% defense reducing depending on health */
 val UnitActor.combatDamageHpMod: Float
@@ -51,8 +48,8 @@ data class DamageDefense(
  * leader and buff modifiers. The AI evaluates with this so "thinking" never consumes the
  * game RNG.
  */
-fun PlayScreen.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageDefense {
-    val playStage = unit.playStageOrNull
+fun Battle.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageDefense {
+    val battleField = field
 
     var defense = unit.defense
 
@@ -60,10 +57,10 @@ fun PlayScreen.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageD
     var maxDMG = unit.maxDamage
 
     //terrain
-    val tileActor = playStage?.getTile(unit.tiledX, unit.tiledY)
-        ?: if (playStage != null) throw IllegalStateException("Tile not fount at ${unit.tiledX}:${unit.tiledY}") else null
+    val tileActor = battleField.getTile(unit.tiledX, unit.tiledY)
+        ?: throw IllegalStateException("Tile not fount at ${unit.tiledX}:${unit.tiledY}")
 
-    if (unit.cTerrainProps == null) Gdx.app.error(AttackCommand::class.simpleName, "Unit has not terrain props")
+    if (unit.cTerrainProps == null) GameLog.error(AttackCommand::class.simpleName ?: "AttackCommand", "Unit has not terrain props")
 
     val attackBuff = if (tileActor == null) 0 else unit.cTerrainProps?.get(tileActor.terrain)?.attackBonus ?: 0
     val defenseBuff = if (tileActor == null) 0 else unit.cTerrainProps?.get(tileActor.terrain)?.defenseBonus ?: 0
@@ -73,12 +70,12 @@ fun PlayScreen.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageD
     defense += defenseBuff
 
     //bonus fields
-    playStage?.getUnitsForTeam(unit.playerId)?.mapNotNull {
+    battleField.getUnitsForTeam(unit.playerId).mapNotNull {
         if (it == unit)
             null
         else
             it.get(BonusFieldComponent::class.java)
-    }?.forEach {
+    }.forEach {
         minDMG += it.damage
         maxDMG += it.damage
         defense += it.defense
@@ -98,7 +95,7 @@ fun PlayScreen.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageD
 
     //leader buff
     if (unit.isFollower) {
-        val leader = playStage?.getLeadUnit(unit.followerID) //followerID == leaderID
+        val leader = battleField.getLeadUnit(unit.followerID) //followerID == leaderID
         if (leader != null) {
             val leaderC = leader.cLeader!!
             if (unit.isUnitNear(leader, leaderC.leaderRange)) {
@@ -139,7 +136,7 @@ fun PlayScreen.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageD
 }
 
 /** Rolls the damage for one attack. Uses the game RNG on purpose. */
-fun PlayScreen.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, Int> {
+fun Battle.calculateDmgDef(unit: UnitActor, vsUnit: UnitActor): Pair<Int, Int> {
     val stats = calculateDmgDefStats(unit, vsUnit)
     return randomInt(stats.minDamage, stats.maxDamage) to stats.defense
 }

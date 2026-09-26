@@ -18,21 +18,21 @@ class AttackAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
         if (targets.isEmpty()) return IMPOSSIBLE
 
         val best = targets.maxByOrNull {
-            CombatEval.attackScore(bot.playScreen, unit, it, bot.difficulty.skill)
+            CombatEval.attackScore(bot.battle, unit, it, bot.difficulty.skill)
         } ?: return IMPOSSIBLE
 
-        val score = CombatEval.attackScore(bot.playScreen, unit, best, bot.difficulty.skill)
+        val score = CombatEval.attackScore(bot.battle, unit, best, bot.difficulty.skill)
         val cmd = AttackCommand(unit, best)
-        if (!cmd.canExecute(bot.playScreen)) return IMPOSSIBLE
+        if (!cmd.canExecute(bot.battle)) return IMPOSSIBLE
 
         command = cmd
-        return if (CombatEval.killsInOneHit(bot.playScreen, unit, best)) 95
+        return if (CombatEval.killsInOneHit(bot.battle, unit, best)) 95
         else 60 + (score / 10).coerceAtMost(20)
     }
 
     override fun execute(): Boolean {
         val cmd = command ?: return false
-        return bot.playScreen.commandManager.queueCommand(cmd, bot.playerID)
+        return bot.battle.commandManager.queueCommand(cmd, bot.playerID)
     }
 
     override fun signature(): String = "attack:${unit.name}"

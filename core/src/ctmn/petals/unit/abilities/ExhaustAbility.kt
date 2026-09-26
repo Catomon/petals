@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.buff.Buff
@@ -21,8 +21,8 @@ class ExhaustAbility : Ability(
     private val defense get() = -5 - 5 * level
     private val damage get() = -5 - 5 * level
 
-    override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+        val actors = getTargets(battle.field, unitCaster, tileX, tileY)
 
         for (actor in actors) {
             if (actor is UnitActor) {
@@ -31,7 +31,7 @@ class ExhaustAbility : Ability(
 
                 val effect = ctmn.petals.effects.CreateEffect.exhaust
                 effect.setPosByCenter(actor.centerX, actor.centerY)
-                playScreen.playStage.addActor(effect)
+                battle.queueSeqAction(effect)
                 castTime = effect.lifeTime
             }
         }

@@ -1,14 +1,11 @@
 package ctmn.petals.unit.actors.creatures
 
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.playStage
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.isImpassable
 import ctmn.petals.unit.*
 import ctmn.petals.unit.abilities.JumpAbility
 import ctmn.petals.unit.component.*
-import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.utils.getSurroundingTiles
-import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
 import kotlin.random.Random
 
 class BunnySlimeHuge : UnitActor(
@@ -62,27 +59,22 @@ class BunnySlimeHuge : UnitActor(
             cost = 10
         }
 
-        override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-            val done = super.activate(playScreen, unitCaster, tileX, tileY)
+        override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+            val done = super.activate(battle, unitCaster, tileX, tileY)
 
             if (done && slimeSpawnsLeft > 0) {
-                for (action in actions) {
-                    if (action is SequenceAction) {
-                        action.addAction(OneAction {
-                            val freeTiles = playStage.getSurroundingTiles(tileX, tileY)
-                            freeTiles.removeAll { it.isImpassable() }
-                            for (tile in freeTiles) {
-                                val slime = BunnySlimeLing()
-                                slime.setPosition(tile.tiledX, tile.tiledY)
-                                slime.playerId = playerId
-                                slime.teamId = teamId
-                                slime.followerOf(this@BunnySlimeHuge, true)
-                                slime.actionPoints = 0
+                val freeTiles = battle.field.getSurroundingTiles(tileX, tileY)
+                freeTiles.removeAll { it.isImpassable() }
+                for (tile in freeTiles) {
+                    val slime = BunnySlimeLing()
+                    slime.setPosition(tile.tiledX, tile.tiledY)
+                    slime.playerId = playerId
+                    slime.teamId = teamId
+                    slime.followerOf(this@BunnySlimeHuge, true)
+                    slime.actionPoints = 0
 
-                                playStage.addActor(slime)
-                            }
-                        })
-                    }
+                    battle.field.addGameActor(slime)
+                    battle.onUnitSummonedView(slime)
                 }
 
                 slimeSpawnsLeft--

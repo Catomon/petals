@@ -1,8 +1,8 @@
 package ctmn.petals.bot.v2.util
 
-import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.playstage.tiledDst
+import ctmn.petals.sim.BattleField
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.isPassableAndFree
 import ctmn.petals.unit.UnitActor
@@ -14,14 +14,14 @@ import ctmn.petals.unit.tiledY
 object Pathing {
 
     /** Tiles the unit can reach this turn (excluding its own tile). */
-    fun reachableTiles(playStage: PlayStage, unit: UnitActor): List<Pair<Int, Int>> {
-        val grid = playStage.getMovementGrid(unit, true)
+    fun reachableTiles(field: BattleField, unit: UnitActor): List<Pair<Int, Int>> {
+        val grid = field.getMovementGrid(unit, true)
         val result = ArrayList<Pair<Int, Int>>()
         for (x in grid.indices) {
             for (y in grid[x].indices) {
                 if (grid[x][y] <= 0) continue
                 if (x == unit.tiledX && y == unit.tiledY) continue
-                val tile = playStage.getTile(x, y) ?: continue
+                val tile = field.getTile(x, y) ?: continue
                 if (!tile.isPassableAndFree()) continue
                 result.add(x to y)
             }
@@ -37,14 +37,14 @@ object Pathing {
      * Prefers terrain that gives combat bonuses and, optionally, tiles away from enemies.
      */
     fun stepTowards(
-        playStage: PlayStage,
+        field: BattleField,
         unit: UnitActor,
         destX: Int,
         destY: Int,
         preferTerrain: Boolean = true,
         avoidThreat: Boolean = false,
     ): TileActor? {
-        val tiles = reachableTiles(playStage, unit)
+        val tiles = reachableTiles(field, unit)
         if (tiles.isEmpty()) return null
 
         val currentDist = tiledDst(unit.tiledX, unit.tiledY, destX, destY)
@@ -57,22 +57,22 @@ object Pathing {
                 {
                     if (!preferTerrain) 0
                     else {
-                        val tile = playStage.getTile(it.first, it.second)
+                        val tile = field.getTile(it.first, it.second)
                         if (tile == null) 0 else -terrainBonus(unit, tile)
                     }
                 },
                 { if (avoidThreat) CombatEval.threatAt(unit, it.first, it.second) else 0 },
             )
-        )?.let { playStage.getTile(it.first, it.second) }
+        )?.let { field.getTile(it.first, it.second) }
     }
 
     /** Free (passable, unoccupied) tiles around [unit] within [range]. */
-    fun freeTilesInRange(playStage: PlayStage, unit: UnitActor, range: Int): List<TileActor> {
+    fun freeTilesInRange(field: BattleField, unit: UnitActor, range: Int): List<TileActor> {
         val tiles = ArrayList<TileActor>()
         for (x in (unit.tiledX - range)..(unit.tiledX + range)) {
             for (y in (unit.tiledY - range)..(unit.tiledY + range)) {
                 if (tiledDst(unit.tiledX, unit.tiledY, x, y) > range) continue
-                val tile = playStage.getTile(x, y) ?: continue
+                val tile = field.getTile(x, y) ?: continue
                 if (tile.isPassableAndFree()) tiles.add(tile)
             }
         }

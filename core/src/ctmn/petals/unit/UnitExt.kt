@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.Array
 import ctmn.petals.Config
 import ctmn.petals.assets
 import ctmn.petals.effects.CreateEffect
-import ctmn.petals.effects.FloatingLabelAnimation
 import ctmn.petals.effects.HealthChangeEffect
 import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
@@ -18,9 +17,9 @@ import ctmn.petals.player.Team
 import ctmn.petals.playscreen.*
 import ctmn.petals.playscreen.events.UnitDiedEvent
 import ctmn.petals.playscreen.events.UnitLevelUpEvent
-import ctmn.petals.playscreen.seqactions.KillUnitAction
 import ctmn.petals.playscreen.seqactions.ThrowUnitAction
 import ctmn.petals.playstage.*
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.*
 import ctmn.petals.tile.components.BaseBuildingComponent
 import ctmn.petals.tile.components.BuildingComponent
@@ -89,12 +88,16 @@ var UnitActor.teamId
 var UnitActor.tiledX
     get() = cUnit.tiledX;
     set(value) {
-        cUnit.tiledX = value; playStageOrNull?.updateCaches()
+        val old = cUnit.tiledX
+        cUnit.tiledX = value
+        if (old != value) field?.onUnitMoved(this, old, cUnit.tiledY)
     }
 var UnitActor.tiledY
     get() = cUnit.tiledY;
     set(value) {
-        cUnit.tiledY = value; playStageOrNull?.updateCaches()
+        val old = cUnit.tiledY
+        cUnit.tiledY = value
+        if (old != value) field?.onUnitMoved(this, cUnit.tiledX, old)
     }
 var UnitActor.leaderID
     get() = cLeader?.leaderID ?: -1;
@@ -278,15 +281,15 @@ fun UnitActor.canMove(tile: TileActor): Boolean {
 
 /** @return true if player has enough AP to move and has no Debuffs that are blocking it */
 fun UnitActor.canMove(tileX: Int, tileY: Int): Boolean {
-    if (this.stage == null)
+    if (field == null)
         return false
 
-    val moveGrid = playStage.getMovementGrid(this, true).getOrNull(tileX)?.getOrNull(tileY)
+    val moveGrid = field!!.getMovementGrid(this, true).getOrNull(tileX)?.getOrNull(tileY)
     val isReachable = moveGrid != null && moveGrid != 0
 
     return isReachable
             && canMove()
-            && playStage.getTile(tileX, tileY)?.isPassableAndFree() ?: false
+            && field!!.getTile(tileX, tileY)?.isPassableAndFree() ?: false
 }
 
 fun UnitActor.addAttackDamage(amount: Int) {
@@ -405,7 +408,7 @@ fun <T : UnitActor> T.player(player: Player): T {
     playerId = player.id
     teamId = player.teamId
     allies.addAll(player.allies)
-    initView(assets)
+    if (playStageOrNull != null) initView(assets)
 
     return this
 }
@@ -413,7 +416,7 @@ fun <T : UnitActor> T.player(player: Player): T {
 fun <T : UnitActor> T.player(playerId: Int, teamId: Int = playerId): T {
     this.playerId = playerId
     this.teamId = teamId
-    initView(assets)
+    if (playStageOrNull != null) initView(assets)
 
     return this
 }
@@ -485,7 +488,7 @@ fun UnitActor.leader(leaderId: Int, leaderRange: Int = 1, killUnitsOnDeath: Bool
 fun UnitActor.dealDamage(
     damage: Int,
     attacker: UnitActor? = null,
-    playScreen: PlayScreen,
+    battle: Battle,
     killIfZero: Boolean = true,
 ): UnitActor {
     var damage = damage
@@ -511,9 +514,9 @@ fun UnitActor.dealDamage(
 
     if (killIfZero && this.health < 1) {
         if (attacker != null)
-            this.killedBy(attacker, playScreen)
+            this.killedBy(attacker, battle)
         else
-            this.die(playScreen)
+            this.die(battle)
     }
 
     return this
@@ -523,42 +526,39 @@ fun UnitActor.heal(amount: Int) {
     val healing = if (health <= unitComponent.baseHealth - amount) amount else unitComponent.baseHealth - health
 
     health += healing
-    playStage.addActor(HealthChangeEffect(this, healing))
+    playStageOrNull?.addActor(HealthChangeEffect(this, healing))
     if (health > unitComponent.baseHealth)
         health = unitComponent.baseHealth
 }
 
-fun UnitActor.killedBy(killer: UnitActor, playScreen: PlayScreen) {
+fun UnitActor.killedBy(killer: UnitActor, battle: Battle) {
     val thisUnit = this
-    val leader = if (killer.isLeader) killer else playScreen.playStage.getLeadUnit(killer.followerID)
+    val leader = if (killer.isLeader) killer else battle.field.getLeadUnit(killer.followerID)
     if (!thisUnit.isAlly(killer) && leader != null) {
         val exp = (if (thisUnit.isLeader) Config.EXP_GAIN_LEADER else Config.EXP_GAIN) * (thisUnit.cLevel?.lvl ?: 1)
-        leader.grantExp(exp, playScreen)
+        leader.grantExp(exp, battle)
     } //else  playStage.commandManager.execute(GrantXpCommand(unitAttacker, unitDefender))
 
-    thisUnit.die(playScreen, killer)
+    thisUnit.die(battle, killer)
 
     if (thisUnit.isLeader && thisUnit.cLeader?.killUnitsOnDeath == true)
-        for (unit in playScreen.playStage.getUnitsForLeader(thisUnit.leaderID, true)) {
+        for (unit in battle.field.getUnitsForLeader(thisUnit.leaderID, true)) {
             if (!unit.isAlly(killer) && leader != null) {
                 val exp = (if (unit.isLeader) Config.EXP_GAIN_LEADER else Config.EXP_GAIN) * (unit.cLevel?.lvl ?: 1)
-                leader.grantExp(exp, playScreen)
+                leader.grantExp(exp, battle)
             }
 
-            unit.die(playScreen, killer)
+            unit.die(battle, killer)
         }
 }
 
-fun UnitActor.grantExp(amount: Int, playScreen: PlayScreen) {
+fun UnitActor.grantExp(amount: Int, battle: Battle) {
     val unit = this
 
     val cLevel = unit.cLevel ?: return
     cLevel.exp += amount
 
-    val label = FloatingLabelAnimation("+$amount XP", "default")
-    label.color = Color.BLUE
-    label.setPosition(unit.centerX - label.width / 4, unit.centerY)
-    playScreen.playStage.addActor(label)
+    battle.showFloatingLabel("+$amount XP", Color.BLUE, unit.centerX, unit.centerY)
 
     val oldLvl = cLevel.lvl
 
@@ -570,38 +570,33 @@ fun UnitActor.grantExp(amount: Int, playScreen: PlayScreen) {
         if (cLevel.lvl >= Config.MAX_LVL)
             cLevel.exp = xpToLevelUp(Config.MAX_LVL - 1)
 
-        val label = FloatingLabelAnimation("LEVEL UP!", "default")
-        label.color = Color.YELLOW
-        label.setPosition(unit.centerX - label.width / 4, unit.centerY)
-        playScreen.playStage.addActor(label)
+        battle.showFloatingLabel("LEVEL UP!", Color.YELLOW, unit.centerX, unit.centerY)
     }
 
     if (oldLvl != cLevel.lvl) {
-        if (playScreen.gameType == GameType.STORY)
+        if (battle.gameType == GameType.STORY)
             unit.levelUp()
         //TODO level up for other modes
 
-        playScreen.fireEvent(UnitLevelUpEvent(unit))
+        battle.fireEvent(UnitLevelUpEvent(unit))
     }
 }
 
-fun UnitActor.die(playScreen: PlayScreen, killer: UnitActor? = null) {
+fun UnitActor.die(battle: Battle, killer: UnitActor? = null) {
     if (health > 0)
         health = 0
 
-    if (stage == null) return
+    if (stage != null) {
+        if (!isViewInitialized) {
+            remove()
+        } else {
+            cAnimationView?.isAnimate = false
 
-    if (!isViewInitialized) {
-        remove()
-
-        return
+            battle.onUnitDiedView(this)
+        }
     }
 
-    cAnimationView?.isAnimate = false
-
-    playScreen.queueAction(KillUnitAction(this))
-
-    playScreen.fireEvent(UnitDiedEvent(this, killer))
+    battle.fireEvent(UnitDiedEvent(this, killer))
 }
 
 fun UnitActor.captureBase(base: TileActor, player: Player? = null) {
@@ -616,10 +611,10 @@ fun UnitActor.getClosestTileInMoveRange(
     pTiles: Array<TileActor>? = null,
     includeUnitPosTile: Boolean = false,
 ): TileActor? {
-    playStageOrNull ?: return null
+    val battleField = field ?: return null
 
     var closestTile: TileActor? = null
-    val tiles = pTiles ?: playStage.getTiles()
+    val tiles = pTiles ?: battleField.getTiles()
     for (tile in tiles) {
         if (closestTile == null) {
             if (this.canMove(tile.tiledX, tile.tiledY))
@@ -644,13 +639,15 @@ fun UnitActor.getClosestTileInMoveRange(
     return closestTile
 }
 
-fun UnitActor.throwAction(sourceUnit: UnitActor, throwX: Int, throwY: Int, damage: Int, playScreen: PlayScreen) {
-    if (this.isAlly(sourceUnit) && !playScreen.friendlyFire)
+fun UnitActor.throwAction(sourceUnit: UnitActor, throwX: Int, throwY: Int, damage: Int, battle: Battle) {
+    if (this.isAlly(sourceUnit) && !battle.friendlyFire)
         return
 
-    playScreen.addAction(ThrowUnitAction(this, throwX, throwY)).addOnCompleteTrigger { _ ->
-        CreateEffect.damageUnit(this.dealDamage(damage, sourceUnit, playScreen))
-    }
+    val damaged = this.dealDamage(damage, sourceUnit, battle)
+    if (playStageOrNull != null)
+        CreateEffect.damageUnit(damaged)
+
+    battle.queueSeqAction(ThrowUnitAction(this, throwX, throwY))
 }
 
 fun playerIdByColor(colorName: String) =
@@ -799,12 +796,12 @@ fun playerIdByUnitSpecies(unit: UnitActor): Int =
         else -> if (unit.playerId == Player.NONE) 4 else unit.playerId
     }
 
-fun PlayScreen.throwUnitAction(unit: UnitActor, tileX: Int, tileY: Int, damage: Int = -1, source: UnitActor? = null) {
-    addAction(ThrowUnitAction(unit, tileX, tileY)).addOnCompleteTrigger { _ ->
-        if (damage > -1) {
-            CreateEffect.damageUnit(
-                unit.dealDamage(damage, source, this)
-            )
-        }
+fun Battle.throwUnitAction(unit: UnitActor, tileX: Int, tileY: Int, damage: Int = -1, source: UnitActor? = null) {
+    if (damage > -1) {
+        val damaged = unit.dealDamage(damage, source, this)
+        if (unit.playStageOrNull != null)
+            CreateEffect.damageUnit(damaged)
     }
+
+    queueSeqAction(ThrowUnitAction(unit, tileX, tileY))
 }

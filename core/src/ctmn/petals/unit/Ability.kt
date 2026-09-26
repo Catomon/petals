@@ -5,10 +5,10 @@ import ctmn.petals.tile.isPassableAndFree
 import ctmn.petals.utils.tiled
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.playscreen.*
-import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.getTilesAndUnits
 import ctmn.petals.playstage.tiledDst
+import ctmn.petals.sim.Battle
+import ctmn.petals.sim.BattleField
 
 /** Classes that inherit this class should not have important mutable fields
  * because only base class fields are getting serialized.
@@ -37,7 +37,7 @@ abstract class Ability(
 
     /** Should be reusable
      * @return true on success */
-    abstract fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean
+    abstract fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean
 
     enum class Target {
         ALL,
@@ -58,10 +58,10 @@ abstract class Ability(
         OBJECTIVE
     }
 
-    fun getTargets(playStage: PlayStage, unitCaster: UnitActor, castX: Int, castY: Int) : Array<Actor> {
+    fun getTargets(battleField: BattleField, unitCaster: UnitActor, castX: Int, castY: Int) : Array<Actor> {
         val targetActorsArray = Array<Actor>()
 
-        for (actor in playStage.getTilesAndUnits()) {
+        for (actor in battleField.getTilesAndUnits()) {
             if (actor is TileActor || actor is UnitActor) {
                 val actorX = if (actor is TileActor) actor.tiledX else if (actor is UnitActor) actor.tiledX else actor.x.tiled()
                 val actorY = if (actor is TileActor) actor.tiledY else if (actor is UnitActor) actor.tiledY else actor.y.tiled()
@@ -71,7 +71,7 @@ abstract class Ability(
                         Target.UNIT -> if (actor is UnitActor) targetActorsArray.add(actor)
                         Target.TILE -> if (actor is TileActor) targetActorsArray.add(actor)
                         Target.TILE_PASSABLE -> if (actor is TileActor && actor.isPassableAndFree()) targetActorsArray.add(actor)
-                        Target.TILE_PASSABLE_INCLUDE_SELF -> if (actor is TileActor && (actor.isPassableAndFree() || playStage.getUnit(actorX, actorY) == unitCaster)) targetActorsArray.add(actor)
+                        Target.TILE_PASSABLE_INCLUDE_SELF -> if (actor is TileActor && (actor.isPassableAndFree() || battleField.getUnit(actorX, actorY) == unitCaster)) targetActorsArray.add(actor)
                         Target.MY_UNIT -> if (actor is UnitActor && actor.playerId == unitCaster.playerId) targetActorsArray.add(actor)
                         Target.ENEMY_UNIT -> if (actor is UnitActor && !unitCaster.isAlly(actor)) targetActorsArray.add(actor)
                         Target.MY_TEAM_UNIT -> if (actor is UnitActor && actor.teamId == unitCaster.teamId) targetActorsArray.add(actor)

@@ -32,7 +32,7 @@ class MoveAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
 
         // A limited guard detail sticks with the leader; the rest fight independently.
         if (unit.isFollower) {
-            val leader = bot.playStage.getLeadUnit(unit.followerID)
+            val leader = bot.field.getLeadUnit(unit.followerID)
             if (leader != null) {
                 val guards = bot.context.followersOf(leader).sortedBy { it.name ?: "" }.take(GUARDS_PER_LEADER)
                 if (guards.contains(unit)) {
@@ -67,31 +67,31 @@ class MoveAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
         val dist = tiledDst(unit.tiledX, unit.tiledY, anchor.first, anchor.second)
 
         val step = if (dist > settings.roamingMaxRange) {
-            Pathing.stepTowards(bot.playStage, unit, anchor.first, anchor.second, avoidThreat = true)
+            Pathing.stepTowards(bot.field, unit, anchor.first, anchor.second, avoidThreat = true)
         } else {
-            val tiles = Pathing.reachableTiles(bot.playStage, unit).filter {
+            val tiles = Pathing.reachableTiles(bot.field, unit).filter {
                 tiledDst(it.first, it.second, anchor.first, anchor.second) <= settings.roamingMaxRange
             }
-            tiles.randomOrNull(bot.random)?.let { bot.playStage.getTile(it.first, it.second) }
+            tiles.randomOrNull(bot.random)?.let { bot.field.getTile(it.first, it.second) }
         } ?: return IMPOSSIBLE
 
         return queue(step, 30)
     }
 
     private fun stepTo(destX: Int, destY: Int, avoidThreat: Boolean): ctmn.petals.tile.TileActor? =
-        Pathing.stepTowards(bot.playStage, unit, destX, destY, avoidThreat = avoidThreat)
+        Pathing.stepTowards(bot.field, unit, destX, destY, avoidThreat = avoidThreat)
 
     private fun queue(step: ctmn.petals.tile.TileActor?, priority: Int): Int {
         if (step == null) return IMPOSSIBLE
         val cmd = MoveUnitCommand(unit, step.tiledX, step.tiledY)
-        if (!cmd.canExecute(bot.playScreen)) return IMPOSSIBLE
+        if (!cmd.canExecute(bot.battle)) return IMPOSSIBLE
         command = cmd
         return priority
     }
 
     override fun execute(): Boolean {
         val cmd = command ?: return false
-        return bot.playScreen.commandManager.queueCommand(cmd, bot.playerID)
+        return bot.battle.commandManager.queueCommand(cmd, bot.playerID)
     }
 
     override fun signature(): String = "move:${unit.name}"

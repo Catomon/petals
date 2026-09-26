@@ -14,6 +14,7 @@ import ctmn.petals.playscreen.events.ActionCompletedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.events.PlayStageListener
 import ctmn.petals.playscreen.events.UnitAddedEvent
+import ctmn.petals.sim.BattleField
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.cUnit
@@ -26,9 +27,9 @@ import ctmn.petals.utils.tiledY
  * Use clearGameActors() for that. */
 class PlayStage(
     batch: Batch,
-    var tiledWidth: Int = 0, //specify only if map is very large (>64)
-    var tiledHeight: Int = 0,
-) : Stage(ExtendViewport(400f, 240f), batch) {
+    override var tiledWidth: Int = 0, //specify only if map is very large (>64)
+    override var tiledHeight: Int = 0,
+) : Stage(ExtendViewport(400f, 240f), batch), BattleField {
 
     var initView = true
 
@@ -49,7 +50,7 @@ class PlayStage(
 
     private var shaderApplied = false
 
-    var idCounter = 0
+    override var idCounter = 0
     private val newId get() = "%06d".format(idCounter++)
 
     var timeOfDay = DayTime.DAY
@@ -214,6 +215,8 @@ class PlayStage(
     }
 
     override fun addActor(actor: Actor) {
+        if (actor is GameActor) actor.field = this
+
         if (initView && actor is UnitActor && !actor.isViewInitialized) {
             actor.initView(assets)
 
@@ -293,18 +296,18 @@ class PlayStage(
         clearMinorGameActors()
     }
 
-    fun findUnit(name: String): UnitActor? {
+    override fun findUnit(name: String): UnitActor? {
         if (actorIdsMap.containsKey(name))
             return actorIdsMap[name] as UnitActor
 
         return null
     }
 
-    fun getUnit(x: Int, y: Int): UnitActor? {
+    override fun getUnit(x: Int, y: Int): UnitActor? {
         return if (x >= 0 && y >= 0 && x < unitPositionsMap.size && y < unitPositionsMap[0].size) unitPositionsMap[x][y] else null
     }
 
-    fun getTile(x: Int, y: Int): TileActor? {
+    override fun getTile(x: Int, y: Int): TileActor? {
         if (tilesLayer1.tilesGrid.size == 0) return null
         if (x < 0 || y < 0) return null
         if (x >= tilesLayer1.tilesGrid.size || tilesLayer1.tilesGrid[x] == null || y >= tilesLayer1.tilesGrid[x].size) return null
@@ -312,13 +315,73 @@ class PlayStage(
         return tilesLayer1.tilesGrid.get(x)?.get(y)
     }
 
-    fun getTile(x: Int, y: Int, layerId: Int): TileActor? {
+    override fun getTile(x: Int, y: Int, layerId: Int): TileActor? {
         val layer = tileLayers.get(layerId) ?: return null
         if (layer.tilesGrid.size == 0) return null
         if (x < 0 || y < 0) return null
         if (x >= layer.tilesGrid.size || layer.tilesGrid[x] == null || y >= layer.tilesGrid[x].size) return null
 
         return layer.tilesGrid.get(x)?.get(y)
+    }
+
+    override val allActors: List<Actor>
+        get() = actors.toList()
+
+    override val allUnits: List<UnitActor>
+        get() = unitsLayer.children.filterIsInstance<UnitActor>()
+
+    override val allTiles: List<TileActor>
+        get() {
+            val tiles = ArrayList<TileActor>()
+            for (layer in tileLayers.values()) {
+                for (actor in layer.children)
+                    if (actor is TileActor) tiles.add(actor)
+            }
+            return tiles
+        }
+
+    override val layer1Tiles: List<TileActor>
+        get() = tilesLayer1.children.filterIsInstance<TileActor>()
+
+    override val labelActors: List<LabelActor>
+        get() = actors.filterIsInstance<LabelActor>()
+
+    override fun tilesOfLayer(layer: Int): List<TileActor> =
+        tileLayers.get(layer)?.children?.filterIsInstance<TileActor>() ?: emptyList()
+
+    override fun addGameActor(actor: Actor) {
+        addActor(actor)
+    }
+
+    override fun removeGameActor(actor: Actor) {
+        actor.remove()
+    }
+
+    override fun onUnitMoved(unit: UnitActor, oldX: Int, oldY: Int) {
+        updateCaches()
+    }
+
+    override fun onTileChanged(tile: TileActor) {
+        // The tile group keeps its own grid; layer changes re-add the tile in gameplay code.
+    }
+
+    override fun shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
+        val tilesToShift = Array<TileActor>()
+        tileLayers.values.forEach {
+            if (tileX in 0 until it.tilesGrid.size && tileY in 0 until (it.tilesGrid[0]?.size ?: 0)) {
+                try {
+                    it.tilesGrid[tileX][tileY]?.let { tile -> tilesToShift.add(tile) }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        tilesToShift.forEach { tile ->
+            tile.layer += shiftAmount
+            tile.remove()
+            addActor(tile)
+        }
     }
 
     override fun addListener(listener: EventListener): Boolean {
@@ -399,6 +462,8 @@ class PlayStage(
         }
 
         override fun removeActor(actor: Actor, unfocus: Boolean): Boolean {
+            if (actor is GameActor && actor.field === this@PlayStage) actor.field = null
+
             if (actor is TileActor)
                 if (actor.tiledX >= 0 && actor.tiledY >= 0 && actor.tiledX < tilesGrid.size && actor.tiledY < tilesGrid[actor.tiledX].size) {
                     if (actor == tilesGrid[actor.tiledX][actor.tiledY])

@@ -1,7 +1,7 @@
 package ctmn.petals.playscreen.commands
 
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.BuildingComponent
@@ -28,15 +28,15 @@ class BuildCommand(
         tile.stageName
     )
 
-    override fun canExecute(playScreen: PlayScreen): Boolean {
-        val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val tile: TileActor = playScreen.playStage.root.findActor(tileId)
+    override fun canExecute(battle: Battle): Boolean {
+        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == tileId }!!
 
         if (!unit.canBuild(tile)) return false
 
         if (unit.actionPoints <= 0) return false
 
-        if ((playScreen.turnManager.getPlayerById(unit.playerId)?.credits ?: 0) < cost) {
+        if ((battle.turnManager.getPlayerById(unit.playerId)?.credits ?: 0) < cost) {
             logErr("Not enough credits")
             return false
         }
@@ -44,13 +44,13 @@ class BuildCommand(
         return true
     }
 
-    override fun execute(playScreen: PlayScreen): Boolean {
-        val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val tile: TileActor = playScreen.playStage.root.findActor(tileId)
+    override fun execute(battle: Battle): Boolean {
+        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == tileId }!!
 
         unit.actionPoints = 0
 
-        playScreen.turnManager.getPlayerById(unit.playerId)!!.credits -= cost
+        battle.turnManager.getPlayerById(unit.playerId)!!.credits -= cost
 
         unit.del(InvisibilityComponent::class.java)
 

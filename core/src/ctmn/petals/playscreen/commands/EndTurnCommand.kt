@@ -1,23 +1,20 @@
 package ctmn.petals.playscreen.commands
 
 import ctmn.petals.player.Player
-import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.sim.Battle
 
 class EndTurnCommand(var turnPlayerId: Int) : Command() {
 
     constructor(player: Player) : this(player.id)
 
-    override fun canExecute(playScreen: PlayScreen): Boolean {
-        return playScreen.turnManager.currentPlayer.id == turnPlayerId
+    override fun canExecute(battle: Battle): Boolean {
+        return battle.turnManager.currentPlayer.id == turnPlayerId
     }
 
-    override fun execute(playScreen: PlayScreen): Boolean {
-        if (!canExecute(playScreen)) return false
+    override fun execute(battle: Battle): Boolean {
+        if (!canExecute(battle)) return false
 
-        if (playScreen.guiStage.currentState == playScreen.guiStage.myTurn)
-            playScreen.guiStage.currentState = playScreen.guiStage.endTurn
-
-        playScreen.turnManager.nextTurn()
+        battle.turnManager.nextTurn()
 
         return true
     }

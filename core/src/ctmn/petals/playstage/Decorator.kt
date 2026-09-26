@@ -1,6 +1,7 @@
 package ctmn.petals.playstage
 
 import com.badlogic.gdx.Gdx
+import ctmn.petals.assets
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName

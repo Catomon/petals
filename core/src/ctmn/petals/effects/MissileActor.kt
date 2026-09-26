@@ -10,7 +10,6 @@ import ctmn.petals.actors.actions.JumpAction
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.assets
 import ctmn.petals.playscreen.playStageOrNull
-import ctmn.petals.playstage.shiftLayerAt
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData

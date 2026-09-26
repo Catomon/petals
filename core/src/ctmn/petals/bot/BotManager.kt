@@ -1,25 +1,21 @@
 package ctmn.petals.bot
 
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.commands.EndTurnCommand
 import ctmn.petals.playscreen.events.NextTurnEvent
+import ctmn.petals.sim.Battle
 
-class BotManager(val playScreen: PlayScreen) {
+class BotManager(val battle: Battle) {
 
     val botPlayers = Array<Bot>()
 
     var current: Bot? = null
 
-    //not working with more than 1 bot just delete
-    //val isDone: Boolean get() { botPlayers.forEach { if (!it.isDone) return false }; return true}
-
     val isDone: Boolean get() = current?.isDone ?: true
 
     init {
-        playScreen.playStage.addListener {
+        battle.addEventListener {
             if (it is NextTurnEvent) {
                 current?.onEnd()
 
@@ -27,20 +23,19 @@ class BotManager(val playScreen: PlayScreen) {
                     if (bot.playerID == it.nextPlayer.id) {
                         bot.onStart()
                         current = bot
-                        return@addListener false
+                        return@addEventListener false
                     }
                 }
 
                 current = null
             }
 
-
             false
         }
     }
 
     fun update(delta: Float) {
-        if (playScreen is ClientPlayScreen) return
+        if (battle.clientControlled) return
 
         val current = current
         if (current != null) {
@@ -48,7 +43,7 @@ class BotManager(val playScreen: PlayScreen) {
                 current.update(delta)
 
                 if (current.isDone)
-                    playScreen.commandManager.queueCommand(EndTurnCommand(current.playerID))
+                    battle.commandManager.queueCommand(EndTurnCommand(current.playerID), current.playerID)
             }
         }
     }

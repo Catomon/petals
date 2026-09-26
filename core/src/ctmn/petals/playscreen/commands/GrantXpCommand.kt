@@ -1,10 +1,9 @@
 package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Config
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.effects.FloatingLabelAnimation
 import ctmn.petals.playscreen.events.UnitLevelUpEvent
 import ctmn.petals.playstage.getLeadUnit
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.*
 import ctmn.petals.utils.centerX
 import ctmn.petals.utils.centerY
@@ -17,12 +16,12 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
 
     constructor(unit: UnitActor, amount: Int) : this(unit.stageName, amount)
 
-    override fun canExecute(playScreen: PlayScreen): Boolean {
-        var unit: UnitActor = playScreen.playStage.root.findActor(unitId) ?: return false
+    override fun canExecute(battle: Battle): Boolean {
+        var unit: UnitActor = battle.field.findUnit(unitId) ?: return false
 
         //if the unit is Follower and his Leader is dead, he will not grant any xp
         if (unit.isFollower) {
-            unit = playScreen.playStage.getLeadUnit(unit.followerID) ?: return false
+            unit = battle.field.getLeadUnit(unit.followerID) ?: return false
         }
 
         val cLevel = unit.cLevel ?: return false
@@ -32,16 +31,13 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
         return true
     }
 
-    override fun execute(playScreen: PlayScreen): Boolean {
-        val unit: UnitActor = playScreen.playStage.root.findActor(unitId) ?: return false
+    override fun execute(battle: Battle): Boolean {
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
         val cLevel = unit.cLevel ?: return false
 
         cLevel.exp += amount
 
-        val label = FloatingLabelAnimation("+$amount XP", "default")
-        label.color = Color.BLUE
-        label.setPosition(unit.centerX - label.width / 4, unit.centerY)
-        playScreen.playStage.addActor(label)
+        battle.showFloatingLabel("+$amount XP", Color.BLUE, unit.centerX, unit.centerY)
 
         val oldLvl = cLevel.lvl
 
@@ -53,16 +49,13 @@ class GrantXpCommand(val unitId: String, val amount: Int) : Command() {
             if (cLevel.lvl >= Config.MAX_LVL)
                 cLevel.exp = xpToLevelUp(Config.MAX_LVL - 1)
 
-            val label = FloatingLabelAnimation("LEVEL UP!", "default")
-            label.color = Color.YELLOW
-            label.setPosition(unit.centerX - label.width / 4, unit.centerY)
-            playScreen.playStage.addActor(label)
+            battle.showFloatingLabel("LEVEL UP!", Color.YELLOW, unit.centerX, unit.centerY)
         }
 
         if(oldLvl != cLevel.lvl) {
             unit.levelUp()
 
-            playScreen.fireEvent(UnitLevelUpEvent(unit))
+            battle.fireEvent(UnitLevelUpEvent(unit))
         }
 
         return true

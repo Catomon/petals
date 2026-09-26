@@ -1,12 +1,12 @@
 package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Config
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.*
+import ctmn.petals.playscreen.stageName
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.*
 import ctmn.petals.playscreen.seqactions.WaitAction
 import ctmn.petals.playstage.tiledDst
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.abilities.SummonAbility
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.InvisibilityComponent
@@ -26,8 +26,8 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
             param = unitCaster.summoner.selectedUnit
     }
 
-    override fun canExecute(playScreen: PlayScreen): Boolean {
-        val unitCaster: UnitActor = playScreen.playStage.root.findActor(unitCasterId) ?: return false
+    override fun canExecute(battle: Battle): Boolean {
+        val unitCaster: UnitActor = battle.field.findUnit(unitCasterId) ?: return false
         val ability = unitCaster.getAbility(abilityName) ?: throw IllegalArgumentException("No such ability: $abilityName")
 
         val abilities = unitCaster.cAbilities?.abilities ?: return false
@@ -48,7 +48,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
             return false
 
         //find targets
-        val targetActorsArray = ability.getTargets(playScreen.playStage, unitCaster, tileX, tileY)
+        val targetActorsArray = ability.getTargets(battle.field, unitCaster, tileX, tileY)
 
         //return if unit has no targets
         if (targetActorsArray.isEmpty) {
@@ -74,8 +74,8 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
         return true
     }
 
-    override fun execute(playScreen: PlayScreen): Boolean {
-        val unitCaster: UnitActor = playScreen.playStage.root.findActor(unitCasterId) ?: return false
+    override fun execute(battle: Battle): Boolean {
+        val unitCaster: UnitActor = battle.field.findUnit(unitCasterId) ?: return false
         val ability = unitCaster.getAbility(abilityName) ?: throw IllegalArgumentException("No such ability: $abilityName")
 
         if (ability is SummonAbility) {
@@ -85,7 +85,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
         //try to activate, return on fail
         val isSuccess =
-            ability.activate(playScreen, unitCaster, tileX, tileY)
+            ability.activate(battle, unitCaster, tileX, tileY)
 
         if (!isSuccess) return false
 
@@ -113,7 +113,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
         }
 
         //command lifeTime
-        playScreen.queueAction(WaitAction(ability.castTime))
+        battle.queueSeqAction(WaitAction(ability.castTime))
 
         //unit cast animation
         unitCaster.abilityCastAnimation?.let { unitCaster.setAnimation(it, 1f) }

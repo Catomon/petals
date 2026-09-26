@@ -1,8 +1,6 @@
 package ctmn.petals.unit.actors.creatures
 
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.playStage
-import ctmn.petals.playscreen.queueAddUnitAction
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.isImpassable
 import ctmn.petals.unit.*
 import ctmn.petals.unit.Ability
@@ -51,8 +49,8 @@ class BigLivingTree : UnitActor(
             cost = 10
         }
 
-        override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-            val freeTiles = playStage.getSurroundingTiles(tileX, tileY)
+        override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+            val freeTiles = battle.field.getSurroundingTiles(tileX, tileY)
             freeTiles.removeAll { it.isImpassable() }
 
             if (freeTiles.isEmpty)
@@ -64,7 +62,8 @@ class BigLivingTree : UnitActor(
                 owl.playerId = playerId
                 owl.actionPoints = 0
 
-                playScreen.queueAddUnitAction(owl)
+                battle.field.addGameActor(owl)
+                battle.onUnitSummonedView(owl)
             }
 
             return true

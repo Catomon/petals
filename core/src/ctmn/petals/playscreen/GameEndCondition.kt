@@ -2,8 +2,7 @@ package ctmn.petals.playscreen
 
 import ctmn.petals.player.Player
 import ctmn.petals.player.Team
-import ctmn.petals.playscreen.gui.floatingLabel
-import ctmn.petals.playscreen.listeners.TurnListener
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.isAlly
 import ctmn.petals.tile.isOccupied
 import ctmn.petals.unit.playerId
@@ -46,7 +45,7 @@ abstract class GameEndCondition(val id: String) {
 
     var end = false
 
-    open fun check(playScreen: PlayScreen): Boolean = end
+    open fun check(battle: Battle): Boolean = end
 
     fun win(playerId: Int = 1) {
         winners.add(playerId)
@@ -72,11 +71,11 @@ abstract class GameEndCondition(val id: String) {
         result = Result.HAS_WINNER
     }
 
-    open fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean = false
+    open fun checkPlayerOutOfGame(player: Player, battle: Battle): Boolean = false
 }
 
 class NoEnd : GameEndCondition("endless") {
-    override fun check(playScreen: PlayScreen): Boolean {
+    override fun check(battle: Battle): Boolean {
         return false
     }
 }
@@ -88,8 +87,8 @@ class EliminateEnemyUnits : GameEndCondition("eliminate_enemy_units") {
     private var mTeamStandId = Team.NONE
     val teamStandId get() = mTeamStandId
 
-    override fun check(playScreen: PlayScreen): Boolean {
-        val fUnit = playScreen.playStage.getUnits().firstOrNull()
+    override fun check(battle: Battle): Boolean {
+        val fUnit = battle.field.getUnits().firstOrNull()
 
         if (fUnit == null) {
             mTeamStandId = Team.NONE
@@ -98,9 +97,9 @@ class EliminateEnemyUnits : GameEndCondition("eliminate_enemy_units") {
             return true
         }
 
-        for (player in playScreen.turnManager.players) {
+        for (player in battle.turnManager.players) {
             if (!player.isOutOfGame) {
-                for (player2 in playScreen.turnManager.players) {
+                for (player2 in battle.turnManager.players) {
                     if (player2 != player && !player2.isOutOfGame && !player.isAlly(player2.teamId)) {
                         return false
                     }
@@ -108,7 +107,7 @@ class EliminateEnemyUnits : GameEndCondition("eliminate_enemy_units") {
 
                 mTeamStandId = player.teamId
                 result = Result.HAS_WINNER
-                playScreen.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
+                battle.turnManager.players.filter { it.teamId == mTeamStandId }.forEach {
                     winners.add(it.id)
                 }
                 return true
@@ -122,8 +121,8 @@ class EliminateEnemyUnits : GameEndCondition("eliminate_enemy_units") {
         return true
     }
 
-    override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
-        return playScreen.playStage.getUnitsOfPlayer(player).isEmpty
+    override fun checkPlayerOutOfGame(player: Player, battle: Battle): Boolean {
+        return battle.field.getUnitsOfPlayer(player).isEmpty
     }
 }
 
@@ -132,8 +131,8 @@ class CaptureBases : GameEndCondition("capture_bases") {
     private var mTeamStandId = Team.NONE
     val teamStandId get() = mTeamStandId
 
-    override fun check(playScreen: PlayScreen): Boolean {
-        val players = playScreen.turnManager.players.filter { player -> ignorePlayers.none { it == player.id } }
+    override fun check(battle: Battle): Boolean {
+        val players = battle.turnManager.players.filter { player -> ignorePlayers.none { it == player.id } }
         for (player in players) {
             if (!player.isOutOfGame) {
                 for (player2 in players) {
@@ -156,11 +155,11 @@ class CaptureBases : GameEndCondition("capture_bases") {
         return true
     }
 
-    override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
+    override fun checkPlayerOutOfGame(player: Player, battle: Battle): Boolean {
         if (ignorePlayers.any { it == player.id }) return false
 
-        for (base in playScreen.playStage.getCapturablesOf(player).filter { it.isBase }) {
-            //if (!base.isOccupied || playScreen.playStage.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
+        for (base in battle.field.getCapturablesOf(player).filter { it.isBase }) {
+            //if (!base.isOccupied || battle.field.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
                 return false
         }
 
@@ -173,6 +172,9 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
     private var mTeamStandId = Team.NONE
     val teamStandId get() = mTeamStandId
 
+    private var lastTurnSeen = -1
+    private var lastRoundSeen = -1
+
     var overtimeTeamId = Team.NONE
         set(value) {
             field = value
@@ -180,9 +182,8 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
         }
     var overtimeRoundsLeft = 3
 
-    override fun check(playScreen: PlayScreen): Boolean {
-        val fUnit = playScreen.playStage.getUnits().firstOrNull()
-        val players = playScreen.turnManager.players.filter { player -> ignorePlayers.none { it == player.id } }
+    override fun check(battle: Battle): Boolean {
+        val players = battle.turnManager.players.filter { player -> ignorePlayers.none { it == player.id } }
 
 //        if (fUnit == null) {
 //            mTeamStandId = Team.NONE
@@ -200,37 +201,49 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
                 }
                 return true
             }
+
+            //count a round down only once per turn, without any scene2d listener
+            val turnChanged = battle.turnManager.turn != lastTurnSeen || battle.turnManager.round != lastRoundSeen
+            if (turnChanged) {
+                lastTurnSeen = battle.turnManager.turn
+                lastRoundSeen = battle.turnManager.round
+
+                val overtimePlayer = players.firstOrNull { it.teamId == overtimeTeamId && !it.isOutOfGame }
+                if (overtimePlayer != null && checkOvertime(overtimePlayer, battle)) {
+                    overtimeRoundsLeft--
+
+                    if (overtimeRoundsLeft <= 0) {
+                        mTeamStandId = overtimeTeamId
+                        result = Result.HAS_WINNER
+                        players.filter { it.teamId == mTeamStandId }.forEach {
+                            winners.add(it.id)
+                        }
+                        return true
+                    }
+
+                    battle.showFloatingLabel("$overtimeTeamId Overtime: $overtimeRoundsLeft")
+                } else {
+                    battle.showFloatingLabel("$overtimeTeamId Overtime canceled")
+
+                    overtimeTeamId = Team.NONE
+                }
+            }
         }
 
         // if player has more than 75% bases
         for (player in players) {
             if (!player.isOutOfGame) {
-                if (checkOvertime(player, playScreen)) {
+                if (checkOvertime(player, battle)) {
                     if (overtimeTeamId != player.teamId) {
                         overtimeTeamId = player.teamId
+                        lastTurnSeen = battle.turnManager.turn
+                        lastRoundSeen = battle.turnManager.round
 
-                        //overtime turn listener
-                        playScreen.playStage.addListener(TurnListener(player.id) { _, listener ->
-                            if (overtimeTeamId == player.teamId && checkOvertime(player, playScreen)) {
-                                overtimeRoundsLeft--
-
-                                if (overtimeRoundsLeft <= 0) {
-                                    playScreen.playStage.removeListener(listener)
-                                }
-
-                                playScreen.guiStage.floatingLabel("$overtimeTeamId Overtime: $overtimeRoundsLeft")
-                            } else {
-                                playScreen.playStage.removeListener(listener)
-
-                                playScreen.guiStage.floatingLabel("$overtimeTeamId Overtime canceled")
-                            }
-                        })
-
-                        playScreen.guiStage.floatingLabel("$overtimeTeamId Overtime triggered")
+                        battle.showFloatingLabel("$overtimeTeamId Overtime triggered")
                     }
                 } else {
                     if (overtimeTeamId == player.teamId) {
-                        playScreen.guiStage.floatingLabel("$overtimeTeamId Overtime canceled")
+                        battle.showFloatingLabel("$overtimeTeamId Overtime canceled")
 
                         overtimeTeamId = Team.NONE
                     }
@@ -261,20 +274,20 @@ class ControlBasesWOvertime : GameEndCondition("base_control_overtime") {
         return true
     }
 
-    private fun checkOvertime(player: Player, playScreen: PlayScreen): Boolean {
+    private fun checkOvertime(player: Player, battle: Battle): Boolean {
         //todo get bases of team
-        return playScreen.playStage.getCapturablesOf(player).size >= playScreen.playStage.getTiles()
+        return battle.field.getCapturablesOf(player).size >= battle.field.getTiles()
             .filter { it.isOwnable }.size * 0.70f
     }
 
-    override fun checkPlayerOutOfGame(player: Player, playScreen: PlayScreen): Boolean {
+    override fun checkPlayerOutOfGame(player: Player, battle: Battle): Boolean {
         if (ignorePlayers.any { it == player.id }) return false
 
-        if (!playScreen.playStage.getUnitsOfPlayer(player).isEmpty)
+        if (!battle.field.getUnitsOfPlayer(player).isEmpty)
             return false
 
-        for (base in playScreen.playStage.getCapturablesOf(player)) {
-            if (!base.isOccupied || playScreen.playStage.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
+        for (base in battle.field.getCapturablesOf(player)) {
+            if (!base.isOccupied || battle.field.getUnit(base.tiledX, base.tiledY)!!.isAlly(player))
                 return false
         }
 

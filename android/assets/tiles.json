@@ -1,0 +1,1154 @@
+[
+    {
+        "name":  "blue_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "brown_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_red",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "goblin_den_blue",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "goblin_den_brown",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "goblin_den_green",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "goblin_den_orange",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "goblin_den_pink",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "goblin_den_purple",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "goblin_den_water_blue",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_water_brown",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_water_green",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_water_orange",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_water_pink",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_water_purple",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_water_red",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_water_yellow",
+        "terrain":  "base"
+    },
+    {
+        "name":  "goblin_den_yellow",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "green_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "orange_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pink_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_blue",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_brown",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_green",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_orange",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_pink",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_purple",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_red",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_blue",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_brown",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_green",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_orange",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_pink",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_purple",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_red",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_water_yellow",
+        "terrain":  "base"
+    },
+    {
+        "name":  "pixie_nest_yellow",
+        "terrain":  "base"
+    },
+    {
+        "name":  "purple_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "red_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "yellow_base",
+        "terrain":  "base"
+    },
+    {
+        "name":  "fairy_academy",
+        "terrain":  "building"
+    },
+    {
+        "name":  "fairy_aerthys",
+        "terrain":  "building"
+    },
+    {
+        "name":  "fairy_archers_guild",
+        "terrain":  "building"
+    },
+    {
+        "name":  "fairy_armory",
+        "terrain":  "building"
+    },
+    {
+        "name":  "fairy_bloomery",
+        "terrain":  "building"
+    },
+    {
+        "name":  "fairy_floral_aegis",
+        "terrain":  "building"
+    },
+    {
+        "name":  "fairy_folia",
+        "terrain":  "building"
+    },
+    {
+        "name":  "fairy_forge",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_aid_outpost",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_archers_guild",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_armory",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_arsenal",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_beastmount",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_forge",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_foundry",
+        "terrain":  "building"
+    },
+    {
+        "name":  "goblin_sorcery_tower",
+        "terrain":  "building"
+    },
+    {
+        "name":  "chasm",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_b",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_l",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_lb",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_lr",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_lrb",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_lrt",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_lrtb",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_lt",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_ltb",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_r",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_rb",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_rt",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_rtb",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_t",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "chasm_tb",
+        "terrain":  "chasm"
+    },
+    {
+        "name":  "crystal",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_blue",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_brown",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_green",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_orange",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_pink",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_purple",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_red",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_fairy_yellow",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_red",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_blue",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_brown",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_green",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_orange",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_pink",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_purple",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_goblin_yellow",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_root",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "crystal_slime",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "life_crystal",
+        "terrain":  "crystals"
+    },
+    {
+        "name":  "deepwater",
+        "terrain":  "deepwater"
+    },
+    {
+        "name":  "deepwater_back",
+        "terrain":  "deepwater"
+    },
+    {
+        "name":  "deepwater_r",
+        "terrain":  "deepwater"
+    },
+    {
+        "name":  "deepwater_rb",
+        "terrain":  "deepwater"
+    },
+    {
+        "name":  "deepwater_rtb",
+        "terrain":  "deepwater"
+    },
+    {
+        "name":  "deepwater_tb",
+        "terrain":  "deepwater"
+    },
+    {
+        "name":  "crater",
+        "terrain":  "earthcrack"
+    },
+    {
+        "name":  "earthcrack",
+        "terrain":  "earthcrack"
+    },
+    {
+        "name":  "fallen_forest",
+        "terrain":  "fallenforest"
+    },
+    {
+        "name":  "bridge",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_b",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_combinable",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_l",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_lb",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_lr",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_lrb",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_lrt",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_lt",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_ltb",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_n",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_r",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_rb",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_rt",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_rtb",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_t",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "bridge_tb",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "rock_platform",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "waterlily",
+        "terrain":  "flat"
+    },
+    {
+        "name":  "fog",
+        "terrain":  "fog"
+    },
+    {
+        "name":  "burning_forest",
+        "terrain":  "forest"
+    },
+    {
+        "name":  "pine_tree",
+        "terrain":  "forest"
+    },
+    {
+        "name":  "swamp_tree",
+        "terrain":  "forest"
+    },
+    {
+        "name":  "tree",
+        "terrain":  "forest"
+    },
+    {
+        "name":  "plant_fortress",
+        "terrain":  "fortress"
+    },
+    {
+        "name":  "stone_fortress",
+        "terrain":  "fortress"
+    },
+    {
+        "name":  "broken_dug_up_grave",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "broken_tombstone",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "building_debris",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "burned_forest",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "cattails",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "cattails_a",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "cattails_cutoff",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "crystal_debris",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "dug_up_grave",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "fallen_tree",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "fireball_burnt",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "forest_debris",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "goblin_den_debris",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_bush",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_flowers",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_flowers_a",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_flowers_a_cutoff",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_flowers_b",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_flowers_b_cutoff",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_flowers_cutoff",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_rain",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "grass_tree",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "high_grass",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "high_grass_cutoff",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "long_grass_cutoff",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "pit",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "pixie_nest_debris",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "plant_wall_debris",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "tombstone",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "tower_debris",
+        "terrain":  "grass"
+    },
+    {
+        "name":  "long_grass",
+        "terrain":  "highgrass"
+    },
+    {
+        "name":  "hills",
+        "terrain":  "hills"
+    },
+    {
+        "name":  "ice",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "ice_back",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "ice_combinable",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "ice_n",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "ice_r",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "ice_rb",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "ice_rtb",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "ice_tb",
+        "terrain":  "ice"
+    },
+    {
+        "name":  "book",
+        "terrain":  "items"
+    },
+    {
+        "name":  "crystal_shard",
+        "terrain":  "items"
+    },
+    {
+        "name":  "rocks",
+        "terrain":  "items"
+    },
+    {
+        "name":  "stick",
+        "terrain":  "items"
+    },
+    {
+        "name":  "lava",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "lava_back",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "lava_combinable",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "lava_n",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "lava_r",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "lava_rb",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "lava_rtb",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "lava_tb",
+        "terrain":  "lava"
+    },
+    {
+        "name":  "mountain",
+        "terrain":  "mountains"
+    },
+    {
+        "name":  "mud",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "mud_back",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "mud_combinable",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "mud_n",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "mud_r",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "mud_rb",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "mud_rtb",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "mud_tb",
+        "terrain":  "mud"
+    },
+    {
+        "name":  "road",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_n",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_b",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_t",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_tb",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_combinable",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_l",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_lr",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_r",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_lb",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_lrb",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_lrt",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_lrtb",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_lt",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_ltb",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_rb",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_rt",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "road_rtb",
+        "terrain":  "roads"
+    },
+    {
+        "name":  "skyscraper",
+        "terrain":  "skyscraper"
+    },
+    {
+        "name":  "swamp",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_back",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_combinable",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_b",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_l",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_lb",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_lr",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_lrb",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_lrt",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_lt",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_ltb",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_n",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_r",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_rb",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_rt",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_rtb",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_t",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "swamp_tb",
+        "terrain":  "swamp"
+    },
+    {
+        "name":  "forest_tower",
+        "terrain":  "tower"
+    },
+    {
+        "name":  "plant_tower",
+        "terrain":  "tower"
+    },
+    {
+        "name":  "wooden_tower",
+        "terrain":  "tower"
+    },
+    {
+        "name":  "root",
+        "terrain":  "unwalkable"
+    },
+    {
+        "name":  "plant_wall",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_n",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_n",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_b",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_b",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_combinable",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_combinable",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_l",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_l",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_lb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_lb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_lr",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_lr",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_lrb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_lrb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_lrt",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_lrt",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_lrtb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_lrtb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_lt",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_lt",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_ltb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_ltb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_r",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_r",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_rb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_rb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_rt",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_rt",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_rtb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_rtb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_t",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_t",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "plant_wall_tb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "wooden_wall_tb",
+        "terrain":  "walls"
+    },
+    {
+        "name":  "water",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_back",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_b",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_combinable",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_l",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_lb",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_lr",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_lrb",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_lrt",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_lt",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_ltb",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_n",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_r",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_rb",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_rt",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_rtb",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_t",
+        "terrain":  "water"
+    },
+    {
+        "name":  "water_tb",
+        "terrain":  "water"
+    }
+]

@@ -71,7 +71,7 @@ class AbilityAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
         var best: Scored? = null
         for (tile in candidateTiles(ability, category)) {
             val cmd = UseAbilityCommand(unit, ability, tile.tiledX, tile.tiledY)
-            if (!runCatching { cmd.canExecute(bot.playScreen) }.getOrDefault(false)) continue
+            if (!runCatching { cmd.canExecute(bot.battle) }.getOrDefault(false)) continue
 
             val score = scoreCast(ability, category, tile.tiledX, tile.tiledY)
             val priority = priorityFor(category, score)
@@ -100,17 +100,17 @@ class AbilityAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
 
     private fun candidateTiles(ability: Ability, category: Category): List<TileActor> {
         val range = ability.range.coerceAtLeast(0)
-        val stage = bot.playStage
+        val field = bot.field
         val tiles = when (category) {
             Category.SUPPORT -> bot.context.units
                 .filter { it.isInRange(unit.tiledX, unit.tiledY, range) }
-                .mapNotNull { stage.getTile(it.tiledX, it.tiledY) }
+                .mapNotNull { field.getTile(it.tiledX, it.tiledY) }
 
             Category.OFFENSE -> bot.context.enemies
                 .filter { it.isInRange(unit.tiledX, unit.tiledY, range) }
-                .mapNotNull { stage.getTile(it.tiledX, it.tiledY) }
+                .mapNotNull { field.getTile(it.tiledX, it.tiledY) }
 
-            Category.MOVEMENT -> Pathing.freeTilesInRange(stage, unit, range)
+            Category.MOVEMENT -> Pathing.freeTilesInRange(field, unit, range)
 
             else -> emptyList()
         }
@@ -118,7 +118,7 @@ class AbilityAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
     }
 
     private fun scoreCast(ability: Ability, category: Category, x: Int, y: Int): Int {
-        val targets = ability.getTargets(bot.playStage, unit, x, y).filterIsInstance<UnitActor>()
+        val targets = ability.getTargets(bot.field, unit, x, y).filterIsInstance<UnitActor>()
         return when (category) {
             Category.SUPPORT -> {
                 val allies = targets.filter { it.isAlly(unit) }
@@ -166,18 +166,18 @@ class AbilityAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
             ?: return null
         summoner.selectedUnit = selected
 
-        val owned = bot.playStage.getUnitsForLeader(unit.leaderID, true)
+        val owned = bot.field.getUnitsForLeader(unit.leaderID, true)
             .count { it.selfName in summoner.units }
         if (owned >= summoner.maxUnits) return null
 
-        val tiles = Pathing.freeTilesInRange(bot.playStage, unit, ability.range)
+        val tiles = Pathing.freeTilesInRange(bot.field, unit, ability.range)
         if (tiles.isEmpty()) return null
 
         val enemy = bot.context.nearestEnemy(unit)
         var best: Scored? = null
         for (tile in tiles) {
             val cmd = UseAbilityCommand(unit, ability, tile.tiledX, tile.tiledY)
-            if (!runCatching { cmd.canExecute(bot.playScreen) }.getOrDefault(false)) continue
+            if (!runCatching { cmd.canExecute(bot.battle) }.getOrDefault(false)) continue
 
             val score = if (enemy == null) 30
             else 70 - tiledDst(tile.tiledX, tile.tiledY, enemy.tiledX, enemy.tiledY)
@@ -188,7 +188,7 @@ class AbilityAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
 
     override fun execute(): Boolean {
         val cmd = command ?: return false
-        return bot.playScreen.commandManager.queueCommand(cmd, bot.playerID)
+        return bot.battle.commandManager.queueCommand(cmd, bot.playerID)
     }
 
     override fun signature(): String = "ability:${unit.name}"

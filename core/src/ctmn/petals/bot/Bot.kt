@@ -1,16 +1,16 @@
 package ctmn.petals.bot
 
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.player.Player
-import ctmn.petals.playstage.PlayStage
+import ctmn.petals.sim.Battle
+import ctmn.petals.sim.BattleField
 
-abstract class Bot(val player: Player, val playScreen: PlayScreen) {
+abstract class Bot(val player: Player, val battle: Battle) {
 
     val playerID get() = player.id
 
     var isDone: Boolean = false
 
-    open fun levelCreated(playStage: PlayStage) {
+    open fun levelCreated(field: BattleField) {
 
     }
 

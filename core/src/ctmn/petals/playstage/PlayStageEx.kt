@@ -13,6 +13,7 @@ import ctmn.petals.map.label.LabelActor
 import ctmn.petals.player.Player
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.Decorator.nameNoSuffix
+import ctmn.petals.sim.BattleField
 import ctmn.petals.tile.*
 import ctmn.petals.tile.TerrainNames.land_capturable
 import ctmn.petals.tile.components.HealthComponent
@@ -21,11 +22,18 @@ import ctmn.petals.utils.*
 import kotlin.math.max
 import kotlin.Array as KArray
 
-fun PlayStage.isOutOfMap(tileX: Int, tileY: Int): Boolean {
+/** Copies the interface's [List] into a libGDX [Array] so the old return types stay unchanged. */
+private fun <T> List<T>.toGdxArray(): Array<T> {
+    val array = Array<T>(size)
+    for (item in this) array.add(item)
+    return array
+}
+
+fun BattleField.isOutOfMap(tileX: Int, tileY: Int): Boolean {
     return tileX >= tiledWidth() || tileY >= tiledHeight() || tileX < 0 || tileY < 0
 }
 
-fun PlayStage.newLeaderId(): Int {
+fun BattleField.newLeaderId(): Int {
     var id: Int
     random@ while (true) {
         id = MathUtils.random(1000, 9999)
@@ -40,7 +48,7 @@ fun PlayStage.newLeaderId(): Int {
     return id
 }
 
-fun PlayStage.getLabel(name: String): LabelActor {
+fun BattleField.getLabel(name: String): LabelActor {
     for (label in getLabels())
         if (label.labelName == name)
             return label
@@ -87,19 +95,19 @@ fun PlayStage.centerCameraByDefault() {
     camera.position.set(mapWidth() / 2, mapHeight() / 2, camera.position.z)
 }
 
-fun PlayStage.tiledWidth(): Int {
-    return tiledWidth
+fun BattleField.tiledWidth(): Int {
+    return this.tiledWidth
 }
 
-fun PlayStage.tiledHeight(): Int {
-    return tiledHeight
+fun BattleField.tiledHeight(): Int {
+    return this.tiledHeight
 }
 
-fun PlayStage.mapWidth(): Float = (tiledWidth() * TILE_SIZE).toFloat()
+fun BattleField.mapWidth(): Float = (tiledWidth() * TILE_SIZE).toFloat()
 
-fun PlayStage.mapHeight(): Float = (tiledHeight() * TILE_SIZE).toFloat()
+fun BattleField.mapHeight(): Float = (tiledHeight() * TILE_SIZE).toFloat()
 
-fun PlayStage.getMapSizedGridOfZero(): KArray<IntArray> {
+fun BattleField.getMapSizedGridOfZero(): KArray<IntArray> {
     val sizeX = tiledWidth()
     val sizeY = tiledHeight()
 
@@ -115,7 +123,7 @@ fun PlayStage.getMapSizedGridOfZero(): KArray<IntArray> {
  *       }
  *   }
  */
-fun PlayStage.getTileMovementCostMatrix(terrainProps: TerrainProps): KArray<IntArray> {
+fun BattleField.getTileMovementCostMatrix(terrainProps: TerrainProps): KArray<IntArray> {
     var moveCostMapTmp: KArray<IntArray> = KArray(tiledWidth()) { IntArray(tiledHeight()) { 0 } }
 
 //    if (moveCostMapTmp == null || moveCostMapTmp!!.size != tiledWidth || moveCostMapTmp!![0].size != tiledHeight) {
@@ -137,13 +145,11 @@ fun PlayStage.getTileMovementCostMatrix(terrainProps: TerrainProps): KArray<IntA
     }
 
     // for view cost
-    val fogLayer = tileLayers.get(10) //TODO fog layer free
-    if (fogLayer != null)
-        for (tile in fogLayer.children) {
-            tile as TileActor
-            if (tile.terrain == TerrainNames.fog)
-                moveCostMap[tile.tiledX][tile.tiledY] = terrainProps[TerrainNames.fog].movingCost
-        }
+    val fogTiles = tilesOfLayer(10) //TODO fog layer free
+    for (tile in fogTiles) {
+        if (tile.terrain == TerrainNames.fog)
+            moveCostMap[tile.tiledX][tile.tiledY] = terrainProps[TerrainNames.fog].movingCost
+    }
 
     return moveCostMap
 }
@@ -156,7 +162,7 @@ private val directions = listOf(
 )
 
 /** With impassable and unit presence cost */
-fun PlayStage.getTileMovementCostMatrix(
+fun BattleField.getTileMovementCostMatrix(
     unitActor: UnitActor,
     unitsAsImpassable: Boolean = true,
     presenceCost: Boolean = true,
@@ -198,7 +204,7 @@ fun PlayStage.getTileMovementCostMatrix(
 }
 
 /** @return Two-dimensional array of Ints where if value == 0 then u cant move there */
-fun PlayStage.getMovementGrid(
+fun BattleField.getMovementGrid(
     unitActor: UnitActor,
     unitsAsImpassable: Boolean = false,
     exceptTeam: Int = unitActor.teamId,
@@ -218,7 +224,7 @@ fun PlayStage.getMovementGrid(
 
 /** @return Two-dimensional array of Ints representing tiles available to move on
  * if array[x][y] > 0 then you can move there */
-fun PlayStage.getMovementGrid(
+fun BattleField.getMovementGrid(
     distance: Int, x: Int, y: Int,
     terrainPropsPack: TerrainProps,
     unitsAsImpassable: Boolean = false,
@@ -350,22 +356,15 @@ fun printGrid(array: KArray<IntArray>) {
 }
 
 /** returns a two-dim int array with the size of the map; if a cell value is 0 then it's not visible for the [unitActor] */
-fun PlayStage.getRangeOfView(unitActor: UnitActor): KArray<IntArray> {
+fun BattleField.getRangeOfView(unitActor: UnitActor): KArray<IntArray> {
     return getMovementGrid(
         unitActor.viewRange, unitActor.tiledX, unitActor.tiledY,
         TerrainPropsPack.view
     )
 }
 
-fun PlayStage.getLabels(): Array<LabelActor> {
-    val labels = Array<LabelActor>()
-
-    for (actor in actors) {
-        if (actor is LabelActor)
-            labels.add(actor)
-    }
-
-    return labels
+fun BattleField.getLabels(): Array<LabelActor> {
+    return allActors.filterIsInstance<LabelActor>().toGdxArray()
 }
 
 fun PlayStage.getEffects(): Array<ctmn.petals.effects.EffectActor> {
@@ -379,7 +378,7 @@ fun PlayStage.getEffects(): Array<ctmn.petals.effects.EffectActor> {
     return effects
 }
 
-fun PlayStage.getBasesOfEnemyOf(player: Player): Array<TileActor> {
+fun BattleField.getBasesOfEnemyOf(player: Player): Array<TileActor> {
     val bases = Array<TileActor>()
     for (tile in getTiles()) {
         if (tile.isBase && !player.isAllyId(tile.cPlayerId?.playerId ?: Player.NONE))
@@ -389,7 +388,7 @@ fun PlayStage.getBasesOfEnemyOf(player: Player): Array<TileActor> {
     return bases
 }
 
-fun PlayStage.getBases(player: Player? = null): Array<TileActor> {
+fun BattleField.getBases(player: Player? = null): Array<TileActor> {
     val bases = Array<TileActor>()
 
     for (tile in getTiles()) {
@@ -405,7 +404,7 @@ fun PlayStage.getBases(player: Player? = null): Array<TileActor> {
 }
 
 /** get capturable tiles owned by player */
-fun PlayStage.getCapturablesOf(player: Player): Array<TileActor> {
+fun BattleField.getCapturablesOf(player: Player): Array<TileActor> {
     val bases = Array<TileActor>()
 
     for (tile in getTiles()) {
@@ -417,7 +416,7 @@ fun PlayStage.getCapturablesOf(player: Player): Array<TileActor> {
     return bases
 }
 
-fun PlayStage.getBuildings(player: Player): Array<TileActor> {
+fun BattleField.getBuildings(player: Player): Array<TileActor> {
     val buildings = Array<TileActor>()
 
     for (tile in getTiles()) {
@@ -429,15 +428,15 @@ fun PlayStage.getBuildings(player: Player): Array<TileActor> {
     return buildings
 }
 
-fun PlayStage.getUnitOrTile(x: Int, y: Int): Actor? {
+fun BattleField.getUnitOrTile(x: Int, y: Int): Actor? {
     return getUnit(x, y) ?: getTile(x, y)
 }
 
-fun PlayStage.getUnit(tile: TileActor): UnitActor? {
+fun BattleField.getUnit(tile: TileActor): UnitActor? {
     return getUnit(tile.tiledX, tile.tiledY)
 }
 
-inline fun <reified T : UnitActor> PlayStage.getUnit(player: Player? = null): T? {
+inline fun <reified T : UnitActor> BattleField.getUnit(player: Player? = null): T? {
     for (unit in getUnits()) {
         if (unit is T && if (player == null) true else unit.isPlayerUnit(player))
             return unit
@@ -447,7 +446,7 @@ inline fun <reified T : UnitActor> PlayStage.getUnit(player: Player? = null): T?
 }
 
 /** returns array containing unit and tiles of layer 1 */
-fun PlayStage.getTilesAndUnits(): Array<Actor> {
+fun BattleField.getTilesAndUnits(): Array<Actor> {
     val array = Array<Actor>()
     for (tile in getTiles())
         array.add(tile)
@@ -457,18 +456,11 @@ fun PlayStage.getTilesAndUnits(): Array<Actor> {
     return array
 }
 
-fun PlayStage.getUnits(): Array<UnitActor> {
-    val units = Array<UnitActor>(unitsLayer.children.size)
-
-    for (actor in unitsLayer.children.items) {
-        if (actor is UnitActor)
-            units.add(actor)
-    }
-
-    return units
+fun BattleField.getUnits(): Array<UnitActor> {
+    return allUnits.toGdxArray()
 }
 
-fun PlayStage.getUnitsForLeader(leaderID: Int, excludeLeader: Boolean = false): Array<UnitActor> {
+fun BattleField.getUnitsForLeader(leaderID: Int, excludeLeader: Boolean = false): Array<UnitActor> {
     val units = Array<UnitActor>()
 
     for (unit in getUnits()) {
@@ -488,7 +480,7 @@ fun PlayStage.getUnitsForLeader(leaderID: Int, excludeLeader: Boolean = false): 
 }
 
 /** returns units of [player] */
-fun PlayStage.getUnitsOfPlayer(player: Int, array: Array<UnitActor>? = null): Array<UnitActor> {
+fun BattleField.getUnitsOfPlayer(player: Int, array: Array<UnitActor>? = null): Array<UnitActor> {
     val actors = array ?: Array<UnitActor>()
 
     for (unit in getUnits()) {
@@ -499,12 +491,12 @@ fun PlayStage.getUnitsOfPlayer(player: Int, array: Array<UnitActor>? = null): Ar
     return actors
 }
 
-fun PlayStage.getUnitsOfPlayer(player: Player, array: Array<UnitActor>? = null): Array<UnitActor> {
+fun BattleField.getUnitsOfPlayer(player: Player, array: Array<UnitActor>? = null): Array<UnitActor> {
     return getUnitsOfPlayer(player.id, array)
 }
 
 /** returns units of the enemy of [player] */
-fun PlayStage.getUnitsOfEnemyOf(player: Player, array: Array<UnitActor>? = null): Array<UnitActor> {
+fun BattleField.getUnitsOfEnemyOf(player: Player, array: Array<UnitActor>? = null): Array<UnitActor> {
     val actors = array ?: Array<UnitActor>()
 
     for (unit in getUnits()) {
@@ -515,7 +507,7 @@ fun PlayStage.getUnitsOfEnemyOf(player: Player, array: Array<UnitActor>? = null)
     return actors
 }
 
-fun PlayStage.getUnitsForTeam(teamId: Int): Array<UnitActor> {
+fun BattleField.getUnitsForTeam(teamId: Int): Array<UnitActor> {
     val units = Array<UnitActor>()
 
     for (unit in getUnits()) {
@@ -526,7 +518,7 @@ fun PlayStage.getUnitsForTeam(teamId: Int): Array<UnitActor> {
     return units
 }
 
-fun PlayStage.getLeadUnit(leaderID: Int): UnitActor? {
+fun BattleField.getLeadUnit(leaderID: Int): UnitActor? {
     if (leaderID <= 0)
         return null
 
@@ -539,12 +531,10 @@ fun PlayStage.getLeadUnit(leaderID: Int): UnitActor? {
 }
 
 /** returns array containing unit and STORY tiles */
-fun PlayStage.getAllTilesAndUnits(): Array<Actor> {
+fun BattleField.getAllTilesAndUnits(): Array<Actor> {
     val actors = Array<Actor>()
-    for (tileLayer in tileLayers.values()) {
-        for (actor in tileLayer.children.items) {
-            actors.add(actor)
-        }
+    for (tile in allTiles) {
+        actors.add(tile)
     }
 
     for (unit in getUnits()) {
@@ -554,29 +544,13 @@ fun PlayStage.getAllTilesAndUnits(): Array<Actor> {
     return actors
 }
 
-fun PlayStage.getAllTiles(): Array<TileActor> {
-    val tiles = Array<TileActor>()
-    for (tileLayer in tileLayers.values()) {
-        for (tile in tileLayer.children.items) {
-            if (tile == null) continue
-
-            tiles.add(tile as TileActor)
-        }
-    }
-
-    return tiles
+fun BattleField.getAllTiles(): Array<TileActor> {
+    return allTiles.toGdxArray()
 }
 
 /** returns tiles of layer 1 */
-fun PlayStage.getTiles(): Array<TileActor> {
-    val tiles = Array<TileActor>(tilesLayer1.children.items.size)
-
-    for (actor in tilesLayer1.children.items) {
-        if (actor is TileActor)
-            tiles.add(actor)
-    }
-
-    return tiles
+fun BattleField.getTiles(): Array<TileActor> {
+    return layer1Tiles.toGdxArray()
 }
 
 fun getPositionsArray(actors: Array<Actor>): Array<Vector2> {
@@ -625,28 +599,7 @@ fun sortTiles(tiles: List<TileActor>): Array<TileActor> {
     return Array<TileActor>().apply { addAll(groundTiles); addAll(sortedTiles) }
 }
 
-fun PlayStage.shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
-    val tilesToShift = Array<TileActor>()
-    tileLayers.values.forEach {
-        if (it != null && tileX in 0 until it.tilesGrid.size && tileY in 0 until (it.tilesGrid[0]?.size ?: 0)) {
-            try {
-                it.tilesGrid[tileX][tileY]?.let { tile ->
-                    tilesToShift.add(tile)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    tilesToShift.forEach { tile ->
-        tile.layer += shiftAmount
-        tile.remove()
-        addActor(tile)
-    }
-}
-
-fun PlayStage.damageTile(tile: TileActor, damage: Int) {
+fun BattleField.damageTile(tile: TileActor, damage: Int) {
     tile.get(HealthComponent::class.java)?.let {
         it.health -= damage
 
@@ -656,32 +609,34 @@ fun PlayStage.damageTile(tile: TileActor, damage: Int) {
     }
 }
 
-fun PlayStage.destroyTile(tile: TileActor) {
+fun BattleField.destroyTile(tile: TileActor) {
     logMsg("Tile destroyed: ${tile.selfName}")
 
     val debris = TileData.getOrNull(tile.selfName + "_debris") ?: TileData.getOrNull(tile.nameNoSuffix() + "_debris")
     ?: TileData.getOrNull(tile.nameNoTeamName() + "_debris") ?: TileData.getOrNull(tile.terrain + "_debris")
     if (debris != null) {
         logMsg("Tile debris added: ${tile.selfName} debris")
-        tile.remove()
+        removeGameActor(tile)
         val debrisTile = TileActor(debris, tile.layer, tile.tiledX, tile.tiledY)
-        addActor(debrisTile)
+        addGameActor(debrisTile)
     } else {
         logMsg("Tile ${tile.selfName} had no debris")
         removeTileSafely(tile)
     }
 
-    val destroyEffect = AnimationEffect(assets.effectsAtlas.findRegions("tile_destroyed"), 0.075f)
-    destroyEffect.setPosition(tile.centerX, tile.centerY)
-    addActor(destroyEffect)
+    if (this is ctmn.petals.playstage.PlayStage) {
+        val destroyEffect = AnimationEffect(assets.effectsAtlas.findRegions("tile_destroyed"), 0.075f)
+        destroyEffect.setPosition(tile.centerX, tile.centerY)
+        addGameActor(destroyEffect)
+    }
 }
 
-fun PlayStage.removeTileSafely(tile: TileActor) {
+fun BattleField.removeTileSafely(tile: TileActor) {
     shiftLayerAt(tile.tiledX, tile.tiledY, 1)
 
     if (getTile(tile.tiledX, tile.tiledY) == null) {
         logErr("No back tile; added a grass tile then")
-        addActor(
+        addGameActor(
             TileActor(
                 TileData.get("grass")!!,
                 1,
@@ -692,5 +647,5 @@ fun PlayStage.removeTileSafely(tile: TileActor) {
 
     }
 
-    tile.remove()
+    removeGameActor(tile)
 }

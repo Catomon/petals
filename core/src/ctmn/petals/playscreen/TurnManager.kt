@@ -4,10 +4,11 @@ import ctmn.petals.player.Player
 import ctmn.petals.playscreen.events.NextRoundEvent
 import ctmn.petals.playscreen.events.NextTurnEvent
 import ctmn.petals.playscreen.listeners.TurnsCycleListener
+import ctmn.petals.sim.Battle
 import ctmn.petals.utils.GameLog
 import java.lang.IllegalStateException
 
-class TurnManager(val playScreen: PlayScreen) {
+class TurnManager(val battle: Battle) {
 
     val players = ArrayList<Player>()
 
@@ -44,7 +45,7 @@ class TurnManager(val playScreen: PlayScreen) {
     val nextPlayer get() = if (turn + 1 < players.size) players[turn + 1] else players[0]
 
     fun nextTurn() {
-        if (playScreen.isGameOver)
+        if (battle.isGameOver)
             return
 
         if (allPlayersOutOfGame)
@@ -60,16 +61,16 @@ class TurnManager(val playScreen: PlayScreen) {
                 this.turn = 0
                 nextRound()
             }
-            playScreen.fireEvent(TurnsCycleListener.TurnCycleEvent(lastPlayer, currentPlayer, turnCycleTime))
+            battle.fireEvent(TurnsCycleListener.TurnCycleEvent(lastPlayer, currentPlayer, turnCycleTime))
         } while (currentPlayer.isOutOfGame)
 
         //send event
         val nextPlayer = currentPlayer
 
-        if (playScreen.gameType == GameType.PVP_SAME_SCREEN && !playScreen.botManager.isBotPlayer(currentPlayer))
-            playScreen.localPlayer = currentPlayer
+        if (battle.gameType == GameType.PVP_SAME_SCREEN && !battle.botManager.isBotPlayer(currentPlayer))
+            battle.localPlayer = currentPlayer
 
-        playScreen.fireEvent(NextTurnEvent(lastPlayer, nextPlayer))
+        battle.fireEvent(NextTurnEvent(lastPlayer, nextPlayer))
 
         //log
         GameLog.verbose("TurnManager", "Next Turn: ${currentPlayer.name}")
@@ -80,7 +81,7 @@ class TurnManager(val playScreen: PlayScreen) {
         round++
 
         //send event
-        playScreen.fireEvent(NextRoundEvent(round))
+        battle.fireEvent(NextRoundEvent(round))
 
         //log
         GameLog.verbose("TurnManager", "Next Round: ${round + 1}")

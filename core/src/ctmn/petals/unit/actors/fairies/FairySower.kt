@@ -20,7 +20,7 @@ class FairySower : UnitActor(
     )
 ) {
 
-    val buildingAnimation = findAnimation(FAIRY_SOWER + "_building", loop = true)
+    val buildingAnimation by lazy { findAnimation(FAIRY_SOWER + "_building", loop = true) }
 
     init {
         add(FollowerComponent())

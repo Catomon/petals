@@ -3,15 +3,14 @@ package ctmn.petals.playscreen.seqactions
 import com.badlogic.gdx.graphics.Color
 import ctmn.petals.AudioManager
 import ctmn.petals.Config
-import ctmn.petals.assets
 import ctmn.petals.effects.FloatingUpLabel
 import ctmn.petals.effects.MissileActor
 import ctmn.petals.effects.UnitAttackEffect
 import ctmn.petals.effects.UnitShakeAction
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.sim.AttackOutcome
 import ctmn.petals.tile.cutGrass
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.attackRange
 import ctmn.petals.unit.cAnimationView
 import ctmn.petals.unit.tiledX
 import ctmn.petals.utils.centerX
@@ -19,13 +18,15 @@ import ctmn.petals.utils.centerY
 import ctmn.petals.utils.getTile
 import kotlin.random.Random
 
+/**
+ * View-only attack animation. The attack itself was already resolved by `resolveAttack` in
+ * the command, so this class never changes game state. It only plays the animation, effects,
+ * sound and floating labels for a result that already exists.
+ */
 class AttackAction(
     val attackerUnit: UnitActor,
     val targetUnit: UnitActor,
-    val damageTarget: () -> Unit,
-    val damageAttacker: (() -> Unit)?,
-    val postAttack: () -> Unit,
-    val miss: Boolean = false
+    val outcome: AttackOutcome,
 ) : SeqAction() {
 
     private lateinit var attackEffect: UnitAttackEffect
@@ -54,13 +55,11 @@ class AttackAction(
                     ?: 0f) || attackerUnit.cAnimationView?.animation != attackerUnit.attackAnimation
                         ) && attackMissile == null
             ) {
-                if (!miss) {
+                if (!outcome.miss) {
                     if (!targetIsShaking) {
                         targetUnit.addAction(UnitShakeAction(Config.UNIT_SHAKE_POWER, Config.UNIT_SHAKE_DURATION))
                         targetIsShaking = true
                     }
-
-                    damageTarget()
                 } else {
                     playScreen.playStage.addActor(FloatingUpLabel("Miss!", 15f).also {
                         it.color = Color.RED
@@ -83,43 +82,16 @@ class AttackAction(
         }
 
         if (!defenderAttacked) {
-            if (targetUnit.attackRange < 0)
-                defenderAttacked = true
-
-            if (targetUnit.animationProps.attackFrame <= (targetUnit.attackAnimation?.stateTime
-                    ?: 0f) || targetUnit.cAnimationView?.animation != targetUnit.attackAnimation
-            ) {
-                damageAttacker?.let {
-                    it.invoke()
-
-                    //playScreen.playStage.getTile(attackerUnit)?.cutGrass()
-                }
-
-                defenderAttacked = true
-            }
+            defenderAttacked = true
         }
 
         isDone = attackerAttacked && defenderAttacked
-
-        if (isDone) postAttack.invoke()
-
-//        if (!isDone) {
-//            if (attackerUnit.cAnimationView?.animation == attackerUnit.attackAnimation) {
-//                if (attackerUnit.cAnimationView!!.animation.stateTime >= attackerUnit.cAnimationView!!.animation.animationDuration)
-//                    if (!targetIsShaking) {
-//                        targetUnit.addAction(UnitShakeAction(Config.UNIT_SHAKE_POWER, Config.UNIT_SHAKE_DURATION))
-//                        targetIsShaking = true
-//                    }
-//            }
-//        }
     }
 
     override fun onStart(playScreen: PlayScreen): Boolean {
-        //
         attackerUnit.setAnimation(attackerUnit.attackAnimation)
 
-        if (damageAttacker != null) {
-            //
+        if (outcome.retaliated) {
             targetUnit.setAnimation(targetUnit.attackAnimation)
         } else {
             defenderAttacked = true
@@ -130,7 +102,6 @@ class AttackAction(
         if (attackerUnit.attackEffect != null) {
             attackMissile = attackerUnit.attackEffect
             val attackMissile = attackMissile as MissileActor
-            //attackMissile.setPosition(attackerUnit.centerX, attackerUnit.centerY)
             attackMissile.setTarget(targetUnit.centerX, targetUnit.centerY)
             playScreen.playStage.addActor(attackMissile)
         }

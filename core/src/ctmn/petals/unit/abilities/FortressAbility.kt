@@ -1,13 +1,12 @@
 package ctmn.petals.unit.abilities
 
 import ctmn.petals.Config
-import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.setPosByCenter
-import ctmn.petals.utils.unTiled
 
 class FortressAbility : Ability(
     "fortress",
@@ -27,11 +26,9 @@ class FortressAbility : Ability(
         castAmountsLeft = castAmounts
     }
 
-    override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        val playStage = playScreen.playStage
-
-        //add tile to stage
-        val oldTile = playStage.getTile(tileX, tileY) ?: return false
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+        //add tile to field
+        val oldTile = battle.field.getTile(tileX, tileY) ?: return false
         val replaceTile =
             when (oldTile.terrain) {
                 TerrainNames.forest -> TileActor("plant_tower", TerrainNames.tower)
@@ -43,18 +40,18 @@ class FortressAbility : Ability(
             }
 
         replaceTile?.let {
-            oldTile.remove()
+            battle.field.removeGameActor(oldTile)
             it.setPosition(tileX, tileY)
-            playStage.addActor(it)
+            battle.field.addGameActor(it)
         }
 
         //create effect
         val effect = ctmn.petals.effects.CreateEffect.earthcrack
         effect.setPosByCenter(
-            tileX.unTiled() + Config.TILE_SIZE / 2,
-            tileY.unTiled() + Config.TILE_SIZE / 2
+            tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
+            tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2
         )
-        playStage.addActor(effect)
+        battle.showEffect(effect)
 
         castTime = effect.lifeTime
 

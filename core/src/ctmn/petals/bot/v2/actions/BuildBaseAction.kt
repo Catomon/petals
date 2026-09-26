@@ -35,10 +35,10 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
         if (bot.player.credits < Config.BASE_BUILD_COST) return IMPOSSIBLE
         if (unit.actionPoints <= 0) return IMPOSSIBLE
 
-        val here = bot.playStage.getTile(unit.tiledX, unit.tiledY)
+        val here = bot.field.getTile(unit.tiledX, unit.tiledY)
         if (here != null && unit.canBuildBase(here) && here.cPlayerId?.playerId != bot.playerID) {
             val cmd = BuildBaseCommand(unit, here)
-            if (cmd.canExecute(bot.playScreen)) {
+            if (cmd.canExecute(bot.battle)) {
                 buildCommand = cmd
                 buildTile = here
                 return 78
@@ -49,16 +49,16 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
         val site = findBaseSite() ?: return IMPOSSIBLE
         if (site.tiledX == unit.tiledX && site.tiledY == unit.tiledY) return IMPOSSIBLE
 
-        val step = Pathing.stepTowards(bot.playStage, unit, site.tiledX, site.tiledY) ?: return IMPOSSIBLE
+        val step = Pathing.stepTowards(bot.field, unit, site.tiledX, site.tiledY) ?: return IMPOSSIBLE
         val cmd = MoveUnitCommand(unit, step.tiledX, step.tiledY)
-        if (!cmd.canExecute(bot.playScreen)) return IMPOSSIBLE
+        if (!cmd.canExecute(bot.battle)) return IMPOSSIBLE
 
         moveCommand = cmd
         return 50
     }
 
     private fun findBaseSite(): TileActor? {
-        val playStage = bot.playStage
+        val field = bot.field
         val enemies = bot.context.enemies
 
         val capturable = bot.context.nearestCapturable(unit)
@@ -66,7 +66,7 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
         val anchorX = capturable?.tiledX ?: ownBase?.tiledX ?: unit.tiledX
         val anchorY = capturable?.tiledY ?: ownBase?.tiledY ?: unit.tiledY
 
-        val buildable = playStage.getTiles().filter {
+        val buildable = field.getTiles().filter {
             (it.terrain == TerrainNames.grass || it.terrain == TerrainNames.water) &&
                 it.isPassableAndFree() &&
                 it.cPlayerId?.playerId != bot.playerID
@@ -81,12 +81,12 @@ class BuildBaseAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) 
 
     override fun execute(): Boolean {
         buildCommand?.let {
-            val queued = bot.playScreen.commandManager.queueCommand(it, bot.playerID)
+            val queued = bot.battle.commandManager.queueCommand(it, bot.playerID)
             val tile = buildTile
             if (queued && tile != null) BotLog.buildBase(bot, Config.BASE_BUILD_COST, tile)
             return queued
         }
-        moveCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
+        moveCommand?.let { return bot.battle.commandManager.queueCommand(it, bot.playerID) }
         return false
     }
 

@@ -2,15 +2,12 @@ package ctmn.petals.unit.abilities
 
 import ctmn.petals.Config
 import ctmn.petals.effects.HealingEffect
-import ctmn.petals.effects.HealthChangeEffect
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playstage.getPositionsArray
-import ctmn.petals.playscreen.playStage
+import ctmn.petals.sim.Battle
+import ctmn.petals.utils.setPosByCenter
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.health
-import ctmn.petals.utils.setPosByCenter
-import ctmn.petals.utils.unTiled
 
 class HealthPotionAbility : Ability(
     "health_potion",
@@ -24,8 +21,8 @@ class HealthPotionAbility : Ability(
     private val baseHealing = 40
     private val healing: Int get() = baseHealing + 20 * level
 
-    override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+        val actors = getTargets(battle.field, unitCaster, tileX, tileY)
 
         val unit = actors.first() as UnitActor
 
@@ -33,16 +30,16 @@ class HealthPotionAbility : Ability(
             return false
 
         unit.health += healing
-        unit.playStage.addActor(HealthChangeEffect(unit, healing))
+        battle.showHealthChange(unit, healing)
 
         unit.health = minOf(unit.health, unit.unitComponent.baseHealth)
 
-        val effect = HealingEffect(getPositionsArray(actors), playScreen.assets)
+        val effect = HealingEffect(getPositionsArray(actors), ctmn.petals.assets)
         effect.setPosByCenter(
-            tileX.unTiled() + Config.TILE_SIZE / 2,
-            tileY.unTiled() + Config.TILE_SIZE / 2
+            tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
+            tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2
         )
-        playScreen.playStage.addActor(effect)
+        battle.queueSeqAction(effect)
 
         castTime = effect.lifeTime
 

@@ -26,7 +26,7 @@ class BuyUnitAction(bot: AiBot, private val base: TileActor) : BotAction(bot) {
 
         val leaderId = if (selected.unit.isFollower) bot.context.leaderForNewUnit() else -1
         val cmd = BuyUnitCommand(selected.unit.selfName, bot.playerID, unitPrice, base.tiledX, base.tiledY, leaderId)
-        if (!cmd.canExecute(bot.playScreen)) return IMPOSSIBLE
+        if (!cmd.canExecute(bot.battle)) return IMPOSSIBLE
 
         choice = selected
         price = unitPrice
@@ -37,7 +37,7 @@ class BuyUnitAction(bot: AiBot, private val base: TileActor) : BotAction(bot) {
     override fun execute(): Boolean {
         val cmd = command ?: return false
         val selected = choice ?: return false
-        val queued = bot.playScreen.commandManager.queueCommand(cmd, bot.playerID)
+        val queued = bot.battle.commandManager.queueCommand(cmd, bot.playerID)
         if (queued) BotLog.buy(bot, selected, base, price)
         return queued
     }

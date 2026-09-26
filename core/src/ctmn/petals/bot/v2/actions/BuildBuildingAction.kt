@@ -39,10 +39,10 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
         val building = ArmyPlanner.chooseBuilding(bot, bot.speciesUnits) ?: return IMPOSSIBLE
         if (bot.player.credits < building.cost) return IMPOSSIBLE
 
-        val here = bot.playStage.getTile(unit.tiledX, unit.tiledY)
+        val here = bot.field.getTile(unit.tiledX, unit.tiledY)
         if (here != null && canPlace(building, here)) {
             val cmd = BuildCommand(building.name, building.buildTime, building.cost, unit, here)
-            if (cmd.canExecute(bot.playScreen)) {
+            if (cmd.canExecute(bot.battle)) {
                 buildCommand = cmd
                 buildTile = here
                 return 68
@@ -53,9 +53,9 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
         val site = findBuildSite(building) ?: return IMPOSSIBLE
         if (site.tiledX == unit.tiledX && site.tiledY == unit.tiledY) return IMPOSSIBLE
 
-        val step = Pathing.stepTowards(bot.playStage, unit, site.tiledX, site.tiledY) ?: return IMPOSSIBLE
+        val step = Pathing.stepTowards(bot.field, unit, site.tiledX, site.tiledY) ?: return IMPOSSIBLE
         val cmd = MoveUnitCommand(unit, step.tiledX, step.tiledY)
-        if (!cmd.canExecute(bot.playScreen)) return IMPOSSIBLE
+        if (!cmd.canExecute(bot.battle)) return IMPOSSIBLE
 
         moveCommand = cmd
         return 45
@@ -71,11 +71,11 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
     }
 
     private fun findBuildSite(building: Species.Building): TileActor? {
-        val playStage = bot.playStage
+        val field = bot.field
         val enemies = bot.context.enemies
         val ownBase = bot.context.ownBases.firstOrNull()
 
-        val buildable = playStage.getTiles().filter {
+        val buildable = field.getTiles().filter {
             it.isPassableAndFree() && canPlace(building, it)
         }
         if (buildable.isEmpty()) return null
@@ -90,12 +90,12 @@ class BuildBuildingAction(bot: AiBot, private val unit: UnitActor) : BotAction(b
 
     override fun execute(): Boolean {
         buildCommand?.let {
-            val queued = bot.playScreen.commandManager.queueCommand(it, bot.playerID)
+            val queued = bot.battle.commandManager.queueCommand(it, bot.playerID)
             val tile = buildTile
             if (queued && tile != null) BotLog.build(bot, it.buildingName, it.cost, tile)
             return queued
         }
-        moveCommand?.let { return bot.playScreen.commandManager.queueCommand(it, bot.playerID) }
+        moveCommand?.let { return bot.battle.commandManager.queueCommand(it, bot.playerID) }
         return false
     }
 

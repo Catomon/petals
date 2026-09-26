@@ -1,19 +1,20 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.playscreen.PlayScreen
-import ctmn.petals.playscreen.addAction
-import ctmn.petals.playscreen.addOnCompleteTrigger
-import ctmn.petals.playscreen.seqactions.ActorAction
-import ctmn.petals.playscreen.seqactions.ThrowUnitAction
-import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.dealDamage
+import ctmn.petals.Config
+import ctmn.petals.actors.actions.CameraShakeAction
 import ctmn.petals.actors.actions.JumpAction
 import ctmn.petals.actors.actions.OneAction
-import ctmn.petals.utils.unTiled
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import ctmn.petals.actors.actions.CameraShakeAction
-import ctmn.petals.effects.CreateEffect
+import ctmn.petals.playscreen.seqactions.ActorAction
+import ctmn.petals.playscreen.seqactions.ThrowUnitAction
+import ctmn.petals.playscreen.playStageOrNull
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.Ability
+import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.dealDamage
+import ctmn.petals.unit.isAlly
+import ctmn.petals.utils.tiledX
+import ctmn.petals.utils.tiledY
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
 
 open class JumpAbility : Ability("jump") {
 
@@ -26,28 +27,33 @@ open class JumpAbility : Ability("jump") {
         castTime = 2f
     }
 
-    override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        playScreen.addAction(ActorAction(unitCaster,
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+        //resolve the jump and any pushed units immediately, then only queue the visuals
+        unitCaster.setPosition(tileX, tileY)
+
+        if (pushUnits) {
+            fun UnitActor.throwUnit(throwX: Int, throwY: Int) {
+                if (this.isAlly(unitCaster) && !battle.friendlyFire)
+                    return
+
+                this.dealDamage(damage, unitCaster, battle)
+                battle.queueSeqAction(ThrowUnitAction(this, throwX, throwY))
+            }
+
+            battle.field.getUnit(tileX, tileY + 1)?.throwUnit(0, 1)
+            battle.field.getUnit(tileX, tileY - 1)?.throwUnit(0, -1)
+            battle.field.getUnit(tileX - 1, tileY)?.throwUnit(-1, 0)
+            battle.field.getUnit(tileX + 1, tileY)?.throwUnit(1, 0)
+        }
+
+        battle.queueSeqAction(ActorAction(unitCaster,
             Actions.sequence(
-                JumpAction(unitCaster.x, unitCaster.y, tileX.unTiled(), tileY.unTiled()),
+                JumpAction(unitCaster.x, unitCaster.y, tileX * Config.TILE_SIZE, tileY * Config.TILE_SIZE),
                 OneAction {
                     if (!pushUnits)
                         return@OneAction
 
-                    fun UnitActor.throwUnit(tileX: Int, tileY: Int) {
-                        playScreen.addAction(ThrowUnitAction(this, tileX, tileY)).addOnCompleteTrigger { _ ->
-                            CreateEffect.damageUnit(
-                                this.dealDamage(damage, unitCaster, playScreen)
-                            )
-                        }
-                    }
-
-                    playScreen.playStage.getUnit(tileX, tileY + 1)?.throwUnit(0, 1)
-                    playScreen.playStage.getUnit(tileX, tileY - 1)?.throwUnit(0, -1)
-                    playScreen.playStage.getUnit(tileX - 1, tileY)?.throwUnit(-1, 0)
-                    playScreen.playStage.getUnit(tileX + 1, tileY)?.throwUnit(1, 0)
-
-                    playScreen.playStage.addAction(CameraShakeAction(2f))
+                    unitCaster.playStageOrNull?.addAction(CameraShakeAction(2f))
                 }
             )))
 

@@ -216,7 +216,7 @@ object ArmyPlanner {
         // Bases are production slots and vision, not income. Expand for capacity: enough
         // slots to keep the army coming, plus a little room on large maps. Count bases still
         // under construction so several workers cannot start a batch and overshoot the cap.
-        val areaBonus = if (bot.playStage.tiledWidth * bot.playStage.tiledHeight >= 900) 1 else 0
+        val areaBonus = if (bot.field.tiledWidth * bot.field.tiledHeight >= 900) 1 else 0
         val target = 2 + (bot.difficulty.ambition * 2f).roundToInt() + areaBonus
         return ctx.baseCount < target.coerceAtMost(MAX_BASES)
     }
@@ -225,7 +225,7 @@ object ArmyPlanner {
         phaseOf(bot) != Phase.EARLY && bot.context.income >= 150
 
     private fun phaseOf(bot: AiBot): Phase {
-        val round = bot.playScreen.turnManager.round
+        val round = bot.battle.turnManager.round
         return when {
             round <= 3 -> Phase.EARLY
             round <= 10 -> Phase.MID
@@ -251,7 +251,7 @@ object ArmyPlanner {
 
         val enemyArmor = ctx.enemies.count { it.defense >= 25 }
         val enemyArtillery = ctx.enemies.count { UnitRoles.of(it) == UnitRole.ARTILLERY }
-        val areaBonus = if (bot.playStage.tiledWidth * bot.playStage.tiledHeight >= 900) 1 else 0
+        val areaBonus = if (bot.field.tiledWidth * bot.field.tiledHeight >= 900) 1 else 0
 
         if (has(UnitRole.MELEE)) {
             targets[UnitRole.MELEE] = (scaled(2f + production * 1.5f) + areaBonus)
@@ -283,7 +283,7 @@ object ArmyPlanner {
         if (has(UnitRole.WATER)) {
             targets[UnitRole.WATER] = ctx.ownBases.count { it.isWaterBase }
         }
-        if (has(UnitRole.SCOUT) && bot.playScreen.fogOfWarManager.drawFog) {
+        if (has(UnitRole.SCOUT) && bot.fogOfWar) {
             targets[UnitRole.SCOUT] = 1
         }
         if (has(UnitRole.WORKER) &&
@@ -301,11 +301,11 @@ object ArmyPlanner {
         ceil(bot.difficulty.ambition * 2.5f).toInt().coerceAtLeast(1)
 
     private fun capturableCount(bot: AiBot): Int =
-        bot.context.capturables.size + bot.playStage.getCapturablesOf(bot.context.player).size
+        bot.context.capturables.size + bot.field.getCapturablesOf(bot.context.player).size
 
     /** 0.5..2.0 measure of how rich and large the current map is. */
     private fun mapEconomyScale(bot: AiBot): Float {
-        val area = (bot.playStage.tiledWidth * bot.playStage.tiledHeight).coerceAtLeast(1)
+        val area = (bot.field.tiledWidth * bot.field.tiledHeight).coerceAtLeast(1)
         val mapScale = (area / MAP_AREA_REFERENCE).coerceIn(0.6f, 2f)
         val eco = ((capturableCount(bot) + bot.context.ownBases.size * 2) / 6f).coerceIn(0.5f, 2f)
         return (mapScale + eco) / 2f
@@ -377,7 +377,7 @@ object ArmyPlanner {
         val completed = ctx.ownBuildings.count {
             it.selfName.contains("wall") || it.selfName.contains("tower")
         }
-        val inProgress = ctx.playStage.getTiles().count { tile ->
+        val inProgress = ctx.field.getTiles().count { tile ->
             tile.get(BuildingComponent::class.java)?.let {
                 it.playerId == ctx.playerId &&
                     (it.buildingName.contains("wall") || it.buildingName.contains("tower"))
@@ -400,7 +400,7 @@ object ArmyPlanner {
             }
             if (!threatened) continue
 
-            val hasStrongTerrain = bot.playStage.getSurroundingTiles(base.tiledX, base.tiledY).any { tile ->
+            val hasStrongTerrain = bot.field.getSurroundingTiles(base.tiledX, base.tiledY).any { tile ->
                 val props = TerrainPropsPack.foot[tile.terrain]
                 (props.defenseBonus + props.attackBonus) >= STRONG_TERRAIN_BONUS
             }

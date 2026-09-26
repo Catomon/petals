@@ -2,7 +2,6 @@ package ctmn.petals.tile
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.ComponentMapper
-import ctmn.petals.Assets
 import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.utils.RegionAnimation
 import ctmn.petals.utils.setPositionByCenter
@@ -27,7 +26,6 @@ open class TileActor(
     layer: Int = 1,
     tiledX: Int = 0,
     tiledY: Int = 0,
-    val assets: Assets = ctmn.petals.assets,
 ) : GameActor(), Jsonable {
 
     private val cViewMapper: ComponentMapper<TileViewComponent> = ComponentMapper.getFor(TileViewComponent::class.java)
@@ -41,7 +39,9 @@ open class TileActor(
     var layer: Int
         get() = tileComponent.layer
         set(value) {
+            val old = tileComponent.layer
             tileComponent.layer = value
+            if (old != value) this@TileActor.field?.onTileChanged(this)
         }
 
     var tiledX: Int
@@ -95,6 +95,8 @@ open class TileActor(
     }
 
     fun initView() {
+        val assets = ctmn.petals.assets
+
         // load tile texture
         var textures = assets.atlases.findRegions("tiles/$tileName")
 

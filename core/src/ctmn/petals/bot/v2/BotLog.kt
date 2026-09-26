@@ -5,11 +5,11 @@ import ctmn.petals.bot.v2.util.ArmyPlanner
 import ctmn.petals.bot.v2.util.UnitRole
 import ctmn.petals.bot.v2.util.UnitRoles
 import ctmn.petals.player.Species
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.income
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.playstage.getTiles
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.BaseBuildingComponent
@@ -38,20 +38,20 @@ object BotLog {
     }
 
     /** Map size, crystals and starting bot setup. Logged once per match. */
-    fun mapSummaryIfNeeded(playScreen: PlayScreen) {
+    fun mapSummaryIfNeeded(battle: Battle) {
         if (!GameLog.balanceEnabled || matchLogged) return
         matchLogged = true
 
-        val stage = playScreen.playStage
-        val map = playScreen.map
-        val width = stage.tiledWidth
-        val height = stage.tiledHeight
+        val field = battle.field
+        val map = battle.map
+        val width = field.tiledWidth
+        val height = field.tiledHeight
         GameLog.balance(
             "match map=\"${map?.mapSave?.name ?: "?"}\" id=${map?.mapId ?: "?"} " +
                 "size=${width}x$height area=${width * height}"
         )
 
-        val crystalTiles = stage.getTiles().filter { it.isCrystal }
+        val crystalTiles = field.getTiles().filter { it.isCrystal }
         val maxDeposit = crystalTiles.size * Config.CRYSTALS_CLUSTER
         val deposit = crystalTiles.sumOf {
             it.get(CrystalsComponent::class.java)?.amount ?: Config.CRYSTALS_CLUSTER
@@ -62,17 +62,17 @@ object BotLog {
                 "perTile=${Config.CRYSTALS_CLUSTER} neutral=$neutral"
         )
 
-        val players = playScreen.turnManager.players
+        val players = battle.turnManager.players
         val baseSummary = players.joinToString(" ") { player ->
-            "${player.name}=${stage.getCapturablesOf(player).count { it.isBase }}"
+            "${player.name}=${field.getCapturablesOf(player).count { it.isBase }}"
         }
-        val neutralBases = stage.getTiles().count { it.isBase && it.cPlayerId?.playerId == null }
+        val neutralBases = field.getTiles().count { it.isBase && it.cPlayerId?.playerId == null }
         GameLog.balance("match bases $baseSummary neutral=$neutralBases")
 
-        val bots = playScreen.botManager.botPlayers.filterIsInstance<AiBot>()
+        val bots = battle.botManager.botPlayers.filterIsInstance<AiBot>()
         val botSummary = bots.joinToString(" ") { bot ->
             "${bot.player.name}=${bot.player.species}/${bot.difficulty.displayName}" +
-                " credits=${bot.player.credits} income=${bot.player.income(playScreen)}"
+                " credits=${bot.player.credits} income=${bot.player.income(battle)}"
         }
         if (botSummary.isNotEmpty()) GameLog.balance("match bots $botSummary")
     }
@@ -82,9 +82,9 @@ object BotLog {
         if (!GameLog.balanceEnabled) return
 
         val ctx = bot.context
-        val round = bot.playScreen.turnManager.round + 1
+        val round = bot.battle.turnManager.round + 1
         val targets = ArmyPlanner.roleTargets(bot)
-        val crystals = bot.playStage.getCapturablesOf(ctx.player).count { it.isCrystal }
+        val crystals = bot.field.getCapturablesOf(ctx.player).count { it.isCrystal }
         val roles = UnitRole.values().mapNotNull { role ->
             val target = targets[role] ?: 0
             val count = ctx.units.count { UnitRoles.of(it) == role }
@@ -121,7 +121,7 @@ object BotLog {
             .joinToString(",") { "${it.first.selfName}:${format(it.second)}" }
         val via = if (choice.emergencyAir) " via=antiAir" else ""
         GameLog.balance(
-            "r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} BUY ${choice.unit.selfName} " +
+            "r=${bot.battle.turnManager.round + 1} ${bot.player.name} BUY ${choice.unit.selfName} " +
                 "\$${price} creditsAfter=${ctx.player.credits - price} role=${choice.role} " +
                 "slot=${count + 1}/$target score=${format(choice.score)} " +
                 "base=${base.tiledX},${base.tiledY}$via alts=[$alternatives]"
@@ -140,7 +140,7 @@ object BotLog {
         }.getOrDefault(emptyList())
         val unlockText = if (unlocks.isEmpty()) "" else " unlocks=[${unlocks.joinToString(",")}]"
         GameLog.balance(
-            "r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} BUILD $buildingName " +
+            "r=${bot.battle.turnManager.round + 1} ${bot.player.name} BUILD $buildingName " +
                 "\$${cost} creditsAfter=${bot.player.credits - cost} at=${tile.tiledX},${tile.tiledY}$unlockText"
         )
     }
@@ -150,11 +150,11 @@ object BotLog {
         if (!GameLog.balanceEnabled) return
 
         spent[bot.playerID] = (spent[bot.playerID] ?: 0) + cost
-        val building = bot.playStage.getTiles().count { t ->
+        val building = bot.field.getTiles().count { t ->
             t.get(BaseBuildingComponent::class.java)?.playerId == bot.playerID
         }
         GameLog.balance(
-            "r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} BASE " +
+            "r=${bot.battle.turnManager.round + 1} ${bot.player.name} BASE " +
                 "\$${cost} creditsAfter=${bot.player.credits - cost} at=${tile.tiledX},${tile.tiledY} " +
                 "bases=${bot.context.ownBases.size} building=$building"
         )
@@ -163,14 +163,14 @@ object BotLog {
     /** The bot ran out of things to do this turn. */
     fun noActions(bot: AiBot) {
         if (!GameLog.balanceEnabled) return
-        GameLog.balance("r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} IDLE no actions left")
+        GameLog.balance("r=${bot.battle.turnManager.round + 1} ${bot.player.name} IDLE no actions left")
     }
 
     /** The INSANE cheat payout. */
     fun incomeBonus(bot: AiBot, amount: Int) {
         if (!GameLog.balanceEnabled) return
         GameLog.balance(
-            "r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} CHEAT " +
+            "r=${bot.battle.turnManager.round + 1} ${bot.player.name} CHEAT " +
                 "+${amount} credits=${bot.player.credits}"
         )
     }
@@ -180,7 +180,7 @@ object BotLog {
         if (!GameLog.balanceEnabled || actions.isEmpty()) return
         val summary = actions.entries.sortedBy { it.key }.joinToString(" ") { "${it.key}=${it.value}" }
         GameLog.balance(
-            "r=${bot.playScreen.turnManager.round + 1} ${bot.player.name} END cmds $summary " +
+            "r=${bot.battle.turnManager.round + 1} ${bot.player.name} END cmds $summary " +
                 "spentTotal=${spent[bot.playerID] ?: 0}"
         )
     }

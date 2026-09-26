@@ -5,6 +5,7 @@ import ctmn.petals.multiplayer.json.GameStateSnapshot
 import ctmn.petals.playscreen.GameEndCondition
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.events.NextTurnEvent
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TileActor
 
 fun applyGameStateToPlayScreen(
@@ -67,6 +68,6 @@ fun applyGameStateToPlayScreen(
     return playScreen
 }
 
-fun PlayScreen.createSnapshot(): GameStateSnapshot {
+fun Battle.createSnapshot(): GameStateSnapshot {
     return GameStateSnapshot(this)
 }

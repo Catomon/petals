@@ -9,7 +9,6 @@ import ctmn.petals.player.fairy
 import ctmn.petals.player.goblin
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
-import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.tiledDst
 import ctmn.petals.tile.components.*
 import ctmn.petals.unit.playerColorName
@@ -33,12 +32,12 @@ val TileActor.cLifeTime get() = get(LifeTimeComponent::class.java)
 val TileActor.cCapturing get() = get(CapturingComponent::class.java)
 val TileActor.cBaseBuilding get() = get(BaseBuildingComponent::class.java)
 val TileActor.cDestroying get() = get(DestroyingComponent::class.java)
-val TileActor.isOccupied get() = (stage as PlayStage).getUnit(tiledX, tiledY) != null
+val TileActor.isOccupied get() = (field?.getUnit(tiledX, tiledY)) != null
 val TileActor.isWaterBase: Boolean
     get() {
         if (!isBase) return false
-        val playStage = playStageOrNull ?: return false
-        val backTerrain = playStage.getTile(tiledX, tiledY, layer - 1)?.terrain
+        val battleField = field ?: return false
+        val backTerrain = battleField.getTile(tiledX, tiledY, layer - 1)?.terrain
         return backTerrain == TerrainNames.water || backTerrain == TerrainNames.deepwater || backTerrain == TerrainNames.lava
     }
 val TileActor.isBurning: Boolean
@@ -168,17 +167,16 @@ fun setPlayerForCapturableTile(crystalTile: TileActor, playerId: Int, pSpecies: 
     //        }
     //    }
 
-    if (colorName.isNotEmpty()) {
-        if (crystalTile.isWaterBase)
-            crystalTile.tileComponent.name += "_water"
+    if (colorName.isNotEmpty() && crystalTile.isWaterBase)
+        crystalTile.tileComponent.name += "_water"
 
-        //if (crystalTile.isBase)
+    // The color suffix is part of the tile identity (selfName), so resolve it from the tile
+    // catalog without needing a stage. Then refresh the sprite when a view exists.
+    if (TileData.hasRegion(crystalTile.terrain, crystalTile.tileComponent.name + "_$colorName"))
+        crystalTile.tileComponent.name += "_$colorName"
 
-        if (assets.tilesAtlas.findRegion(crystalTile.terrain + "/" + crystalTile.tileComponent.name + "_$colorName") != null)
-            crystalTile.tileComponent.name += "_$colorName"
-    }
-
-    crystalTile.initView()
+    if (crystalTile.playStageOrNull != null)
+        crystalTile.initView()
 
 //    if (colorName.isNotEmpty()) {
 //        if (!crystalTile.isBase)

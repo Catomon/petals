@@ -17,11 +17,14 @@ public class DesktopLauncher {
         boolean botTest = false;
         boolean botLog = false;
         boolean verboseLog = false;
+        boolean dedicatedServer = false;
         String botDifficulty = "normal";
         for (String a : arg) {
             String lower = a.toLowerCase();
             if (lower.equals("botvsbot") || lower.equals("bottest") || lower.equals("--bot-test")) {
                 botTest = true;
+            } else if (lower.equals("dedicatedserver") || lower.equals("--dedicated-server")) {
+                dedicatedServer = true;
             } else if (lower.equals("easy") || lower.equals("normal") || lower.equals("hard") || lower.equals("insane")) {
                 botDifficulty = lower;
             } else if (lower.equals("botlog") || lower.equals("--bot-log")) {
@@ -41,6 +44,16 @@ public class DesktopLauncher {
 
         if (packAndExit) {
             RunTexturePacker.pack();
+            return;
+        }
+
+        if (dedicatedServer) {
+            ctmn.petals.server.ServerConfig serverConfig = ctmn.petals.server.ServerConfig.Companion.fromArgs(arg);
+            com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration headless =
+                new com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration();
+            headless.updatesPerSecond = 30;
+            new com.badlogic.gdx.backends.headless.HeadlessApplication(
+                new ctmn.petals.server.ServerApp(serverConfig), headless);
             return;
         }
 

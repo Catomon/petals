@@ -1,15 +1,15 @@
 package ctmn.petals.bot.v2
 
 import ctmn.petals.player.Player
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.income
 import ctmn.petals.playscreen.selfName
-import ctmn.petals.playstage.PlayStage
 import ctmn.petals.playstage.getBases
 import ctmn.petals.playstage.getTiles
 import ctmn.petals.playstage.getUnitsOfEnemyOf
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.playstage.tiledDst
+import ctmn.petals.sim.Battle
+import ctmn.petals.sim.BattleField
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.isBase
@@ -34,8 +34,8 @@ import ctmn.petals.unit.tiledY
  */
 class BotContext(val bot: AiBot) {
 
-    val playScreen: PlayScreen get() = bot.playScreen
-    val playStage: PlayStage get() = playScreen.playStage
+    val battle: Battle get() = bot.battle
+    val field: BattleField get() = battle.field
     val player: Player get() = bot.player
     val playerId: Int get() = player.id
 
@@ -69,26 +69,26 @@ class BotContext(val bot: AiBot) {
         private set
 
     fun refresh() {
-        units = playStage.getUnitsOfPlayer(player).toList()
-        enemies = playStage.getUnitsOfEnemyOf(player).toList()
-        ownBases = playStage.getBases(player).toList()
-        basesUnderConstruction = playStage.getTiles().count { tile ->
+        units = field.getUnitsOfPlayer(player).toList()
+        enemies = field.getUnitsOfEnemyOf(player).toList()
+        ownBases = field.getBases(player).toList()
+        basesUnderConstruction = field.getTiles().count { tile ->
             tile.get(BaseBuildingComponent::class.java)?.playerId == playerId
         }
-        enemyBases = playStage.getTiles().filter {
+        enemyBases = field.getTiles().filter {
             it.isBase && it.cPlayerId?.playerId != null && it.cPlayerId?.playerId != playerId
         }
-        ownBuildings = playStage.getTiles().filter {
+        ownBuildings = field.getTiles().filter {
             it.isBuilding && it.cPlayerId?.playerId == playerId
         }
-        enemyBuildings = playStage.getTiles().filter {
+        enemyBuildings = field.getTiles().filter {
             it.isBuilding && it.cPlayerId?.playerId != null && it.cPlayerId?.playerId != playerId
         }
         // Only crystal tiles are capturable. Bases can only be destroyed.
-        capturables = playStage.getTiles().filter {
+        capturables = field.getTiles().filter {
             it.isCrystal && it.cPlayerId?.playerId != playerId
         }
-        income = player.income(playScreen)
+        income = player.income(battle)
     }
 
     fun nearestEnemy(from: UnitActor): UnitActor? =
@@ -121,7 +121,7 @@ class BotContext(val bot: AiBot) {
     /** True if the building is finished OR currently under construction by this player. */
     fun ownsOrBuilding(buildingName: String): Boolean {
         if (ownsBuilding(buildingName)) return true
-        return playStage.getTiles().any { tile ->
+        return field.getTiles().any { tile ->
             tile.get(BuildingComponent::class.java)?.let {
                 it.playerId == playerId && it.buildingName == buildingName
             } == true

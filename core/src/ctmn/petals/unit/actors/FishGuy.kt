@@ -1,5 +1,6 @@
 package ctmn.petals.unit.actors
 
+import ctmn.petals.Assets
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.*
 
@@ -14,8 +15,6 @@ class FishGuy : UnitActor(
 ) {
 
     init {
-        talkingAnimation = createAnimation("fish_guy_talking", 0.30f)
-
         add(
             AttackComponent(
                 25,
@@ -29,5 +28,11 @@ class FishGuy : UnitActor(
         add(TraitComponent(fireVulnerability = 2f))
 
         mana = 30
+    }
+
+    override fun initView(assets: Assets) {
+        super.initView(assets)
+
+        talkingAnimation = createAnimation("fish_guy_talking", 0.30f)
     }
 }

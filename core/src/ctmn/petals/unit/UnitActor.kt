@@ -119,7 +119,7 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
         animation: RegionAnimation?,
         duration: Float = animation?.animationDuration ?: defaultAnimation.animationDuration,
     ) {
-        if (viewComponent !is AnimationViewComponent)
+        if (!isViewInitialized || viewComponent !is AnimationViewComponent)
             return
         val viewComponent = viewComponent as AnimationViewComponent
         viewComponent.animation = animation ?: defaultAnimation
@@ -132,6 +132,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
     private var isFrozen = false
 
     open fun updateView() {
+        if (!isViewInitialized) return
+
         if (buffs.findLast { it.name == "freeze" } != null) {
             sprite?.color = Color.BLUE.cpy()
             isFrozen = true
@@ -180,6 +182,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     override fun act(delta: Float) {
         super.act(delta)
+
+        if (!isViewInitialized) return
 
         if (viewComponent is AnimationViewComponent) {
             val aniC = viewComponent as AnimationViewComponent

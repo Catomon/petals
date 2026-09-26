@@ -25,8 +25,6 @@ class MoveUnitAction(val unit: UnitActor, val startX: Int, val startY: Int, val 
 
             isDone = true
 
-            playScreen.fireEvent(UnitMovedEvent(unit, startX, startY))
-
             if (playScreen.fogOfWarManager.isVisible(endX, endY))
                 if (unit.isAir) {
                     assets.getSound("flee.ogg").play()

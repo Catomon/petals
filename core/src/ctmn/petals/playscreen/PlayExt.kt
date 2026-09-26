@@ -11,6 +11,7 @@ import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.unTiled
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.components.CrystalsComponent
 import ctmn.petals.tile.isCrystal
 
@@ -18,22 +19,22 @@ import ctmn.petals.tile.isCrystal
  * Credits one owned crystal pays per turn. Deliberately flat: it does not scale with how
  * many bases the player owns, because bases are production and vision, not income.
  */
-fun PlayScreen.calcCreditsPerCluster() = creditsPerCluster
+fun Battle.calcCreditsPerCluster() = creditsPerCluster
 
-fun Player.income(playScreen: PlayScreen): Int {
-    var income = if (creditsPassiveReserve > 0) playScreen.creditsPassiveIncome else 0
-    playScreen.playStage.getCapturablesOf(this).forEach { tile ->
-        if (tile.isCrystal) income += playScreen.calcCreditsPerCluster()
+fun Player.income(battle: Battle): Int {
+    var income = if (creditsPassiveReserve > 0) battle.creditsPassiveIncome else 0
+    battle.field.getCapturablesOf(this).forEach { tile ->
+        if (tile.isCrystal) income += battle.calcCreditsPerCluster()
     }
 
     return income
 }
 
-fun Player.incomeReserve(playScreen: PlayScreen): Int {
+fun Player.incomeReserve(battle: Battle): Int {
     var incomeReserve = creditsPassiveReserve
-    playScreen.playStage.getCapturablesOf(this).forEach { tile ->
+    battle.field.getCapturablesOf(this).forEach { tile ->
         if (tile.isCrystal) {
-            incomeReserve += tile.get(CrystalsComponent::class.java)?.amount ?: playScreen.creditsPerCluster
+            incomeReserve += tile.get(CrystalsComponent::class.java)?.amount ?: battle.creditsPerCluster
         }
     }
 

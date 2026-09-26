@@ -1,6 +1,6 @@
 package ctmn.petals.unit.abilities
 
-import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.Ability
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.component.InvisibilityComponent
@@ -17,8 +17,8 @@ class InvisibilityAbility : Ability(
     0,
 ) {
 
-    override fun activate(playScreen: PlayScreen, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        val actors = getTargets(playScreen.playStage, unitCaster, tileX, tileY)
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
+        val actors = getTargets(battle.field, unitCaster, tileX, tileY)
 
         for (actor in actors) {
             val unit = actor as UnitActor
@@ -27,7 +27,7 @@ class InvisibilityAbility : Ability(
 
             val effect = ctmn.petals.effects.CreateEffect.invisibility
             effect.setPosByCenter(actor.centerX, actor.centerY)
-            playScreen.playStage.addActor(effect)
+            battle.queueSeqAction(effect)
             castTime = effect.lifeTime
         }
 

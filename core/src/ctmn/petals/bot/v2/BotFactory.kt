@@ -2,7 +2,7 @@ package ctmn.petals.bot.v2
 
 import com.badlogic.gdx.utils.Array
 import ctmn.petals.player.Player
-import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.sim.Battle
 import ctmn.petals.unit.UnitActor
 
 /** Convenience entry points so call sites do not have to know about [AiBotSettings]. */
@@ -10,29 +10,29 @@ object BotFactory {
 
     fun create(
         player: Player,
-        playScreen: PlayScreen,
+        battle: Battle,
         difficulty: Difficulty = Difficulty.NORMAL,
         speciesUnits: Array<UnitActor>? = null,
     ): AiBot = AiBot(
         player,
-        playScreen,
+        battle,
         AiBotSettings(difficulty = difficulty, speciesUnits = speciesUnits),
     )
 
     fun create(
         player: Player,
-        playScreen: PlayScreen,
+        battle: Battle,
         speciesUnits: Array<UnitActor>,
     ): AiBot = AiBot(
         player,
-        playScreen,
+        battle,
         AiBotSettings(speciesUnits = speciesUnits),
     )
 
     /** Scripted campaign opponents used to be weak roaming bots. */
     fun campaign(
         player: Player,
-        playScreen: PlayScreen,
+        battle: Battle,
         permaAgro: Boolean = true,
         agroRange: Int = 6,
         roamingIfNoAgro: Boolean = false,
@@ -40,7 +40,7 @@ object BotFactory {
         attackBuildings: Boolean = false,
     ): AiBot = AiBot(
         player,
-        playScreen,
+        battle,
         AiBotSettings(
             difficulty = Difficulty.EASY,
             permaAgro = permaAgro,
@@ -52,9 +52,9 @@ object BotFactory {
     )
 
     /** A combat-only bot for maps without resources or buildings. */
-    fun combatOnly(player: Player, playScreen: PlayScreen): AiBot = AiBot(
+    fun combatOnly(player: Player, battle: Battle): AiBot = AiBot(
         player,
-        playScreen,
+        battle,
         AiBotSettings(forceCombatOnly = true),
     )
 }

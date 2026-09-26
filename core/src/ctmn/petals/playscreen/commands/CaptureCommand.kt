@@ -2,8 +2,8 @@ package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Config.ACTION_POINTS_ATTACK
 import ctmn.petals.Config.CAPTURE_TIME
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.*
 import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.*
@@ -13,9 +13,9 @@ class CaptureCommand(val unitId: String, val baseId: String) : Command() {
 
     constructor(unit: UnitActor, base: TileActor) : this(unit.stageName, base.stageName)
 
-    override fun canExecute(playScreen: PlayScreen): Boolean {
-        val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val base: TileActor = playScreen.playStage.root.findActor(baseId)
+    override fun canExecute(battle: Battle): Boolean {
+        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val base: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
 
         if (unit.actionPoints <= 0) return false
 
@@ -25,12 +25,12 @@ class CaptureCommand(val unitId: String, val baseId: String) : Command() {
         if (!unit.canCapture(base)) return false
 
         return !(unit.playerId == base.cPlayerId?.playerId ||
-                unit.teamId == playScreen.turnManager.getPlayerById((base.cPlayerId?.playerId ?: -1))?.teamId)
+                unit.teamId == battle.turnManager.getPlayerById((base.cPlayerId?.playerId ?: -1))?.teamId)
     }
 
-    override fun execute(playScreen: PlayScreen): Boolean {
-        val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val base: TileActor = playScreen.playStage.root.findActor(baseId)
+    override fun execute(battle: Battle): Boolean {
+        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val base: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
 
         unit.actionPoints -= ACTION_POINTS_ATTACK
 

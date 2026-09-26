@@ -2,8 +2,8 @@ package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Config.BASE_BUILD_COST
 import ctmn.petals.Config.BASE_BUILD_TIME
-import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.cPlayerId
 import ctmn.petals.tile.components.BaseBuildingComponent
@@ -18,15 +18,15 @@ class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
 
     constructor(unit: UnitActor, base: TileActor) : this(unit.stageName, base.stageName)
 
-    override fun canExecute(playScreen: PlayScreen): Boolean {
-        val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val tile: TileActor = playScreen.playStage.root.findActor(baseId)
+    override fun canExecute(battle: Battle): Boolean {
+        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
 
         if (!unit.canBuildBase(tile)) return false
 
         if (unit.actionPoints <= 0) return false
 
-        if ((playScreen.turnManager.getPlayerById(unit.playerId)?.credits ?: 0) < BASE_BUILD_COST) {
+        if ((battle.turnManager.getPlayerById(unit.playerId)?.credits ?: 0) < BASE_BUILD_COST) {
             logErr("Not enough credits")
             return false
         }
@@ -34,13 +34,13 @@ class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
         return true
     }
 
-    override fun execute(playScreen: PlayScreen): Boolean {
-        val unit: UnitActor = playScreen.playStage.root.findActor(unitId)
-        val tile: TileActor = playScreen.playStage.root.findActor(baseId)
+    override fun execute(battle: Battle): Boolean {
+        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
 
         unit.actionPoints = 0
 
-        playScreen.turnManager.getPlayerById(unit.playerId)!!.credits -= BASE_BUILD_COST
+        battle.turnManager.getPlayerById(unit.playerId)!!.credits -= BASE_BUILD_COST
 
         unit.del(InvisibilityComponent::class.java)
 

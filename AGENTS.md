@@ -61,6 +61,16 @@ save-version warning on boot is normal and harmless.
 - Verbose engine logging (asset loading, event logger, turn manager, GUI listener changes):
   add `verboselog`. Neither flag is needed for normal play or smoke tests.
 
+## Dedicated server
+
+See `docs/DEDICATED_SERVER.md`. Quick commands:
+
+- Standalone server: `.\gradlew.bat :server:runServer --args="--port 7396"`
+- In-game headless server: `.\gradlew.bat :desktop:run --args="dedicatedserver"`
+- Headless bot match smoke test: `.\gradlew.bat :server:runServer --args="botmatch normal"`
+- Fake client load test: `.\gradlew.bat :server:runServer --args="--loadtest 8 --duration 15"`
+
+
 This is the quickest smoke test for gameplay and for AI changes.
 
 ## Architecture in a nutshell

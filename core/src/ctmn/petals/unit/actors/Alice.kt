@@ -23,8 +23,10 @@ class Alice : UnitActor(
     )
 ) {
 
-    val pickUpAni = createAnimation("alice_picking", 0.25f)
-    val stickAttackAni = createAnimation("alice_stick_attack", 0.25f)
+    // Texture lookups are lazy so the headless server can construct every unit class
+    // without a GL context. They are only touched once a view is initialized.
+    val pickUpAni by lazy { createAnimation("alice_picking", 0.25f) }
+    val stickAttackAni by lazy { createAnimation("alice_stick_attack", 0.25f) }
     lateinit var _attackAni: RegionAnimation
 
     override fun loadAnimations() {
@@ -35,11 +37,6 @@ class Alice : UnitActor(
 
     init {
         characterName = strings.units.seraphina
-
-        abilityCastAnimation = createAnimation("alice_casting")
-        talkingAnimation = createAnimation("alice_talking", 0.30f)
-        airborneAnimation = createAnimation("alice_airborne", 0.30f)
-        postAirborneAnimation = createAnimation("alice_post_airborne", 0.5f)
 
         add(
             LeaderComponent(
@@ -74,6 +71,11 @@ class Alice : UnitActor(
 
     override fun initView(assets: Assets) {
         super.initView(assets)
+
+        abilityCastAnimation = createAnimation("alice_casting")
+        talkingAnimation = createAnimation("alice_talking", 0.30f)
+        airborneAnimation = createAnimation("alice_airborne", 0.30f)
+        postAirborneAnimation = createAnimation("alice_post_airborne", 0.5f)
 
         viewComponent.flipToEnemy = true
     }
