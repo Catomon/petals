@@ -94,8 +94,24 @@ Turn timers are off by default, as requested.
 - Netty server with lobbies (create, join, leave, ready, host start), quick match queue
   (pairs two players on a random map) and authoritative match command relay.
 - `server` Gradle module, in-game `dedicatedserver` argument, bot match and load test modes.
-- Verified: core, desktop and server compile; a headless bot match runs; an 8 client load
-  test formed 4 concurrent matches and exchanged turns with no exceptions.
+- Shared fog of war rules in `ctmn.petals.sim.FogOfWar`, used by the client renderer and by
+  the server to filter snapshots: enemy units out of view are not sent at all, and unseen
+  tiles keep their terrain for rendering but lose ownership, health, crystals and build
+  progress. Implemented in `ctmn.petals.net.SnapshotFilter`.
+- Reconnect: a dropped player keeps their seat for a grace period (`--reconnect`, 60s by
+  default) and picks the match back up with a fresh snapshot. The online client
+  reconnects by itself with the same id.
+- Optional server side turn timer (`--turn-timer <seconds>`, off by default) that ends
+  stalled turns on the session thread.
+
+### Verified
+
+- `:core`, `:desktop`, `:server` compile and `:core:test` passes.
+- A headless bot match runs with no GL context.
+- Capacity: **100 fake clients and 50 concurrent matches** stay stable through the real
+  netty server (`--loadtest 100 --duration 20`), which covers the target of a couple dozen
+  sessions and around 100 players. Turners and fog filtered snapshots are exercised.
+- `:desktop:run --args="dedicatedserver --port 7490"` starts the server headless.
 
 ## Client
 
@@ -113,14 +129,15 @@ Turn timers are off by default, as requested.
 
 ## Remaining
 
-1. Per player fog of war filtering of snapshots. The server currently sends full snapshots.
-   Extract the visibility computation from `FogOfWarDrawer` into `sim` and filter
-   `GameStateSnapshot` per viewer.
-2. Lobby map and settings editing (the lobby currently takes a random map from the server
-   pool with fog on), plus LAN server discovery with JmDNS in the lobby browser.
-3. Reconnect grace period and disconnect handling in matches.
-4. Scale pass: snapshot throttling, rate limits, per session budgets, and a larger load test
-   (roughly 24 matches and 100 connections).
+1. Lobby map and settings editing (a lobby currently takes a random map from the server
+   pool with fog on) and LAN server discovery with JmDNS in the lobby browser.
+2. Scale polish: snapshot throttling, per connection rate limits and a longer soak test.
+3. Reconnect has no automated test yet. The server and client paths are implemented, but
+   driving a drop mid match from the harness proved flaky, so it is unverified.
+4. Fog filtered snapshots mean a client cannot replay a command that involves a unit it
+   cannot see, so it falls back to a snapshot after such a command. Correct, but it can
+   mean a snapshot per command during heavy fighting. A result-event protocol would remove
+   that.
 5. An end to end test with two real game clients. The screens compile and the protocol is
    covered by the fake client load test, but the UI flow still needs a manual pass with two
    game instances.

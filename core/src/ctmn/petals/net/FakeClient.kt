@@ -3,6 +3,7 @@ package ctmn.petals.net
 import com.google.gson.JsonParser
 import ctmn.petals.net.proto.*
 import ctmn.petals.playscreen.commands.EndTurnCommand
+import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.toGson
 
 /**

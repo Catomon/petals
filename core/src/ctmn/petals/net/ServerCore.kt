@@ -36,13 +36,16 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 class ServerCore(val config: ServerConfig) {
 
-    private class ClientConnection(val channel: Channel) {
+    private class ClientConnection(var channel: Channel) {
         var clientId: String = ""
         var name: String = "Player"
         var lobbyId: String? = null
         var matchId: String? = null
         var playerId: Int = -1
         var ready: Boolean = false
+
+        /** Set when the connection dropped; zero while connected. */
+        var disconnectAt = 0L
     }
 
     private val clientsById = ConcurrentHashMap<String, ClientConnection>()
@@ -132,6 +135,8 @@ class ServerCore(val config: ServerConfig) {
             }
             finished.forEach { matches.remove(it) }
 
+            reapTimedOutSeats()
+
             try {
                 Thread.sleep(15)
             } catch (e: InterruptedException) {
@@ -191,38 +196,77 @@ class ServerCore(val config: ServerConfig) {
     }
 
     private fun onHello(connection: ClientConnection, hello: Hello) {
-        connection.clientId = if (hello.clientId.isBlank()) UUID.randomUUID().toString() else hello.clientId
-        connection.name = hello.name.ifBlank { "Player${connection.clientId.take(4)}" }.take(24)
-        clientsById[connection.clientId] = connection
+        val requestedId = if (hello.clientId.isBlank()) UUID.randomUUID().toString() else hello.clientId
+        val name = hello.name.ifBlank { "Player${requestedId.take(4)}" }.take(24)
 
-        GameLog.info("ServerCore", "Player '${connection.name}' (${connection.clientId}) connected")
+        val existing = clientsById[requestedId]
 
-        sendTo(connection, Msg.WELCOME, "", Welcome().also {
-            it.clientId = connection.clientId
-            it.name = connection.name
+        val session = if (existing != null) {
+            // A returning player keeps their lobby or match seat.
+            existing.channel = connection.channel
+            existing.disconnectAt = 0L
+            existing
+        } else {
+            ClientConnection(connection.channel).also { it.clientId = requestedId }
+        }
+
+        session.name = name
+        clientsById[requestedId] = session
+
+        if (existing != null) {
+            GameLog.info("ServerCore", "Player '${session.name}' reconnected")
+        } else {
+            GameLog.info("ServerCore", "Player '${session.name}' (${session.clientId}) connected")
+        }
+
+        sendTo(session, Msg.WELCOME, "", Welcome().also {
+            it.clientId = session.clientId
+            it.name = session.name
             it.serverName = config.serverName
         })
+
+        // Hand the fresh state of whatever they were in.
+        session.matchId?.let { id -> matches[id]?.sendSnapshot(session) }
     }
 
     private fun onDisconnected(connection: ClientConnection) {
-        if (connection.clientId.isNotEmpty()) {
-            clientsById.remove(connection.clientId)
-            GameLog.info("ServerCore", "Player '${connection.name}' disconnected")
-        }
+        if (connection.clientId.isEmpty()) return
 
         queue.remove(connection)
+
         connection.lobbyId?.let { id ->
-            lobbies[id]?.let { lobby ->
+            connection.lobbyId = null
+            val lobby = lobbies[id]
+            if (lobby != null) {
                 lobby.members.removeIf { it.clientId == connection.clientId }
-                if (lobby.members.isEmpty()) lobbies.remove(id) else broadcastLobby(lobby)
+                if (lobby.members.isEmpty()) lobbies.remove(id)
+                else {
+                    if (lobby.host === connection) lobby.host = lobby.members.first()
+                    broadcastLobby(lobby)
+                }
             }
+            broadcastLobbyList()
         }
-        connection.matchId?.let { id ->
-            matches[id]?.let { match ->
-                match.onPlayerDisconnected(connection)
-            }
+
+        if (connection.matchId != null) {
+            // Keep the seat for a while so a dropped connection can pick it back up.
+            connection.disconnectAt = System.currentTimeMillis() + config.reconnectGraceSeconds * 1000L
+            matches[connection.matchId]?.onPlayerDisconnected(connection)
+        } else {
+            clientsById.remove(connection.clientId)
         }
-        broadcastLobbyList()
+    }
+
+    /** Drops seats whose grace period ran out. */
+    private fun reapTimedOutSeats() {
+        val now = System.currentTimeMillis()
+        val expired = clientsById.values.filter { it.disconnectAt > 0L && it.disconnectAt <= now }
+
+        for (session in expired) {
+            GameLog.info("ServerCore", "Player '${session.name}' did not come back")
+            session.matchId?.let { id -> matches[id]?.onPlayerGone(session) }
+            clientsById.remove(session.clientId)
+        }
     }
 
     // Lobbies
@@ -379,7 +423,7 @@ class ServerCore(val config: ServerConfig) {
         )
         battle.clientControlled = true
 
-        val match = Match(UUID.randomUUID().toString().take(8), battle)
+        val match = Match(UUID.randomUUID().toString().take(8), battle, fogOfWar)
         members.forEachIndexed { index, connection ->
             connection.matchId = match.id
             connection.playerId = players[index].id
@@ -423,7 +467,7 @@ class ServerCore(val config: ServerConfig) {
         matches[connection.matchId]?.sendSnapshot(connection)
     }
 
-    private inner class Match(val id: String, val battle: ServerBattle) {
+    private inner class Match(val id: String, val battle: ServerBattle, val fogOfWar: Boolean) {
 
         val clientIds = HashMap<Int, String>()
         var lastCommandTime = System.nanoTime()
@@ -553,16 +597,35 @@ class ServerCore(val config: ServerConfig) {
 
         fun onPlayerDisconnected(connection: ClientConnection) {
             connectionFor().forEach { other ->
+                sendError(other, "", "Connection to '${connection.name}' lost, waiting for reconnect")
+            }
+            // The match keeps running; a reconnecting player picks their seat back up.
+        }
+
+        fun onPlayerGone(connection: ClientConnection) {
+            connectionFor().forEach { other ->
                 sendError(other, "", "Player '${connection.name}' left the match")
             }
-            // The match keeps running; a disconnected player simply stops acting.
         }
 
         fun sendSnapshot(connection: ClientConnection) {
-            val snapshot = MatchSnapshot()
-            snapshot.stateId = battle.gameStateId
-            snapshot.snapshotJson = GameStateSnapshot(battle).toGson()
-            sendTo(connection, Msg.MATCH_SNAPSHOT, "", snapshot)
+            val snapshot = GameStateSnapshot(battle)
+
+            if (fogOfWar) {
+                val viewerId = clientIds.entries.firstOrNull { it.value == connection.clientId }?.key
+                val viewer = viewerId?.let { battle.turnManager.getPlayerById(it) }
+                if (viewer != null) {
+                    val visibility = ctmn.petals.sim.FogOfWar.compute(
+                        battle.field, battle.turnManager.players, viewer
+                    )
+                    SnapshotFilter.apply(snapshot, visibility, viewer.teamId)
+                }
+            }
+
+            val message = MatchSnapshot()
+            message.stateId = battle.gameStateId
+            message.snapshotJson = snapshot.toGson()
+            sendTo(connection, Msg.MATCH_SNAPSHOT, "", message)
         }
 
         private fun connectionFor(): List<ClientConnection> =

@@ -32,6 +32,9 @@ class ServerConfig {
 
     var botDifficulty = "normal"
 
+    /** Seconds a disconnected player keeps their match seat while reconnecting. */
+    var reconnectGraceSeconds = 60
+
     /** Debug helper: connect this many fake clients and let them play for load testing. */
     var loadTestPlayers = 0
 
@@ -79,6 +82,11 @@ class ServerConfig {
                     "botmatch" -> {
                         config.botMatch = true
                         config.mapPool = mutableListOf("2L_Blooming_Mountains")
+                    }
+
+                    "--reconnect" -> {
+                        i++
+                        if (i < args.size) config.reconnectGraceSeconds = args[i].toIntOrNull() ?: 60
                     }
 
                     "--loadtest" -> {

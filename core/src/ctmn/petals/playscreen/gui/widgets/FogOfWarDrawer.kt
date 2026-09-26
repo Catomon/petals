@@ -108,64 +108,11 @@ class FogOfWarDrawer(val playScreen: PlayScreen) : Actor() {
 
         if (!drawFog) return true
 
-        if (fogMap == null) return true
-
-        if (tileX !in 0 until fogMap!!.size) return false
-
-        if (tileY !in 0 until fogMap!![tileX].size) return false
-
-        return fogMap!![tileX][tileY] > 0
+        return ctmn.petals.sim.FogOfWar.isVisible(fogMap, tileX, tileY)
     }
 
-    private fun getFogOfWar(): KArray<IntArray> {
-        val maxOfView = playStage.getMapSizedGridOfZero()
-        for (unit in playStage.getUnitsForTeam(playScreen.localPlayer.teamId)) {
-            if (hideAll)
-                break
-
-            val unitViewRangeMatrix = playStage.getRangeOfView(unit)
-            for ((i, _) in maxOfView.withIndex()) {
-                for ((j, _) in maxOfView[i].withIndex()) {
-                    if (unitViewRangeMatrix[i][j] > 0)
-                        maxOfView[i][j] += unitViewRangeMatrix[i][j]
-                }
-            }
-        }
-
-        //vision of castles
-        for (tile in playStage.getTiles()) {
-            if (hideAll)
-                break
-
-            //temp lambda fix
-            if (tile.isBase && playScreen.turnManager.players.find { it.id == tile.cPlayerId?.playerId }?.teamId == playScreen.localPlayer.teamId) {
-                val castle = tile
-                val castleViewRangeMatrix = playStage.getMovementGrid(
-                    BASE_RANGE_OF_VIEW, castle.tiledX, castle.tiledY, TerrainPropsPack.view
-                )
-                for ((i, _) in maxOfView.withIndex()) {
-                    for ((j, _) in maxOfView[i].withIndex()) {
-                        if (castleViewRangeMatrix[i][j] > 0)
-                            maxOfView[i][j] += castleViewRangeMatrix[i][j]
-                    }
-                }
-            }
-        }
-
-//        for (tile in playStage.getTiles())
-//            if (tile.selfName == Tiles.EDGE)
-//                maxOfView[tile.tiledX][tile.tiledY] = 1
-
-//        for ((i, _) in maxOfView.withIndex()) {
-//            for ((j, _) in maxOfView[i].withIndex()) {
-//                if (playStage.getTile(i, j) == null)
-//                    maxOfView[i][j] = 1
-//
-//            }
-//        }
-
-        return maxOfView
-    }
+    private fun getFogOfWar(): KArray<IntArray> =
+        ctmn.petals.sim.FogOfWar.compute(playStage, playScreen.turnManager.players, playScreen.localPlayer)
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         if (updateFog) {

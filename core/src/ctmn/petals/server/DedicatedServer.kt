@@ -106,17 +106,21 @@ class DedicatedServer(val config: ServerConfig) {
                 )
             }
 
-        if (loadElapsed >= config.loadTestSeconds) {
-            GameLog.info(
-                "DedicatedServer",
-                "Load test done: clients=${serverCore.connectedCount} " +
-                    "matches=${serverCore.activeMatchCount} finished=$finishedMatches"
-            )
-            running = false
-            fakeClients.forEach { it.close() }
-            serverCore.stop()
-            Gdx.app?.exit()
-        }
+            if (loadElapsed >= config.loadTestSeconds) {
+                GameLog.info(
+                    "DedicatedServer",
+                    "Load test done: clients=${serverCore.connectedCount} " +
+                        "matches=${serverCore.activeMatchCount} finished=$finishedMatches"
+                )
+                running = false
+                fakeClients.forEach { it.close() }
+                serverCore.stop()
+
+                // The harness keeps netty client groups, so end the process instead of
+                // waiting for those threads to wind down.
+                Gdx.app?.exit()
+                Runtime.getRuntime().halt(0)
+            }
         }
     }
 

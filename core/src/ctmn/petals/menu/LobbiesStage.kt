@@ -29,6 +29,8 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
     private var serverName: String = ""
     private var connected = false
     private var queueing = false
+    private var serverHost = "localhost"
+    private var serverPort = Config.SERVER_PORT
 
     private val nameField = VisTextField().apply { messageText = "Your name" }
     private val addressField = VisTextField().apply { messageText = "localhost" }
@@ -127,6 +129,9 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
         val host = addressField.text.ifBlank { "localhost" }
         val port = portField.text.toIntOrNull() ?: Config.SERVER_PORT
 
+        serverHost = host
+        serverPort = port
+
         GamePref.displayName = nameField.text
         GamePref.save()
 
@@ -180,12 +185,16 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
                     }
                     newClient.close()
 
-                    menuScreen.game.screen = OnlinePlayScreen(newClient, found)
+                    menuScreen.game.screen = OnlinePlayScreen(newClient, found, serverHost, serverPort)
                 }
             }
 
             override fun onError(error: ErrorMsg) {
                 onUi { addNotifyWindow(error.message, serverName.ifBlank { "Server" }) }
+            }
+
+            override fun onConnectFailed(cause: Throwable?) {
+                onUi { statusLabel.setText("Could not connect: ${cause?.message ?: "unknown error"}") }
             }
 
             override fun onDisconnected() {

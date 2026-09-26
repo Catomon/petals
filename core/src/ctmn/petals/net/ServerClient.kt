@@ -33,6 +33,7 @@ class ServerClient {
         fun onCommandRejected(rejected: CommandRejected) {}
         fun onMatchEnded(ended: MatchEnded) {}
         fun onError(error: ErrorMsg) {}
+        fun onConnectFailed(cause: Throwable?) {}
         fun onDisconnected() {}
     }
 
@@ -52,14 +53,23 @@ class ServerClient {
 
     val isConnected: Boolean get() = connected && channel?.isActive == true
 
+    /**
+     * Starts connecting. This never blocks, so it is safe to call from the render thread:
+     * [Listener.onConnectFailed] reports a failure and [Listener.onWelcome] reports success.
+     */
     fun connect(host: String, port: Int, clientId: String, name: String) {
+        // A reconnect must not leave the previous event loop group behind: its threads are
+        // not daemons and would keep the process alive forever.
+        close()
+
         this.clientId = clientId
         this.displayName = name
 
-        group = NioEventLoopGroup(1)
+        val newGroup = NioEventLoopGroup(1)
+        group = newGroup
 
         val bootstrap = Bootstrap()
-            .group(group)
+            .group(newGroup)
             .channel(NioSocketChannel::class.java)
             .option(ChannelOption.SO_KEEPALIVE, true)
             .handler(object : ChannelInitializer<SocketChannel>() {
@@ -73,19 +83,26 @@ class ServerClient {
                 }
             })
 
-        val future = bootstrap.connect(host, port).sync()
+        // The handshake is sent from the handler once the channel is really active, so it
+        // can never be written into a socket that is still being set up.
+        val future = bootstrap.connect(host, port)
         channel = future.channel()
 
-        send(Msg.HELLO, "", Hello().also {
-            it.clientId = clientId
-            it.name = name
-        })
+        future.addListener { f ->
+            if (!f.isSuccess) {
+                connected = false
+                listener?.onConnectFailed(f.cause())
+            }
+        }
     }
 
     fun close() {
-        channel?.close()
-        group?.shutdownGracefully()
+        val currentChannel = channel
+        channel = null
         connected = false
+        currentChannel?.close()
+        group?.shutdownGracefully()
+        group = null
     }
 
     fun listLobbies() = send(Msg.LIST_LOBBIES, "", "")
@@ -117,11 +134,16 @@ class ServerClient {
         })
 
     private fun send(type: String, requestId: String, payload: Any) {
+        val channel = channel ?: return
+        channel.writeAndFlush(envelope(type, requestId, payload))
+    }
+
+    private fun envelope(type: String, requestId: String, payload: Any): String {
         val envelope = Envelope()
         envelope.type = type
         envelope.requestId = requestId
         envelope.payload = if (payload is String) payload else payload.toGson()
-        channel?.writeAndFlush(envelope.toGson())
+        return envelope.toGson()
     }
 
     private inner class Handler : SimpleChannelInboundHandler<String>() {
@@ -129,6 +151,12 @@ class ServerClient {
         override fun channelActive(ctx: ChannelHandlerContext) {
             connected = true
             super.channelActive(ctx)
+
+            // Identify ourselves as soon as the connection is usable.
+            val hello = Hello()
+            hello.clientId = clientId
+            hello.name = displayName
+            ctx.writeAndFlush(envelope(Msg.HELLO, "", hello))
         }
 
         override fun channelInactive(ctx: ChannelHandlerContext) {
