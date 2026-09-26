@@ -46,6 +46,9 @@ class ServerCore(val config: ServerConfig) {
 
         /** Set when the connection dropped; zero while connected. */
         var disconnectAt = 0L
+
+        /** Simple flood guard: messages counted within the current second. */
+        var messagesThisSecond = 0
     }
 
     private val clientsById = ConcurrentHashMap<String, ClientConnection>()
@@ -67,6 +70,11 @@ class ServerCore(val config: ServerConfig) {
     val activeMatchCount: Int get() = matches.size
     val lobbyCount: Int get() = lobbies.size
     val queuedCount: Int get() = queue.size
+
+    private companion object {
+        /** Roughly ten times what a normal turn needs, so a flood is cut off fast. */
+        const val maxMessagesPerSecond = 120
+    }
 
     fun start() {
         running = true
@@ -137,6 +145,9 @@ class ServerCore(val config: ServerConfig) {
 
             reapTimedOutSeats()
 
+            // Reset the per second message counters used by the flood guard.
+            clientsById.values.forEach { it.messagesThisSecond = 0 }
+
             try {
                 Thread.sleep(15)
             } catch (e: InterruptedException) {
@@ -177,6 +188,13 @@ class ServerCore(val config: ServerConfig) {
     // Dispatch
 
     private fun handle(connection: ClientConnection, envelope: Envelope) {
+        // Flood guard: a client that floods gets dropped instead of stalling the session.
+        if (++connection.messagesThisSecond > maxMessagesPerSecond) {
+            sendError(connection, envelope.requestId, "Too many requests")
+            connection.channel.close()
+            return
+        }
+
         when (envelope.type) {
             "__disconnect" -> onDisconnected(connection)
             Msg.HELLO -> onHello(connection, fromGson(envelope.payload, Hello::class.java))
@@ -223,6 +241,7 @@ class ServerCore(val config: ServerConfig) {
             it.clientId = session.clientId
             it.name = session.name
             it.serverName = config.serverName
+            it.mapIds.addAll(config.mapPool)
         })
 
         // Hand the fresh state of whatever they were in.
@@ -280,7 +299,7 @@ class ServerCore(val config: ServerConfig) {
         val lobby = Lobby(
             id = UUID.randomUUID().toString().take(8),
             name = request.name.ifBlank { "${connection.name}'s game" }.take(32),
-            mapId = request.mapId.ifBlank { config.mapPool.random() },
+            mapId = if (config.mapPool.contains(request.mapId)) request.mapId else config.mapPool.random(),
             host = connection,
             maxPlayers = request.maxPlayers.coerceIn(2, 8),
             fogOfWar = request.fogOfWar,

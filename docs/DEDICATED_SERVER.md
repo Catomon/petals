@@ -103,6 +103,8 @@ Turn timers are off by default, as requested.
   reconnects by itself with the same id.
 - Optional server side turn timer (`--turn-timer <seconds>`, off by default) that ends
   stalled turns on the session thread.
+- Lobby creation settings (map, player count, fog) and a per connection flood guard that
+  drops clients exceeding 120 messages per second.
 
 ### Verified
 
@@ -116,9 +118,11 @@ Turn timers are off by default, as requested.
 ## Client
 
 - `ctmn.petals.menu.LobbiesStage` is the lobby browser: enter a display name, connect to a
-  server by address, browse its lobbies and join one, create a lobby, or use the quick match
-  queue. It is reachable from the main menu through the Match and Vs Player buttons, and it
-  keeps the old local and LAN host flow one button away.
+  server by address, browse its lobbies and join one, create a lobby (map, player count and
+  fog of war) or use the quick match queue. It is reachable from the main menu through the
+  Match and Vs Player buttons, and it keeps the old local and LAN host flow one button away.
+  The server advertises its map pool in the welcome message, so the map picker only offers
+  maps the server can actually host.
 - `ctmn.petals.multiplayer.OnlinePlayScreen` plays a server match. It builds the map from the
   `map_json` in `match_found`, mirrors the battle locally for the view, applies accepted
   commands from other players, and sends its own commands to the server. A rejection or a
@@ -129,9 +133,9 @@ Turn timers are off by default, as requested.
 
 ## Remaining
 
-1. Lobby map and settings editing (a lobby currently takes a random map from the server
-   pool with fog on) and LAN server discovery with JmDNS in the lobby browser.
-2. Scale polish: snapshot throttling, per connection rate limits and a longer soak test.
+1. LAN server discovery with JmDNS in the lobby browser, so a local server shows up without
+   typing its address. The old P2P discovery still exists on the LAN games screen.
+2. Scale polish: snapshot throttling and a longer soak test.
 3. Reconnect has no automated test yet. The server and client paths are implemented, but
    driving a drop mid match from the harness proved flaky, so it is unverified.
 4. Fog filtered snapshots mean a client cannot replay a command that involves a unit it

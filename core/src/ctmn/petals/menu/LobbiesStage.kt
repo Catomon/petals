@@ -4,7 +4,10 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisScrollPane
+import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.VisWindow
@@ -41,6 +44,14 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
 
     private val lobbyTable = VisTable()
     private val lobbyScroll = VisScrollPane(lobbyTable)
+
+    private val mapSelectBox = VisSelectBox<String>().apply {
+        items = Array<String>().apply { add("2L_Blooming_Mountains") }
+    }
+    private val playersSelectBox = VisSelectBox<String>().apply {
+        items = Array<String>().apply { add("2"); add("3"); add("4"); add("6"); add("8") }
+    }
+    private val fogCheckBox = VisCheckBox("Fog of war").apply { isChecked = true }
 
     private val connectButton = newTextButton("Connect")
     private val refreshButton = newTextButton("Refresh").apply { isDisabled = true }
@@ -88,6 +99,15 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
             add(queueLabel).padTop(4f).row()
 
             add(lobbyScroll).width(320f).height(200f).padTop(8f).row()
+
+            add(newLabel("New lobby", "default")).padTop(10f).row()
+            add(VisTable().apply {
+                add(newLabel("Map", "default")).padRight(6f)
+                add(mapSelectBox).width(150f).padRight(6f)
+                add(newLabel("Players", "default")).padRight(6f)
+                add(playersSelectBox).width(60f).padRight(6f)
+                add(fogCheckBox)
+            }).row()
 
             add(VisTable().apply {
                 add(refreshButton).width(150f).padRight(6f)
@@ -142,6 +162,10 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
 
             override fun onWelcome(welcome: Welcome) {
                 onUi {
+                    if (welcome.mapIds.isNotEmpty()) {
+                        mapSelectBox.items = Array<String>().apply { welcome.mapIds.forEach { add(it) } }
+                    }
+
                     connected = true
                     serverName = welcome.serverName
                     statusLabel.setText("Connected to ${welcome.serverName}")
@@ -217,9 +241,9 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
     private fun createLobby() {
         val request = CreateLobby()
         request.name = "${GamePref.displayName}'s game"
-        request.maxPlayers = 2
-        request.fogOfWar = true
-        request.mapId = ""
+        request.maxPlayers = playersSelectBox.selected.toIntOrNull() ?: 2
+        request.fogOfWar = fogCheckBox.isChecked
+        request.mapId = mapSelectBox.selected
         client?.createLobby(request)
     }
 

@@ -53,6 +53,9 @@ class Welcome {
     var name: String = ""
     var serverName: String = ""
     var protocol: Int = 1
+
+    /** Maps this server can host, for the lobby creator to pick from. */
+    var mapIds: MutableList<String> = mutableListOf()
 }
 
 class ErrorMsg {
