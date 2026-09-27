@@ -22,6 +22,13 @@ import ctmn.petals.utils.rgba
 
 lateinit var assets: Assets
 
+/**
+ * True when the graphics assets exist. The headless dedicated server never loads them, so
+ * view only code that wants to peek at an atlas must check this first instead of touching
+ * [assets] and throwing.
+ */
+val hasAssets: Boolean get() = ::assets.isInitialized
+
 class Assets : AssetManager() {
 
     companion object {

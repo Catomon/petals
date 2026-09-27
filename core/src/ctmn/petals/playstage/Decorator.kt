@@ -2,6 +2,7 @@ package ctmn.petals.playstage
 
 import com.badlogic.gdx.Gdx
 import ctmn.petals.assets
+import ctmn.petals.hasAssets
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.playStageOrNull
 import ctmn.petals.playscreen.selfName
@@ -153,6 +154,10 @@ object Decorator {
     private fun TileActor.isCombinable(): Boolean {
         //var nameNoSuffix = selfName
         //"abcdefghijklmnop".forEach { nameNoSuffix = nameNoSuffix.removeSuffix("_$it") }
+
+        // Combining is purely about how tiles are drawn, so a headless battle has nothing to
+        // combine and must not reach for the atlas.
+        if (!hasAssets) return false
 
         return assets.atlases.findRegion("tiles/${terrain}/" + nameNoSuffix() + "_combinable") != null
 

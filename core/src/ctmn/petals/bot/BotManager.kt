@@ -50,6 +50,18 @@ class BotManager(val battle: Battle) {
 
     fun add(bot: Bot) {
         botPlayers.add(bot)
+
+        // The first turn event fires while the battle is being built, before any bot is
+        // registered, so a bot that starts the match would never be picked up by the listener
+        // above. Start it here instead.
+        if (current == null &&
+            !battle.isGameOver &&
+            battle.turnManager.players.isNotEmpty() &&
+            battle.turnManager.currentPlayer.id == bot.playerID
+        ) {
+            bot.onStart()
+            current = bot
+        }
     }
 
     fun isBotPlayer(player: Player): Boolean {

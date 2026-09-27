@@ -1,4 +1,4 @@
-package ctmn.petals.playstage
+﻿package ctmn.petals.playstage
 
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.MathUtils
@@ -271,6 +271,8 @@ fun BattleField.getMovementGrid(
     //...
     for (k in 0 until distance) {
         val extendArea = kotlin.Array(moveCostGrid.size) { IntArray(moveCostGrid[0].size) }
+        // presenceCost: every non ally standing next to the tile being entered adds one to the
+        // cost of that tile, so a unit can afford one step but keeps no budget left.
         for (i in moveCostGrid.indices) {
             for (j in moveCostGrid[0].indices) {
                 if (moveGrid[i][j] > 1) {
@@ -280,7 +282,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i + 1][j]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i + 1, j).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost - unitsAround.size)
+                                extendCost = max(1, extendCost + unitsAround.size)
                             }
                             extendArea[i + 1][j] = extendCost
                         }
@@ -294,7 +296,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i][j + 1]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i, j + 1).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost - unitsAround.size)
+                                extendCost = max(1, extendCost + unitsAround.size)
                             }
                             extendArea[i][j + 1] = extendCost
                         }
@@ -308,7 +310,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i - 1][j]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i - 1, j).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost - unitsAround.size)
+                                extendCost = max(1, extendCost + unitsAround.size)
                             }
                             extendArea[i - 1][j] = extendCost
                         }
@@ -322,7 +324,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i][j - 1]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i, j - 1).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost - unitsAround.size)
+                                extendCost = max(1, extendCost + unitsAround.size)
                             }
                             extendArea[i][j - 1] = extendCost
                         }
