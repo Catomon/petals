@@ -24,8 +24,20 @@ class ServerConfig {
     /** Advertise the server on the local network with JmDNS. */
     var lanDiscovery = true
 
-    /** Maps the quick match queue may pick from. */
-    var mapPool = mutableListOf("2L_Blooming_Mountains")
+    /**
+     * Maps a lobby may pick from. The defaults are the two player maps, since the quick match
+     * queue is 1v1 and the lobby browser only offers what the server can host. Override with
+     * `--maps a,b,c`.
+     */
+    var mapPool = mutableListOf(
+        "2L_Blooming_Mountains",
+        "2P_Forest",
+        "2P_Hvoya",
+        "2P_Lake",
+        "2P_Meadow",
+        "2P_Small_Islans",
+        "2p_Tiny_Square",
+    )
 
     /** Debug helper: run a headless bot vs bot match and exit when it ends. */
     var botMatch = false

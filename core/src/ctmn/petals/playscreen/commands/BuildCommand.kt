@@ -29,8 +29,8 @@ class BuildCommand(
     )
 
     override fun canExecute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
-        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == tileId }!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == tileId } ?: return false
 
         if (!unit.canBuild(tile)) return false
 
@@ -45,12 +45,12 @@ class BuildCommand(
     }
 
     override fun execute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
-        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == tileId }!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == tileId } ?: return false
 
         unit.actionPoints = 0
 
-        battle.turnManager.getPlayerById(unit.playerId)!!.credits -= cost
+        battle.turnManager.getPlayerById(unit.playerId)?.let { it.credits -= cost }
 
         unit.del(InvisibilityComponent::class.java)
 

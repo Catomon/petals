@@ -4,12 +4,16 @@ import com.badlogic.gdx.utils.Queue
 import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.bot.v2.Difficulty
 import ctmn.petals.map.MapConverted
+import ctmn.petals.map.createMapFromJson
+import ctmn.petals.map.labels
 import ctmn.petals.map.loadMap
 import ctmn.petals.multiplayer.json.GameStateSnapshot
 import ctmn.petals.net.proto.*
 import ctmn.petals.playscreen.CaptureBases
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.Season
+import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.tile.isBase
 import ctmn.petals.player.Player
 import ctmn.petals.player.Species
 import ctmn.petals.server.ServerConfig
@@ -128,7 +132,7 @@ class ServerCore(val config: ServerConfig) {
     fun stop() {
         running = false
         queue.clear()
-        matches.values.forEach { it.stop() }
+        matches.values.forEach { it.stop("server shutting down") }
         matches.clear()
         channel?.close()
         bossGroup?.shutdownGracefully()
@@ -158,7 +162,15 @@ class ServerCore(val config: ServerConfig) {
                 } catch (e: Exception) {
                     GameLog.error("ServerCore", "Match tick failed", e)
                 }
-                if (match.isFinished) finished.add(match.id)
+
+                // A match with nobody left in it has no reason to keep playing. Left running it
+                // would tick forever and, worse, keep broadcasting to a connection that has already
+                // joined another match.
+                if (match.hasNoMembersLeft()) {
+                    match.stop("nobody left")
+                }
+
+                if (match.isFinished || match.finished) finished.add(match.id)
             }
             finished.forEach { matches.remove(it) }
 
@@ -231,6 +243,7 @@ class ServerCore(val config: ServerConfig) {
             Msg.QUEUE_LEAVE -> onQueueLeave(connection)
             Msg.MATCH_COMMAND -> onMatchCommand(connection, envelope.requestId, fromGson(envelope.payload, MatchCommand::class.java))
             Msg.SNAPSHOT_REQUEST -> onSnapshotRequest(connection)
+            Msg.LEAVE_MATCH -> onLeaveMatch(connection)
             else -> sendError(connection, envelope.requestId, "Unknown message type: ${envelope.type}")
         }
     }
@@ -325,6 +338,9 @@ class ServerCore(val config: ServerConfig) {
             return
         }
 
+        // Hosting again means the previous match, if any, is over for this player.
+        leaveCurrentMatch(connection, "'${connection.name}' went back to hosting")
+
         val lobby = Lobby(
             id = UUID.randomUUID().toString().take(8),
             name = request.name.ifBlank { "${connection.name}'s game" }.take(32),
@@ -333,11 +349,17 @@ class ServerCore(val config: ServerConfig) {
             maxPlayers = request.maxPlayers.coerceIn(2, 8),
             fogOfWar = request.fogOfWar,
             gameMode = request.gameMode,
-            botDifficulty = request.botDifficulty,
+            hostMapJson = request.mapJson.takeIf { it.isNotBlank() },
         )
 
-        // Bots take seats after the humans, so the host can play "2 players and 2 bots".
-        repeat(request.botCount.coerceIn(0, lobby.maxPlayers - 1)) { lobby.botCount++ }
+        // The host's arrangement: their own seat plus the bots, each with the id the lobby
+        // already gave it, so colours survive.
+        val hostSeat = request.seats.firstOrNull { !it.isAi }
+        if (hostSeat != null) lobby.hostSeat = hostSeat
+
+        request.seats.filter { it.isAi }.take(lobby.maxPlayers - 1).forEach {
+            lobby.bots.add(BotSeat(it.botDifficulty, it.slot, it.playerId, it.name, it.species))
+        }
 
         lobbies[lobby.id] = lobby
         connection.lobbyId = lobby.id
@@ -357,6 +379,8 @@ class ServerCore(val config: ServerConfig) {
             sendError(connection, "", "Lobby is full")
             return
         }
+
+        leaveCurrentMatch(connection, "'${connection.name}' went back to a lobby")
 
         connection.lobbyId = lobby.id
         broadcastLobby(lobby)
@@ -393,8 +417,11 @@ class ServerCore(val config: ServerConfig) {
             mapId = lobby.mapId,
             fogOfWar = lobby.fogOfWar,
             gameMode = lobby.gameMode,
-            botCount = lobby.botCount,
-            botDifficulty = lobby.botDifficulty,
+            host = lobby.host,
+            botSeats = lobby.bots.toList(),
+            hostSlot = lobby.hostSeat.slot,
+            hostPlayerId = lobby.hostSeat.playerId,
+            hostMapJson = lobby.hostMapJson,
         )
         lobbies.remove(lobby.id)
         broadcastLobbyList()
@@ -441,8 +468,9 @@ class ServerCore(val config: ServerConfig) {
                 mapId = config.mapPool.random(),
                 fogOfWar = true,
                 gameMode = GameMode.CRYSTALS.name,
-                botCount = botMatchOnFirstQueueJoin,
-                botDifficulty = botMatchDifficulty,
+                botSeats = List(botMatchOnFirstQueueJoin) { index ->
+                    BotSeat(botMatchDifficulty, slot = index + 1, playerId = index + 2, name = "Bot ${index + 2}")
+                },
             )
             broadcastQueueStatus()
             return
@@ -478,39 +506,118 @@ class ServerCore(val config: ServerConfig) {
         mapId: String,
         fogOfWar: Boolean,
         gameMode: String,
-        botCount: Int = 0,
-        botDifficulty: String = "normal",
+        /** The host, whose arrangement the seating is built around. */
+        host: ClientConnection = members.first(),
+        /** The host's arrangement: [LobbySeat] per bot. */
+        botSeats: List<BotSeat> = emptyList(),
+        hostSlot: Int = 0,
+        hostPlayerId: Int = 1,
+        /** The host's own map, when it is not on the server. */
+        hostMapJson: String? = null,
     ) {
-        val map: MapConverted = try {
-            loadMap(mapId)
-        } catch (e: Exception) {
-            members.forEach { sendError(it, "", "Map '$mapId' not found") }
-            return
+        val map: MapConverted = if (hostMapJson != null) {
+            // A map the host owns, sent to us and passed on to every client in match_found, so
+            // nobody has to have this file locally.
+            try {
+                createMapFromJson(hostMapJson)
+            } catch (e: Exception) {
+                GameLog.error("ServerCore", "Host sent a map that could not be read", e)
+                members.forEach { sendError(it, "", "The host's map could not be read") }
+                return
+            }
+        } else {
+            try {
+                loadMap(mapId)
+            } catch (e: Exception) {
+                members.forEach { sendError(it, "", "Map '$mapId' not found") }
+                return
+            }
         }
 
         val players = ArrayList<Player>()
-        members.forEachIndexed { index, connection ->
-            val player = Player(name = connection.name, id = index + 1, teamId = index + 1)
-            player.clientId = connection.clientId
-            players.add(player)
+
+        // Ids are the lobby's, so a player keeps their colour wherever they sit. The slot only
+        // decides which map place they own, and a slot past the map's player places means no
+        // place at all, which is how spectating works.
+        val playersBySlot = HashMap<Int, Player>()
+        val taken = HashSet<Int>()
+        val usedIds = HashSet<Int>()
+
+        fun freeSlot(preferred: Int?): Int {
+            if (preferred != null && preferred in 0 until 8 && taken.add(preferred)) return preferred
+            val fallback = (0 until 8).firstOrNull { it !in taken } ?: return -1
+            taken.add(fallback)
+            return fallback
         }
 
-        val difficulty = when (botDifficulty.lowercase()) {
+        /** Keeps the lobby's id when it is still free, otherwise takes the lowest unused one. */
+        fun seatId(preferred: Int): Int {
+            if (preferred > 0 && usedIds.add(preferred)) return preferred
+            val fallback = (1..8).firstOrNull { usedIds.add(it) } ?: return -1
+            return fallback
+        }
+
+        members.filter { it === host }.forEach { connection ->
+            val slot = freeSlot(hostSlot)
+            if (slot < 0) return@forEach
+            val id = seatId(hostPlayerId)
+            if (id < 0) return@forEach
+            val player = Player(name = connection.name, id = id, teamId = id)
+            player.clientId = connection.clientId
+            playersBySlot[slot] = player
+        }
+
+        members.filter { it !== host }.forEach { connection ->
+            val slot = freeSlot(null)
+            if (slot < 0) return@forEach
+            val id = seatId(-1)
+            if (id < 0) return@forEach
+            val player = Player(name = connection.name, id = id, teamId = id)
+            player.clientId = connection.clientId
+            playersBySlot[slot] = player
+        }
+
+        fun difficultyOf(name: String) = when (name.lowercase()) {
             "easy" -> Difficulty.EASY
             "hard" -> Difficulty.HARD
             "insane" -> Difficulty.INSANE
             else -> Difficulty.NORMAL
         }
 
-        // Bots are seated after the humans, so ids stay stable for the connected players.
-        val bots = ArrayList<Player>()
-        repeat(botCount) {
-            val id = players.size + it + 1
-            val bot = Player(name = "Bot $id", id = id, teamId = id)
-            bot.species = Species.names.random()
-            bots.add(bot)
+        val bots = ArrayList<Pair<Player, Difficulty>>()
+        botSeats.forEach { botSeat ->
+            val slot = freeSlot(botSeat.slot)
+            if (slot < 0) return@forEach
+            val id = seatId(botSeat.playerId)
+            if (id < 0) return@forEach
+            val bot = Player(
+                name = botSeat.name.ifBlank { "Bot $id" },
+                id = id,
+                teamId = id,
+            )
+            // The host picked this species in the slot dialog, so honour it. Only fall back to a
+            // random one if nothing was sent.
+            bot.species = botSeat.species.ifBlank { Species.names.random() }
+            playersBySlot[slot] = bot
+            bots.add(bot to difficultyOf(botSeat.difficulty))
         }
-        players.addAll(bots)
+
+        // Map places follow the slots, not the ids.
+        val playerIdBySlot = playersBySlot.entries.associate { (slot, player) -> slot to player.id }
+        val botDifficultyById = bots.associate { (bot, difficulty) -> bot.id to difficulty.name.lowercase() }
+        val matchId = UUID.randomUUID().toString().take(8)
+
+        for (slot in playersBySlot.keys.sorted()) playersBySlot[slot]?.let { players.add(it) }
+
+        GameLog.info(
+            "ServerCore",
+            SeatingLog.describe(
+                "seating before match $matchId",
+                (botSeats.map {
+                    SeatingLog.row(it.slot, it.playerId, it.name, isAi = true, difficulty = it.difficulty)
+                } + SeatingLog.row(hostSlot, hostPlayerId, host.name, isAi = false)),
+            )
+        )
 
         val battle = BattleSetup.build(
             map = map,
@@ -519,24 +626,69 @@ class ServerCore(val config: ServerConfig) {
             gameMode = try { GameMode.valueOf(gameMode) } catch (e: Exception) { GameMode.CRYSTALS },
             season = Season.SUMMER,
             turnTimeLimitSeconds = config.turnTimeLimitSeconds,
+            playerIdBySlot = playerIdBySlot,
+        )
+
+        // Whoever ended up past the map's player places owns no base and only watches. Marked
+        // once, here, so the turn manager skips them on both sides and every message can say so.
+        players.forEach { player ->
+            player.isSpectator = battle.field.getCapturablesOf(player).none { it.isBase }
+        }
+
+        GameLog.info(
+            "ServerCore",
+            SeatingLog.describe(
+                "match $matchId seating with map places",
+                players.map { player ->
+                    SeatingLog.row(
+                        slot = playerIdBySlot.entries.firstOrNull { it.value == player.id }?.key ?: -1,
+                        playerId = player.id,
+                        name = player.name,
+                        isAi = player.clientId == null,
+                        difficulty = botDifficultyById[player.id] ?: "normal",
+                    )
+                },
+                mapPlaces = map.labels
+                    .mapNotNull { label ->
+                        val slotId = label.data["id"]?.toIntOrNull() ?: return@mapNotNull null
+                        val owner = label.data["player_id"]?.toIntOrNull() ?: return@mapNotNull null
+                        slotId to owner
+                    }.toMap(),
+            )
         )
         // Not clientControlled: this battle is the authority, so it must run its own bots.
-        bots.forEach { battle.botManager.add(BotFactory.create(it, battle, difficulty)) }
+        bots.forEach { (bot, botDifficulty) ->
+            battle.botManager.add(BotFactory.create(bot, battle, botDifficulty))
+        }
 
-        val match = Match(UUID.randomUUID().toString().take(8), battle, fogOfWar)
-        members.forEachIndexed { index, connection ->
+        // A map sent by a host already carries `player_id` on its player labels, written by the
+        // host's setup screen from its own temporary player ids. Trusting those would decide map
+        // ownership by whatever the client happened to number, so they are dropped and the host's
+        // seat arrangement decides who owns which place instead.
+        clearMapOwnership(map)
+
+        val match = Match(matchId, battle, fogOfWar)
+
+        // [players] is in slot order, so a member's player must be looked up by the connection
+        // and never by its position in the member list.
+        val playerOfConnection = HashMap<ClientConnection, Player>()
+        members.forEach { connection ->
+            val player = players.firstOrNull { it.clientId == connection.clientId } ?: return@forEach
             connection.matchId = match.id
-            connection.playerId = players[index].id
-            match.clientIds[players[index].id] = connection.clientId
+            connection.playerId = player.id
+            match.clientIds[player.id] = connection.clientId
+            playerOfConnection[connection] = player
         }
         matches[match.id] = match
 
         val mapJson = map.mapSave.toGson()
 
-        members.forEachIndexed { index, connection ->
+        members.forEach { connection ->
+            val you = playerOfConnection[connection] ?: return@forEach
+
             val found = MatchFound()
             found.matchId = match.id
-            found.you = players[index].id
+            found.you = you.id
             found.mapId = mapId
             found.mapJson = mapJson
             found.gameMode = battle.gameMode.name
@@ -544,23 +696,35 @@ class ServerCore(val config: ServerConfig) {
             found.daytime = "DAY"
             found.fogOfWar = fogOfWar
             found.turnTimeLimitSeconds = battle.turnTimeLimitSeconds
-            members.forEachIndexed { i, m ->
+
+            // Who owns which map place. The client must not guess this from the map's own
+            // labels, or it hands the first place to player one and gives a spectator a base.
+            found.mapOwnerBySlot.putAll(playerIdBySlot)
+
+            // Every seated player, humans and bots alike. The client builds its mirror from this
+            // list, including the turn order, so it must match the battle exactly: slot order
+            // for the order, id for the colour.
+            players.forEach { player ->
                 found.players.add(LobbyMember().also {
-                    it.clientId = m.clientId
-                    it.name = m.name
-                    it.playerId = players[i].id
+                    // A bot has no client id, which is also how the client tells them apart.
+                    it.clientId = player.clientId ?: ""
+                    it.name = player.name
+                    it.playerId = player.id
+                    it.slot = playerIdBySlot.entries.firstOrNull { entry -> entry.value == player.id }?.key ?: -1
+                    it.isAi = player.clientId == null
+                    it.botDifficulty = botDifficultyById[player.id] ?: "normal"
+                    it.species = player.species
+                    it.isSpectator = player.isSpectator
                 })
             }
-            // Bots must be announced too: the map has a spawn label per player, so a client
-            // whose mirror is missing a bot cannot place the players at all.
-            bots.forEach { bot ->
-                found.players.add(LobbyMember().also {
-                    it.name = bot.name
-                    it.playerId = bot.id
-                    it.isAi = true
-                    it.botDifficulty = botDifficulty
-                })
-            }
+
+            GameLog.verbose(
+                "ServerCore",
+                "match_found for ${connection.name}: " +
+                        SeatingLog.describe("sent", found.players.toList()) +
+                        " you=p${you.id} match=${match.id}"
+            )
+
             sendTo(connection, Msg.MATCH_FOUND, "", found)
             match.sendSnapshot(connection)
         }
@@ -571,14 +735,58 @@ class ServerCore(val config: ServerConfig) {
         )
     }
 
-    private fun onMatchCommand(connection: ClientConnection, requestId: String, request: MatchCommand) {
-        val match = matches[connection.matchId] ?: return
+    /**
+     * Drops any owner baked into a map's player labels, so the seat arrangement decides who owns
+     * which place. Players are then numbered by slot, and `Battle.setupDefaultPlayerIds` gives
+     * the first map place to the first slot.
+     */
+    private fun clearMapOwnership(map: MapConverted) {
+        map.labels
+            .filter { it.labelName == "player" }
+            .forEach { it.data.removeKey("player_id") }
+    }
+
+    private fun onMatchCommand(connection: ClientConnection, requestId: String, request: MatchCommand) {        val match = matches[connection.matchId] ?: return
         match.onCommand(connection, requestId, request)
     }
 
     private fun onSnapshotRequest(connection: ClientConnection) {
-        GameLog.verbose("ServerCore", "Match ${connection.matchId}: ${connection.name} asked for a snapshot")
+        // Info, not verbose: this pairs with the client's resync line, and if they ever disagree
+        // about what happened the two lines side by side are the whole story.
+        GameLog.info(
+            "ServerCore",
+            "Match ${connection.matchId}: ${connection.name} asked for a snapshot " +
+                    "(state ${matches[connection.matchId]?.battle?.gameStateId})"
+        )
         matches[connection.matchId]?.sendSnapshot(connection)
+    }
+
+    /**
+     * The player quit the match on purpose, by going back to the menu. The connection is kept
+     * because they are still connected to the server and may queue again, but it is no longer a
+     * member of this match, so the match stops broadcasting to it and stops once it is empty.
+     */
+    private fun onLeaveMatch(connection: ClientConnection) {
+        leaveCurrentMatch(connection, "'${connection.name}' left the match")
+    }
+
+    /**
+     * Takes a connection out of whatever match it is in.
+     *
+     * A connection belongs to at most one match. Without this, a player who went back to the menu
+     * and started another game stayed a member of the first one: the old match kept playing and
+     * broadcasting, so one client was handed two command streams at once and every message looked
+     * like a gap. Called whenever a connection moves on to a lobby or the queue.
+     */
+    private fun leaveCurrentMatch(connection: ClientConnection, reason: String) {
+        val match = matches[connection.matchId] ?: run {
+            connection.matchId = ""
+            return
+        }
+
+        GameLog.info("ServerCore", "Match ${match.id}: $reason")
+        match.removeMember(connection)
+        connection.matchId = ""
     }
 
     private inner class Match(val id: String, val battle: ServerBattle, val fogOfWar: Boolean) {
@@ -591,10 +799,38 @@ class ServerCore(val config: ServerConfig) {
 
         val isFinished: Boolean get() = battle.isGameOver
 
+        /** Set by [stop]. A stopped match is dropped from the table on the next update. */
+        var finished = false
+
+        private var stopped = false
+
+        /**
+         * True once every member has gone. A match of bots with no one watching has nothing left
+         * to decide, so it is stopped rather than played out to an empty room.
+         */
+        fun hasNoMembersLeft(): Boolean = connectionFor().isEmpty() && !stopped
+
         init {
-            battle.commandManager.onCommand = {
+            battle.commandManager.onCommand = { command ->
                 battle.gameStateId++
                 lastCommandTime = System.nanoTime()
+
+                // Every command passes through here, whether it came from a client, from a bot or
+                // from the turn timer, so this is the one place that tells the clients about it.
+                // Broadcasting from the human path alone meant bot turns were played on the server
+                // and never reached anybody watching.
+                //
+                // The stream is ordered and reliable, so a client that applies each command stays
+                // in step on its own. A full snapshot is only sent when a client really needs one:
+                // a rejection, a state gap, or a reconnect.
+                val broadcast = MatchCommandBroadcast()
+                broadcast.matchId = id
+                broadcast.stateId = battle.gameStateId
+                broadcast.playerId = command.playerId
+                broadcast.commandName = command.javaClass.name
+                broadcast.commandJson = command.toGson()
+
+                connectionFor().forEach { sendTo(it, Msg.MATCH_COMMAND_BROADCAST, "", broadcast) }
             }
         }
 
@@ -604,6 +840,7 @@ class ServerCore(val config: ServerConfig) {
 
             if (battle.isGameOver) {
                 val ended = MatchEnded()
+                ended.matchId = id
                 ended.winners.addAll(battle.gameEndCondition.winners)
                 connectionFor().forEach { sendTo(it, Msg.MATCH_ENDED, "", ended) }
             }
@@ -633,14 +870,8 @@ class ServerCore(val config: ServerConfig) {
             if (!endTurn.canExecute(battle)) return
 
             if (!endTurn.execute(battle)) return
+            // The command listener broadcasts it, so the clients see the forced end of turn.
             battle.commandManager.onCommand?.invoke(endTurn)
-
-            val broadcast = MatchCommandBroadcast()
-            broadcast.stateId = battle.gameStateId
-            broadcast.playerId = current
-            broadcast.commandName = endTurn.javaClass.name
-            broadcast.commandJson = endTurn.toGson()
-            connectionFor().forEach { sendTo(it, Msg.MATCH_COMMAND_BROADCAST, "", broadcast) }
 
             GameLog.info("ServerCore", "Match $id: player $current ran out of time")
         }
@@ -649,6 +880,23 @@ class ServerCore(val config: ServerConfig) {
             val expectedPlayerId = connection.playerId
             if (expectedPlayerId <= 0) {
                 sendError(connection, requestId, "You are not in this match")
+                return
+            }
+
+            // Whose turn it is, asked before the state counter. A player who is not up, which
+            // includes somebody who came along to watch, was being told their state was out of
+            // date, which is true but says nothing about the real problem.
+            val current = battle.turnManager.currentPlayer.id
+            if (expectedPlayerId != current) {
+                val player = battle.turnManager.getPlayerById(expectedPlayerId)
+                val watching = player != null &&
+                        (player.isSpectator ||
+                                ctmn.petals.sim.FogOfWar.isSpectator(battle.field, player))
+
+                reject(
+                    connection, requestId,
+                    if (watching) "You are watching this match, not playing it" else "It is not your turn"
+                )
                 return
             }
 
@@ -692,18 +940,9 @@ class ServerCore(val config: ServerConfig) {
                 "Match $id: ${connection.name} -> ${command.javaClass.simpleName} (state ${battle.gameStateId})"
             )
 
-            val broadcast = MatchCommandBroadcast()
-            broadcast.stateId = battle.gameStateId
-            broadcast.playerId = expectedPlayerId
-            broadcast.commandName = command.javaClass.name
-            broadcast.commandJson = request.commandJson
-            connectionFor().forEach { sendTo(it, Msg.MATCH_COMMAND_BROADCAST, "", broadcast) }
-
-            // No snapshot here on purpose. The broadcast stream is ordered and reliable, so a
-            // client that applies every command stays in sync on its own. A full snapshot is
-            // only sent when a client really needs one: a rejection, a state gap, or a
-            // reconnect. Sending one per command made every single action cost a full state
-            // transfer.
+            // No snapshot here on purpose, and no broadcast either: the command listener does
+            // both, so a client's own command and a bot's command travel the same path. Sending
+            // one snapshot per command made every single action cost a full state transfer.
         }
 
         private fun reject(connection: ClientConnection, requestId: String, reason: String) {
@@ -714,6 +953,16 @@ class ServerCore(val config: ServerConfig) {
                 it.reason = reason
             })
             sendSnapshot(connection)
+        }
+
+        /** Drops a member without ending the match, used when a player quits to the menu. */
+        fun removeMember(connection: ClientConnection) {
+            val entry = clientIds.entries.firstOrNull { it.value == connection.clientId } ?: return
+            clientIds.remove(entry.key)
+            GameLog.verbose(
+                "ServerCore",
+                "Match $id: player ${entry.key} (${connection.name}) is no longer a member"
+            )
         }
 
         fun onPlayerDisconnected(connection: ClientConnection) {
@@ -735,15 +984,25 @@ class ServerCore(val config: ServerConfig) {
             if (fogOfWar) {
                 val viewerId = clientIds.entries.firstOrNull { it.value == connection.clientId }?.key
                 val viewer = viewerId?.let { battle.turnManager.getPlayerById(it) }
-                if (viewer != null) {
+
+                // A spectator owns no tile, so they have no vision sources and fog would hide the
+                // whole map from them. They get the unfiltered state instead, which is what makes
+                // spectating work at all.
+                val spectating = viewer != null &&
+                        ctmn.petals.sim.FogOfWar.isSpectator(battle.field, viewer)
+
+                if (viewer != null && !spectating) {
                     val visibility = ctmn.petals.sim.FogOfWar.compute(
                         battle.field, battle.turnManager.players, viewer
                     )
                     SnapshotFilter.apply(snapshot, visibility, viewer.teamId)
+                } else if (spectating) {
+                    GameLog.verbose("ServerCore", "sending the unfiltered map to spectator ${connection.name}")
                 }
             }
 
             val message = MatchSnapshot()
+            message.matchId = id
             message.stateId = battle.gameStateId
             message.snapshotJson = snapshot.toGson()
             sendTo(connection, Msg.MATCH_SNAPSHOT, "", message)
@@ -752,7 +1011,24 @@ class ServerCore(val config: ServerConfig) {
         private fun connectionFor(): List<ClientConnection> =
             clientIds.values.mapNotNull { clientsById[it] }
 
-        fun stop() {}
+        /**
+         * Ends the match and forgets its members. A match nobody is left in must not keep playing:
+         * it would burn a turn every second and keep broadcasting to connections that have already
+         * moved on to another match, which is how two command streams end up interleaved on one
+         * client.
+         */
+        fun stop(reason: String) {
+            if (stopped) return
+            stopped = true
+
+            GameLog.info(
+                "ServerCore",
+                "Match $id stopped ($reason) with ${connectionFor().size} connection(s) left"
+            )
+
+            clientIds.clear()
+            finished = true
+        }
     }
 
     private inner class Lobby(
@@ -763,12 +1039,18 @@ class ServerCore(val config: ServerConfig) {
         val maxPlayers: Int,
         val fogOfWar: Boolean,
         val gameMode: String,
-        val botDifficulty: String = "normal",
+        /** Set when the host picked a map that only exists on their machine. */
+        val hostMapJson: String? = null,
     ) {
         val members = ArrayList<ClientConnection>()
 
-        /** Bot seats, filled at match start rather than as connections. */
-        var botCount = 0
+        /** Where the host sits and which id they keep, so their colour survives. */
+        var hostSeat = LobbySeat().apply { slot = 0; playerId = 1 }
+
+        /** Bot seats, each with its difficulty, slot and lobby id. */
+        val bots = ArrayList<BotSeat>()
+
+        val botCount get() = bots.size
 
         init {
             members.add(host)
@@ -793,27 +1075,102 @@ class ServerCore(val config: ServerConfig) {
             state.fogOfWar = fogOfWar
             state.maxPlayers = maxPlayers
             state.state = if (members.all { it.ready || it === host }) "STARTING" else "WAITING"
-            members.forEachIndexed { index, member ->
-                state.members.add(LobbyMember().also {
-                    it.clientId = member.clientId
-                    it.name = member.name
-                    it.playerId = index + 1
-                    it.ready = member.ready || member === host
-                    it.host = member === host
-                })
+
+            // One entry per slot, empty ones included, so a client can place each member in the
+            // slot it was actually given.
+            val bySlot = seatAssignments().associateBy { it.slot }
+            for (slot in 0 until 8) {
+                when (val seat = bySlot[slot]) {
+                    null -> state.members.add(LobbyMember().also { it.playerId = -1 })
+
+                    is Seat.Bot -> state.members.add(LobbyMember().also {
+                        it.slot = slot
+                        it.name = seat.name.ifBlank { "Bot ${slot + 1}" }
+                        it.playerId = seat.playerId
+                        it.isAi = true
+                        it.botDifficulty = seat.difficulty
+                        it.species = seat.species
+                        it.ready = true
+                    })
+
+                    is Seat.Human -> state.members.add(LobbyMember().also {
+                        it.slot = slot
+                        it.clientId = seat.connection.clientId
+                        it.name = seat.connection.name
+                        it.playerId = seat.playerId
+                        it.ready = seat.connection.ready || seat.connection === host
+                        it.host = seat.connection === host
+                    })
+                }
             }
-            // Bots come after the humans, matching the player ids given at match start.
-            repeat(botCount) { index ->
-                val id = members.size + index + 1
-                state.members.add(LobbyMember().also {
-                    it.name = "Bot $id"
-                    it.playerId = id
-                    it.isAi = true
-                    it.botDifficulty = botDifficulty
-                    it.ready = true
-                })
-            }
+
+            GameLog.verbose(
+                "ServerCore",
+                "broadcasting lobby '${state.name}': " + SeatingLog.describe("seats", state.members.toList())
+            )
         }
+
+        /**
+         * Who sits where. The host's arrangement wins: their slot and the bots' slots are
+         * honoured, and any member who joined later takes the first slot still free, in join
+         * order. A slot past the map's player places has no base, which is how spectating works.
+         */
+        fun seatAssignments(): List<Seat> {
+            val seats = ArrayList<Seat>(members.size + bots.size)
+            val taken = HashSet<Int>()
+
+            seats.add(Seat.Human(host, hostSeat.slot, hostSeat.playerId))
+            taken.add(hostSeat.slot)
+
+            bots.forEach { bot ->
+                if (taken.add(bot.slot)) {
+                    seats.add(Seat.Bot(bot.difficulty, bot.slot, bot.playerId, bot.name, bot.species))
+                }
+            }
+
+            // A player who joined has no seat of their own yet, so they take the lowest free
+            // slot and the lowest free id.
+            members.filter { it !== host }.forEach { connection ->
+                val free = (0 until maxPlayers).firstOrNull { taken.add(it) } ?: return@forEach
+                seats.add(Seat.Human(connection, free, nextFreePlayerId(seats)))
+            }
+
+            return seats.sortedBy { it.slot }
+        }
+
+        private fun nextFreePlayerId(seats: List<Seat>): Int {
+            val used = seats.mapNotNull { it.playerId.takeIf { id -> id > 0 } }.toHashSet()
+            return (1..maxPlayers).firstOrNull { it !in used } ?: (maxPlayers + 1)
+        }
+    }
+
+    /** A bot seat in a lobby, with the slot and lobby id the host gave it. */
+    private data class BotSeat(
+        val difficulty: String,
+        val slot: Int,
+        val playerId: Int,
+        val name: String,
+        val species: String = "",
+    )
+
+    /** Who sits in which slot, with which lobby id, before players exist. */
+    private sealed interface Seat {
+        val slot: Int
+        val playerId: Int
+
+        data class Human(
+            val connection: ClientConnection,
+            override val slot: Int,
+            override val playerId: Int,
+        ) : Seat
+
+        data class Bot(
+            val difficulty: String,
+            override val slot: Int,
+            override val playerId: Int,
+            val name: String,
+            val species: String = "",
+        ) : Seat
     }
 
     // Outbound helpers

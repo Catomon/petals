@@ -3,6 +3,8 @@ package ctmn.petals.menu
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Event
+import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -51,6 +53,9 @@ class GameSetupPane(val dialogStage: Stage) {
 
     companion object {
         const val SLOT_COUNT = 8
+
+        /** Bot difficulties offered per slot, weakest first. */
+        val BOT_DIFFICULTIES = listOf("easy", "normal", "hard", "insane")
     }
 
     val mapPreview = MapPreview()
@@ -131,6 +136,10 @@ class GameSetupPane(val dialogStage: Stage) {
     /** The seated players in slot order, which is the order ids must be assigned in. */
     val players: List<Player> get() = slots.mapNotNull { it.player }
 
+    /** The bot seats, in slot order, each with its own difficulty. */
+    val bots: List<Pair<String, Player>>
+        get() = slots.filter { it.isAI && it.player != null }.map { it.botDifficulty to it.player!! }
+
     /** Fired when the host changed something the transport should broadcast. */
     var onLobbyChanged: (() -> Unit)? = null
 
@@ -174,6 +183,17 @@ class GameSetupPane(val dialogStage: Stage) {
         content = mainTable
 
         addActor(mainTable)
+
+        // The change map button sits over the preview's bottom edge, which means it needs its
+        // own table layered on the stage. It belongs to the pane, otherwise a host screen that
+        // only hosts the pane ends up with an invisible button nobody placed.
+        val changeMapOverlay = VisTable()
+        with(changeMapOverlay) {
+            top()
+            add().width(mapPreview.width - changeMapButton.width).height(mapPreview.height)
+            add(changeMapButton).bottom()
+        }
+        addActor(changeMapOverlay)
 
         daytime = PlayStage.DayTime.DAY
         season = Season.SUMMER
@@ -272,14 +292,17 @@ class GameSetupPane(val dialogStage: Stage) {
         if (!isHost) return
 
         val target = slots.get(slotIndex)
-        val previous = getPlayerSlot(localPlayer) ?: throw IllegalStateException("Local player has no slot")
-        previous.player = null
 
+        // The local player may have no seat yet, for example on a fresh server lobby screen,
+        // so this must not insist on one.
+        val previous = getPlayerSlot(localPlayer)
         val displaced = target.player
         val displacedIsBot = target.isAI
 
+        previous?.player = null
+
         target.player = localPlayer
-        if (displaced != null) {
+        if (displaced != null && previous != null) {
             previous.player = displaced
             previous.isAI = displacedIsBot
         }
@@ -324,6 +347,9 @@ class GameSetupPane(val dialogStage: Stage) {
         var isHostSlot = false
         var isLocalPlayer = false
         var isAI = false
+
+        /** Difficulty for this slot's bot, see [ctmn.petals.bot.v2.Difficulty]. */
+        var botDifficulty: String = "normal"
 
         var isLocked = false
             set(value) {
@@ -445,6 +471,17 @@ class GameSetupPane(val dialogStage: Stage) {
 
             val win = VisWindow("${strings.general.player_slot} ${index() + 1}")
 
+            // The cover must go away however the window closes, otherwise it keeps swallowing
+            // clicks. Closing it by escape or by tapping outside never runs our own listeners.
+            win.addListener(object : EventListener {
+                override fun handle(event: Event?): Boolean {
+                    if (event is InputEvent && event.type == InputEvent.Type.exit) {
+                        dialogStage.removeCover()
+                    }
+                    return false
+                }
+            })
+
             fun close() {
                 win.remove()
                 dialogStage.removeCover()
@@ -453,19 +490,6 @@ class GameSetupPane(val dialogStage: Stage) {
 
             val moveHereButton = newTextButton(strings.general.move_here).addChangeListener {
                 moveLocalPlayerToSlot(index())
-                close()
-            }
-
-            val addEasyBotButton = newTextButton(strings.general.add_easy_bot).addChangeListener {
-                if (slot.player == null) {
-                    slot.player = Player(
-                        strings.general.player + "ABCDEFGH"[freePlayerId() - 1],
-                        freePlayerId(),
-                        freePlayerId()
-                    ).also { it.species = Species.names.random() }
-                    slot.isAI = true
-                    onLobbyChanged?.invoke()
-                }
                 close()
             }
 
@@ -480,6 +504,23 @@ class GameSetupPane(val dialogStage: Stage) {
                     onLobbyChanged?.invoke()
                 }
                 close()
+            }
+
+            // One button per bot difficulty, so a lobby can mix them.
+            val addBotButtons = BOT_DIFFICULTIES.map { difficulty ->
+                newTextButton("Bot: $difficulty").addChangeListener {
+                    if (slot.player == null) {
+                        slot.player = Player(
+                            strings.general.player + "ABCDEFGH"[freePlayerId() - 1],
+                            freePlayerId(),
+                            freePlayerId()
+                        ).also { it.species = Species.names.random() }
+                        slot.isAI = true
+                        slot.botDifficulty = difficulty
+                        onLobbyChanged?.invoke()
+                    }
+                    close()
+                }
             }
 
             val makeGoblinButton = newTextButton(strings.general.set_goblin).addChangeListener {
@@ -508,9 +549,9 @@ class GameSetupPane(val dialogStage: Stage) {
             val closeButton = newIconButton("cancel").addChangeListener { close() }
 
             moveHereButton.isDisabled = !isHost
-            addEasyBotButton.isDisabled = !isHost || slot.player != null
             addPlayerButton.isDisabled = !isHost || (slot.player != null && !slot.isAI) || !allowLocalPlayer
             removeButton.isDisabled = !isHost || slot.player === localPlayer
+            addBotButtons.forEach { it.isDisabled = !isHost || slot.player != null }
 
             with(win) {
                 setCenterOnAdd(true)
@@ -519,8 +560,10 @@ class GameSetupPane(val dialogStage: Stage) {
                 row()
                 add(moveHereButton)
                 row()
-                add(addEasyBotButton)
-                row()
+                for (botButton in addBotButtons) {
+                    add(botButton)
+                    row()
+                }
                 if (allowLocalPlayer) {
                     add(addPlayerButton)
                     row()

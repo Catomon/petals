@@ -19,8 +19,8 @@ class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
     constructor(unit: UnitActor, base: TileActor) : this(unit.stageName, base.stageName)
 
     override fun canExecute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
-        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId } ?: return false
 
         if (!unit.canBuildBase(tile)) return false
 
@@ -35,12 +35,12 @@ class BuildBaseCommand(val unitId: String, val baseId: String) : Command() {
     }
 
     override fun execute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
-        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId } ?: return false
 
         unit.actionPoints = 0
 
-        battle.turnManager.getPlayerById(unit.playerId)!!.credits -= BASE_BUILD_COST
+        battle.turnManager.getPlayerById(unit.playerId)?.let { it.credits -= BASE_BUILD_COST }
 
         unit.del(InvisibilityComponent::class.java)
 

@@ -19,7 +19,8 @@ class TurnManager(val battle: Battle) {
 
     private val allPlayersOutOfGame: Boolean get() {
         for (player in players) {
-            if (!player.isOutOfGame)
+            // Spectators never play, so they must not keep a finished match alive.
+            if (!player.isOutOfGame && !player.isSpectator)
                 return false
         }
 
@@ -62,7 +63,7 @@ class TurnManager(val battle: Battle) {
                 nextRound()
             }
             battle.fireEvent(TurnsCycleListener.TurnCycleEvent(lastPlayer, currentPlayer, turnCycleTime))
-        } while (currentPlayer.isOutOfGame)
+        } while (currentPlayer.isOutOfGame || currentPlayer.isSpectator)
 
         //send event
         val nextPlayer = currentPlayer

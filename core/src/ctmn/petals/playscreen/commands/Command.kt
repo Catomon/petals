@@ -15,5 +15,14 @@ abstract class Command {
 
     open fun canExecute(battle: Battle) : Boolean = true
 
+    /**
+     * Why [canExecute] said no, in words and with the numbers behind it.
+     *
+     * Only for logging. A client replaying the server's commands sometimes cannot run one that the
+     * server accepted, and "cannot replay MoveUnitCommand" on its own says nothing about which of
+     * its checks disagreed. Returns null when there is nothing worth adding.
+     */
+    open fun explainFailure(battle: Battle): String? = null
+
     abstract fun execute(battle: Battle) : Boolean
 }

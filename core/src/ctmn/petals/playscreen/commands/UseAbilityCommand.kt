@@ -28,7 +28,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
     override fun canExecute(battle: Battle): Boolean {
         val unitCaster: UnitActor = battle.field.findUnit(unitCasterId) ?: return false
-        val ability = unitCaster.getAbility(abilityName) ?: throw IllegalArgumentException("No such ability: $abilityName")
+        val ability = unitCaster.getAbility(abilityName) ?: return false
 
         val abilities = unitCaster.cAbilities?.abilities ?: return false
 
@@ -76,7 +76,7 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
     override fun execute(battle: Battle): Boolean {
         val unitCaster: UnitActor = battle.field.findUnit(unitCasterId) ?: return false
-        val ability = unitCaster.getAbility(abilityName) ?: throw IllegalArgumentException("No such ability: $abilityName")
+        val ability = unitCaster.getAbility(abilityName) ?: return false
 
         if (ability is SummonAbility) {
             if (param != null) unitCaster.summoner.selectedUnit = param

@@ -1,6 +1,7 @@
 package ctmn.petals.playscreen.commands
 
 import ctmn.petals.Config
+import ctmn.petals.playstage.getUnits
 import ctmn.petals.playscreen.selfName
 import ctmn.petals.playscreen.seqactions.MoveUnitAction
 import ctmn.petals.playscreen.seqactions.OneSeqAction
@@ -28,6 +29,23 @@ class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Comm
 
         //calculate AP
         return unit.actionPoints >= Config.ACTION_POINTS_MOVE_MIN
+    }
+
+    override fun explainFailure(battle: Battle): String? {
+        val unit = battle.field.findUnit(unitId)
+            ?: return "no unit '$unitId' on the field (has ${battle.field.getUnits().size} unit(s))"
+
+        if (!unit.canMove(tileX, tileY)) {
+            return "unit $unitId at ${unit.tiledX},${unit.tiledY} cannot reach $tileX,$tileY " +
+                    "(move range ${unit.movingRange}, action points ${unit.actionPoints})"
+        }
+
+        if (unit.actionPoints < Config.ACTION_POINTS_MOVE_MIN) {
+            return "unit $unitId has ${unit.actionPoints} action points, needs " +
+                    "${Config.ACTION_POINTS_MOVE_MIN}"
+        }
+
+        return null
     }
 
     override fun execute(battle: Battle): Boolean {

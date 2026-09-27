@@ -27,6 +27,10 @@ class AwaitingOrderPanel(private val guiStage: PlayGUIStage) : VisTable() {
         guiStage.addListener {
             when (it) {
                 is CommandExecutedEvent, is NextTurnEvent -> {
+                    // A spectator has no units coming, so the button would sit here greyed out for
+                    // the whole match. Hide the panel instead.
+                    this.isVisible = !playScreen.isSpectating
+
                     val unitsActAw = playStage.playerUnitsHasAction(localPlayer).size
                     unitsHaveActionButton.isDisabled =
                         !(playScreen.turnManager.currentPlayer == localPlayer && unitsActAw > 0)

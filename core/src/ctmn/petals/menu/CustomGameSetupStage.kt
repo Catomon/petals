@@ -341,12 +341,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             }).width(300f)
         }
 
-        with(createTable()) {
-            top()
-            add().width(mapPreview.width - changeMapButton.width).height(mapPreview.height)
-            add(changeMapButton).bottom()
-        }
-
         changeMapButton.addChangeListener {
             menuScreen.stage = menuScreen.mapSelectionStage.also {
                 it.onResult = { result ->

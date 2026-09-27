@@ -23,6 +23,12 @@ object BattleSetup {
         season: Season = Season.SUMMER,
         friendlyFire: Boolean = false,
         turnTimeLimitSeconds: Int = 0,
+        /**
+         * Which player owns which map place, by the lobby slot they sit in. A map place with no
+         * player in the matching slot stays unowned, which is how a spectator works. When this is
+         * empty the map's own player labels decide, as the local flow does.
+         */
+        playerIdBySlot: Map<Int, Int> = emptyMap(),
     ): ServerBattle {
         require(players.isNotEmpty()) { "A battle needs at least one player" }
 
@@ -40,7 +46,12 @@ object BattleSetup {
         battle.turnManager.currentPlayer = players.first()
         battle.localPlayer = players.first()
 
-        battle.setupDefaultPlayerIds()
+        if (playerIdBySlot.isEmpty()) {
+            battle.setupDefaultPlayerIds()
+        } else {
+            battle.assignMapPlacesBySlot(playerIdBySlot)
+        }
+
         battle.setupSpawnPoints()
         battle.startFirstTurn()
 

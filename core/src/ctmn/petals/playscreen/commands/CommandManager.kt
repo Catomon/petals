@@ -35,8 +35,11 @@ class CommandManager(val battle: Battle) {
 
     fun execute(command: Command) {
         if (!command.canExecute(battle)) {
-            // it will happen sometimes cuz of Bot players
-            logErr("Command ${command::class.simpleName} cannot be executed (command.canExecute() returns false)")
+            // It will happen sometimes because of bot players, and for a command from the server it
+            // means our copy of the state disagrees with the server's. The command can say which of
+            // its checks failed, so ask it rather than logging a bare class name.
+            val because = runCatching { command.explainFailure(battle) }.getOrNull()
+            logErr("Command ${command::class.simpleName} cannot be executed${because?.let { ": $it" } ?: ""}")
             return
         }
 
@@ -52,7 +55,18 @@ class CommandManager(val battle: Battle) {
     }
 
     fun queueCommand(command: Command, playerId: Int? = null) : Boolean {
-        if (!command.canExecute(battle)) {
+        // A command the server already accepted is not ours to refuse here.
+        //
+        // This check asks "can this run right now", but a queued command has not run yet, so a
+        // command arriving from the network is judged against a state one or more commands behind
+        // the server's. That is how a client rejected a perfectly legal move: the end of turn that
+        // refilled the unit's action points was still sitting in the queue in front of it, so the
+        // move looked like it had no action points left. It is checked again in [execute], by which
+        // point the queue in front of it has drained and the state is right.
+        //
+        // A command this client invented is still checked here, because that is where a local
+        // action that cannot happen gets turned away.
+        if (!command.fromServer && !command.canExecute(battle)) {
             Gdx.app.error("CommandManager.queueCommand", "Command cannot be executed: $command")
             return false
         }

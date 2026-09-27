@@ -33,6 +33,7 @@
     "your_turn": "YOUR TURN",
     "enemy_turn": "ENEMY TURN",
     "ally_turn": "ALLY TURN",
+    "spectating": "SPECTATING",
     "buy_menu": "Base Menu"
   },
   "units": {

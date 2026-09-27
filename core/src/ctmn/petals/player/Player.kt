@@ -52,6 +52,13 @@ data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: 
 
     var isOutOfGame = false
 
+    /**
+     * True when this player is only watching: seated past the map's player places, so they own no
+     * base and never get a turn. Unlike [isOutOfGame], which means defeated, this is known at
+     * seating time and never changes during the match.
+     */
+    var isSpectator = false
+
     var species = fairy
 
     var techs: MutableList<String> = mutableListOf()
@@ -63,6 +70,7 @@ data class Player(var name: String = "Player${Random.nextInt(0, 999)}", var id: 
         credits = player.credits
         allies = player.allies
         isOutOfGame = player.isOutOfGame
+        isSpectator = player.isSpectator
         creditsPassiveReserve = player.creditsPassiveReserve
 
         return this

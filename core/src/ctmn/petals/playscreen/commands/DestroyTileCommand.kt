@@ -18,13 +18,13 @@ class DestroyTileCommand(val unitId: String, val baseId: String) : Command() {
     constructor(unit: UnitActor, base: TileActor) : this(unit.stageName, base.stageName)
 
     override fun canExecute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
-        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId } ?: return false
 
         if (unit.actionPoints <= 0) return false
 
         if (!(tile.isBase || tile.terrain == TerrainNames.building))
-            throw IllegalArgumentException("The tile terrain is not destroyable")
+            return false
 
         if (!unit.canDestroy(tile, battle.turnManager.getPlayerById(tile.cPlayerId?.playerId ?: -1)?.teamId))
             return false
@@ -33,8 +33,8 @@ class DestroyTileCommand(val unitId: String, val baseId: String) : Command() {
     }
 
     override fun execute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
-        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId }!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
+        val tile: TileActor = battle.field.allTiles.firstOrNull { it.name == baseId } ?: return false
 
         unit.actionPoints -= ACTION_POINTS_ATTACK
 

@@ -374,6 +374,37 @@ open class PlayScreen(
         }
     }
 
+    /**
+     * Writes an explicit slot to player ownership onto the player labels, which is what
+     * [assignPlayersToSpawnPoints] reads during [ready].
+     *
+     * [setDefaultPlayerIdToLabels] assumes seating is positional and hands the first map place
+     * to player one. That is right locally, but a server seats by lobby slot, so the default
+     * would give the first place to whoever happens to be player one, including somebody sitting
+     * past the map's places who is only there to watch. A place nobody was given is left unowned.
+     *
+     * @return how many places were assigned.
+     */
+    fun setMapOwnersFromSlots(ownerBySlot: Map<Int, Int>): Int {
+        var assigned = 0
+
+        playStage.getLabels().filter { it.labelName == "player" }.forEach { label ->
+            val slot = label.data.get("id")?.toIntOrNull() ?: return@forEach
+            val owner = ownerBySlot[slot]
+
+            if (owner != null && owner > 0) {
+                label.data.put("player_id", owner.toString())
+                assigned++
+            } else {
+                // No owner means the key must be gone, because [assignPlayersToSpawnPoints] reads
+                // it with toInt and a present key means somebody owns this place.
+                label.data.removeKey("player_id")
+            }
+        }
+
+        return assigned
+    }
+
     private fun assignPlayersToSpawnPoints() {
         val map = this.map ?: throw IllegalStateException("map == null")
 
@@ -468,7 +499,17 @@ open class PlayScreen(
         RectRenderer.render()
     }
 
+    /**
+     * Called when the player quits this battle for the menu, before the screen is swapped out.
+     *
+     * Replacing `game.screen` does not dispose the old screen, so this is the only reliable place
+     * to let go of anything a networked battle holds. The local flow has nothing to release.
+     */
+    open fun onLeavingMatch() {}
+
     fun returnToMenuScreen() {
+        onLeavingMatch()
+
         if (gameType == GameType.MULTIPLAYER) {
             when (this) {
                 is HostPlayScreen -> {
@@ -492,6 +533,9 @@ open class PlayScreen(
         val youWon = winners.contains(localPlayer.id)
         val draw = winners.size == 0
         val enemyWon = !draw && !youWon
+        // Somebody watching is never in the winners list, so without this they would be told they
+        // lost a match they were only ever watching.
+        val spectating = isSpectating
 
         logMsg("Game Over. Winners: ${winners.joinToString()}; teamId: ${turnManager.getPlayerById(winners.firstOrNull() ?: -1)?.teamId ?: ""}")
 
@@ -499,6 +543,7 @@ open class PlayScreen(
         labelGameOver.setFontScale(2f)
         labelGameOver.setText(
             when {
+                spectating -> "MATCH OVER"
                 youWon -> if (this is StoryPlayScreen) "DONE!" else "YOU WON"
                 enemyWon -> "YOU LOSE"
                 else -> "DRAW"
@@ -519,6 +564,11 @@ open class PlayScreen(
         }))
 
         val message = when {
+            // Name the winner instead of claiming a result for somebody who never played.
+            spectating -> winners.firstOrNull()
+                ?.let { winnerId -> "${turnManager.getPlayerById(winnerId)?.name ?: "Player $winnerId"} wins" }
+                ?: "Draw"
+
             youWon -> "Victory!"
             enemyWon -> "Defeat"
             draw -> "Draw"

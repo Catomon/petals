@@ -3,11 +3,7 @@ package ctmn.petals.menu
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.utils.Align
-import com.badlogic.gdx.utils.Array
-import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisScrollPane
-import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.VisWindow
@@ -18,15 +14,18 @@ import ctmn.petals.net.ServerClient
 import ctmn.petals.net.proto.*
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.strings
-import ctmn.petals.utils.logMsg
 import ctmn.petals.widgets.*
 
 /**
- * Online lobby browser for the dedicated server: connect to a server by address, browse its
- * lobbies, create one, or jump into the quick match queue. Found matches are handed to
- * [OnlinePlayScreen].
+ * Online lobby browser for the dedicated server: connect to a server by address and browse its
+ * lobbies, or jump into the quick match queue.
+ *
+ * Creating a lobby and setting up a match happen in [ServerLobbySetupStage], which hosts the
+ * same setup pane as the local flow, so bot seats are picked there. Matches found through the
+ * queue are handed to [OnlinePlayScreen].
  */
-class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
+class LobbiesStage(private val menuScreen: MenuScreen) :
+    Stage(menuScreen.viewport, menuScreen.batch), MenuStageAware {
 
     private var client: ServerClient? = null
     private var serverName: String = ""
@@ -34,6 +33,15 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
     private var queueing = false
     private var serverHost = "localhost"
     private var serverPort = Config.SERVER_PORT
+
+    /** Maps the server offers, so the setup screen can offer the same list. */
+    private var mapPool: List<String> = emptyList()
+
+    /**
+     * Kept so it can be re-attached after [ServerLobbySetupStage] borrows the client. Without
+     * this the browser goes deaf the first time you come back from a lobby.
+     */
+    private var browserListener: ServerClient.Listener? = null
 
     private val nameField = VisTextField().apply { messageText = "Your name" }
     private val addressField = VisTextField().apply { messageText = "localhost" }
@@ -44,14 +52,6 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
 
     private val lobbyTable = VisTable()
     private val lobbyScroll = VisScrollPane(lobbyTable)
-
-    private val mapSelectBox = VisSelectBox<String>().apply {
-        items = Array<String>().apply { add("2L_Blooming_Mountains") }
-    }
-    private val playersSelectBox = VisSelectBox<String>().apply {
-        items = Array<String>().apply { add("2"); add("3"); add("4"); add("6"); add("8") }
-    }
-    private val fogCheckBox = VisCheckBox("Fog of war").apply { isChecked = true }
 
     private val connectButton = newTextButton("Connect")
     private val refreshButton = newTextButton("Refresh").apply { isDisabled = true }
@@ -98,16 +98,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
             add(statusLabel).padTop(6f).row()
             add(queueLabel).padTop(4f).row()
 
-            add(lobbyScroll).width(320f).height(200f).padTop(8f).row()
-
-            add(newLabel("New lobby", "default")).padTop(10f).row()
-            add(VisTable().apply {
-                add(newLabel("Map", "default")).padRight(6f)
-                add(mapSelectBox).width(150f).padRight(6f)
-                add(newLabel("Players", "default")).padRight(6f)
-                add(playersSelectBox).width(60f).padRight(6f)
-                add(fogCheckBox)
-            }).row()
+            add(lobbyScroll).width(320f).height(240f).padTop(8f).row()
 
             add(VisTable().apply {
                 add(refreshButton).width(150f).padRight(6f)
@@ -159,11 +150,10 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
 
         val newClient = ServerClient()
         newClient.listener = object : ServerClient.Listener {
-
             override fun onWelcome(welcome: Welcome) {
                 onUi {
                     if (welcome.mapIds.isNotEmpty()) {
-                        mapSelectBox.items = Array<String>().apply { welcome.mapIds.forEach { add(it) } }
+                        mapPool = welcome.mapIds.toList()
                     }
 
                     connected = true
@@ -227,7 +217,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
                     onServerGone()
                 }
             }
-        }
+        }.also { browserListener = it }
 
         try {
             newClient.connect(host, port, GamePref.clientId, GamePref.displayName)
@@ -238,13 +228,41 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
         }
     }
 
+    override fun onMenuShown() {
+        // The setup screen borrows the client while it is open, so take the listener back and
+        // catch up on anything that happened while we were away.
+        val activeClient = client
+        if (connected && activeClient != null && browserListener != null) {
+            activeClient.listener = browserListener
+            activeClient.listLobbies()
+            refreshButton.isDisabled = false
+            createButton.isDisabled = false
+            quickButton.isDisabled = false
+        }
+    }
+
     private fun createLobby() {
-        val request = CreateLobby()
-        request.name = "${GamePref.displayName}'s game"
-        request.maxPlayers = playersSelectBox.selected.toIntOrNull() ?: 2
-        request.fogOfWar = fogCheckBox.isChecked
-        request.mapId = mapSelectBox.selected
-        client?.createLobby(request)
+        val activeClient = client ?: return
+        menuScreen.stage = ServerLobbySetupStage(
+            menuScreen = menuScreen,
+            client = activeClient,
+            serverHost = serverHost,
+            serverPort = serverPort,
+            mapPool = mapPool,
+            lobbyId = null,
+        )
+    }
+
+    private fun openLobby(lobby: LobbyInfo) {
+        val activeClient = client ?: return
+        menuScreen.stage = ServerLobbySetupStage(
+            menuScreen = menuScreen,
+            client = activeClient,
+            serverHost = serverHost,
+            serverPort = serverPort,
+            mapPool = mapPool,
+            lobbyId = lobby.id,
+        )
     }
 
     private fun queueJoin() {
@@ -292,9 +310,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
             lobbyTable.add(newLabel(lobby.mapId, "default")).width(80f).left()
 
             lobbyTable.add(
-                newTextButton("Join").addChangeListener {
-                    client?.joinLobby(lobby.id)
-                }
+                newTextButton("Open").addChangeListener { openLobby(lobby) }
             ).padLeft(6f)
 
             lobbyTable.row().padTop(4f)
@@ -302,14 +318,9 @@ class LobbiesStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewpo
     }
 
     private fun showLobbyState(state: LobbyStateMsg) {
+        // The setup screen now shows the lobby, so the browser only needs to refresh its list.
         if (state.members.none { it.clientId == GamePref.clientId }) return
-
-        addNotifyWindow(
-            "Lobby '${state.name}' on ${state.mapId}\n" +
-                state.members.joinToString("\n") { "${it.name} (ready: ${it.ready})" } +
-                "\n\nWaiting for the match to start ...",
-            "Lobby"
-        )
+        client?.listLobbies()
     }
 
     /** Network callbacks arrive on netty threads, so hop back to the render thread. */

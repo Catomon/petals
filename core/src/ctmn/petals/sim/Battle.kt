@@ -113,6 +113,16 @@ open class Battle {
 
     val hasLocalPlayer: Boolean get() = ::localPlayer.isInitialized
 
+    /**
+     * True when the local player is only watching. The flag is set at seating time; owning no
+     * capturable tile is the same thing derived from the field, kept as a fallback for flows that
+     * never set the flag. The GUI uses this to show a watching state instead of an enemy turn
+     * banner for the whole match.
+     */
+    val isSpectating: Boolean
+        get() = hasLocalPlayer && (localPlayer.isSpectator ||
+                (this::field.isInitialized && FogOfWar.isSpectator(this.field, localPlayer)))
+
     private val listeners = ArrayList<EventListener>()
 
     val turnManager = TurnManager(this)
@@ -292,6 +302,25 @@ open class Battle {
 
             val id = label.data["id"]?.toIntOrNull() ?: continue
             label.data.put("player_id", (id + 1).toString())
+        }
+    }
+
+    /**
+     * Gives each map player place to whoever sits in the matching lobby slot, so the host's
+     * arrangement decides the map while a player id only decides their colour. A place with
+     * nobody in its slot is left unowned, which is how a spectator sits the game out.
+     */
+    fun assignMapPlacesBySlot(playerIdBySlot: Map<Int, Int>) {
+        for (label in field.labelActors.filter { it.selfName == "player" }) {
+            label.data.removeKey("player_id")
+
+            val slot = label.data["id"]?.toIntOrNull() ?: continue
+            val playerId = playerIdBySlot[slot] ?: continue
+
+            // Only a seat the player list actually knows about may own a place.
+            if (turnManager.getPlayerById(playerId) == null) continue
+
+            label.data.put("player_id", playerId.toString())
         }
     }
 

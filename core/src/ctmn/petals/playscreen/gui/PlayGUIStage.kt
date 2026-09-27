@@ -24,6 +24,7 @@ import ctmn.petals.Config.PLAY_GUI_VIEWPORT_HEIGHT
 import ctmn.petals.Config.PLAY_GUI_VIEWPORT_WIDTH
 import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.GamePref
+import ctmn.petals.strings
 import ctmn.petals.editor.ui.addTooltip
 import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
@@ -108,6 +109,15 @@ class PlayGUIStage(
     private val infoButton = newIconButton("info").apply { isVisible = false }
     private val pauseButton = newIconButton("pause")
     val endTurnButton = newIconButton("end_turn")
+
+    /**
+     * Sits where the end turn button would, and only for somebody who is watching. A spectator has
+     * no turn to end, so the corner would otherwise be empty with no word anywhere for what they
+     * are doing here.
+     */
+    private val spectatingLabel = newLabel(strings.general.spectating, "default").apply {
+        isVisible = false
+    }
     val unitsHaveActionsPanel = AwaitingOrderPanel(this)
     private val unitsHaveWaypointButton = newIconButton("units_have_waypoint")
     private val backButtonStyle = VisUI.getSkin().get("back", VisImageButton.VisImageButtonStyle::class.java)
@@ -537,7 +547,12 @@ class PlayGUIStage(
                     ) && !it.isOutOfGame
                 }.size < 2)) {
                 playScreen.fogOfWarManager.hideAll = false
-                endTurnButton.isDisabled = false
+
+                // A lit end turn button reads as "this is your turn", and during the between-turns
+                // animation that is exactly the impression it gives. Only the player who is up may
+                // have it, which is never the case for somebody who came to watch.
+                endTurnButton.isDisabled =
+                    playScreen.actionManager.hasActions || playScreen.turnManager.currentPlayer != localPlayer
             } else {
                 //if same screen and >1 p&p players, hide units and add player ready label
 
@@ -581,7 +596,11 @@ class PlayGUIStage(
         nextPlayerPrepare.onExit = {
             playScreen.fogOfWarManager.hideAll = false
 
-            endTurnButton.isDisabled = false
+            // Only the player whose turn it is may end it. Enabling the button unconditionally here
+            // left somebody who is only watching with a live button, and pressing it sent a command
+            // the server had to refuse. Every other path in here already asks whose turn it is.
+            endTurnButton.isDisabled =
+                playScreen.actionManager.hasActions || playScreen.turnManager.currentPlayer != localPlayer
         }
 
         currentState = if (playScreen.turnManager.currentPlayer == localPlayer) myTurn else theirTurn
@@ -619,6 +638,7 @@ class PlayGUIStage(
                 is NextTurnEvent -> {
                     endTurnButton.isDisabled =
                         playScreen.actionManager.hasActions || playScreen.turnManager.currentPlayer != localPlayer
+                    spectatingLabel.isVisible = playScreen.isSpectating
                 }
             }
 
@@ -728,6 +748,14 @@ class PlayGUIStage(
     private val unitsToMove = mutableListOf<UnitActor>()
 
     private fun endTurn() {
+        // Only the player who is up ends it. The button can be reached from several states and from
+        // the keyboard, so the check belongs here too: somebody who came along to watch must not be
+        // able to send a turn of their own, however the button ended up lit.
+        if (playScreen.turnManager.currentPlayer != localPlayer) {
+            logMsg("Ignoring end turn: it is ${playScreen.turnManager.currentPlayer.name}'s turn, not ours")
+            return
+        }
+
         for (task in playScreen.taskManager.getTasks()) {
             if (task.isForcePlayerToComplete)
                 return
@@ -919,6 +947,8 @@ class PlayGUIStage(
             add(abilitiesPanel)
         }
         createTable(endTurnButton).bottom().right()
+        createTable(spectatingLabel).bottom().right().padRight(12f).padBottom(12f)
+        spectatingLabel.isVisible = playScreen.isSpectating
 
 //        with(createTable()) {
 //            center().right().padRight(2f)

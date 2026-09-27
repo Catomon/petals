@@ -2,6 +2,7 @@ package ctmn.petals.sim
 
 import ctmn.petals.Config
 import ctmn.petals.player.Player
+import ctmn.petals.playstage.getCapturablesOf
 import ctmn.petals.playstage.getMapSizedGridOfZero
 import ctmn.petals.playstage.getMovementGrid
 import ctmn.petals.playstage.getRangeOfView
@@ -22,10 +23,24 @@ import kotlin.Array as KArray
 object FogOfWar {
 
     /**
+     * A player who owns no capturable tile: they have no vision sources at all, so fog would
+     * hide the entire map from them. That is the seat someone takes when they sit past the map's
+     * player places, and it is what spectating means here. A spectator sees everything, which
+     * applies both to what the renderer draws and to what the server is willing to send.
+     */
+    fun isSpectator(field: BattleField, viewer: Player): Boolean =
+        field.getCapturablesOf(viewer).isEmpty()
+
+    /**
      * @return a map sized grid where a positive value means the cell is visible to [viewer].
      */
     fun compute(field: BattleField, players: List<Player>, viewer: Player): KArray<IntArray> {
         val maxOfView = field.getMapSizedGridOfZero()
+
+        if (isSpectator(field, viewer)) {
+            for (row in maxOfView) row.fill(1)
+            return maxOfView
+        }
 
         for (unit in field.getUnitsForTeam(viewer.teamId)) {
             val unitViewRange = field.getRangeOfView(unit)

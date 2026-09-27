@@ -40,6 +40,14 @@ class TurnIcon : Actor() {
     private fun onNextTurn(player: Player, playerTurnMaker: Player) {
         val guiStage = stage as PlayGUIStage
 
+        // Somebody watching owns no place on the map and is never handed a turn. Showing them
+        // "ENEMY TURN" for every turn of a match they are not in just reads as a broken game.
+        if (guiStage.playScreen.isSpectating) {
+            label.setText(strings.general.spectating)
+            animation.setFrames(neutralTurnIcon)
+            return
+        }
+
         if (guiStage.playScreen.gameType == GameType.PVP_SAME_SCREEN) {
                 animation.setFrames(when (playerTurnMaker.id) {
                     Player.BLUE -> {

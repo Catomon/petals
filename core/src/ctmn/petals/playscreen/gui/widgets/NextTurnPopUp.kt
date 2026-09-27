@@ -18,14 +18,19 @@ class NextTurnPopUp(private val guiStage: PlayGUIStage) : VisTable() {
         label.color.a = 0f
 
         guiStage.addListener<NextTurnEvent> {
-            label.actions.clear()
-            if (nextPlayer == guiStage.localPlayer) {
-                label.setText("TURN START")
-                label.addAction(Actions.sequence(Actions.fadeIn(0.2f), Actions.delay(1f), Actions.fadeOut(0.2f)))
-            } else {
-                if (previousPlayer == guiStage.localPlayer) {
-                    label.setText("TURN END")
+            // A spectator has no turns, so neither popup means anything. Without this the opening
+            // event alone shows them a TURN END: at match start the previous player slot holds
+            // whoever sits last in turn order, which is exactly the spectator.
+            if (!guiStage.playScreen.isSpectating) {
+                label.actions.clear()
+                if (nextPlayer == guiStage.localPlayer) {
+                    label.setText("TURN START")
                     label.addAction(Actions.sequence(Actions.fadeIn(0.2f), Actions.delay(1f), Actions.fadeOut(0.2f)))
+                } else {
+                    if (previousPlayer == guiStage.localPlayer) {
+                        label.setText("TURN END")
+                        label.addAction(Actions.sequence(Actions.fadeIn(0.2f), Actions.delay(1f), Actions.fadeOut(0.2f)))
+                    }
                 }
             }
         }

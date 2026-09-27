@@ -14,13 +14,13 @@ class GrantAbilityCommand(val unitId: String, val ability: Ability) : Command() 
     constructor(unit: UnitActor, ability: Ability) : this(unit.stageName, ability)
 
     override fun canExecute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
 
         return unit.cAbilities != null
     }
 
     override fun execute(battle: Battle): Boolean {
-        val unit: UnitActor = battle.field.findUnit(unitId)!!
+        val unit: UnitActor = battle.field.findUnit(unitId) ?: return false
 
         battle.showFloatingLabel("New Ability: $ability", null, unit.centerX, unit.centerY)
 

@@ -123,6 +123,9 @@ class ServerClient {
 
     fun requestSnapshot() = send(Msg.SNAPSHOT_REQUEST, "", "")
 
+    /** Tells the server we quit the match, so it stops sending this client its commands. */
+    fun leaveMatch() = send(Msg.LEAVE_MATCH, "", "")
+
     fun ping() = send(Msg.PING, "", Ping().also { it.time = System.currentTimeMillis() })
 
     fun sendCommand(requestId: String, expectedStateId: Int, commandName: String, commandJson: String) =

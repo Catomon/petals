@@ -33,6 +33,7 @@ object Msg {
     const val MATCH_FOUND = "match_found"
     const val MATCH_COMMAND = "match_command"
     const val MATCH_COMMAND_BROADCAST = "match_command_broadcast"
+    const val LEAVE_MATCH = "leave_match"
     const val COMMAND_REJECTED = "command_rejected"
     const val SNAPSHOT_REQUEST = "snapshot_request"
     const val MATCH_SNAPSHOT = "match_snapshot"
@@ -71,11 +72,20 @@ class LobbyMember {
     var host: Boolean = false
     var connected: Boolean = true
 
+    /** 0 based lobby position. -1 when unknown. */
+    var slot: Int = -1
+
     /** A bot seat, which no client is connected to. */
     var isAi: Boolean = false
 
     /** Bot difficulty name, see [ctmn.petals.bot.v2.Difficulty]. */
     var botDifficulty: String = "normal"
+
+    /** Species id, so a seat keeps the portrait the host picked instead of rerolling. */
+    var species: String = ""
+
+    /** True when this seat is past the map's player places and only watches. */
+    var isSpectator = false
 }
 
 class LobbyInfo {
@@ -92,6 +102,28 @@ class LobbyList {
     var lobbies: MutableList<LobbyInfo> = mutableListOf()
 }
 
+/**
+ * One seat as the host arranged it.
+ *
+ * The slot is the position and the player id is the identity, and they are deliberately
+ * independent. Colour follows the id, so a player keeps their colour when they move to another
+ * slot, and a bot takes whatever id is still free.
+ */
+class LobbySeat {
+    /** 0 based position in the lobby. */
+    var slot: Int = 0
+
+    /** The lobby player id, which is also the colour. */
+    var playerId: Int = -1
+
+    var name: String = ""
+    var isAi: Boolean = false
+    var botDifficulty: String = "normal"
+
+    /** Species id, so the server creates the seat with the species the host picked. */
+    var species: String = ""
+}
+
 class CreateLobby {
     var name: String = ""
     var mapId: String = ""
@@ -99,11 +131,18 @@ class CreateLobby {
     var fogOfWar: Boolean = true
     var gameMode: String = "CRYSTALS"
 
-    /** How many bot seats the lobby should hold. */
-    var botCount: Int = 0
+    /**
+     * The host's arrangement: which player id sits in which slot. The host includes their own
+     * seat, so the server can keep their id and colour.
+     */
+    var seats: MutableList<LobbySeat> = mutableListOf()
 
-    /** Difficulty for every bot in the lobby. */
-    var botDifficulty: String = "normal"
+    /**
+     * The map itself, when the host picked one that only exists on their machine. The server
+     * cannot load it by id, so it uses this instead and passes it on to every client in
+     * `match_found`.
+     */
+    var mapJson: String = ""
 }
 
 class JoinLobby {
@@ -144,6 +183,13 @@ class MatchFound {
     var fogOfWar: Boolean = true
     var turnTimeLimitSeconds: Int = 0
     var players: MutableList<LobbyMember> = mutableListOf()
+
+    /**
+     * Which player owns which map place, keyed by the lobby slot they sit in. The client must
+     * use this instead of deriving ownership from the map's own labels, otherwise it hands the
+     * first place to player one and invents a base for somebody who is only spectating.
+     */
+    val mapOwnerBySlot = HashMap<Int, Int>()
 }
 
 class MatchCommand {
@@ -154,6 +200,12 @@ class MatchCommand {
 }
 
 class MatchCommandBroadcast {
+    /**
+     * Which match this belongs to. A client can be a member of a new match while the server is
+     * still finishing an old one, and without this the two streams arrive interleaved with nothing
+     * to tell them apart.
+     */
+    var matchId: String = ""
     var stateId: Int = 0
     var playerId: Int = -1
     var commandName: String = ""
@@ -166,11 +218,13 @@ class CommandRejected {
 }
 
 class MatchSnapshot {
+    var matchId: String = ""
     var stateId: Int = 0
     var snapshotJson: String = ""
 }
 
 class MatchEnded {
+    var matchId: String = ""
     var winners: MutableList<Int> = mutableListOf()
 }
 

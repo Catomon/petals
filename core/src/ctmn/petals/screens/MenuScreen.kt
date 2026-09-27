@@ -50,6 +50,9 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
             field.root.fire(ScreenSizeChangedEvent(Gdx.graphics.width, Gdx.graphics.height))
 
             Gdx.input.inputProcessor = field
+
+            val shown = field
+            if (shown is MenuStageAware) shown.onMenuShown()
         }
 
     init {
