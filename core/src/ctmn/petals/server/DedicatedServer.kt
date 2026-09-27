@@ -47,6 +47,11 @@ class DedicatedServer(val config: ServerConfig) {
             return
         }
 
+        if (config.onlineBotMatch) {
+            startOnlineBotMatch()
+            return
+        }
+
         val serverCore = ServerCore(config)
         serverCore.start()
         core = serverCore
@@ -146,5 +151,24 @@ class DedicatedServer(val config: ServerConfig) {
         running = false
         core?.stop()
         fakeClients.forEach { it.close() }
+    }
+
+    /**
+     * Hosts a real match of one human plus bots, so the server side bot path can be verified
+     * with a single game client instead of two.
+     */
+    private fun startOnlineBotMatch() {
+        val serverCore = ServerCore(config)
+        serverCore.start()
+        core = serverCore
+
+        serverCore.botMatchOnFirstQueueJoin = config.onlineBotMatchBots
+        serverCore.botMatchDifficulty = config.botDifficulty
+
+        GameLog.info(
+            "DedicatedServer",
+            "Online bot match ready: the first client to join the queue will face " +
+                    "${config.onlineBotMatchBots} bot(s)"
+        )
     }
 }

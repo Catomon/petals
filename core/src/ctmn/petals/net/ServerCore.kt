@@ -1,6 +1,8 @@
 package ctmn.petals.net
 
 import com.badlogic.gdx.utils.Queue
+import ctmn.petals.bot.v2.BotFactory
+import ctmn.petals.bot.v2.Difficulty
 import ctmn.petals.map.MapConverted
 import ctmn.petals.map.loadMap
 import ctmn.petals.multiplayer.json.GameStateSnapshot
@@ -9,6 +11,7 @@ import ctmn.petals.playscreen.CaptureBases
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.Season
 import ctmn.petals.player.Player
+import ctmn.petals.player.Species
 import ctmn.petals.server.ServerConfig
 import ctmn.petals.sim.BattleSetup
 import ctmn.petals.sim.ServerBattle
@@ -57,6 +60,14 @@ class ServerCore(val config: ServerConfig) {
     private val lobbies = LinkedHashMap<String, Lobby>()
     private val matches = HashMap<String, Match>()
     private val queue = ArrayDeque<ClientConnection>()
+
+    /**
+     * Debug aid: when above zero, the first client to join the quick match queue is seated
+     * against this many bots instead of waiting for a second human. See
+     * `botmatchonline` in [ctmn.petals.server.ServerConfig].
+     */
+    var botMatchOnFirstQueueJoin = 0
+    var botMatchDifficulty = "normal"
 
     private var bossGroup: EventLoopGroup? = null
     private var workerGroup: EventLoopGroup? = null
@@ -322,7 +333,11 @@ class ServerCore(val config: ServerConfig) {
             maxPlayers = request.maxPlayers.coerceIn(2, 8),
             fogOfWar = request.fogOfWar,
             gameMode = request.gameMode,
+            botDifficulty = request.botDifficulty,
         )
+
+        // Bots take seats after the humans, so the host can play "2 players and 2 bots".
+        repeat(request.botCount.coerceIn(0, lobby.maxPlayers - 1)) { lobby.botCount++ }
 
         lobbies[lobby.id] = lobby
         connection.lobbyId = lobby.id
@@ -338,7 +353,7 @@ class ServerCore(val config: ServerConfig) {
             sendError(connection, "", "Lobby not found")
             return
         }
-        if (lobby.members.size >= lobby.maxPlayers) {
+        if (lobby.members.size + lobby.botCount >= lobby.maxPlayers) {
             sendError(connection, "", "Lobby is full")
             return
         }
@@ -373,7 +388,14 @@ class ServerCore(val config: ServerConfig) {
             return
         }
 
-        startMatch(lobby.members.map { it }, lobby.mapId, lobby.fogOfWar, lobby.gameMode)
+        startMatch(
+            members = lobby.members.map { it },
+            mapId = lobby.mapId,
+            fogOfWar = lobby.fogOfWar,
+            gameMode = lobby.gameMode,
+            botCount = lobby.botCount,
+            botDifficulty = lobby.botDifficulty,
+        )
         lobbies.remove(lobby.id)
         broadcastLobbyList()
     }
@@ -410,6 +432,22 @@ class ServerCore(val config: ServerConfig) {
         queue.addLast(connection)
         broadcastQueueStatus()
 
+        // Debug mode: the first client to queue faces bots instead of waiting for a second
+        // human, so the server side bot path can be checked with one client.
+        if (botMatchOnFirstQueueJoin > 0 && queue.size == 1) {
+            val solo = queue.removeFirst()
+            startMatch(
+                members = listOf(solo),
+                mapId = config.mapPool.random(),
+                fogOfWar = true,
+                gameMode = GameMode.CRYSTALS.name,
+                botCount = botMatchOnFirstQueueJoin,
+                botDifficulty = botMatchDifficulty,
+            )
+            broadcastQueueStatus()
+            return
+        }
+
         if (queue.size >= 2) {
             val a = queue.removeFirst()
             val b = queue.removeFirst()
@@ -435,7 +473,14 @@ class ServerCore(val config: ServerConfig) {
 
     // Matches
 
-    private fun startMatch(members: List<ClientConnection>, mapId: String, fogOfWar: Boolean, gameMode: String) {
+    private fun startMatch(
+        members: List<ClientConnection>,
+        mapId: String,
+        fogOfWar: Boolean,
+        gameMode: String,
+        botCount: Int = 0,
+        botDifficulty: String = "normal",
+    ) {
         val map: MapConverted = try {
             loadMap(mapId)
         } catch (e: Exception) {
@@ -450,6 +495,23 @@ class ServerCore(val config: ServerConfig) {
             players.add(player)
         }
 
+        val difficulty = when (botDifficulty.lowercase()) {
+            "easy" -> Difficulty.EASY
+            "hard" -> Difficulty.HARD
+            "insane" -> Difficulty.INSANE
+            else -> Difficulty.NORMAL
+        }
+
+        // Bots are seated after the humans, so ids stay stable for the connected players.
+        val bots = ArrayList<Player>()
+        repeat(botCount) {
+            val id = players.size + it + 1
+            val bot = Player(name = "Bot $id", id = id, teamId = id)
+            bot.species = Species.names.random()
+            bots.add(bot)
+        }
+        players.addAll(bots)
+
         val battle = BattleSetup.build(
             map = map,
             players = players,
@@ -458,7 +520,8 @@ class ServerCore(val config: ServerConfig) {
             season = Season.SUMMER,
             turnTimeLimitSeconds = config.turnTimeLimitSeconds,
         )
-        battle.clientControlled = true
+        // Not clientControlled: this battle is the authority, so it must run its own bots.
+        bots.forEach { battle.botManager.add(BotFactory.create(it, battle, difficulty)) }
 
         val match = Match(UUID.randomUUID().toString().take(8), battle, fogOfWar)
         members.forEachIndexed { index, connection ->
@@ -488,11 +551,24 @@ class ServerCore(val config: ServerConfig) {
                     it.playerId = players[i].id
                 })
             }
+            // Bots must be announced too: the map has a spawn label per player, so a client
+            // whose mirror is missing a bot cannot place the players at all.
+            bots.forEach { bot ->
+                found.players.add(LobbyMember().also {
+                    it.name = bot.name
+                    it.playerId = bot.id
+                    it.isAi = true
+                    it.botDifficulty = botDifficulty
+                })
+            }
             sendTo(connection, Msg.MATCH_FOUND, "", found)
             match.sendSnapshot(connection)
         }
 
-        GameLog.info("ServerCore", "Match ${match.id} started on '$mapId' with ${members.size} players")
+        GameLog.info(
+            "ServerCore",
+            "Match ${match.id} started on '$mapId' with ${members.size} human(s) and ${bots.size} bot(s)"
+        )
     }
 
     private fun onMatchCommand(connection: ClientConnection, requestId: String, request: MatchCommand) {
@@ -687,8 +763,12 @@ class ServerCore(val config: ServerConfig) {
         val maxPlayers: Int,
         val fogOfWar: Boolean,
         val gameMode: String,
+        val botDifficulty: String = "normal",
     ) {
         val members = ArrayList<ClientConnection>()
+
+        /** Bot seats, filled at match start rather than as connections. */
+        var botCount = 0
 
         init {
             members.add(host)
@@ -699,7 +779,7 @@ class ServerCore(val config: ServerConfig) {
             it.name = name
             it.mapId = mapId
             it.hostName = host.name
-            it.players = members.size
+            it.players = members.size + botCount
             it.maxPlayers = maxPlayers
             it.state = "WAITING"
         }
@@ -720,6 +800,17 @@ class ServerCore(val config: ServerConfig) {
                     it.playerId = index + 1
                     it.ready = member.ready || member === host
                     it.host = member === host
+                })
+            }
+            // Bots come after the humans, matching the player ids given at match start.
+            repeat(botCount) { index ->
+                val id = members.size + index + 1
+                state.members.add(LobbyMember().also {
+                    it.name = "Bot $id"
+                    it.playerId = id
+                    it.isAi = true
+                    it.botDifficulty = botDifficulty
+                    it.ready = true
                 })
             }
         }

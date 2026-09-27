@@ -40,6 +40,15 @@ class ServerConfig {
 
     var loadTestSeconds = 20f
 
+    /**
+     * Debug helper: host a real match over the network with bot seats, so server side bots can
+     * be verified without two game windows. Pairs the queue against a human plus bots.
+     */
+    var onlineBotMatch = false
+
+    /** Bots to seat in [onlineBotMatch]. */
+    var onlineBotMatchBots = 1
+
     /** Per message tracing, so a live match can be followed in the console. */
     var verboseLog = false
 
@@ -83,6 +92,8 @@ class ServerConfig {
                     "--no-lan" -> config.lanDiscovery = false
 
                     "verboselog", "--verbose-log" -> config.verboseLog = true
+
+                    "botmatchonline", "botmatch-online" -> config.onlineBotMatch = true
 
                     "botmatch" -> {
                         config.botMatch = true

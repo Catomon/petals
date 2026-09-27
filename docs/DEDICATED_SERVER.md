@@ -116,6 +116,11 @@ Smoke tests:
 
 # trace every protocol message, useful when watching a live match
 .\gradlew.bat :server:runServer --args="--port 7396 verboselog"
+
+# the first client to join the queue is seated against a bot instead of
+# waiting for a second human, which is how the bot path is checked with a
+# single game client
+.\gradlew.bat :server:runServer --args="--port 7396 botmatchonline hard"
 ```
 
 End to end with two real clients, which is how the online flow was verified:
@@ -163,6 +168,15 @@ Turn timers are off by default, as requested.
   hidden by fog are skipped instead of triggering a resync (see "Sync model" above).
 - `onlinetest` launch argument for driving a real client into a match from the command line,
   which is what the two client end to end run used.
+- **Server hosted bots.** A lobby can carry bot seats, `startMatch` seats them after the human
+  players and registers each with `BotFactory.create`, and the server battle is no longer
+  flagged `clientControlled`, so `Battle.update` ticks the bots. The transport already existed:
+  snapshots carry `aiPlayers` and the client already keeps those bots inert.
+- `botmatchonline` debug mode, where the first client to join the quick match queue is seated
+  against bots instead of waiting for a second human, so the bot path can be checked with one
+  game client.
+- The client no longer re-sends commands that came from the server, which is what produced a
+  rejected command every time the turn timer ended a turn. `Command.fromServer` marks them.
 
 ### Verified
 
@@ -176,6 +190,10 @@ Turn timers are off by default, as requested.
   Buying, moving, attacking and ending turns all relay correctly in both directions, with
   the state ids lining up (`expected state N, local N+1`, server increments to N+1, peer
   applies it). This run found and fixed four real bugs, listed under Remaining.
+- **A human against a server hosted bot**: `botmatchonline` seats the first queueing client
+  with a bot. The bot buys units and plays its own turns with no human input, the server logs
+  no exceptions, and no command is rejected.
+- A plain headless bot vs bot match and the 100 client load test both still run clean.
 
 ## Client
 

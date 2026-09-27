@@ -38,6 +38,9 @@ class FairySower : UnitActor(
     override fun updateView() {
         super.updateView()
 
+        // A headless battle has no view, so there is no animation to switch to.
+        if (!isViewInitialized) return
+
         if (isBuilding || isCapturing || isBaseBuilding) {
             if (cAnimationView?.animation?.let { it != buildingAnimation } == true) {
                 setAnimation(buildingAnimation, duration = 9999999f)

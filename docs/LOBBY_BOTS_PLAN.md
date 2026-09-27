@@ -26,7 +26,24 @@ These must hold after every phase:
 - The server stays authoritative. Clients never run bots, the server does.
 - Turn timers stay off by default.
 
-## Known prerequisite
+## Progress
+
+- **Phase 0, done.** The backwards `clientControlled` flag is gone from `startMatch`, so the
+  authoritative battle runs its own bots. Verified by Phase 2 rather than on its own, since no
+  server match had a bot before it.
+- **Phase 1, done.** The setup UI lives in `GameSetupPane`; `CustomGameSetupStage` dropped
+  from 851 to 506 lines. The local flow was played through end to end, a full peer hosted match
+  with attacks, a destroyed base and a game over, with no exceptions.
+- **Phase 2, done and verified.** `LobbyMember` carries `isAi` and `botDifficulty`,
+  `CreateLobby` carries `botCount` and `botDifficulty`, and `startMatch` seats the bots after
+  the humans and registers each with `BotFactory.create`. A human against a bot was verified
+  over the real netty server with the new `botmatchonline` mode: the bot bought units on its
+  own turns, with no server exceptions and no rejected commands.
+- **Phase 3, not started.** The pane does not host a server lobby yet, so the bot count cannot
+  be chosen from the interface. It is reachable today only through the protocol or the debug
+  mode. "2 players 2 bots" needs this phase.
+
+## Known prerequisite (resolved)
 
 `ServerCore.startMatch` sets `battle.clientControlled = true` on the **server** battle, and
 that flag does the opposite of what it says: `Battle.update` skips `botManager.update` when

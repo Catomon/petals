@@ -70,6 +70,12 @@ class LobbyMember {
     var ready: Boolean = false
     var host: Boolean = false
     var connected: Boolean = true
+
+    /** A bot seat, which no client is connected to. */
+    var isAi: Boolean = false
+
+    /** Bot difficulty name, see [ctmn.petals.bot.v2.Difficulty]. */
+    var botDifficulty: String = "normal"
 }
 
 class LobbyInfo {
@@ -92,6 +98,12 @@ class CreateLobby {
     var maxPlayers: Int = 2
     var fogOfWar: Boolean = true
     var gameMode: String = "CRYSTALS"
+
+    /** How many bot seats the lobby should hold. */
+    var botCount: Int = 0
+
+    /** Difficulty for every bot in the lobby. */
+    var botDifficulty: String = "normal"
 }
 
 class JoinLobby {

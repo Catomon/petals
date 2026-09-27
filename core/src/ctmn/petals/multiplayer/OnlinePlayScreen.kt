@@ -95,6 +95,8 @@ class OnlinePlayScreen(
                 }.getOrNull() ?: return@onUi
 
                 command.playerId = broadcast.playerId
+                // Mark it as the server's, so applying it does not send it back as our own.
+                command.fromServer = true
 
                 when {
                     // Our own command that the server accepted: already applied locally.
@@ -279,13 +281,13 @@ class OnlinePlayScreen(
             when (it) {
                 // The state a command is built against has to be remembered before the local
                 // execution bumps the counter, otherwise the server sees it one ahead.
-                is CommandAddedEvent -> if (it.command.playerId == localPlayer.id) {
+                is CommandAddedEvent -> if (it.command.playerId == localPlayer.id && !it.command.fromServer) {
                     commandStateIds[it.command] = gameStateId
                 }
 
                 is CommandExecutedEvent -> {
                     val command = it.command
-                    if (command.playerId == localPlayer.id) {
+                    if (command.playerId == localPlayer.id && !command.fromServer) {
                         val expectedStateId = commandStateIds.remove(command) ?: gameStateId - 1
 
                         GameLog.verbose(
