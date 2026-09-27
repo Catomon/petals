@@ -1,4 +1,4 @@
-package ctmn.petals.menu
+﻿package ctmn.petals.menu
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Batch
@@ -54,18 +54,15 @@ import kotlin.concurrent.thread
 class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: LobbyType = LobbyType.LOCAL) :
     Stage(menuScreen.viewport, menuScreen.batch) {
 
-    private val localPlayer = newBluePlayer
-    private val playerSlots = Array<PlayerSlot>()
+    private val pane = GameSetupPane(this)
 
-    private val mainTable = VisTable()
-    private val playersTable = VisTable()
-
-    private val mapPreview = MapPreview()
-    private val changeMapButton = newIconButton("change")
-
-    private val fogOfWarCheckbox = VisCheckBox(strings.general.fog_of_war)
-    private val daytimeButton = newTextButton(strings.general.daytime)
-    private val seasonButton = newTextButton(strings.general.season)
+    private val localPlayer get() = pane.localPlayer
+    private val playerSlots get() = pane.slots
+    private val mapPreview get() = pane.mapPreview
+    private val changeMapButton get() = pane.changeMapButton
+    private val fogOfWarCheckbox get() = pane.fogOfWarCheckbox
+    private val daytimeButton get() = pane.daytimeButton
+    private val seasonButton get() = pane.seasonButton
 
     private val roomProblemDrawable = VisUI.getSkin().getDrawable("room_status_problem")
     private val roomOkDrawable = VisUI.getSkin().getDrawable("room_status_ok")
@@ -75,11 +72,15 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val returnButton = newTextButton(strings.general.return_)
     private val confirmButton = newTextButton(strings.general.confirm).apply { isDisabled = true }
 
-    private var gameMode = GameMode.CRYSTALS
+    private var gameMode: GameMode
+        get() = pane.gameMode
+        set(value) { pane.gameMode = value }
 
-    private var isHost = pLobbyType != LobbyType.CLIENT
+    private var isHost: Boolean
+        get() = pane.isHost
         set(value) {
-            field = value; hostChanged()
+            pane.isHost = value
+            hostChanged()
         }
     private var isPrivate = false
 
@@ -156,8 +157,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                         }
                 }
 
-                confirmButton.isDisabled =
-                    playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+                refreshConfirmButton()
 
                 serverManager.sendLobbyState()
             }
@@ -174,8 +174,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                         if (it.player != null)
                             it.button.color.a = 0.5f    // lost connection
 
-                        confirmButton.isDisabled =
-                            playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+                        refreshConfirmButton()
 
                         println("[Server Lobby] Player ${client.clientId} lost connection")
                     }
@@ -323,33 +322,16 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     // client stuff ^
 
     init {
-        //mapPreview.drawSimpleTexture = true
+        // The map preview, the eight slots and the settings row live in GameSetupPane, so the
+        // same UI can drive a dedicated server lobby later.
+        pane.allowLocalPlayer = lobbyType == LobbyType.LOCAL
+        pane.onLobbyChanged = { serverManager.sendLobbyState() }
+        pane.onUnplayableMap = { message -> addNotifyWindow(message, "Custom Game") }
 
-        with(playersTable) {
-            for (i in 1..8) {
-                add(PlayerSlot()).size(72f, 72f)
-                if (i % 4 == 0)
-                    row()
-            }
-        }
-
-        mainTable.width = 300f
-        mainTable.setFillParent(true)
-        with(mainTable) {
-            add(mapPreview).size(300f).padTop(6f)
-            row()
-            add(VisScrollPane(VisTable().apply {
-                add(playersTable)
-                row()
-                add(VisTable().apply {
-                    add(daytimeButton).colspan(2).width(300f)
-                    row()
-                    add(seasonButton).colspan(2).width(300f)
-                    row()
-                    add(fogOfWarCheckbox).colspan(2)
-                }).width(300f)
-            })).width(300f)
-            row()
+        val footerTable = VisTable()
+        with(footerTable) {
+            width = 300f
+            setFillParent(true)
             add().expandY()
             row()
             //add(gameModeSelectBox).center().width(300f)
@@ -359,9 +341,8 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 add(roomStatusImage).size(42f).expandX()
                 add(confirmButton).right()
             }).expandX()
-        }.width(300f)
-
-        addActor(mainTable)
+        }
+        addActor(footerTable)
 
         with(createTable()) {
             top()
@@ -408,46 +389,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         confirmButton.addChangeListener {
             addLoadingCoverAndStartGame()
-        }
-
-        daytimeButton.userObject = PlayStage.DayTime.DAY
-        daytimeButton.setText("${strings.general.daytime}: " + (daytimeButton.userObject as PlayStage.DayTime).name)
-        daytimeButton.addChangeListener {
-            daytimeButton.userObject = when ((daytimeButton.userObject as PlayStage.DayTime)) {
-                PlayStage.DayTime.DAY -> PlayStage.DayTime.EVENING
-                PlayStage.DayTime.EVENING -> PlayStage.DayTime.NIGHT
-                PlayStage.DayTime.NIGHT -> PlayStage.DayTime.DAY
-            }
-
-            it.setText("${strings.general.daytime}: " + (daytimeButton.userObject as PlayStage.DayTime).name)
-
-            serverManager.sendLobbyState()
-        }
-
-        seasonButton.userObject = Season.SUMMER
-        seasonButton.setText("${strings.general.season}: " + (seasonButton.userObject as Season).name)
-        seasonButton.addChangeListener {
-            seasonButton.userObject = when ((seasonButton.userObject as Season)) {
-                Season.SUMMER -> Season.WINTER
-                Season.WINTER -> Season.SUMMER
-                else -> Season.SUMMER
-            }
-
-            it.setText("${strings.general.season}: " + (seasonButton.userObject as Season).name)
-
-            assets.tilesAtlas = when (seasonButton.userObject) {
-                Season.WINTER -> assets.tilesWinterAtlas
-                else -> assets.tilesSummerAtlas
-            }
-
-            mapPreview.map?.actors?.forEach { if (it is TileActor) it.initView() }
-
-            serverManager.sendLobbyState()
-        }
-
-        fogOfWarCheckbox.isChecked = true
-        fogOfWarCheckbox.addChangeListener {
-            serverManager.sendLobbyState()
         }
 
         val clientId = GamePref.clientId
@@ -561,24 +502,14 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         gameMode = state.gameMode
 
-        fogOfWarCheckbox.isChecked = state.fogOfWar
+        pane.fogOfWar = state.fogOfWar
 
         //todo fun updateWidgets
 
-        daytimeButton.userObject = state.daytime
-        daytimeButton.setText("${strings.general.daytime}: " + (daytimeButton.userObject as PlayStage.DayTime).name)
+        pane.daytime = state.daytime
 
-        //set season
-        if (seasonButton.userObject != state.season) {
-            assets.tilesAtlas = when (seasonButton.userObject) {
-                Season.WINTER -> assets.tilesWinterAtlas
-                else -> assets.tilesSummerAtlas
-            }
-            mapPreview.map?.actors?.forEach { if (it is TileActor) it.initView() }
-        }
-
-        seasonButton.userObject = state.season
-        seasonButton.setText("${strings.general.season}: " + (seasonButton.userObject as Season).name)
+        // The pane swaps the atlas and rebuilds tile views when the season changes.
+        pane.season = state.season
 
         //..
         if (state.state == LobbyState.State.PLAYING)
@@ -587,18 +518,17 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
     private fun getLobbyStateInstance(): LobbyState {
         return LobbyState().apply {
-            if (mapPreview.map != null)
-                mapId = mapPreview.map?.mapId
+            pane.map?.let { mapId = it.mapId }
 
-            for ((i, slot) in playerSlots.withIndex())
-                if (slot.player != null) {
-                    players[i] = slot.getSlotStateInstance()
+            for (i in 0 until GameSetupPane.SLOT_COUNT)
+                if (pane.slots.get(i).player != null) {
+                    players[i] = pane.slotState(i)
                 }
 
-            fogOfWar = fogOfWarCheckbox.isChecked
-            daytime = daytimeButton.userObject as PlayStage.DayTime
-            season = seasonButton.userObject as Season
-            gameMode = this@CustomGameSetupStage.gameMode
+            fogOfWar = pane.fogOfWar
+            daytime = pane.daytime
+            season = pane.season
+            gameMode = pane.gameMode
 
             state = this@CustomGameSetupStage.state
         }
@@ -628,14 +558,10 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         state = LobbyState.State.PLAYING
         serverManager.sendLobbyState()
 
-        if (mapPreview.map == null) return
-
-        mapPreview.map!!.actors
+        if (pane.map == null) return
 
         val players = Array<Player>()
-        playerSlots.forEach { slot ->
-            slot.player?.let { players.add(it) }
-        }
+        pane.players.forEach { players.add(it) }
 
         val playScreen =
             when (lobbyType) {
@@ -644,28 +570,28 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 LobbyType.LOCAL -> PlayScreen()
             }
 
-        playScreen.season = seasonButton.userObject as Season
+        playScreen.season = pane.season
 
         val ps = PlayScreenTemplate.pvp(
             menuScreen.game,
-            mapPreview.map!!,
+            pane.map!!,
             players,
             if (lobbyType == LobbyType.LOCAL)
                 GameType.PVP_SAME_SCREEN
             else
                 GameType.MULTIPLAYER,
             CaptureBases(),
-            gameMode,
+            pane.gameMode,
             localPlayer,
             playScreen,
         ).apply {
-            playerSlots.forEach {
+            pane.slots.forEach {
                 if (it.isAI)
                     botManager.add(BotFactory.create(it.player!!, this))
             }
 
-            fogOfWarManager.drawFog = fogOfWarCheckbox.isChecked
-            playStage.timeOfDay = daytimeButton.userObject as PlayStage.DayTime
+            fogOfWarManager.drawFog = pane.fogOfWar
+            playStage.timeOfDay = pane.daytime
         }
         ps.ready()
 
@@ -674,82 +600,21 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     }
 
     private fun setLevel(map: MapConverted?) {
-        playerSlots.forEach {
-            it.label = null
-        }
-
-        if (map != null) {
-            if (map.mapSave.isOutdatedVersion) {
-                addNotifyWindow("Outdated map, unplayable", "Custom Game")
-                confirmButton.isDisabled = true
-                return
-            }
-
-            map.actors
-
-            mapPreview.setPreview(map)
-
-//            if (map.gameMode.isNotEmpty()) {
-//                val gm = map.gameMode.uppercase(Locale.ROOT)
-//                if (GameMode.entries.any { it.name == gm })
-//                    gameMode = GameMode.valueOf(gm)
-//                else
-//                    Gdx.app.error("CustomGameSetupStage", "Unknown game mode: $gm")
-//            }
-
-            playerSlots.forEach { it.isLocked = true }
-
-            for (label in map.labels) {
-                if (label.labelName == "player") {
-                    val id = label.data["id"].toInt()
-
-                    val slot = playerSlots.get(id)
-                    slot.label = label
-                    slot.isLocked = false
-                }
-            }
-        } else {
-            mapPreview.setPreview(null)
-        }
-
-        mapPreview.createPlayerMarks()
-
-        playerSlots.forEachIndexed { index, slot ->
-            slot.player?.let {
-                mapPreview.changePlayerMark(it, index)
-            }
-        }
-
-        confirmButton.isDisabled =
-            playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
+        pane.setMap(map)
+        refreshConfirmButton()
     }
 
-    private fun addPlayer(player: Player) {
-        for (slot in playerSlots)
-            slot.player?.let { slot.player = player }
-    }
+    private fun setPlayerSlot(player: Player?, slotIndex: Int) = pane.setPlayerSlot(player, slotIndex)
 
-    private fun setPlayerSlot(player: Player?, slotIndex: Int) {
-        if (playerSlots.size <= slotIndex) throw IllegalArgumentException("slotIndex out of bounds")
+    private fun getPlayerSlot(player: Player) = pane.getPlayerSlot(player)
 
-        playerSlots.get(slotIndex).player = player
-    }
-
-    private fun getPlayerSlot(player: Player): PlayerSlot? {
-        for (slot in playerSlots)
-            if (slot.player == player)
-                return slot
-
-        return null
+    private fun refreshConfirmButton() {
+        confirmButton.isDisabled = !pane.canStart
     }
 
     private fun hostChanged() {
-        changeMapButton.isDisabled = !isHost
-        confirmButton.isDisabled =
-            playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
-        daytimeButton.isDisabled = !isHost
-        seasonButton.isDisabled = !isHost
-        fogOfWarCheckbox.isDisabled = !isHost
+        pane.refreshEnabled()
+        refreshConfirmButton()
     }
 
     private fun removePlayer(player: Player) {
@@ -757,313 +622,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             server?.clientsController?.disconnectClient(player.clientId!!, ClientsController.REASON_KICKED)
         }
 
-        for (slot in playerSlots)
-            if (slot.player == player)
-                slot.player = null
+        pane.removePlayer(player)
 
-        serverManager.sendLobbyState()
-
-        return
-    }
-
-    private inner class PlayerSlot : WidgetGroup() {
-        val button = newIconButton("player_slot")
-        val removePlayerButton = newIconButton("remove_player")
-        var label: LabelActor? = null
-            set(value) {
-                field = value
-
-                if (player != null)
-                    mapPreview.map?.labels?.filter {
-                        it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(
-                            this
-                        ).toString()
-                    }
-                        ?.forEach { it.data.put("player_id", player!!.id.toString()) }
-            }
-
-        val localPlayerMarkImage = VisUI.getSkin().getDrawable("portraits/local_player")
-        val hostCrownImage = VisUI.getSkin().getDrawable("portraits/crown")
-        val aiPlayerMarkImage = VisUI.getSkin().getDrawable("portraits/ai_player")
-
-        val isLocalHostSlot get() = localPlayer == player && isHost
-
-        var isHostSlot = false
-        var isLocalPlayer = false
-        var isAI = false
-
-        var isLocked = false
-            set(value) {
-                color.a = if (value) 0.5f else 1f
-                field = value
-            }
-
-        var player: Player? = null
-            set(value) {
-                isAI = false
-
-                button.color.a = 1f // lost connection
-
-                if (value != null) {
-                    updateSpeciesPortrait(value)
-
-                    removePlayerButton.isVisible = value != localPlayer && isHost
-
-                    mapPreview.changePlayerMark(value, playerSlots.indexOf(this, false))
-
-                    mapPreview.map?.labels?.filter {
-                        it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(
-                            this
-                        ).toString()
-                    }
-                        ?.forEach { it.data.put("player_id", value.id.toString()) }
-                    //label?.data?.put("player_id", value.id.toString())
-                } else {
-                    button.style.imageUp = null
-
-                    removePlayerButton.isVisible = false
-
-                    mapPreview.changePlayerMark(null, playerSlots.indexOf(this, false))
-
-                    mapPreview.map?.labels?.filter {
-                        it.labelName == label?.labelName && it.data["id"] == playerSlots.indexOf(
-                            this
-                        ).toString()
-                    }
-                        ?.forEach { it.data.removeKey("player_id") }
-                    //label?.data?.removeKey("player_id")
-                }
-
-                isLocalPlayer = value == localPlayer
-
-                field = value
-            }
-
-        init {
-            button.addChangeListener {
-                showPlayerSlotActionDialog()
-            }
-
-            setSize(72f, 72f)
-
-            addActor(button)
-
-            removePlayerButton.addChangeListener {
-                if (player == null || !isHost)
-                    return@addChangeListener
-
-                removePlayer(player!!)
-
-                confirmButton.isDisabled =
-                    playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
-            }
-
-            removePlayerButton.setPosByCenter(width - 12f, height - 9f)
-            removePlayerButton.isVisible = false
-            addActor(removePlayerButton)
-
-            addListener(object : InputListener() {
-                override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-                    super.enter(event, x, y, pointer, fromActor)
-
-                    mapPreview.markButtons.filter { it.userObject == playerSlots.indexOf(this@PlayerSlot) }
-                        .forEach { it.focusGained() }
-                }
-
-                override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-                    super.exit(event, x, y, pointer, toActor)
-
-                    mapPreview.markButtons.filter { it.userObject == playerSlots.indexOf(this@PlayerSlot) }
-                        .forEach { it.focusLost() }
-                }
-            })
-
-            playerSlots.add(this)
-        }
-
-        override fun draw(batch: Batch, parentAlpha: Float) {
-            super.draw(batch, parentAlpha)
-
-            if (isLocalPlayer) {
-                localPlayerMarkImage.draw(batch, x, y, localPlayerMarkImage.minWidth, localPlayerMarkImage.minHeight)
-            }
-
-            if (isHostSlot || isLocalHostSlot) {
-                hostCrownImage.draw(
-                    batch,
-                    x + width / 2 - hostCrownImage.minWidth / 2,
-                    y + height / 2 - hostCrownImage.minHeight / 2,
-                    hostCrownImage.minWidth,
-                    hostCrownImage.minHeight
-                )
-            }
-
-            if (isAI) {
-                aiPlayerMarkImage.draw(batch, x, y, aiPlayerMarkImage.minWidth, aiPlayerMarkImage.minHeight)
-            }
-        }
-
-        fun getSlotStateInstance(): PlayerSlotState {
-            return PlayerSlotState(player, isLocalHostSlot, isAI)
-        }
-
-        private fun updateSpeciesPortrait(player: Player) {
-            button.style.imageUp = VisUI.getSkin().getDrawable("portraits/${player.species + "_" + "abcdefgh"[player.id - 1]}")
-        }
-
-        fun setPlayerSpecies(species: String) {
-            val player = player ?: return
-            player.species = species
-            updateSpeciesPortrait(player)
-        }
-    }
-
-    private fun PlayerSlot.showPlayerSlotActionDialog() {
-//        val label = newLabel(message, "default")
-//        label.wrap = true
-//        label.pack()
-//        label.setAlignment(Align.center)
-        val slot = this
-        this@CustomGameSetupStage.addCover()
-        val win = VisWindow("${strings.general.player_slot} ${playerSlots.indexOf(this) + 1}")
-
-        val moveHereButton = newTextButton(strings.general.move_here).addChangeListener {
-            moveLocalPlayerToThisSlot()
-
-            confirmButton.isDisabled =
-                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
-
-            win.remove()
-            this@CustomGameSetupStage.removeCover()
-        }
-
-        val addEasyBotButton = newTextButton(strings.general.add_easy_bot).addChangeListener {
-            if (slot.player == null) {
-                slot.player = Player(strings.general.player + "ABCDEFGH"[freePlayerId - 1], freePlayerId, freePlayerId).also {
-                    it.species = Species.names.random()
-                }
-                slot.isAI = true
-
-                serverManager.sendLobbyState()
-            }
-
-            confirmButton.isDisabled =
-                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
-
-            win.remove()
-            this@CustomGameSetupStage.removeCover()
-        }
-
-        val addPlayerButton = newTextButton(strings.general.add_player).addChangeListener {
-            if ((slot.player == null || slot.isAI) && hasFreeSlot) {
-                if (slot.player != null) slot.player = null
-                slot.player = Player(strings.general.player + "ABCDEFGH"[freePlayerId - 1], freePlayerId, freePlayerId).also {
-                    it.species = Species.names.random()
-                }
-
-                serverManager.sendLobbyState()
-            }
-
-            confirmButton.isDisabled =
-                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
-
-            win.remove()
-            this@CustomGameSetupStage.removeCover()
-        }
-
-        val makeGoblinButton = newTextButton(strings.general.set_goblin).addChangeListener {
-            if ((slot.player != null)) {
-                slot.setPlayerSpecies(goblin)
-
-                serverManager.sendLobbyState()
-            }
-
-            win.remove()
-            this@CustomGameSetupStage.removeCover()
-        }
-
-        val makeFaerieButton = newTextButton(strings.general.set_faerie).addChangeListener {
-            if ((slot.player != null)) {
-                slot.setPlayerSpecies(fairy)
-
-                serverManager.sendLobbyState()
-            }
-
-            win.remove()
-            this@CustomGameSetupStage.removeCover()
-        }
-
-        val removeButton = newTextButton(strings.general.remove).addChangeListener {
-            if (slot.player != localPlayer && slot.player != null) {
-                removePlayer(slot.player!!)
-
-                serverManager.sendLobbyState()
-            }
-
-            confirmButton.isDisabled =
-                playerSlots.filter { it.player != null && !it.isLocked }.size < 2 || mapPreview.map == null || !isHost
-
-            win.remove()
-            this@CustomGameSetupStage.removeCover()
-        }
-
-        val closeButton = newIconButton("cancel").addChangeListener {
-            win.remove()
-            this@CustomGameSetupStage.removeCover()
-        }
-
-        moveHereButton.isDisabled = !this@CustomGameSetupStage.isHost// || slot.player == null
-        addEasyBotButton.isDisabled = !this@CustomGameSetupStage.isHost || slot.player != null
-        addPlayerButton.isDisabled =
-            !this@CustomGameSetupStage.isHost || (slot.player != null && !slot.isAI) || lobbyType != LobbyType.LOCAL
-        removeButton.isDisabled = !this@CustomGameSetupStage.isHost || slot.player == localPlayer
-
-        with(win) {
-            setCenterOnAdd(true)
-            closeOnEscape()
-            add().width(300f)
-            row()
-            add(moveHereButton)
-            row()
-            add(addEasyBotButton)
-            row()
-            if (lobbyType == LobbyType.LOCAL) {
-                add(addPlayerButton)
-                row()
-            }
-            if (slot.player != null) {
-                if (slot.player?.species == goblin) {
-                    add(makeFaerieButton)
-                } else {
-                    add(makeGoblinButton)
-                }
-                row()
-            }
-            add(removeButton)
-            row()
-            add(closeButton).padRight(8f).align(Align.right)
-            pack()
-        }
-        this@CustomGameSetupStage.addActor(win)
-    }
-
-    private fun PlayerSlot.moveLocalPlayerToThisSlot() {
-        if (!isHost)
-            return
-
-        val prevSlot = getPlayerSlot(localPlayer) ?: throw IllegalStateException("Local player has no slot")
-        prevSlot.player = null
-
-        val thisPlayer = player
-        val isThisAi = isAI
-
-        player = localPlayer
-        if (thisPlayer != null) {
-            prevSlot.player = thisPlayer
-            prevSlot.isAI = isThisAi
-        }
-
-        serverManager.sendLobbyState()
+        refreshConfirmButton()
     }
 
     private inner class LobbyServerManager {
