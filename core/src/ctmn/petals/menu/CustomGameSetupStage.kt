@@ -328,21 +328,18 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         pane.onLobbyChanged = { serverManager.sendLobbyState() }
         pane.onUnplayableMap = { message -> addNotifyWindow(message, "Custom Game") }
 
-        val footerTable = VisTable()
-        with(footerTable) {
-            width = 300f
-            setFillParent(true)
-            add().expandY()
+        // The footer goes in the pane's own 300px column, as a row after the vertical filler.
+        // Back is pinned left, the status image is centred in the space between, and confirm is
+        // pinned right, so the three do not bunch up together.
+        with(pane.content) {
             row()
-            //add(gameModeSelectBox).center().width(300f)
-            //row()
             add(VisTable().apply {
+                width = 300f
                 add(returnButton).left()
-                add(roomStatusImage).size(42f).expandX()
+                add(roomStatusImage).size(42f).expandX().center()
                 add(confirmButton).right()
-            }).expandX()
+            }).width(300f)
         }
-        addActor(footerTable)
 
         with(createTable()) {
             top()

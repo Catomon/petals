@@ -61,6 +61,14 @@ class GameSetupPane(val dialogStage: Stage) {
     val daytimeButton = newTextButton(strings.general.daytime)
     val seasonButton = newTextButton(strings.general.season)
 
+    /**
+     * The 300px column that holds the preview, the slots and the settings. A host screen adds
+     * its own footer row here, so its buttons line up with the pane instead of floating in a
+     * table of their own.
+     */
+    lateinit var content: VisTable
+        private set
+
     var localPlayer: Player = newBluePlayer
         set(value) {
             field = value
@@ -158,6 +166,12 @@ class GameSetupPane(val dialogStage: Stage) {
             row()
             add().expandY()
         }.width(300f)
+
+        /**
+         * The 300px column holding the preview, slots and settings. A host screen adds its
+         * own footer row here so its buttons line up with the rest of the pane.
+         */
+        content = mainTable
 
         addActor(mainTable)
 
