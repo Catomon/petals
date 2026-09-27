@@ -1294,8 +1294,7 @@ class PlayGUIStage(
                 }
 
                 if (selectedUnit!!.canMove()) {
-                    val command = MoveUnitCommand(selectedUnit!!, tile.tiledX, tile.tiledY)
-                    if (command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)) {
+                    if (playScreen.commitMove(selectedUnit!!, tile.tiledX, tile.tiledY)) {
                         selectUnit(selectedUnit)
                         return true
                     } else selectUnit(null)

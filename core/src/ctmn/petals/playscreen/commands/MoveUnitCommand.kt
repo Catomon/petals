@@ -11,10 +11,20 @@ import ctmn.petals.tile.TileActor
 import ctmn.petals.tile.TileData
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.MoveAfterAttackComponent
+import ctmn.petals.utils.centerX
+import ctmn.petals.utils.centerY
 
 class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Command() {
 
     constructor(unit: UnitActor, tileX: Int, tileY: Int) : this(unit.stageName, tileX, tileY)
+
+    /**
+     * Why the unit stopped short of where it was sent, set by the server when it resolved the
+     * move against the full state: `blocked` when a hidden unit held the way, `short` when the
+     * budget ran out first. Empty for an ordinary move. A code, never decided client side, so
+     * every client shows the same thing.
+     */
+    var reason: String = ""
 
     override fun canExecute(battle: Battle): Boolean {
         val unit = battle.field.findUnit(unitId) ?: return false
@@ -91,6 +101,24 @@ class MoveUnitCommand(val unitId: String, val tileX: Int, val tileY: Int) : Comm
         //move animation
         battle.queueSeqAction(MoveUnitAction(unit, startX, startY, tileX, tileY))
 
+        // A shortened server resolved move says why, on every client that plays it. Display
+        // only: looking up the text must never break the move itself, including headless on the
+        // server where there is no UI at all.
+        if (reason.isNotBlank()) {
+            val text = runCatching {
+                when (reason) {
+                    REASON_BLOCKED -> ctmn.petals.strings.general.move_blocked
+                    else -> ctmn.petals.strings.general.move_short
+                }
+            }.getOrDefault(reason)
+            battle.showFloatingLabel(text, null, unit.centerX, unit.centerY)
+        }
+
         return true
+    }
+
+    companion object {
+        const val REASON_BLOCKED = "blocked"
+        const val REASON_SHORT = "short"
     }
 }

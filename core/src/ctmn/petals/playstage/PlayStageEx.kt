@@ -346,6 +346,138 @@ fun BattleField.getMovementGrid(
     return moveGrid
 }
 
+/**
+ * A route the unit could walk to [destX]:[destY] within its movement budget, or null.
+ *
+ * Dijkstra over the same costs `getMovementGrid` uses: one step plus the terrain entry cost,
+ * minus one per adjacent non ally (units near the route make it cheaper, never dearer), with
+ * tiles held by another team blocked. The result only decides between an optimistic move and a
+ * server verified one: any disagreement with the grid just sends the move to the server, never
+ * a wrong verdict.
+ *
+ * @return the tiles after the unit's own, ending in the destination, or null when unreachable.
+ */
+/**
+ * The movement expansion `getMovementGrid` runs, with the parent of every tile remembered.
+ *
+ * This is the same relaxation rounds for rounds, so its verdict agrees with the grid by
+ * construction: a tile is reached here exactly when the grid says the unit can move there.
+ * A Dijkstra would count cost where the grid counts steps, and the two disagree as soon as
+ * enemies stand near the route, which is precisely the case this exists for.
+ */
+private class MoveSearch(
+    val reached: Set<Pair<Int, Int>>,
+    val parent: Map<Pair<Int, Int>, Pair<Int, Int>>,
+)
+
+private fun BattleField.searchMoves(unit: UnitActor): MoveSearch {
+    val budget = unit.movingRange
+    val props = unit.cTerrainProps ?: TerrainPropsPack.foot
+
+    // Entry costs, mirroring the grid: terrain, other teams impassable, land crystals and
+    // bases closed to water.
+    val width = tiledWidth()
+    val height = tiledHeight()
+    val entryCost = KArray(width) { IntArray(height) { UNREACHABLE } }
+    for (tile in getTiles()) {
+        entryCost[tile.tiledX][tile.tiledY] = props[tile.terrain].movingCost
+    }
+    for (x in 0 until width) {
+        for (y in 0 until height) {
+            val occupant = getUnit(x, y)
+            if (occupant != null && occupant != unit && occupant.teamId != unit.teamId) {
+                entryCost[x][y] = UNREACHABLE
+            } else if (entryCost[x][y] == ONE_TILE) {
+                entryCost[x][y] = budget - 1
+            }
+        }
+    }
+    if (props.contains(land_capturable)) {
+        if (props[land_capturable].movingCost == UNREACHABLE) {
+            for (tile in getTiles()) {
+                if (getTile(tile.tiledX, tile.tiledY, tile.layer - 1)?.isFluid == false &&
+                    (tile.terrain == TerrainNames.crystals || tile.terrain == TerrainNames.base)
+                ) {
+                    entryCost[tile.tiledX][tile.tiledY] = UNREACHABLE
+                }
+            }
+        }
+    }
+
+    val remaining = KArray(width) { IntArray(height) }
+    val parent = HashMap<Pair<Int, Int>, Pair<Int, Int>>()
+    remaining[unit.tiledX][unit.tiledY] = budget + 1
+
+    // One round per step of range: a tile s steps away takes s rounds, whatever it costs.
+    for (k in 0 until budget) {
+        val extendArea = KArray(width) { IntArray(height) }
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                if (remaining[x][y] <= 1) continue
+                for ((dx, dy) in directions) {
+                    val nextX = x + dx
+                    val nextY = y + dy
+                    if (isOutOfMap(nextX, nextY)) continue
+                    if (remaining[x][y] <= remaining[nextX][nextY]) continue
+
+                    var reach = remaining[x][y] - 1 - entryCost[nextX][nextY]
+                    if (reach > 1) {
+                        val company = getSurroundingUnits(nextX, nextY)
+                            .count { it != unit && !it.isAlly(unit) }
+                        reach = max(1, reach + company)
+                    }
+                    if (extendArea[nextX][nextY] < reach) {
+                        extendArea[nextX][nextY] = reach
+                        parent[nextX to nextY] = x to y
+                    }
+                }
+            }
+        }
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                if (extendArea[x][y] > 0) remaining[x][y] = extendArea[x][y]
+            }
+        }
+    }
+
+    val reached = HashSet<Pair<Int, Int>>()
+    for (x in 0 until width) {
+        for (y in 0 until height) {
+            if (remaining[x][y] != 0) reached.add(x to y)
+        }
+    }
+    return MoveSearch(reached, parent)
+}
+
+/** Every tile the unit could reach this turn. Agrees with `getMovementGrid` by construction. */
+fun BattleField.reachableMoveTiles(unit: UnitActor): Set<Pair<Int, Int>> =
+    searchMoves(unit).reached
+
+/**
+ * A route the unit could walk to [destX]:[destY], or null when unreachable.
+ *
+ * See `searchMoves` for the costs. The result only decides between an optimistic move and a
+ * server verified one: any disagreement with `getMovementGrid` just sends the move to the
+ * server, never a wrong verdict.
+ *
+ * @return the tiles after the unit's own, ending in the destination.
+ */
+fun BattleField.findMovePath(unit: UnitActor, destX: Int, destY: Int): List<Pair<Int, Int>>? {
+    if (unit.tiledX == destX && unit.tiledY == destY) return emptyList()
+
+    val search = searchMoves(unit)
+    val dest = destX to destY
+    if (!search.reached.contains(dest)) return null
+
+    val route = ArrayList<Pair<Int, Int>>()
+    var step = dest
+    while (step.first != unit.tiledX || step.second != unit.tiledY) {
+        route.add(step)
+        step = search.parent[step] ?: return null
+    }
+    return route.reversed()
+}
+
 fun printGrid(array: KArray<IntArray>) {
     println("Array start:")
     for (y in array[0].indices.reversed()) {

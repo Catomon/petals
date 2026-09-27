@@ -34,6 +34,8 @@
     "enemy_turn": "ENEMY TURN",
     "ally_turn": "ALLY TURN",
     "spectating": "SPECTATING",
+    "move_blocked": "BLOCKED",
+    "move_short": "CUT SHORT",
     "buy_menu": "Base Menu"
   },
   "units": {

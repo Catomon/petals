@@ -12,8 +12,16 @@ import ctmn.petals.net.proto.*
 import ctmn.petals.playscreen.CaptureBases
 import ctmn.petals.playscreen.GameMode
 import ctmn.petals.playscreen.Season
+import ctmn.petals.playstage.findMovePath
 import ctmn.petals.playstage.getCapturablesOf
+import ctmn.petals.playstage.reachableMoveTiles
 import ctmn.petals.tile.isBase
+import ctmn.petals.tile.isPassableAndFree
+import ctmn.petals.unit.canMove
+import ctmn.petals.unit.isAlly
+import ctmn.petals.unit.playerId
+import ctmn.petals.unit.tiledX
+import ctmn.petals.unit.tiledY
 import ctmn.petals.player.Player
 import ctmn.petals.player.Species
 import ctmn.petals.server.ServerConfig
@@ -31,6 +39,8 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.LengthFieldPrepender
 import io.netty.handler.codec.string.StringDecoder
 import io.netty.handler.codec.string.StringEncoder
+import java.net.SocketException
+import java.nio.channels.ClosedChannelException
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -211,6 +221,21 @@ class ServerCore(val config: ServerConfig) {
             val connection = ctx.channel().attr(connectionKey).get()
             incoming.add(connection to Envelope().also { it.type = "__disconnect" })
             super.channelInactive(ctx)
+        }
+
+        override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+            // A client that vanishes mid game resets the TCP connection, which netty reports here.
+            // Without this it reaches the tail of the pipeline and prints a full stack trace for
+            // what is just somebody closing the window. Anything else is a real error.
+            val routine = generateSequence<Throwable>(cause) { it.cause }.any {
+                it is SocketException || it is ClosedChannelException ||
+                        it is java.io.EOFException ||
+                        (it is java.io.IOException &&
+                                it.message?.contains("Broken pipe", ignoreCase = true) == true)
+            }
+
+            if (!routine) GameLog.error("ServerCore", "Channel error", cause)
+            ctx.close()
         }
     }
 
@@ -905,6 +930,14 @@ class ServerCore(val config: ServerConfig) {
                 return
             }
 
+            // A move the client would not decide on its own: resolve it against the full state
+            // and play the real result instead. The sender never applied anything, so the
+            // broadcast is just the next command in everyone's stream.
+            if (request.commandName == ctmn.petals.playscreen.commands.TryMoveCommand::class.java.name) {
+                onTryMove(connection, requestId, request)
+                return
+            }
+
             val commandClass = resolveCommandClass(request.commandName)
             if (commandClass == null) {
                 reject(connection, requestId, "Unknown command")
@@ -943,6 +976,102 @@ class ServerCore(val config: ServerConfig) {
             // No snapshot here on purpose, and no broadcast either: the command listener does
             // both, so a client's own command and a bot's command travel the same path. Sending
             // one snapshot per command made every single action cost a full state transfer.
+        }
+
+        /**
+         * Resolves a try move against the full state and plays the real move.
+         *
+         * The destination the client asked for may hold a hidden unit or lie past one, which the
+         * client could not see. Then the unit stops at the furthest tile it can actually reach,
+         * with the reason, and every client animates that same result.
+         */
+        private fun onTryMove(connection: ClientConnection, requestId: String, request: MatchCommand) {
+            val expectedPlayerId = connection.playerId
+            val ask = try {
+                fromGson(request.commandJson, ctmn.petals.playscreen.commands.TryMoveCommand::class.java)
+            } catch (e: Exception) {
+                reject(connection, requestId, "Bad command payload")
+                return
+            }
+
+            val unit = battle.field.findUnit(ask.unitId)
+            if (unit == null || unit.playerId != expectedPlayerId) {
+                reject(connection, requestId, "Not your unit")
+                return
+            }
+
+            if (!unit.canMove()) {
+                reject(connection, requestId, "Unit cannot move")
+                return
+            }
+
+            val route = battle.field.findMovePath(unit, ask.tileX, ask.tileY)
+            val destFree = battle.field.getTile(ask.tileX, ask.tileY)?.isPassableAndFree() == true
+
+            val move = if (route != null && destFree) {
+                ctmn.petals.playscreen.commands.MoveUnitCommand(ask.unitId, ask.tileX, ask.tileY)
+            } else {
+                // Stopped short: the way is held or the budget runs out first, and the two must
+                // not share one label. A held destination is a genuine trap; an empty one the
+                // client simply could not reach is not.
+                val stop = furthestReachable(unit, ask.tileX, ask.tileY)
+                if (stop == null) {
+                    reject(connection, requestId, "Unit cannot move")
+                    return
+                }
+
+                val held = battle.field.getUnit(ask.tileX, ask.tileY)
+                    ?.let { !it.isAlly(unit) } == true
+
+                ctmn.petals.playscreen.commands.MoveUnitCommand(ask.unitId, stop.first, stop.second).also {
+                    it.reason = if (held || !destFree) ctmn.petals.playscreen.commands.MoveUnitCommand.REASON_BLOCKED
+                    else ctmn.petals.playscreen.commands.MoveUnitCommand.REASON_SHORT
+                }
+            }
+
+            move.playerId = expectedPlayerId
+            if (!move.execute(battle)) {
+                reject(connection, requestId, "Command failed")
+                return
+            }
+
+            // The command listener broadcasts it, like any other command.
+            battle.commandManager.onCommand?.invoke(move)
+
+            GameLog.info(
+                "ServerCore",
+                "Match $id: ${connection.name} try-move ${ask.unitId} to ${ask.tileX},${ask.tileY} " +
+                        "resolved to ${move.tileX},${move.tileY}" +
+                        (if (move.reason.isNotBlank()) " (${move.reason})" else "") +
+                        " (state ${battle.gameStateId})"
+            )
+        }
+
+        /**
+         * The reachable tile closest to [destX]:[destY], or null when the unit is boxed in.
+         * One search answers for the whole map. The server sees every unit, so this is the
+         * honest answer to "how far could it go".
+         */
+        private fun furthestReachable(
+            unit: ctmn.petals.unit.UnitActor,
+            destX: Int,
+            destY: Int,
+        ): Pair<Int, Int>? {
+            var best: Pair<Int, Int>? = null
+            var bestDst = Int.MAX_VALUE
+
+            for (tile in battle.field.reachableMoveTiles(unit)) {
+                if (tile.first == unit.tiledX && tile.second == unit.tiledY) continue
+                if (battle.field.getTile(tile.first, tile.second)?.isPassableAndFree() != true) continue
+
+                val dst = ctmn.petals.playstage.tiledDst(tile.first, tile.second, destX, destY)
+                if (dst < bestDst) {
+                    bestDst = dst
+                    best = tile
+                }
+            }
+
+            return best
         }
 
         private fun reject(connection: ClientConnection, requestId: String, reason: String) {

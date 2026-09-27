@@ -65,6 +65,8 @@ class Strings {
         val enemy_turn = "ENEMY TURN"
         val ally_turn = "ALLY TURN"
         val spectating = "SPECTATING"
+        val move_blocked = "BLOCKED"
+        val move_short = "CUT SHORT"
         val buy_menu = "Base Menu"
         val player_slot = "Player Slot"
         val move_here = "Move here"

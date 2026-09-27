@@ -14,11 +14,17 @@ import ctmn.petals.playscreen.GameType
 import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.Season
 import ctmn.petals.playscreen.addAction
+import ctmn.petals.playscreen.stageName
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
+import ctmn.petals.playscreen.commands.MoveUnitCommand
+import ctmn.petals.playscreen.commands.TryMoveCommand
+import ctmn.petals.playstage.findMovePath
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.screens.PlayScreenTemplate
+import ctmn.petals.sim.FogOfWar
+import ctmn.petals.unit.UnitActor
 import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
@@ -455,6 +461,43 @@ class OnlinePlayScreen(
                         .joinToString(" ") { "place${it.key + 1}=>p${it.value}" } +
                     " | assigned $assigned place(s)"
         )
+    }
+
+    /**
+     * Sends our move, optimistic when the route is fully visible, server verified otherwise.
+     *
+     * The server is only ever stricter where it sees enemies we don't: a hidden unit on a tile
+     * blocks it, while one next to the route just makes it cheaper. So a route the viewer sees
+     * in full gets the same verdict on both sides and stays instant. Anything else goes as a
+     * try move, which the server resolves against the full state and broadcasts as the real
+     * move, so both sides animate the same result.
+     */
+    override fun commitMove(unit: UnitActor, tileX: Int, tileY: Int): Boolean {
+        if (!match.fogOfWar) return super.commitMove(unit, tileX, tileY)
+
+        val command = MoveUnitCommand(unit, tileX, tileY)
+        if (!command.canExecute(this)) return false
+
+        val visibility = FogOfWar.compute(field, turnManager.players, localPlayer)
+        val path = field.findMovePath(unit, tileX, tileY)
+        val seen = path != null &&
+                path.all { (x, y) -> FogOfWar.isVisible(visibility, x, y) }
+
+        if (seen) return super.commitMove(unit, tileX, tileY)
+
+        GameLog.info(
+            "OnlinePlayScreen",
+            "try-move ${unit.stageName} to $tileX,$tileY: the route is hidden by fog"
+        )
+        // No local apply, and no version check: the sender's executed count can lag behind the
+        // server while animations play out, and legality is decided on arrival anyway.
+        client.sendCommand(
+            requestId = "t$gameStateId",
+            expectedStateId = 0,
+            commandName = TryMoveCommand::class.java.name,
+            commandJson = TryMoveCommand(unit.stageName, tileX, tileY).toGson(),
+        )
+        return true
     }
 
     override fun show() {

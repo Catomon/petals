@@ -1,7 +1,7 @@
 # Plan: shared setup UI, and server hosted bot lobbies
 
-Status: proposed, not started. Every phase is one commit so any of them can be reverted on
-its own.
+Status: Phases 0 to 3 done and verified live; Phase 4 still open. Every phase is one commit
+so any of them can be reverted on its own.
 
 ## Why
 
@@ -39,9 +39,20 @@ These must hold after every phase:
   the humans and registers each with `BotFactory.create`. A human against a bot was verified
   over the real netty server with the new `botmatchonline` mode: the bot bought units on its
   own turns, with no server exceptions and no rejected commands.
-- **Phase 3, not started.** The pane does not host a server lobby yet, so the bot count cannot
-  be chosen from the interface. It is reachable today only through the protocol or the debug
-  mode. "2 players 2 bots" needs this phase.
+- **Phase 3, done and verified.** `ServerLobbySetupStage` hosts the pane for server lobbies:
+  the host arranges seats (their own slot plus per-difficulty bot seats), and one Confirm creates
+  the lobby and starts it. Colour follows the player id, map places follow the slot, the server
+  sends both plus the species in `match_found`, and a seat past the map's places spectates with
+  full vision. Verified live: a host spectating two bots playing each other, one snapshot at
+  entry, no resyncs, no stray commands, eight rounds to a winner.
+- **Phase 4, implemented, live fog verification pending.** `TryMoveCommand` carries a move
+  the client would not decide on its own; the server resolves it against the full state and
+  broadcasts the real `MoveUnitCommand`, possibly shortened with a `blocked` or `short` reason
+  that both clients display. The trigger is a fully visible route: adjacent hidden enemies only
+  make the server cheaper, never stricter, so no neighbour dilation is needed. Deviation from
+  the plan below: the animation still slides to the final tile (path walking skipped), and the
+  route search mirrors the grid's own expansion rounds rather than Dijkstra, because Dijkstra
+  counts cost where the grid counts steps and the two disagree near enemies.
 
 ## Known prerequisite (resolved)
 

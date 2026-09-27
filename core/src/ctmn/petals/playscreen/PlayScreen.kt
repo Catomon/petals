@@ -37,6 +37,7 @@ import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.commands.CommandManager
 import ctmn.petals.playscreen.commands.EndTurnCommand
 import ctmn.petals.playscreen.commands.GrantXpCommand
+import ctmn.petals.playscreen.commands.MoveUnitCommand
 import ctmn.petals.playscreen.events.*
 import ctmn.petals.playscreen.gui.GameOverMenu
 import ctmn.petals.playscreen.gui.PlayGUIStage
@@ -506,6 +507,18 @@ open class PlayScreen(
      * to let go of anything a networked battle holds. The local flow has nothing to release.
      */
     open fun onLeavingMatch() {}
+
+    /**
+     * Sends the player's chosen move. The default queues it optimistically, which is right
+     * everywhere the sender sees the whole state. The online screen overrides this to ask the
+     * server first when fog could make the client's reachability verdict wrong.
+     *
+     * @return true when the move was sent.
+     */
+    open fun commitMove(unit: UnitActor, tileX: Int, tileY: Int): Boolean {
+        val command = MoveUnitCommand(unit, tileX, tileY)
+        return command.canExecute(this) && commandManager.queueCommand(command)
+    }
 
     fun returnToMenuScreen() {
         onLeavingMatch()
