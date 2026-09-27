@@ -133,25 +133,112 @@ the client sets `clientControlled = true`, which is exactly what stops them doub
 - Local and LAN flow still works end to end, unchanged.
 - `.\gradlew.bat :core:test` passes.
 
+## Phase 4: server verified moves into the fog
+
+Independent of Phases 1 to 3, it can be done at any time. This is the fix for moves being
+rejected because the client guessed the path wrong, and it closes item 1 of the old out of
+scope list.
+
+### What the movement rules actually do
+
+Read before designing anything, because two of the three findings changed the design:
+
+1. **A tile with a non ally unit on it is `UNREACHABLE`** (`getMovementGrid` with
+   `unitsAsImpassable = true`, which is what `UnitActor.canMove(tileX, tileY)` uses). You can
+   never path through or onto an enemy. The "walk past an enemy" situation is therefore about
+   tiles *next to* an enemy, never its own tile.
+2. **Adjacent enemies make movement cheaper, not more expensive.** `presenceCost` does
+   `extendCost = max(1, extendCost - unitsAround.size)` for each non ally in the four
+   orthogonal neighbours of the tile being entered. So enemy proximity *extends* the range.
+   Worth confirming this is the intended flavour, because it is the opposite of what was
+   assumed when this plan was written.
+3. Consequence, and the useful part: because the adjacent enemy effect can only ever lower
+   the cost, a hidden enemy can only make the client's estimate **pessimistic** (the range
+   drawer under reports near fog, so the player may think it cannot reach a tile it actually
+   could). That is a UI inaccuracy, not a desync, and it needs no protocol change.
+   The dangerous direction is different and narrow: a hidden enemy **standing on a tile along
+   the path or on the destination** makes that tile unreachable on the server, so a move the
+   client accepted can be refused. That is the only case that needs fixing.
+
+So the trigger for a server verified move is exactly: **any tile on the path the client
+intends to walk, including the destination, is not visible to this player.** No dilation to
+neighbouring tiles is needed for correctness, unlike what this plan assumed before the rules
+were read.
+
+### The change
+
+- New `ctmn.petals.playscreen.commands.TryMoveCommand(unitId, tileX, tileY)`. The client
+  sends it **without applying it locally**. The server resolves it to a real
+  `MoveUnitCommand` (full path, or the furthest reachable tile plus a reason), executes that
+  instead, and broadcasts the `MoveUnitCommand`. Both clients animate the same real result, and
+  the "I already applied my own command" special case does not apply because the sender never
+  applied anything.
+- Plain `MoveUnitCommand` stays exactly as it is for moves whose whole path is visible, and
+  with fog off. Those remain fully optimistic, no round trip.
+- The client picks between them at commit time, not on hover. The reachability test on hover
+  is the existing grid; the path is only needed when the click is committed, so the cost is
+  one path computation per move.
+- Path reconstruction does not exist yet. `ctmn.petals.bot.v2.util.Pathing` has
+  `reachableTiles` and `stepTowards` but keeps no parent chain, so a path walk has to be
+  added on top of the existing movement grid.
+- `MoveUnitCommand` gains an optional traversal path and a block reason, so the reason for a
+  short move comes from the server and both clients show the same thing. Two distinct causes
+  must not share one label: a destination occupied by a hidden unit is a genuine trap, while
+  running out of movement part way is not, and calling that a trap would be misleading.
+  The reason is a server supplied code, never decided client side.
+
+### Animation
+
+`MoveUnitAction` currently slides in an L shape, straight to the destination
+(`Actions.moveTo` for X then Y), so it does not follow a path and slides through walls on
+every ordinary move. Correctness only needs the final tile, which `MoveUnitCommand` already
+carries, so a short move lands in the right place with no animation change at all. Walking the
+real path is a visual improvement that also fixes the pre existing slide, and it is worth
+doing in the same phase since the path is being computed anyway.
+
+### Verification
+
+- Fog off, or a move entirely within visible tiles, still uses the plain command and still
+  feels instant. Check the server log with `verboselog`: no `TryMoveCommand` for those.
+- A move into a fogged tile with a hidden enemy on the destination: the unit stops short, the
+  server broadcasts a `MoveUnitCommand` to the shortened tile, **both** clients show the same
+  stop and the same reason label, and no rejection appears in the log.
+- A move whose path passes a fogged tile holding a hidden enemy: the unit stops where the
+  server says, not where the client predicted, and again identically on both clients.
+- A move into fog that is unobstructed: resolves to the requested tile.
+- The client's move range drawer near fog still under reports (finding 3). Confirm this is
+  acceptable for now and is not mistaken for a regression; it is tracked separately below.
+- No fog regression: `.\gradlew.bat :desktop:run --args="botvsbot"` plays a full match, since
+  every move there is fully visible and must stay on the plain path.
+- `.\gradlew.bat :server:runServer --args="--loadtest 100 --duration 20"` still completes, and
+  `.\gradlew.bat :core:test` passes.
+- The two client run still relays correctly, now with the move cases above exercised by hand.
+
 ## Out of scope, still open
 
 These are known and deliberately not in this plan:
 
-1. **Client side legality versus fog.** The client validates moves against its fog filtered
-   mirror, so a tile that looks free because the enemy unit on it is invisible looks legal to
-   the player and illegal to the server. A rejected move shows as a brief ghost movement that
-   snaps back. This is prediction, not rules, and it is the biggest remaining correctness
-   issue. Worth doing next, and bots will make it more visible, not less.
-2. **Netty `Connection reset` noise** on abrupt disconnects: the handler does not override
+1. **Move range under reports next to fog** (finding 3 in Phase 4). The range drawer and the
+   targetability test both omit the adjacent enemy discount for tiles they cannot see, so the
+   player can be told a move is illegal when the server would allow it. Not a desync, purely a
+   lost option. A fix would be for the client to compute its range optimistically, assuming no
+   discount in fog, which trades this inaccuracy for a different one.
+2. **A result event protocol**, so damage from attacks inside the fog can be shown rather than
+   the client simply not knowing about it. This is the remaining half of the fog prediction
+   problem: Phase 4 fixes movement, not combat feedback.
+3. **Netty `Connection reset` noise** on abrupt disconnects: the handler does not override
    `exceptionCaught`, so the server prints a stack trace when a client vanishes.
-3. **Reconnect has no automated test.** Implemented on both sides, unverified end to end.
-4. **JmDNS LAN discovery** in the lobby browser.
-5. **Snapshot throttling, soak test, per session budgets** beyond the current flood guard.
-6. **A result event protocol**, so damage from attacks inside the fog can be shown.
+4. **Reconnect has no automated test.** Implemented on both sides, unverified end to end.
+5. **JmDNS LAN discovery** in the lobby browser.
+6. **Snapshot throttling, soak test, per session budgets** beyond the current flood guard.
 
-## Open decision
+## Decisions taken
 
-Should the quick match queue ever fill with bots? The current answer is no, since 1v1 with no
-MMR was the requirement, and the queue pairs exactly two humans. A "practice against a bot"
-entry point would be a separate, deliberate feature rather than a side effect of lobby
-creation.
+- **The quick match queue never fills with bots.** It pairs exactly two humans, as the 1v1
+  with no MMR requirement asks. A "practice against a bot" entry point would be a separate,
+  deliberate feature rather than a side effect of lobby creation.
+- Bot lobbies are reachable by creating a lobby and adding bot slots, not through the queue.
+- Movement into fog is resolved by the server (Phase 4), rather than by keeping vision range
+  at least as large as movement range. Widening vision to cover movement would remove the
+  trap and the desync, but it would give away a large amount of the map and change how the
+  game feels, so it was rejected in favour of the server deciding the real move.
