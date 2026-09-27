@@ -88,6 +88,8 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
         )
     }
 
+    private var autoJoinStarted = false
+
     override fun act(delta: Float) {
         super.act(delta)
         if (isDone) {
@@ -96,6 +98,13 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
                     BotVsBotScenario.createFromConfig(game)
                 else
                     MenuScreen(game)
+
+                if (!Config.botTest && Config.onlineTest && !autoJoinStarted) {
+                    autoJoinStarted = true
+                    ctmn.petals.multiplayer.OnlineAutoJoin.start(
+                        game, Config.onlineTestHost, Config.onlineTestPort
+                    )
+                }
             }
 
             progress = 100

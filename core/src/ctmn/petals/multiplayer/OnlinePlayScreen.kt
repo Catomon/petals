@@ -14,8 +14,11 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.Season
 import ctmn.petals.playscreen.addAction
 import ctmn.petals.playscreen.commands.Command
+import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
+import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.screens.PlayScreenTemplate
+import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
 import ctmn.petals.widgets.addNotifyWindow
@@ -48,6 +51,9 @@ class OnlinePlayScreen(
     private var reconnecting = false
     private var reconnectAt = 0f
     private val reconnectDelay = 3f
+
+    /** The server state each of our queued commands was built against. */
+    private val commandStateIds = java.util.IdentityHashMap<Command, Int>()
 
     /**
      * One listener per connection. Callbacks from a connection that is no longer current
@@ -85,8 +91,7 @@ class OnlinePlayScreen(
             if (!current) return
             onUi {
                 val command = runCatching {
-                    val clazz = Class.forName("ctmn.petals.playscreen.commands.${broadcast.commandName}")
-                    fromGson(broadcast.commandJson, clazz) as Command
+                    fromGson(broadcast.commandJson, resolveCommandClass(broadcast.commandName)) as Command
                 }.getOrNull() ?: return@onUi
 
                 command.playerId = broadcast.playerId
@@ -96,10 +101,29 @@ class OnlinePlayScreen(
                     broadcast.stateId == gameStateId -> Unit
 
                     // The next expected command, apply it now.
-                    broadcast.stateId - 1 == gameStateId -> commandManager.queueCommand(command)
+                    broadcast.stateId - 1 == gameStateId -> {
+                        if (commandManager.queueCommand(command)) {
+                            GameLog.verbose(
+                                "OnlinePlayScreen",
+                                "applying ${broadcast.commandName} from player ${broadcast.playerId}"
+                            )
+                        } else if (skipHiddenCommand(broadcast)) {
+                            // The command only touches state we are not allowed to see, so we
+                            // cannot replay it. Stepping the counter over it keeps the stream
+                            // aligned, and the state we do not know about is exactly the state
+                            // fog is supposed to hide. No full snapshot needed.
+                            gameStateId = broadcast.stateId
+                            GameLog.info(
+                                "OnlinePlayScreen",
+                                "skipped ${broadcast.commandName} from player ${broadcast.playerId}: hidden by fog"
+                            )
+                        } else {
+                            requestResync(broadcast)
+                        }
+                    }
 
-                    // We are out of sync, take the server state instead.
-                    else -> client.requestSnapshot()
+                    // More than one command behind: a real desync, so take the server state.
+                    else -> requestResync(broadcast)
                 }
             }
         }
@@ -141,12 +165,35 @@ class OnlinePlayScreen(
         }
     }
 
+    /**
+     * True when the other player has nothing of theirs in view, so a command of theirs that we
+     * failed to replay is about hidden state rather than a real desync.
+     */
+    private fun skipHiddenCommand(broadcast: MatchCommandBroadcast): Boolean {
+        if (broadcast.playerId == localPlayer.id) return false
+
+        val theirPlayer = turnManager.getPlayerById(broadcast.playerId) ?: return false
+
+        return playStage.getUnitsOfPlayer(theirPlayer).isEmpty()
+    }
+
+    private fun requestResync(broadcast: MatchCommandBroadcast) {
+        GameLog.info(
+            "OnlinePlayScreen",
+            "gap: server state ${broadcast.stateId}, local $gameStateId, asking for a snapshot"
+        )
+        client.requestSnapshot()
+    }
+
     fun start() {
         if (started) return
         started = true
 
         client.listener = listenerFor(client)
         clientControlled = true
+
+        // The server owns the win conditions: this client only sees a filtered field.
+        authoritativeGameEnd = false
 
         val map = createMapFromJson(match.mapJson)
 
@@ -204,6 +251,17 @@ class OnlinePlayScreen(
         reconnectAt = reconnectDelay
     }
 
+    /**
+     * Commands travel by class name. Newer peers send the full name, older ones only the
+     * simple name, so both forms are accepted.
+     */
+    private fun resolveCommandClass(name: String): Class<*> {
+        if (name.contains('.'))
+            return Class.forName(name)
+
+        return Class.forName("ctmn.petals.playscreen.commands.$name")
+    }
+
     private fun tryReconnect() {
         val previous = client
         val fresh = ServerClient()
@@ -218,15 +276,30 @@ class OnlinePlayScreen(
 
         // Send every command this player executes to the server.
         guiStage.addListener {
-            if (it is CommandExecutedEvent) {
-                val command = it.command
-                if (command.playerId == localPlayer.id) {
-                    client.sendCommand(
-                        requestId = "c$gameStateId",
-                        expectedStateId = gameStateId,
-                        commandName = command.javaClass.simpleName,
-                        commandJson = command.toGson(),
-                    )
+            when (it) {
+                // The state a command is built against has to be remembered before the local
+                // execution bumps the counter, otherwise the server sees it one ahead.
+                is CommandAddedEvent -> if (it.command.playerId == localPlayer.id) {
+                    commandStateIds[it.command] = gameStateId
+                }
+
+                is CommandExecutedEvent -> {
+                    val command = it.command
+                    if (command.playerId == localPlayer.id) {
+                        val expectedStateId = commandStateIds.remove(command) ?: gameStateId - 1
+
+                        GameLog.verbose(
+                            "OnlinePlayScreen",
+                            "sending ${command.javaClass.simpleName} (expected state $expectedStateId, local ${gameStateId})"
+                        )
+
+                        client.sendCommand(
+                            requestId = "c$gameStateId",
+                            expectedStateId = expectedStateId,
+                            commandName = command.javaClass.name,
+                            commandJson = command.toGson(),
+                        )
+                    }
                 }
             }
 

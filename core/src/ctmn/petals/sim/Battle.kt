@@ -90,6 +90,12 @@ open class Battle {
      */
     var clientControlled = false
 
+    /**
+     * False on a client mirror of a server match. Such a client sees a filtered view of the
+     * field, so it must not judge the win conditions: the server decides when a match ends.
+     */
+    var authoritativeGameEnd = true
+
     var randomCount = 0
     var randomSeed = Random.nextInt(0, 9999999)
         set(value) {
@@ -200,6 +206,10 @@ open class Battle {
 
     fun checkGameEndCondition() {
         if (isGameOver || gameEnding) return
+
+        // A client that only sees a filtered copy of the field cannot judge the win
+        // conditions, so the server stays the only one that ends the match.
+        if (!authoritativeGameEnd) return
 
         for (player in turnManager.players) {
             player.isOutOfGame =

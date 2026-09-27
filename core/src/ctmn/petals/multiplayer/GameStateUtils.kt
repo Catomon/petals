@@ -18,11 +18,16 @@ fun applyGameStateToPlayScreen(
     playScreen.initView = initView
     playScreen.playStage.initView = initView
 
-    playScreen.turnManager.players.clear()
     playScreen.botManager.botPlayers.clear()
 
     playScreen.actionManager.clear()
     playScreen.commandManager.clearQueue()
+
+    // The players are restored before the stage is cleared: removing actors fires exit
+    // events, and the GUI listeners expect a current player to exist.
+    playScreen.turnManager.players.clear()
+    playScreen.turnManager.players.addAll(snapshot.players)
+    playScreen.turnManager.turn = snapshot.turn
 
     playScreen.playStage.clearGameActors()
 
@@ -36,8 +41,6 @@ fun applyGameStateToPlayScreen(
         }
     }
 
-    playScreen.turnManager.players.addAll(snapshot.players)
-    playScreen.turnManager.turn = snapshot.turn
     playScreen.friendlyFire = snapshot.friendlyFire
     snapshot.aiPlayers.forEach { playScreen.botManager.add(BotFactory.create(playScreen.turnManager.getPlayerById(it) ?: return@forEach, playScreen)) }
 

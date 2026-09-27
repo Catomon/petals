@@ -13,6 +13,14 @@ task run(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
 }
 
+// Prints the runtime classpath so the game can be started outside Gradle, which is handy
+// when more than one client has to run at the same time.
+task printRuntimeClasspath(dependsOn: 'classes') {
+    doLast {
+        println sourceSets.main.runtimeClasspath.asPath
+    }
+}
+
 task debug(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath

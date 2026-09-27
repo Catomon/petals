@@ -18,11 +18,16 @@ public class DesktopLauncher {
         boolean botLog = false;
         boolean verboseLog = false;
         boolean dedicatedServer = false;
+        boolean onlineTest = false;
+        String onlineTestHost = "localhost";
+        int onlineTestPort = Config.SERVER_PORT;
         String botDifficulty = "normal";
         for (String a : arg) {
             String lower = a.toLowerCase();
             if (lower.equals("botvsbot") || lower.equals("bottest") || lower.equals("--bot-test")) {
                 botTest = true;
+            } else if (lower.equals("onlinetest")) {
+                onlineTest = true;
             } else if (lower.equals("dedicatedserver") || lower.equals("--dedicated-server")) {
                 dedicatedServer = true;
             } else if (lower.equals("easy") || lower.equals("normal") || lower.equals("hard") || lower.equals("insane")) {
@@ -34,8 +39,28 @@ public class DesktopLauncher {
             }
         }
 
+        // "onlinetest" may be followed by a host and a port, so read those with an index.
+        if (onlineTest) {
+            for (int i = 0; i < arg.length; i++) {
+                if (!arg[i].toLowerCase().equals("onlinetest")) continue;
+
+                if (i + 1 < arg.length && !arg[i + 1].startsWith("--")) {
+                    onlineTestHost = arg[i + 1];
+                }
+                if (i + 2 < arg.length) {
+                    try {
+                        onlineTestPort = Integer.parseInt(arg[i + 2]);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        }
+
         Config.INSTANCE.setBotLog(botLog);
         Config.INSTANCE.setVerboseLog(verboseLog);
+        Config.INSTANCE.setOnlineTest(onlineTest);
+        Config.INSTANCE.setOnlineTestHost(onlineTestHost);
+        Config.INSTANCE.setOnlineTestPort(onlineTestPort);
 
         if (botTest) {
             Config.INSTANCE.setBotTest(true);

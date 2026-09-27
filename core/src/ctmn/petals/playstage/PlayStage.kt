@@ -256,33 +256,40 @@ class PlayStage(
     }
 
     fun clearUnits() {
-        for (unit in unitsLayer.children) {
+        // Removing an actor fires events whose listeners may walk the same collections, and
+        // libGDX arrays do not allow nested iteration, so walk a copy.
+        for (unit in unitsLayer.children.toList()) {
             unit.remove()
         }
         unitsLayer.clear()
     }
 
     fun clearTiles() {
-        for (layer in tileLayers) {
-            for (tile in layer.value.children) {
+        // Removing an actor fires events whose listeners may walk the same collections, and
+        // libGDX collections do not allow nested iteration, so walk copies.
+        val layers = ArrayList<PlayStageGroup>()
+        for (entry in tileLayers) layers.add(entry.value)
+
+        for (layer in layers) {
+            for (tile in layer.children.toList()) {
                 tile.remove()
             }
-            layer.value.clear()
-            layer.value.tilesGrid.clear()
+            layer.clear()
+            layer.tilesGrid.clear()
         }
     }
 
     private fun clearLabels() {
-        for (actor in actors) {
+        for (actor in actors.toList()) {
             if (actor is LabelActor)
                 actor.remove()
         }
     }
 
     private fun clearMinorGameActors() {
-        actors.forEach {
-            if (it is GameActor)
-                it.remove()
+        for (actor in actors.toList()) {
+            if (actor is GameActor)
+                actor.remove()
         }
     }
 

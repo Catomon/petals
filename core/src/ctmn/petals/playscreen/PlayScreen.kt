@@ -229,6 +229,12 @@ open class PlayScreen(
         this.map = map
         this.levelId = map.mapId
 
+        // Sorting reads sprite sizes, so the views have to exist before the tiles are
+        // sorted. A map that arrived over the network has no views yet.
+        for (tile in map.tiles) {
+            if (tile.tileViewComponent == null) tile.initView()
+        }
+
         for (tile in sortTiles(map.tiles)) {
             playStage.addActor(tile)
         }

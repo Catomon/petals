@@ -40,6 +40,9 @@ class ServerConfig {
 
     var loadTestSeconds = 20f
 
+    /** Per message tracing, so a live match can be followed in the console. */
+    var verboseLog = false
+
     companion object {
         fun fromArgs(args: Array<String>): ServerConfig {
             val config = ServerConfig()
@@ -78,6 +81,8 @@ class ServerConfig {
                     }
 
                     "--no-lan" -> config.lanDiscovery = false
+
+                    "verboselog", "--verbose-log" -> config.verboseLog = true
 
                     "botmatch" -> {
                         config.botMatch = true

@@ -841,6 +841,7 @@ class PlayGUIStage(
         //select Bot unit in action
         playStage.addListener { event ->
             if (!GamePref.showBotGui) return@addListener false
+            if (playScreen.turnManager.players.isEmpty()) return@addListener false
 
             if (playScreen.botManager.isBotPlayer(playScreen.turnManager.currentPlayer)) {
                 when (event) {

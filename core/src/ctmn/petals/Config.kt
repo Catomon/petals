@@ -50,6 +50,16 @@ object Config {
     const val SERVICE_NAME = "Faes Feisty JmDNS"
     const val SERVICE_DESCRIPTION = "Ip scan for quick join in multiplayer."
 
+    /**
+     * Smoke test: connect to a dedicated server on startup and join the quick match queue
+     * without touching the menus. See [ctmn.petals.multiplayer.OnlineAutoJoin].
+     */
+    var onlineTest = false
+
+    var onlineTestHost = "localhost"
+
+    var onlineTestPort = SERVER_PORT
+
 
     // GUI:
     val IS_MOBILE get() = Gdx.app.type == Application.ApplicationType.Android

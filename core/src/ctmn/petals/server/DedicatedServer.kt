@@ -1,6 +1,7 @@
 package ctmn.petals.server
 
 import com.badlogic.gdx.Gdx
+import ctmn.petals.Config
 import ctmn.petals.bot.v2.BotFactory
 import ctmn.petals.bot.v2.Difficulty
 import ctmn.petals.map.loadMap
@@ -38,6 +39,7 @@ class DedicatedServer(val config: ServerConfig) {
 
     fun start() {
         running = true
+        Config.verboseLog = config.verboseLog
         GameLog.info("DedicatedServer", "Starting '${config.serverName}' on port ${config.port}")
 
         if (config.botMatch) {

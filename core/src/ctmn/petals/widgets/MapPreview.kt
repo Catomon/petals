@@ -103,6 +103,12 @@ class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
         if (actors.isNotEmpty())
             for (actor in actors) {
                 if (actor is TileActor) {
+                    // A map can arrive without any view built yet, for example one that was
+                    // just parsed from the network. Build it here rather than crashing.
+                    if (actor.tileViewComponent == null) {
+                        if (runCatching { actor.initView() }.isFailure) continue
+                    }
+
                     if (drawSimpleTexture)
                         when (actor.terrain) {
                             TerrainNames.grass -> sprite.color = Color.GREEN

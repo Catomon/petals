@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 class ServerCore(val config: ServerConfig) {
 
-    private class ClientConnection(var channel: Channel) {
+    private class ClientConnection(val channel: Channel) {
         var clientId: String = ""
         var name: String = "Player"
         var lobbyId: String? = null
@@ -74,6 +74,14 @@ class ServerCore(val config: ServerConfig) {
     private companion object {
         /** Roughly ten times what a normal turn needs, so a flood is cut off fast. */
         const val maxMessagesPerSecond = 120
+    }
+
+    private fun resolveCommandClass(name: String): Class<*>? {
+        // Newer clients send the full class name, older ones only the simple name.
+        if (name.contains('.'))
+            return runCatching { Class.forName(name) }.getOrNull()
+
+        return runCatching { Class.forName("ctmn.petals.playscreen.commands.$name") }.getOrNull()
     }
 
     fun start() {
@@ -188,6 +196,9 @@ class ServerCore(val config: ServerConfig) {
     // Dispatch
 
     private fun handle(connection: ClientConnection, envelope: Envelope) {
+        // Every message is traced: a per command broadcast log would be far too noisy.
+        GameLog.verbose("ServerCore", "recv ${envelope.type} from '${connection.name}'")
+
         // Flood guard: a client that floods gets dropped instead of stalling the session.
         if (++connection.messagesThisSecond > maxMessagesPerSecond) {
             sendError(connection, envelope.requestId, "Too many requests")
@@ -217,25 +228,28 @@ class ServerCore(val config: ServerConfig) {
         val requestedId = if (hello.clientId.isBlank()) UUID.randomUUID().toString() else hello.clientId
         val name = hello.name.ifBlank { "Player${requestedId.take(4)}" }.take(24)
 
-        val existing = clientsById[requestedId]
+        // There must be exactly one live connection object per client: the one the netty
+        // handler holds. Everything else (queue, lobbies, matches) is looked up by client id,
+        // so a second object would hide the match seat from the connection that receives
+        // commands.
+        val previous = clientsById[requestedId]
 
-        val session = if (existing != null) {
+        connection.clientId = requestedId
+        connection.name = name
+
+        if (previous != null) {
             // A returning player keeps their lobby or match seat.
-            existing.channel = connection.channel
-            existing.disconnectAt = 0L
-            existing
+            connection.lobbyId = previous.lobbyId
+            connection.matchId = previous.matchId
+            connection.playerId = previous.playerId
+            connection.ready = previous.ready
+            GameLog.info("ServerCore", "Player '${connection.name}' reconnected")
         } else {
-            ClientConnection(connection.channel).also { it.clientId = requestedId }
+            GameLog.info("ServerCore", "Player '${connection.name}' (${connection.clientId}) connected")
         }
 
-        session.name = name
-        clientsById[requestedId] = session
-
-        if (existing != null) {
-            GameLog.info("ServerCore", "Player '${session.name}' reconnected")
-        } else {
-            GameLog.info("ServerCore", "Player '${session.name}' (${session.clientId}) connected")
-        }
+        clientsById[requestedId] = connection
+        val session = connection
 
         sendTo(session, Msg.WELCOME, "", Welcome().also {
             it.clientId = session.clientId
@@ -250,6 +264,10 @@ class ServerCore(val config: ServerConfig) {
 
     private fun onDisconnected(connection: ClientConnection) {
         if (connection.clientId.isEmpty()) return
+
+        // A reconnect replaces the session object, so a late close of the old socket must
+        // not clean up the new session.
+        if (clientsById[connection.clientId] !== connection) return
 
         queue.remove(connection)
 
@@ -483,6 +501,7 @@ class ServerCore(val config: ServerConfig) {
     }
 
     private fun onSnapshotRequest(connection: ClientConnection) {
+        GameLog.verbose("ServerCore", "Match ${connection.matchId}: ${connection.name} asked for a snapshot")
         matches[connection.matchId]?.sendSnapshot(connection)
     }
 
@@ -543,7 +562,7 @@ class ServerCore(val config: ServerConfig) {
             val broadcast = MatchCommandBroadcast()
             broadcast.stateId = battle.gameStateId
             broadcast.playerId = current
-            broadcast.commandName = "EndTurnCommand"
+            broadcast.commandName = endTurn.javaClass.name
             broadcast.commandJson = endTurn.toGson()
             connectionFor().forEach { sendTo(it, Msg.MATCH_COMMAND_BROADCAST, "", broadcast) }
 
@@ -562,9 +581,8 @@ class ServerCore(val config: ServerConfig) {
                 return
             }
 
-            val commandClass = try {
-                Class.forName("ctmn.petals.playscreen.commands.${request.commandName}")
-            } catch (e: Exception) {
+            val commandClass = resolveCommandClass(request.commandName)
+            if (commandClass == null) {
                 reject(connection, requestId, "Unknown command")
                 return
             }
@@ -593,20 +611,28 @@ class ServerCore(val config: ServerConfig) {
 
             battle.commandManager.onCommand?.invoke(command)
 
+            GameLog.info(
+                "ServerCore",
+                "Match $id: ${connection.name} -> ${command.javaClass.simpleName} (state ${battle.gameStateId})"
+            )
+
             val broadcast = MatchCommandBroadcast()
             broadcast.stateId = battle.gameStateId
             broadcast.playerId = expectedPlayerId
-            broadcast.commandName = request.commandName
+            broadcast.commandName = command.javaClass.name
             broadcast.commandJson = request.commandJson
             connectionFor().forEach { sendTo(it, Msg.MATCH_COMMAND_BROADCAST, "", broadcast) }
 
-            // Nudge the player whose turn just started with a fresh snapshot.
-            clientIds[battle.turnManager.currentPlayer.id]?.let { id ->
-                clientsById[id]?.let { sendSnapshot(it) }
-            }
+            // No snapshot here on purpose. The broadcast stream is ordered and reliable, so a
+            // client that applies every command stays in sync on its own. A full snapshot is
+            // only sent when a client really needs one: a rejection, a state gap, or a
+            // reconnect. Sending one per command made every single action cost a full state
+            // transfer.
         }
 
         private fun reject(connection: ClientConnection, requestId: String, reason: String) {
+            GameLog.info("ServerCore", "Match $id: rejected '${connection.name}': $reason")
+
             sendTo(connection, Msg.COMMAND_REJECTED, requestId, CommandRejected().also {
                 it.requestId = requestId
                 it.reason = reason

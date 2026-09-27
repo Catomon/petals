@@ -57,6 +57,40 @@ Matches are authoritative: a client sends `match_command`, the server validates 
 the accepted command. A rejected command answers with `command_rejected` and a fresh
 snapshot so the client can resync.
 
+Commands travel by class name. Newer peers send the full class name; the simple name is
+still accepted and resolved against `ctmn.petals.playscreen.commands`, so an older client
+keeps working.
+
+### Sync model: deltas, not snapshots
+
+A snapshot is the expensive message: it serialises the whole field. So it is only sent when
+a client genuinely cannot continue from the command stream:
+
+- at match start,
+- after a rejected command, as the repair,
+- when a client reports a gap of more than one command,
+- on reconnect, to hand back the seat.
+
+Everything else travels as `match_command_broadcast`. The broadcast stream is ordered and
+reliable over TCP, so a client that applies every command stays in sync on its own. There
+is deliberately no snapshot after each command; doing that made every action cost a full
+state transfer.
+
+One case needs care: a command about a unit the client cannot see through the fog cannot be
+replayed locally. Instead of paying for a snapshot, the client steps its state counter over
+that command and keeps going. What it skips is by definition state it is not allowed to
+know, so the local mirror stays a correct partial view and the command stream stays aligned.
+If the command turns out to be about something the client *can* see, or the client is more
+than one command behind, it falls back to a real snapshot so genuine desync is never masked.
+
+### Logging
+
+`ServerCore` logs match starts, accepted commands, rejections, connects and disconnects
+always. The per message trace (`recv <type>`) and the client side per command chatter are
+behind the `verboselog` flag, which the server accepts as `verboselog` or `--verbose-log`.
+Client divergence (`gap: server state N, local M`) and fog skips are logged at normal level,
+since they are rare and worth seeing.
+
 ## Running
 
 Standalone server module:
@@ -79,10 +113,30 @@ Smoke tests:
 
 # N fake clients against the real netty server for the given seconds
 .\gradlew.bat :server:runServer --args="--loadtest 8 --duration 15"
+
+# trace every protocol message, useful when watching a live match
+.\gradlew.bat :server:runServer --args="--port 7396 verboselog"
 ```
 
+End to end with two real clients, which is how the online flow was verified:
+
+```
+# terminal 1
+.\gradlew.bat :server:runServer --args="--port 7396"
+
+# terminals 2 and 3, each opens a game window and joins the quick match queue
+# on startup without touching the menus
+.\gradlew.bat :desktop:run --args="onlinetest localhost 7396"
+```
+
+`onlinetest` is a smoke test entry point in `ctmn.petals.multiplayer.OnlineAutoJoin`: it
+connects, queues and drops into `OnlinePlayScreen` as soon as the server finds a match. It
+takes an optional host and port and uses a unique client id per run, so several instances on
+one machine do not look like a reconnect of each other.
+
 Options (all optional): `--port`, `--name`, `--max-players`, `--max-sessions`,
-`--turn-timer <seconds>`, `--maps a,b,c`, `--no-lan`, `--loadtest N`, `--duration S`.
+`--turn-timer <seconds>`, `--maps a,b,c`, `--no-lan`, `--reconnect <seconds>`,
+`--loadtest N`, `--duration S`, `verboselog`.
 Turn timers are off by default, as requested.
 
 ## Done
@@ -105,6 +159,10 @@ Turn timers are off by default, as requested.
   stalled turns on the session thread.
 - Lobby creation settings (map, player count, fog) and a per connection flood guard that
   drops clients exceeding 120 messages per second.
+- Delta first sync: a full snapshot is no longer sent after every command, and commands
+  hidden by fog are skipped instead of triggering a resync (see "Sync model" above).
+- `onlinetest` launch argument for driving a real client into a match from the command line,
+  which is what the two client end to end run used.
 
 ### Verified
 
@@ -114,6 +172,10 @@ Turn timers are off by default, as requested.
   netty server (`--loadtest 100 --duration 20`), which covers the target of a couple dozen
   sessions and around 100 players. Turners and fog filtered snapshots are exercised.
 - `:desktop:run --args="dedicatedserver --port 7490"` starts the server headless.
+- **Two real clients against one dedicated server**: both connect, get matched, and play.
+  Buying, moving, attacking and ending turns all relay correctly in both directions, with
+  the state ids lining up (`expected state N, local N+1`, server increments to N+1, peer
+  applies it). This run found and fixed four real bugs, listed under Remaining.
 
 ## Client
 
@@ -133,15 +195,31 @@ Turn timers are off by default, as requested.
 
 ## Remaining
 
-1. LAN server discovery with JmDNS in the lobby browser, so a local server shows up without
+Bugs and gaps found by the two client run, in the order they were hit:
+
+1. **Client side legality versus fog (open, the biggest one).** The client checks move
+   legality against its own fog filtered mirror, so a tile that looks free because the enemy
+   unit on it is invisible looks legal to the player and illegal to the server. The server
+   is right, so the client is committing actions it should not. It needs to stop committing
+   fog optimistic actions: either ask the server to validate a move before animating it, or
+   treat the rejection as normal and snap. Until then a rejected move is visible as a brief
+   ghost movement followed by a snap back.
+2. **`battle.clientControlled = true` on the server battle** (`ServerCore.startMatch`) reads
+   backwards. The flag is documented as "driven by a remote server, do not run local bots",
+   so the authoritative battle should not set it. Harmless for two human players, but it
+   would suppress server side bots.
+3. **Netty "Connection reset" noise on the server console** when a client goes away. The
+   handler does not override `exceptionCaught`, so an abrupt close prints a full stack trace
+   through the default pipeline warning. It should be caught and treated as a disconnect.
+4. **Reconnect has no automated test.** Server and client paths are implemented and the
+   grace period reaping is visible in the log, but driving a drop mid match from the harness
+   proved flaky, so it is unverified end to end.
+
+Still not built:
+
+5. LAN server discovery with JmDNS in the lobby browser, so a local server shows up without
    typing its address. The old P2P discovery still exists on the LAN games screen.
-2. Scale polish: snapshot throttling and a longer soak test.
-3. Reconnect has no automated test yet. The server and client paths are implemented, but
-   driving a drop mid match from the harness proved flaky, so it is unverified.
-4. Fog filtered snapshots mean a client cannot replay a command that involves a unit it
-   cannot see, so it falls back to a snapshot after such a command. Correct, but it can
-   mean a snapshot per command during heavy fighting. A result-event protocol would remove
-   that.
-5. An end to end test with two real game clients. The screens compile and the protocol is
-   covered by the fake client load test, but the UI flow still needs a manual pass with two
-   game instances.
+6. Snapshot throttling, a longer soak test, and per session budgets beyond the current
+   flood guard.
+7. A result event protocol, so damage numbers and deaths could be shown for attacks that
+   happen inside the fog instead of the client simply not knowing about them.
