@@ -9,7 +9,8 @@ Multiplayer is being moved off the old "host plays and relays" model onto an aut
 headless server. The same battle code runs in three places:
 
 - the single player / hot seat / story client, rendered by `PlayScreen`,
-- the online client, rendered by a future `OnlinePlayScreen` on top of the same view,
+- the online client, rendered by `ctmn.petals.multiplayer.OnlinePlayScreen` on top of the
+  same view,
 - the dedicated server, which runs the battle with no view at all.
 
 ## Architecture
@@ -164,6 +165,15 @@ Turn timers are off by default, as requested.
   stalled turns on the session thread.
 - Lobby creation settings (map, player count, fog) and a per connection flood guard that
   drops clients exceeding 120 messages per second.
+- **Lobby lifecycle and the shared setup pane.** `GameSetupPane` holds the map preview, the
+  eight slots and the settings row, and the local, LAN and dedicated flows all drive it. A
+  dedicated lobby is created when the host opens the setup screen and is published to the
+  browser by a separate press, so it can be arranged in private. The host decides the map,
+  and the server carries it: a map that only exists on the host's machine travels as
+  `mapJson` and reaches every client in `match_found`. Seats are slots and the slot only
+  decides map position; a player's id, which is their colour, is assigned once and never
+  changes when they move. `ServerLobbySetupStage` sends the whole arrangement on every edit,
+  which is how the LAN room worked, so joiners follow live.
 - Delta first sync: a full snapshot is no longer sent after every command, and commands
   hidden by fog are skipped instead of triggering a resync (see "Sync model" above).
 - `onlinetest` launch argument for driving a real client into a match from the command line,
@@ -190,6 +200,10 @@ Turn timers are off by default, as requested.
   Buying, moving, attacking and ending turns all relay correctly in both directions, with
   the state ids lining up (`expected state N, local N+1`, server increments to N+1, peer
   applies it). This run found and fixed four real bugs, listed under Remaining.
+- **Two real clients through the dedicated lobby**: the host opens a lobby, picks a map from
+  their own machine, publishes it, the second client finds it in the browser and joins, both
+  see the same map and settings and their own colours, and the host starting the match puts
+  both into the same game on the host's map.
 - **A human against a server hosted bot**: `botmatchonline` seats the first queueing client
   with a bot. The bot buys units and plays its own turns with no human input, the server logs
   no exceptions, and no command is rejected.
@@ -197,47 +211,45 @@ Turn timers are off by default, as requested.
 
 ## Client
 
-- `ctmn.petals.menu.LobbiesStage` is the lobby browser: enter a display name, connect to a
-  server by address, browse its lobbies and join one, create a lobby (map, player count and
-  fog of war) or use the quick match queue. It is reachable from the main menu through the
-  Match and Vs Player buttons, and it keeps the old local and LAN host flow one button away.
-  The server advertises its map pool in the welcome message, so the map picker only offers
-  maps the server can actually host.
+Playing another person is one chooser: `ctmn.petals.menu.MpLobbyVariantsStage` offers same
+screen, LAN and online, each with its own screen behind it.
+
+- Same screen goes to the local setup (`CustomGameSetupStage`).
+- LAN is the peer hosted room: host, or join by address or by JmDNS search.
+- Online goes to `LobbiesStage`, the dedicated server browser. It connects to
+  `Config.DEFAULT_SERVER_HOST` (a server on this machine) on entry, lists the lobbies the
+  server has, and offers create, quick match and refresh. The address form lives in
+  `ServerConnectStage`, reached from the browser, and is only needed for a server elsewhere.
+- `ctmn.petals.menu.ServerLobbySetupStage` is the dedicated lobby, built on the same
+  `GameSetupPane` as the local and LAN flows, so the map preview, eight slots, settings row
+  and footer behave the same everywhere. The host's lobby exists from the moment this screen
+  opens; Open publishes it to the browser and Close takes it back out. Every edit is sent on,
+  and the players sitting in the lobby see it immediately.
+- The host picks the map from their own machine. The server never chooses a lobby map: it
+  carries the map (`mapJson`) to everyone in the lobby and to every client in `match_found`,
+  so a joiner does not need the file.
+- Seats are slots; a player keeps the id the lobby gave them, and the id is the colour. A
+  slot past the map's player places means no map place at all, which is how sitting out to
+  watch works.
 - `ctmn.petals.multiplayer.OnlinePlayScreen` plays a server match. It builds the map from the
   `map_json` in `match_found`, mirrors the battle locally for the view, applies accepted
   commands from other players, and sends its own commands to the server. A rejection or a
   state gap is repaired with a server snapshot.
 - `ctmn.petals.net.ServerClient` is the protocol client both the screens and the headless
   `FakeClient` use.
-- The player display name is stored in `GamePref.displayName` and edited in the lobby screen.
+- The player display name is stored in `GamePref.displayName`.
 
 ## Remaining
 
-Bugs and gaps found by the two client run, in the order they were hit:
-
-1. **Client side legality versus fog (open, the biggest one).** The client checks move
-   legality against its own fog filtered mirror, so a tile that looks free because the enemy
-   unit on it is invisible looks legal to the player and illegal to the server. The server
-   is right, so the client is committing actions it should not. It needs to stop committing
-   fog optimistic actions: either ask the server to validate a move before animating it, or
-   treat the rejection as normal and snap. Until then a rejected move is visible as a brief
-   ghost movement followed by a snap back.
-2. **`battle.clientControlled = true` on the server battle** (`ServerCore.startMatch`) reads
-   backwards. The flag is documented as "driven by a remote server, do not run local bots",
-   so the authoritative battle should not set it. Harmless for two human players, but it
-   would suppress server side bots.
-3. **Netty "Connection reset" noise on the server console** when a client goes away. The
-   handler does not override `exceptionCaught`, so an abrupt close prints a full stack trace
-   through the default pipeline warning. It should be caught and treated as a disconnect.
-4. **Reconnect has no automated test.** Server and client paths are implemented and the
-   grace period reaping is visible in the log, but driving a drop mid match from the harness
-   proved flaky, so it is unverified end to end.
-
-Still not built:
-
-5. LAN server discovery with JmDNS in the lobby browser, so a local server shows up without
-   typing its address. The old P2P discovery still exists on the LAN games screen.
-6. Snapshot throttling, a longer soak test, and per session budgets beyond the current
+1. **Real spectator slots.** Sitting past the map's player places already watches the match,
+   but there is no separate spectator list, no way to join an already running match as a
+   watcher, and no spectator cap. That is the next piece.
+2. **Reconnect has no automated test.** Server and client paths are implemented and the
+   grace period reaping is visible in the log, but driving a drop mid match from a harness
+   proved flaky, so it is only verified by hand.
+3. **LAN server discovery in the browser** with JmDNS, so a local dedicated server shows up
+   without typing its address. The peer to peer discovery still exists on the LAN screen.
+4. **Snapshot throttling, a longer soak test**, and per session budgets beyond the current
    flood guard.
-7. A result event protocol, so damage numbers and deaths could be shown for attacks that
+5. **A result event protocol**, so damage numbers and deaths could be shown for attacks that
    happen inside the fog instead of the client simply not knowing about them.

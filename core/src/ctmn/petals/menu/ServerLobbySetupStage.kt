@@ -3,13 +3,15 @@ package ctmn.petals.menu
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.kotcrab.vis.ui.VisUI
-import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.GamePref
 import ctmn.petals.map.MapConverted
+import ctmn.petals.map.createMapFromJson
 import ctmn.petals.map.loadMap
+import ctmn.petals.playscreen.GameMode
+import ctmn.petals.playscreen.Season
+import ctmn.petals.playstage.PlayStage
 import ctmn.petals.multiplayer.OnlinePlayScreen
 import ctmn.petals.net.ServerClient
 import ctmn.petals.net.SeatingLog
@@ -43,23 +45,34 @@ class ServerLobbySetupStage(
     private val client: ServerClient,
     private val serverHost: String,
     private val serverPort: Int,
-    private val mapPool: List<String>,
     /** Null when this screen creates a new lobby rather than opening an existing one. */
     private val lobbyId: String?,
 ) : Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val pane = GameSetupPane(this)
 
-    private val roomStatusImage = VisImage(VisUI.getSkin().getDrawable("room_status_problem"))
-
     private val returnButton = newTextButton(strings.general.return_)
-    private val confirmButton = newTextButton(strings.general.confirm).apply { isDisabled = true }
+
+    /**
+     * Publishes the lobby so it appears in the browser, or unpublishes it again. The lobby itself
+     * already exists by the time this screen opens.
+     */
+    private val openLobbyButton = newTextButton("Open").apply { isDisabled = true }
+
+    /** Runs the match the lobby is waiting for. Host only, and only with somebody to play. */
+    private val startButton = newTextButton("Start").apply { isDisabled = true }
+
+    /** Wraps: the status sentences are longer than the pane's 300px column. */
+    private val statusLabel = newLabel("", "default").apply { setWrap(true) }
 
     private val table = VisTable()
     private val windowTable = VisTable()
 
     /** Set once the server confirmed our lobby, so the buttons reflect a real seat. */
     private var inLobby = false
+
+    /** Whether the lobby is currently in the browser. Mirrors what the server last told us. */
+    private var listed = false
 
     /**
      * Creating a lobby means we are the host by definition. The server confirms it later, but
@@ -71,6 +84,16 @@ class ServerLobbySetupStage(
 
     /** Set when the chosen map came from this machine and must be sent to the server. */
     private var chosenMapJson: String? = null
+
+    /**
+     * True while an incoming lobby state is being written into the pane.
+     *
+     * Writing into the pane fires [GameSetupPane.onLobbyChanged], which would send the same
+     * state straight back to the server, which would answer with the same state again. That is a
+     * loop at wire speed: dozens of updates a second, the map and settings never settling, and
+     * every other player's species rerolled on each pass.
+     */
+    private var applyingRemoteState = false
 
     /**
      * Our own seat, kept as one object for the whole screen. The server sends us a plain
@@ -90,22 +113,14 @@ class ServerLobbySetupStage(
                 // Creating a lobby has no id yet, so accept the first state we are told about.
                 if (lobbyId != null && state.id != lobbyId) return@onUi
 
-                inLobby = true
-                isHost = state.hostClientId == GamePref.clientId
-                pane.isHost = isHost
-                roomStatusImage.drawable = VisUI.getSkin().getDrawable("room_status_ok")
-
-                if (state.mapId != null && state.mapId != chosenMapId) pickMap(state.mapId)
-                pane.fogOfWar = state.fogOfWar
-
-                // Humans and bots both take a slot. Bots are marked so the pane draws the bot
-                // portrait and leaves them alone.
-                for (i in 0 until GameSetupPane.SLOT_COUNT) {
-                    val member = state.members.getOrNull(i)
-                    pane.setPlayerSlot(member?.toPlayer(), i)
-                    pane.slots.get(i).isAI = member?.isAi == true
-                    pane.slots.get(i).botDifficulty = member?.botDifficulty ?: "normal"
-                    pane.slots.get(i).isHostSlot = member?.host == true
+                // Everything below writes into the pane, and writing into the pane reports a local
+                // change. Reporting those back would be a loop, so the echo is muted while the
+                // server's own answer is being applied.
+                applyingRemoteState = true
+                try {
+                    applyLobbyState(state)
+                } finally {
+                    applyingRemoteState = false
                 }
 
                 refresh()
@@ -153,17 +168,26 @@ class ServerLobbySetupStage(
 
     init {
         pane.allowLocalPlayer = false
-        pane.onLobbyChanged = { refresh() }
+        // Once the lobby exists every change goes straight back to the server, so the players
+        // already sitting in it see the same arrangement the host is looking at. A lobby with no
+        // map yet has nothing to send, and createLobby says so through the status line.
+        pane.onLobbyChanged = {
+            if (!applyingRemoteState) createLobby()
+        }
         pane.onUnplayableMap = { message -> addNotifyWindow(message, "Lobby") }
 
         pane.changeMapButton.addChangeListener { showMapPicker() }
 
         returnButton.addChangeListener { back() }
-        // One button, like the local setup screen: creating a lobby and starting it are the
-        // same press. The host is the only one who may start, and the host is always seated.
-        confirmButton.addChangeListener {
-            if (inLobby) startMatch() else createLobbyAndStart()
+
+        // Publishing and starting are separate, and neither is "create": the lobby already exists
+        // by the time this screen is open.
+        openLobbyButton.addChangeListener {
+            listed = !listed
+            createLobby()
+            refresh()
         }
+        startButton.addChangeListener { startMatch() }
 
         // The pane's column goes straight on the stage, exactly as the local flow lays it out.
         // Nesting it inside a centred table puts it in the wrong corner, because the pane fills
@@ -175,9 +199,15 @@ class ServerLobbySetupStage(
             add(VisTable().apply {
                 width = 300f
                 add(returnButton).left()
-                add(roomStatusImage).size(42f).expandX().center()
-                add(confirmButton).right()
+                add().expandX()
+
+                // The host's two actions sit next to each other, in the order they are used:
+                // publish the lobby, then run the match that fills it.
+                add(openLobbyButton).width(100f)
+                add(startButton).width(100f).padLeft(4f)
             }).width(300f)
+            row()
+            add(statusLabel).width(300f).padTop(4f)
         }
 
         table.setFillParent(true)
@@ -191,22 +221,72 @@ class ServerLobbySetupStage(
         refresh()
 
         if (lobbyId != null) {
-            client.joinLobby(lobbyId)
+            // Our own species travels with the join, otherwise the host's lobby has nothing to
+            // show for us and every update rerolls it.
+            client.joinLobby(lobbyId, myPlayer.species)
         } else {
-            // Creating: sit in the first slot straight away, as the local flow does, and offer
-            // the server's first map so there is something to look at.
+            // Creating: sit in the first slot straight away, as the local flow does, and open the
+            // lobby straight away too. It stays private until the host publishes it, so the
+            // arrangement can be built in peace and appears in the browser when it is ready.
             pane.localPlayer = myPlayer
             pane.setPlayerSlot(myPlayer, 0)
-            mapPool.firstOrNull()?.let { pickMap(it) }
-            refresh()
+            createLobby()
         }
+    }
+
+    /** Writes the server's view of the lobby into the pane. Never reports a local change. */
+    private fun applyLobbyState(state: LobbyStateMsg) {
+        inLobby = true
+        isHost = state.hostClientId == GamePref.clientId
+        pane.isHost = isHost
+
+        if (state.mapId != null && state.mapId != chosenMapId) {
+            showChosenMap(state.mapId, state.mapJson.ifBlank { null })
+        }
+        pane.fogOfWar = state.fogOfWar
+        pane.season = runCatching { Season.valueOf(state.season) }.getOrDefault(Season.SUMMER)
+        pane.daytime = runCatching { PlayStage.DayTime.valueOf(state.daytime) }
+            .getOrDefault(PlayStage.DayTime.DAY)
+        pane.gameMode = runCatching { GameMode.valueOf(state.gameMode) }
+            .getOrDefault(GameMode.CRYSTALS)
+
+        // Humans and bots both take a slot. Bots are marked so the pane draws the bot portrait and
+        // leaves them alone. The snapshot replaces the whole arrangement, so joining players appear
+        // without the host touching anything.
+        for (i in 0 until GameSetupPane.SLOT_COUNT) {
+            val member = state.members.getOrNull(i)
+            pane.setPlayerSlot(member?.toPlayer(), i)
+            pane.slots.get(i).isAI = member?.isAi == true
+            pane.slots.get(i).botDifficulty = member?.botDifficulty ?: "normal"
+            pane.slots.get(i).isHostSlot = member?.host == true
+        }
+
+        // The host's own seat came back as a server copy, but the local mark has to stay on the
+        // object the host can still move. A seat index of -1 would be a crash, and it happens if
+        // the server ever seats the host somewhere the pane has not got.
+        if (isHost) {
+            val own = pane.slots.indexOfFirst { it.player?.clientId == myPlayer.clientId }
+            if (own >= 0) pane.setPlayerSlot(myPlayer, own)
+        }
+
+        GameLog.info(
+            "ServerLobbySetupStage",
+            "lobby ${state.id}: ${pane.seatedCount} seated, map=${state.mapId}, " +
+                    "fog=${state.fogOfWar}, host=$isHost"
+        )
     }
 
     private fun LobbyMember.toPlayer(): Player? {
         if (name.isEmpty()) return null
 
-        // Keep our own seat as the same object, so the local player mark survives.
-        if (clientId == GamePref.clientId) return myPlayer
+        // Keep our own seat as the same object, so the local player mark survives, but take the
+        // id the server gave us. The id is the colour, and seating is the server's to decide: a
+        // joiner who kept their placeholder id would show themselves in the host's colour.
+        if (clientId == GamePref.clientId) {
+            myPlayer.id = playerId
+            myPlayer.teamId = playerId
+            return myPlayer
+        }
 
         val player = Player(name = name, id = playerId, teamId = playerId)
         player.clientId = clientId
@@ -216,13 +296,28 @@ class ServerLobbySetupStage(
         return player
     }
 
-    private fun pickMap(mapId: String) {
+    /**
+     * Shows the map the host chose, from the map itself rather than by id, because a map may only
+     * exist on the host's machine. A client that receives a lobby state applies the map the same
+     * way, which is why this is one function: host and joiner run identical code.
+     */
+    private fun showChosenMap(mapId: String, hostMapJson: String?) {
         chosenMapId = mapId
-        chosenMapJson = null
-        runCatching { loadMap(mapId) }
+        chosenMapJson = hostMapJson
+
+        val loaded = if (hostMapJson != null) {
+            runCatching { createMapFromJson(hostMapJson) }
+        } else {
+            runCatching { loadMap(mapId) }
+        }
+
+        loaded
             .onSuccess { pane.setMap(it) }
             .onFailure { addNotifyWindow("Map '$mapId' not found", "Lobby") }
-        refresh()
+
+        // Only a host's own choice is worth sending back. A map that arrived in a lobby state is
+        // the server repeating what it already has.
+        if (!applyingRemoteState) createLobby() else refresh()
     }
 
     /**
@@ -233,9 +328,14 @@ class ServerLobbySetupStage(
         chosenMapId = map.mapId.ifBlank { map.mapSave.id ?: "host map" }
         chosenMapJson = map.mapSave.toGson()
         pane.setMap(map)
-        refresh()
+        if (!applyingRemoteState) createLobby() else refresh()
     }
 
+    /**
+     * The host picks the map from their own machine, and the server only carries it. The server's
+     * own pool is deliberately not offered: a server is not the author of a match, it is the place
+     * the host's match is held while players join it.
+     */
     private fun showMapPicker() {
         val picker = VisWindow("Choose a map")
         with(picker) {
@@ -244,25 +344,13 @@ class ServerLobbySetupStage(
             add().width(280f)
             row()
 
-            // The host's own maps first, since hosting your own map is the common case.
+            add(newLabel("Pick one of your own maps.", "default")).padBottom(8f).row()
             add(newTextButton("Your maps ...").addChangeListener {
                 picker.remove()
                 openOwnMapBrowser()
             }).fillX().row()
-
-            if (mapPool.isEmpty()) {
-                add(newTextButton(strings.general.cancel).addChangeListener { picker.remove() }).fillX()
-            } else {
-                add(newLabel("Server maps", "default")).padTop(6f).row()
-                for (mapId in mapPool) {
-                    add(newTextButton(mapId).addChangeListener {
-                        pickMap(mapId)
-                        picker.remove()
-                    }).fillX().row()
-                }
-                add(newTextButton(strings.general.cancel).addChangeListener { picker.remove() })
-                    .fillX().padTop(6f)
-            }
+            add(newTextButton(strings.general.cancel).addChangeListener { picker.remove() })
+                .fillX().padTop(6f)
 
             pack()
         }
@@ -283,30 +371,31 @@ class ServerLobbySetupStage(
     }
 
     /**
-     * Creates the lobby and starts it in one go. Both messages are handled on the server's
-     * single session thread in order, so the lobby exists by the time the start arrives.
+     * Sends the whole arrangement to the server. Called when the lobby is first opened and again
+     * after every change, so the server is never behind what the host is looking at.
+     *
+     * Returns false only when there is nothing to send yet, which is a lobby with no map. The map
+     * itself always travels with the request, since it may exist only on the host's machine.
      */
-    private fun createLobbyAndStart() {
-        if (!createLobby()) return
-        client.startMatch()
-    }
-
     private fun createLobby(): Boolean {
-        val mapId = chosenMapId ?: return false
+        // Nothing to send until a map is chosen, which is what the status line reports.
+        val mapId = chosenMapId ?: run { refresh(); return false }
 
         val request = CreateLobby()
         request.name = "${GamePref.displayName}'s game"
         request.mapId = mapId
+        request.mapName = pane.map?.mapSave?.name ?: ""
         request.fogOfWar = pane.fogOfWar
         request.gameMode = pane.gameMode.name
+        request.season = pane.season.name
+        request.daytime = pane.daytime.name
+        request.listed = listed
         chosenMapJson?.let { request.mapJson = it }
 
         // The arrangement on screen is the arrangement in game, with each seat keeping the
         // player id the lobby already gave it, because the id is the colour.
-        var seated = 0
         pane.slots.forEachIndexed { index, slot ->
             val player = slot.player ?: return@forEachIndexed
-            seated++
 
             request.seats.add(LobbySeat().also {
                 it.slot = index
@@ -317,7 +406,11 @@ class ServerLobbySetupStage(
                 it.species = player.species
             })
         }
-        request.maxPlayers = seated.coerceIn(2, 8)
+
+        // The room is the full set of seats, never the current headcount. Sizing it by the
+        // headcount meant a host who sat past the map's places to watch filled the room
+        // themselves and nobody could join.
+        request.maxPlayers = GameSetupPane.SLOT_COUNT
 
         GameLog.info(
             "ServerLobbySetupStage",
@@ -326,7 +419,8 @@ class ServerLobbySetupStage(
                 request.seats.map {
                     SeatingLog.row(it.slot, it.playerId, it.name, it.isAi, it.botDifficulty)
                 },
-            ) + " map=$mapId hostMap=${chosenMapJson != null}"
+            ) + " map=$mapId hostMap=${chosenMapJson != null}" +
+                    " fog=${request.fogOfWar} listed=${request.listed}"
         )
 
         client.createLobby(request)
@@ -341,19 +435,62 @@ class ServerLobbySetupStage(
         client.startMatch()
     }
 
+    /**
+     * The lobby already exists; this only reflects where it has got to.
+     *
+     * Starting needs a second player or bot, so a lobby nobody has joined cannot be launched into
+     * a one player match. Publishing is the host's own choice and can be undone.
+     */
     private fun refresh() {
         if (!inLobby) {
-            confirmButton.setText(strings.general.confirm)
-            confirmButton.isDisabled = chosenMapId == null || !isHost
+            openLobbyButton.isDisabled = true
+            startButton.isDisabled = true
+            statusLabel.setText(
+                if (chosenMapId == null) "Choose a map to begin."
+                else "Setting up the lobby ..."
+            )
             return
         }
 
-        confirmButton.setText(strings.general.confirm)
-        confirmButton.isDisabled = !isHost || !pane.canStart
+        val waiting = pane.seatedCount < 2
+
+        openLobbyButton.setText(if (listed) "Close" else "Open")
+        startButton.setText("Start")
+
+        // A joiner has nothing to press here. Publishing and starting are the host's, and a long
+        // disabled button in a footer this narrow only crowds out the one that matters.
+        openLobbyButton.isVisible = isHost
+        startButton.isVisible = isHost
+
+        openLobbyButton.isDisabled = chosenMapId == null
+        startButton.isDisabled = waiting
+
+        statusLabel.setText(
+            when {
+                !isHost -> "The host starts the match."
+                !listed -> "Private lobby. Open it to be listed."
+                waiting -> "Waiting for a player. ${pane.seatedCount} seated."
+                else -> "${pane.seatedCount} seated. Ready to start."
+            }
+        )
     }
 
     private fun back() {
-        if (inLobby) client.leaveLobby()
+        if (inLobby) {
+            client.leaveLobby()
+            onLeftLobby()
+        } else {
+            leaving = true
+            menuScreen.stage = menuScreen.lobbiesStage
+        }
+    }
+
+    /**
+     * Dropped into the browser when this screen hands the connection over, so leaving a lobby
+     * returns to the list rather than the connect form.
+     */
+    fun onLeftLobby() {
+        inLobby = false
         leaving = true
         menuScreen.stage = menuScreen.lobbiesStage
     }

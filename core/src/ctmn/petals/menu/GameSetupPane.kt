@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
@@ -131,6 +133,13 @@ class GameSetupPane(val dialogStage: Stage) {
     val canStart: Boolean
         get() = occupiedSlotCount >= 2 && map != null && isHost
 
+    /**
+     * Every occupied slot, including the locked ones the map has no place for. Somebody sitting
+     * past the map's player places only watches, but the match is still a real match once a
+     * second player or bot is in it, so this is the count a lobby waits on.
+     */
+    val seatedCount get() = slots.count { it.player != null }
+
     private val occupiedSlotCount get() = slots.count { it.player != null && !it.isLocked }
 
     /** The seated players in slot order, which is the order ids must be assigned in. */
@@ -159,19 +168,31 @@ class GameSetupPane(val dialogStage: Stage) {
         mainTable.width = 300f
         mainTable.setFillParent(true)
         with(mainTable) {
-            add(mapPreview).size(300f).padTop(6f)
-            row()
-            add(VisScrollPane(VisTable().apply {
-                add(playersTable)
-                row()
+            // The change map button sits over the preview's bottom right corner, stacked in the
+            // same cell. A separate overlay table was tried before, but it positions by faith
+            // and landed off the preview on any stage that lays the column out differently.
+            // Children only touchable, so clicks anywhere else reach the preview itself.
+            add(Stack().apply {
+                add(mapPreview)
                 add(VisTable().apply {
-                    add(daytimeButton).colspan(2).width(300f)
-                    row()
-                    add(seasonButton).colspan(2).width(300f)
-                    row()
-                    add(fogOfWarCheckbox).colspan(2)
-                }).width(300f)
-            })).width(300f)
+                    touchable = Touchable.childrenOnly
+                    add(changeMapButton).expand().bottom().right()
+                })
+            }).size(300f, 260f).padTop(6f)
+            row()
+
+            // Slots and settings go straight into the column. They are a fixed height, so a scroll
+            // pane around them only added a way for the bottom of the screen to get squeezed: the
+            // pane is taller than the viewport and the scroll pane swallowed the difference.
+            add(playersTable).width(300f)
+            row()
+            add(VisTable().apply {
+                add(daytimeButton).colspan(2).width(300f)
+                row()
+                add(seasonButton).colspan(2).width(300f)
+                row()
+                add(fogOfWarCheckbox).colspan(2)
+            }).width(300f)
             row()
             add().expandY()
         }.width(300f)
@@ -183,17 +204,6 @@ class GameSetupPane(val dialogStage: Stage) {
         content = mainTable
 
         addActor(mainTable)
-
-        // The change map button sits over the preview's bottom edge, which means it needs its
-        // own table layered on the stage. It belongs to the pane, otherwise a host screen that
-        // only hosts the pane ends up with an invisible button nobody placed.
-        val changeMapOverlay = VisTable()
-        with(changeMapOverlay) {
-            top()
-            add().width(mapPreview.width - changeMapButton.width).height(mapPreview.height)
-            add(changeMapButton).bottom()
-        }
-        addActor(changeMapOverlay)
 
         daytime = PlayStage.DayTime.DAY
         season = Season.SUMMER
@@ -320,7 +330,11 @@ class GameSetupPane(val dialogStage: Stage) {
         changeMapButton.isDisabled = !isHost
         daytimeButton.isDisabled = !isHost
         seasonButton.isDisabled = !isHost
-        fogOfWarCheckbox.isDisabled = !isHost
+
+        // Not isDisabled: a disabled VisCheckBox loses its tick, so a joiner would see fog as off
+        // while it is on. Touchable keeps the real setting visible and still out of their reach.
+        fogOfWarCheckbox.touchable = if (isHost) Touchable.enabled else Touchable.disabled
+
         slots.forEach { it.refreshEnabled() }
     }
 
@@ -387,7 +401,8 @@ class GameSetupPane(val dialogStage: Stage) {
         }
 
         fun refreshEnabled() {
-            removePlayerButton.isVisible = player != null && player !== localPlayer && isHost
+            removePlayerButton.isVisible =
+                isHost && player != null && player !== localPlayer
         }
 
         fun slotState() = PlayerSlotState(player, isLocalHostSlot, isAI)
@@ -467,6 +482,9 @@ class GameSetupPane(val dialogStage: Stage) {
 
         private fun showSlotDialog() {
             val slot = this
+
+            if (!isHost) return
+
             dialogStage.addCover()
 
             val win = VisWindow("${strings.general.player_slot} ${index() + 1}")

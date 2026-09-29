@@ -3,9 +3,7 @@ package ctmn.petals.menu
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.Config
 import ctmn.petals.GamePref
@@ -17,25 +15,21 @@ import ctmn.petals.strings
 import ctmn.petals.widgets.*
 
 /**
- * Online lobby browser for the dedicated server: connect to a server by address and browse its
- * lobbies, or jump into the quick match queue.
+ * The lobby browser for the dedicated server: the lobbies the server has, a way to open one, and
+ * the quick match queue.
  *
- * Creating a lobby and setting up a match happen in [ServerLobbySetupStage], which hosts the
- * same setup pane as the local flow, so bot seats are picked there. Matches found through the
- * queue are handed to [OnlinePlayScreen].
+ * It arrives here already connected, through [connect]. The address form lives in
+ * [ServerConnectStage], so this screen is only ever about lobbies. Matches found through the
+ * queue, and matches the host starts, are handed to [OnlinePlayScreen].
  */
 class LobbiesStage(private val menuScreen: MenuScreen) :
     Stage(menuScreen.viewport, menuScreen.batch), MenuStageAware {
 
     private var client: ServerClient? = null
     private var serverName: String = ""
+    private var serverHost: String = "localhost"
+    private var serverPort: Int = 0
     private var connected = false
-    private var queueing = false
-    private var serverHost = "localhost"
-    private var serverPort = Config.SERVER_PORT
-
-    /** Maps the server offers, so the setup screen can offer the same list. */
-    private var mapPool: List<String> = emptyList()
 
     /**
      * Kept so it can be re-attached after [ServerLobbySetupStage] borrows the client. Without
@@ -43,17 +37,22 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
      */
     private var browserListener: ServerClient.Listener? = null
 
-    private val nameField = VisTextField().apply { messageText = "Your name" }
-    private val addressField = VisTextField().apply { messageText = "localhost" }
-    private val portField = VisTextField(Config.SERVER_PORT.toString())
-
     private val statusLabel = newLabel("Not connected", "default")
     private val queueLabel = newLabel("", "default").apply { isVisible = false }
 
-    private val lobbyTable = VisTable()
-    private val lobbyScroll = VisScrollPane(lobbyTable)
+    /**
+     * The lobby list, in the same list_item style as the map browser, so opening a lobby is one
+     * press on the lobby itself instead of a row of labels with a button stuck on the end.
+     */
+    private val lobbyList = ButtonsScrollPane().apply {
+        setScrollingDisabled(true, false)
+        setFadeScrollBars(false)
+        onButtonClick = { button ->
+            (button.userObject as? LobbyInfo)?.let { openLobby(it) }
+        }
+    }
 
-    private val connectButton = newTextButton("Connect")
+    private val connectButton = newTextButton("Connect to a server").apply { isVisible = false }
     private val refreshButton = newTextButton("Refresh").apply { isDisabled = true }
     private val createButton = newTextButton("Create lobby").apply { isDisabled = true }
     private val quickButton = newTextButton("Quick match").apply { isDisabled = true }
@@ -63,17 +62,83 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
     private val table = VisTable()
     private val windowTable = VisTable()
 
-    init {
-        nameField.text = GamePref.displayName
+    /**
+     * Takes over an already connected client from [ServerConnectStage] and returns this stage,
+     * so the caller can assign it in one line.
+     */
+    fun connect(
+        client: ServerClient,
+        host: String,
+        port: Int,
+        welcome: Welcome,
+    ): LobbiesStage {
+        this.client = client
+        this.serverHost = host
+        this.serverPort = port
+        this.serverName = welcome.serverName
+        this.connected = true
 
-        connectButton.addChangeListener { connect() }
+        statusLabel.setText("Connected to ${welcome.serverName}")
+        connectButton.isVisible = false
+        refreshButton.isDisabled = false
+        createButton.isDisabled = false
+        quickButton.isDisabled = false
+
+        client.listener = listener()
+        browserListener = client.listener
+        client.listLobbies()
+
+        return this
+    }
+
+    /**
+     * Connects to the configured server straight away, which is the usual case: a server on this
+     * machine. The address form is only needed for somewhere else, and a failure says so rather
+     * than blocking the way to the menu.
+     */
+    fun connectToConfiguredServer() {
+        statusLabel.setText("Connecting to ${Config.DEFAULT_SERVER_HOST} ... ")
+        connectButton.isVisible = false
+
+        val fresh = ServerClient()
+        fresh.listener = object : ServerClient.Listener {
+            override fun onWelcome(welcome: Welcome) {
+                onUi { connect(fresh, Config.DEFAULT_SERVER_HOST, Config.SERVER_PORT, welcome) }
+            }
+
+            override fun onConnectFailed(cause: Throwable?) {
+                onUi {
+                    fresh.close()
+                    connectButton.isVisible = true
+                    statusLabel.setText(
+                        "No server on ${Config.DEFAULT_SERVER_HOST}:${Config.SERVER_PORT}"
+                    )
+                }
+            }
+
+            override fun onDisconnected() {
+                onUi { if (!connected) onServerGone() }
+            }
+        }
+
+        client = fresh
+        runCatching { fresh.connect(Config.DEFAULT_SERVER_HOST, Config.SERVER_PORT, GamePref.clientId, GamePref.displayName) }
+            .onFailure {
+                fresh.close()
+                statusLabel.setText("Could not connect: ${it.message}")
+            }
+    }
+
+    init {
+        connectButton.addChangeListener { menuScreen.stage = menuScreen.serverConnectStage }
         refreshButton.addChangeListener { client?.listLobbies() }
         createButton.addChangeListener { createLobby() }
         quickButton.addChangeListener { queueJoin() }
         cancelQueueButton.addChangeListener {
-            queueing = false
             cancelQueueButton.isVisible = false
             queueLabel.isVisible = false
+            createButton.isDisabled = false
+            quickButton.isDisabled = false
             client?.queueLeave()
         }
         returnButton.addChangeListener { leave() }
@@ -82,45 +147,26 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         table.center()
 
         with(table) {
-            add(newLabel("Online lobbies", "default")).padBottom(12f)
-            row()
+            add(newLabel("Lobbies", "default")).padBottom(10f).row()
+            add(statusLabel).padBottom(6f).row()
 
-            add(newLabel("Name", "default")).padRight(6f)
-            add(nameField).width(220f).row()
+            add(lobbyList).width(320f).height(240f).row()
 
-            add(newLabel("Server", "default")).padRight(6f)
+            add(queueLabel).padTop(6f).row()
+
             add(VisTable().apply {
-                add(addressField).width(140f)
-                add(portField).width(70f).padLeft(4f)
-                add(connectButton).padLeft(4f)
-            }).row()
-
-            add(statusLabel).padTop(6f).row()
-            add(queueLabel).padTop(4f).row()
-
-            add(lobbyScroll).width(320f).height(240f).padTop(8f).row()
+                add(createButton).width(150f).padRight(6f)
+                add(quickButton).width(150f)
+            }).padTop(10f).row()
 
             add(VisTable().apply {
                 add(refreshButton).width(150f).padRight(6f)
-                add(createButton).width(160f)
-            }).padTop(8f).row()
-
-            add(VisTable().apply {
-                add(quickButton).width(150f).padRight(6f)
-                add(cancelQueueButton).width(160f)
+                add(cancelQueueButton).width(150f)
             }).padTop(6f).row()
 
-            // The old local / LAN host flow stays reachable from here.
-            add(
-                newTextButton("Local and LAN games").addChangeListener {
-                    client?.close()
-                    client = null
-                    connected = false
-                    menuScreen.stage = menuScreen.mpLobbyVariantsStage
-                }
-            ).width(320f).padTop(16f).row()
+            add(connectButton).width(320f).padTop(10f).row()
 
-            add(returnButton).width(150f).padTop(10f)
+            add(returnButton).width(150f).padTop(16f)
         }
 
         addActor(table)
@@ -131,108 +177,71 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         showLobbies(emptyList())
     }
 
-    private fun connect() {
-        if (connected) {
-            leave()
-            return
+    private fun listener() = object : ServerClient.Listener {
+        override fun onLobbyList(list: LobbyList) {
+            onUi { showLobbies(list.lobbies) }
         }
 
-        val host = addressField.text.ifBlank { "localhost" }
-        val port = portField.text.toIntOrNull() ?: Config.SERVER_PORT
+        override fun onLobbyState(state: LobbyStateMsg) {
+            onUi { client?.listLobbies() }
+        }
 
-        serverHost = host
-        serverPort = port
-
-        GamePref.displayName = nameField.text
-        GamePref.save()
-
-        statusLabel.setText("Connecting to $host:$port ...")
-
-        val newClient = ServerClient()
-        newClient.listener = object : ServerClient.Listener {
-            override fun onWelcome(welcome: Welcome) {
-                onUi {
-                    if (welcome.mapIds.isNotEmpty()) {
-                        mapPool = welcome.mapIds.toList()
-                    }
-
-                    connected = true
-                    serverName = welcome.serverName
-                    statusLabel.setText("Connected to ${welcome.serverName}")
-                    connectButton.setText("Disconnect")
-                    refreshButton.isDisabled = false
-                    createButton.isDisabled = false
-                    quickButton.isDisabled = false
-                    newClient.listLobbies()
-                }
+        override fun onQueueStatus(status: QueueStatus) {
+            onUi {
+                queueLabel.isVisible = true
+                cancelQueueButton.isVisible = true
+                queueLabel.setText(
+                    if (status.position == 0) "Searching for a match ..."
+                    else "Searching ... position ${status.position} of ${status.size}"
+                )
             }
+        }
 
-            override fun onLobbyList(list: LobbyList) {
-                onUi { showLobbies(list.lobbies) }
+        override fun onMatchFound(found: MatchFound) {
+            onUi {
+                queueLabel.isVisible = false
+                cancelQueueButton.isVisible = false
+
+                val activeClient = client
+                if (activeClient == null) return@onUi
+
+                // The browser hands the live connection to the match screen, which keeps it for
+                // reconnects, so this screen must let go of it.
+                client = null
+                connected = false
+
+                menuScreen.game.screen = OnlinePlayScreen(activeClient, found, serverHost, serverPort)
             }
+        }
 
-            override fun onLobbyState(state: LobbyStateMsg) {
-                onUi { showLobbyState(state) }
+        override fun onError(error: ErrorMsg) {
+            onUi { addNotifyWindow(error.message, serverName.ifBlank { "Server" }) }
+        }
+
+        override fun onConnectFailed(cause: Throwable?) {
+            onUi { statusLabel.setText("Could not connect: ${cause?.message ?: "unknown error"}") }
+        }
+
+        override fun onDisconnected() {
+            onUi {
+                if (menuScreen.game.screen is OnlinePlayScreen) return@onUi
+                onServerGone()
             }
-
-            override fun onQueueStatus(status: QueueStatus) {
-                onUi {
-                    queueing = true
-                    queueLabel.isVisible = true
-                    cancelQueueButton.isVisible = true
-                    queueLabel.setText(
-                        if (status.position == 0) "Searching for a match ..."
-                        else "Searching ... position ${status.position} of ${status.size}"
-                    )
-                }
-            }
-
-            override fun onMatchFound(found: MatchFound) {
-                onUi {
-                    queueing = false
-                    queueLabel.isVisible = false
-                    cancelQueueButton.isVisible = false
-
-                    if (connected) {
-                        client = null
-                        connected = false
-                    }
-                    newClient.close()
-
-                    menuScreen.game.screen = OnlinePlayScreen(newClient, found, serverHost, serverPort)
-                }
-            }
-
-            override fun onError(error: ErrorMsg) {
-                onUi { addNotifyWindow(error.message, serverName.ifBlank { "Server" }) }
-            }
-
-            override fun onConnectFailed(cause: Throwable?) {
-                onUi { statusLabel.setText("Could not connect: ${cause?.message ?: "unknown error"}") }
-            }
-
-            override fun onDisconnected() {
-                onUi {
-                    if (menuScreen.game.screen is OnlinePlayScreen) return@onUi
-                    onServerGone()
-                }
-            }
-        }.also { browserListener = it }
-
-        try {
-            newClient.connect(host, port, GamePref.clientId, GamePref.displayName)
-            client = newClient
-        } catch (e: Exception) {
-            statusLabel.setText("Could not connect: ${e.message}")
-            newClient.close()
         }
     }
 
     override fun onMenuShown() {
+        // Connected on first entry, not when the menu screen is built: nothing here should touch
+        // the network before the player asks for it.
+        if (!connected) {
+            connectToConfiguredServer()
+            return
+        }
+
         // The setup screen borrows the client while it is open, so take the listener back and
         // catch up on anything that happened while we were away.
         val activeClient = client
-        if (connected && activeClient != null && browserListener != null) {
+        if (activeClient != null && browserListener != null) {
             activeClient.listener = browserListener
             activeClient.listLobbies()
             refreshButton.isDisabled = false
@@ -248,7 +257,6 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
             client = activeClient,
             serverHost = serverHost,
             serverPort = serverPort,
-            mapPool = mapPool,
             lobbyId = null,
         )
     }
@@ -260,16 +268,19 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
             client = activeClient,
             serverHost = serverHost,
             serverPort = serverPort,
-            mapPool = mapPool,
             lobbyId = lobby.id,
         )
     }
 
     private fun queueJoin() {
-        queueing = true
         queueLabel.isVisible = true
         cancelQueueButton.isVisible = true
         queueLabel.setText("Searching for a match ...")
+
+        // Nothing else in the browser means anything while the queue is searching.
+        createButton.isDisabled = true
+        quickButton.isDisabled = true
+
         client?.queueJoin()
     }
 
@@ -285,7 +296,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         connected = false
         client = null
         statusLabel.setText("Disconnected")
-        connectButton.setText("Connect")
+        connectButton.isVisible = true
         refreshButton.isDisabled = true
         createButton.isDisabled = true
         quickButton.isDisabled = true
@@ -295,32 +306,21 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
     }
 
     private fun showLobbies(lobbies: List<LobbyInfo>) {
-        lobbyTable.clear()
+        lobbyList.removeItems()
 
         if (lobbies.isEmpty()) {
-            lobbyTable.add(newLabel("No lobbies", "default")).pad(6f)
+            lobbyList.buttonsGroup.add(newLabel("No open lobbies", "default")).pad(10f)
             return
         }
 
         for (lobby in lobbies) {
-            lobbyTable.add(
-                newLabel("${lobby.name}  [${lobby.players}/${lobby.maxPlayers}]", "default")
-            ).width(200f).left().padRight(6f)
-
-            lobbyTable.add(newLabel(lobby.mapId, "default")).width(80f).left()
-
-            lobbyTable.add(
-                newTextButton("Open").addChangeListener { openLobby(lobby) }
-            ).padLeft(6f)
-
-            lobbyTable.row().padTop(4f)
+            // Two lines in one button, so the map is named and the whole entry stays clickable.
+            lobbyList.addButton(
+                "${lobby.name}   ${lobby.players}/${lobby.maxPlayers}\n" +
+                        lobby.mapName.ifBlank { lobby.mapId },
+                lobby,
+            )
         }
-    }
-
-    private fun showLobbyState(state: LobbyStateMsg) {
-        // The setup screen now shows the lobby, so the browser only needs to refresh its list.
-        if (state.members.none { it.clientId == GamePref.clientId }) return
-        client?.listLobbies()
     }
 
     /** Network callbacks arrive on netty threads, so hop back to the render thread. */

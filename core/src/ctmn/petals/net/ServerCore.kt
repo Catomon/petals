@@ -61,6 +61,9 @@ class ServerCore(val config: ServerConfig) {
         var playerId: Int = -1
         var ready: Boolean = false
 
+        /** The player's own species, sent when they join so the lobby can show it. */
+        var species: String = ""
+
         /** Set when the connection dropped; zero while connected. */
         var disconnectAt = 0L
 
@@ -149,6 +152,11 @@ class ServerCore(val config: ServerConfig) {
         workerGroup?.shutdownGracefully()
     }
 
+    /**
+     * One thread handles every connection, so nothing here may end it. A single bad message must
+     * cost that message and nothing else: an Error such as a missing class used to kill the loop
+     * outright, leaving a server that still listened but never answered again.
+     */
     private fun sessionLoop() {
         var last = System.nanoTime()
         while (running) {
@@ -156,8 +164,8 @@ class ServerCore(val config: ServerConfig) {
                 val next = incoming.poll() ?: break
                 try {
                     handle(next.first, next.second)
-                } catch (e: Exception) {
-                    GameLog.error("ServerCore", "Failed handling ${next.second.type}", e)
+                } catch (t: Throwable) {
+                    GameLog.error("ServerCore", "Failed handling ${next.second.type}", t)
                 }
             }
 
@@ -169,8 +177,8 @@ class ServerCore(val config: ServerConfig) {
             matches.values.forEach { match ->
                 try {
                     match.tick(dt)
-                } catch (e: Exception) {
-                    GameLog.error("ServerCore", "Match tick failed", e)
+                } catch (t: Throwable) {
+                    GameLog.error("ServerCore", "Match tick failed", t)
                 }
 
                 // A match with nobody left in it has no reason to keep playing. Left running it
@@ -184,10 +192,16 @@ class ServerCore(val config: ServerConfig) {
             }
             finished.forEach { matches.remove(it) }
 
-            reapTimedOutSeats()
+            // Nothing broke the loop above, but the loop as a whole is what the server is: a
+            // failure in the housekeeping must not leave a server that listens and never answers.
+            try {
+                reapTimedOutSeats()
 
-            // Reset the per second message counters used by the flood guard.
-            clientsById.values.forEach { it.messagesThisSecond = 0 }
+                // Reset the per second message counters used by the flood guard.
+                clientsById.values.forEach { it.messagesThisSecond = 0 }
+            } catch (t: Throwable) {
+                GameLog.error("ServerCore", "Session housekeeping failed", t)
+            }
 
             try {
                 Thread.sleep(15)
@@ -357,37 +371,63 @@ class ServerCore(val config: ServerConfig) {
 
     // Lobbies
 
+    /**
+     * Creates the host's lobby, or updates the one they already have.
+     *
+     * Creating is an upsert, not a one shot: the host opens the lobby once, and every later change
+     * they make comes back through here so it reaches the players already sitting in it. That is
+     * how the LAN flow behaved, where a lobby was live from the moment it existed.
+     */
     private fun onCreateLobby(connection: ClientConnection, request: CreateLobby) {
-        if (lobbies.size >= config.maxSessions) {
-            sendError(connection, "", "Server is at its session limit")
-            return
-        }
-
         // Hosting again means the previous match, if any, is over for this player.
         leaveCurrentMatch(connection, "'${connection.name}' went back to hosting")
 
-        val lobby = Lobby(
-            id = UUID.randomUUID().toString().take(8),
-            name = request.name.ifBlank { "${connection.name}'s game" }.take(32),
-            mapId = if (config.mapPool.contains(request.mapId)) request.mapId else config.mapPool.random(),
-            host = connection,
-            maxPlayers = request.maxPlayers.coerceIn(2, 8),
-            fogOfWar = request.fogOfWar,
-            gameMode = request.gameMode,
-            hostMapJson = request.mapJson.takeIf { it.isNotBlank() },
-        )
+        val existing = connection.lobbyId?.let { lobbies[it] }?.takeIf { it.host === connection }
+        val lobby = existing ?: run {
+            if (lobbies.size >= config.maxSessions) {
+                sendError(connection, "", "Server is at its session limit")
+                return
+            }
+
+            Lobby(
+                id = UUID.randomUUID().toString().take(8),
+                name = request.name.ifBlank { "${connection.name}'s game" }.take(32),
+                // The host's own map id, taken as it is. The map itself travels in `mapJson`
+                // when it only exists on their machine, and the server never needs to open it.
+                mapId = request.mapId.ifBlank { config.mapPool.random() },
+                mapName = request.mapName,
+                host = connection,
+                maxPlayers = request.maxPlayers.coerceIn(2, 8),
+                fogOfWar = request.fogOfWar,
+                gameMode = request.gameMode,
+                hostMapJson = request.mapJson.takeIf { it.isNotBlank() },
+            ).also {
+                lobbies[it.id] = it
+                connection.lobbyId = it.id
+            }
+        }
+
+        // Whatever the host sent is what the lobby is now, including on an update.
+        lobby.name = request.name.ifBlank { lobby.name }.take(32)
+        lobby.mapId = request.mapId.ifBlank { lobby.mapId }
+        lobby.mapName = request.mapName.ifBlank { lobby.mapName }
+        lobby.fogOfWar = request.fogOfWar
+        lobby.gameMode = request.gameMode
+        lobby.season = request.season
+        lobby.daytime = request.daytime
+        lobby.listed = request.listed
+        request.mapJson.takeIf { it.isNotBlank() }?.let { lobby.hostMapJson = it }
 
         // The host's arrangement: their own seat plus the bots, each with the id the lobby
         // already gave it, so colours survive.
         val hostSeat = request.seats.firstOrNull { !it.isAi }
         if (hostSeat != null) lobby.hostSeat = hostSeat
 
+        lobby.bots.clear()
         request.seats.filter { it.isAi }.take(lobby.maxPlayers - 1).forEach {
             lobby.bots.add(BotSeat(it.botDifficulty, it.slot, it.playerId, it.name, it.species))
         }
 
-        lobbies[lobby.id] = lobby
-        connection.lobbyId = lobby.id
         connection.ready = true
 
         broadcastLobby(lobby)
@@ -406,6 +446,14 @@ class ServerCore(val config: ServerConfig) {
         }
 
         leaveCurrentMatch(connection, "'${connection.name}' went back to a lobby")
+
+        connection.species = request.species
+
+        // A joining client has to actually join the member list, or every broadcast of the lobby
+        // state skips them and they sit in a room the server cannot see.
+        if (lobby.members.none { it.clientId == connection.clientId }) {
+            lobby.members.add(connection)
+        }
 
         connection.lobbyId = lobby.id
         broadcastLobby(lobby)
@@ -462,13 +510,14 @@ class ServerCore(val config: ServerConfig) {
 
     private fun sendLobbyList(connection: ClientConnection) {
         val list = LobbyList()
-        lobbies.values.forEach { list.lobbies.add(it.toInfo()) }
+        // Only published lobbies are browsable. A host still building one is not in here yet.
+        lobbies.values.filter { it.listed }.forEach { list.lobbies.add(it.toInfo()) }
         sendTo(connection, Msg.LOBBY_LIST, "", list)
     }
 
     private fun broadcastLobbyList() {
         val list = LobbyList()
-        lobbies.values.forEach { list.lobbies.add(it.toInfo()) }
+        lobbies.values.filter { it.listed }.forEach { list.lobbies.add(it.toInfo()) }
         clientsById.values.forEach { sendTo(it, Msg.LOBBY_LIST, "", list) }
     }
 
@@ -1162,14 +1211,25 @@ class ServerCore(val config: ServerConfig) {
 
     private inner class Lobby(
         val id: String,
-        val name: String,
+        /** Mutable because the host keeps editing after the lobby exists, and every change syncs. */
+        var name: String,
         var mapId: String,
+        /** The map's display name. A map id can be a file name or a UUID, so it is not shown. */
+        var mapName: String,
         var host: ClientConnection,
         val maxPlayers: Int,
-        val fogOfWar: Boolean,
-        val gameMode: String,
+        var fogOfWar: Boolean,
+        var gameMode: String,
+        var season: String = "SUMMER",
+        var daytime: String = "DAY",
+        /**
+         * Whether the host has published the lobby. It exists from the moment they open the setup
+         * screen so the arrangement can be built privately, and it appears in the browser when
+         * they press to open it.
+         */
+        var listed: Boolean = false,
         /** Set when the host picked a map that only exists on their machine. */
-        val hostMapJson: String? = null,
+        var hostMapJson: String? = null,
     ) {
         val members = ArrayList<ClientConnection>()
 
@@ -1189,10 +1249,12 @@ class ServerCore(val config: ServerConfig) {
             it.id = id
             it.name = name
             it.mapId = mapId
+            it.mapName = mapName
             it.hostName = host.name
             it.players = members.size + botCount
             it.maxPlayers = maxPlayers
             it.state = "WAITING"
+            it.listed = listed
         }
 
         fun toState(): LobbyStateMsg = LobbyStateMsg().also { state ->
@@ -1200,9 +1262,13 @@ class ServerCore(val config: ServerConfig) {
             state.name = name
             state.hostClientId = host.clientId
             state.mapId = mapId
+            state.mapName = mapName
             state.gameMode = gameMode
             state.fogOfWar = fogOfWar
+            state.season = season
+            state.daytime = daytime
             state.maxPlayers = maxPlayers
+            state.mapJson = hostMapJson ?: ""
             state.state = if (members.all { it.ready || it === host }) "STARTING" else "WAITING"
 
             // One entry per slot, empty ones included, so a client can place each member in the
@@ -1229,6 +1295,12 @@ class ServerCore(val config: ServerConfig) {
                         it.playerId = seat.playerId
                         it.ready = seat.connection.ready || seat.connection === host
                         it.host = seat.connection === host
+
+                        // A human's species comes from the seat the host arranged for them, and
+                        // otherwise from what they sent when they joined. Without this the lobby
+                        // had nothing to send and every client rolled a new one on each update.
+                        it.species = if (seat.connection === host) hostSeat.species
+                        else seat.connection.species
                     })
                 }
             }

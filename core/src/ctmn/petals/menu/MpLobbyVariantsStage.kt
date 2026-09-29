@@ -21,9 +21,16 @@ import ctmn.petals.widgets.*
 
 class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
 
-    private val labelSameScreen = newLabel(strings.general.same_screen, "default")
-    private val passAndPlayButton = newTextButton(strings.general.pass_and_play)
+    /**
+     * Three ways to meet another player, and nothing else. Each one has its own screen behind it:
+     * hot seat, the peer hosted LAN room, and the dedicated server browser. Keeping them one press
+     * apart is what stops this screen from turning into a pile of unrelated controls.
+     */
+    private val sameScreenButton = newTextButton(strings.general.same_screen)
+    private val lanButton = newTextButton("LAN")
+    private val onlineButton = newTextButton("Online")
 
+    // The LAN room: host, or join by address or by searching.
     private val labelLocalMp = newLabel(strings.general.local_multiplayer, "default")
     private val serverLobbyButton = newTextButton(strings.general.host)
     private val ipTextField = VisTextField()
@@ -34,7 +41,11 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
 
     private val returnButton = newTextButton(strings.general.return_)
 
+    /** The LAN room sits behind the chooser, so it needs its own way back. */
+    private val lanReturnButton = newTextButton(strings.general.return_)
+
     private val table = VisTable()
+    private val lanTable = VisTable()
     private val windowTable = VisTable()
 
     init {
@@ -69,14 +80,30 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
             setFillParent(true)
             center()
 
-            add(labelSameScreen)
-            row()
-            add(passAndPlayButton).padBottom(16f)
+            add(newLabel(strings.general.vsPlayer, "default")).padBottom(12f)
             row()
 
-            add(labelLocalMp).padTop(4f)
+            add(sameScreenButton).width(200f).padBottom(6f)
             row()
-            add(serverLobbyButton).padBottom(16f).minWidth(100f)
+            add(lanButton).width(200f).padBottom(6f)
+            row()
+            add(onlineButton).width(200f)
+            row()
+
+            add(returnButton).padTop(24f)
+        }
+
+        // The LAN room is its own screen behind the LAN button. Hidden by default: two visible
+        // fill-parent tables would draw on top of each other.
+        lanTable.setFillParent(true)
+        lanTable.center()
+        lanTable.isVisible = false
+        addActor(lanTable)
+
+        with(lanTable) {
+            add(labelLocalMp).padBottom(12f)
+            row()
+            add(serverLobbyButton).minWidth(160f).padBottom(16f)
             row()
 
             add(VisTable().apply {
@@ -86,15 +113,13 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
             }).width(300f)
             row()
 
-            add(returnButton).padTop(24f)
-
-            padBottom(30f)
+            add(lanReturnButton).padTop(24f)
         }
 
         windowTable.setFillParent(true)
         addActor(windowTable)
 
-        passAndPlayButton.addChangeListener {
+        sameScreenButton.addChangeListener {
             menuScreen.stage = menuScreen.botGameSetupStage
         }
 
@@ -125,6 +150,22 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
 
         serverConnectButton.addChangeListener {
             serverConnect()
+        }
+
+        // Online goes straight to the browser, which connects to the configured server on its own.
+        // The address form is only reached from there, and only for a server somewhere else.
+        onlineButton.addChangeListener {
+            menuScreen.stage = menuScreen.lobbiesStage
+        }
+
+        lanButton.addChangeListener {
+            table.isVisible = false
+            lanTable.isVisible = true
+        }
+
+        lanReturnButton.addChangeListener {
+            lanTable.isVisible = false
+            table.isVisible = true
         }
 
         returnButton.addChangeListener {

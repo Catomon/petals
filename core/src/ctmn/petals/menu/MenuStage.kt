@@ -45,7 +45,6 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val storyButton = newTextButton(strings.general.story).apply { isDisabled = true }
     private val campaignButton = newTextButton("(OLD)" + strings.general.levels)
     private val quickPlayButton = newTextButton(strings.general.quickplay)
-    private val matchButton = newTextButton(strings.general.match)
     private val vsPlayerButton = newTextButton(strings.general.vsPlayer)
     private val vsBotButton = newTextButton(strings.general.vsBot)
     private val profileButton = newTextButton(strings.general.profile).apply { isDisabled = true }
@@ -72,9 +71,6 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         campaignButton.addChangeListener {
             menuScreen.stage = menuScreen.levelsStage
         }
-        matchButton.addChangeListener {
-            menuScreen.stage = menuScreen.lobbiesStage
-        }
         editorButton.addChangeListener {
             game.screen = EditorScreen()
         }
@@ -91,7 +87,9 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             menuScreen.stage = menuScreen.botGameSetupStage
         }
         vsPlayerButton.addChangeListener {
-            menuScreen.stage = menuScreen.lobbiesStage
+            // Playing another person: same screen, LAN, or a dedicated server. This is the
+            // chooser, so it has to be the stage that offers all three.
+            menuScreen.stage = menuScreen.mpLobbyVariantsStage
         }
 
         table.setFillParent(true)

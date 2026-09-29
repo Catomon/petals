@@ -45,6 +45,13 @@ object Config {
     // Multiplayer:
     const val SERVER_PORT = 7396
 
+    /**
+     * The dedicated server used when none is chosen: a server run on this machine. It is the
+     * common case while developing, so the online flow connects here without asking for an
+     * address first. A different address is still possible, it just has to be typed.
+     */
+    const val DEFAULT_SERVER_HOST = "localhost"
+
     //JmDNS
     const val SERVICE_TYPE = "_faesfeisty._upd.local."
     const val SERVICE_NAME = "Faes Feisty JmDNS"

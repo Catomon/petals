@@ -125,7 +125,13 @@ class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
                     sprite.draw(batch)
                 }
             }
-        else batch.draw(bunny, x + 7f, y + 8f, 300f, 300f)
+        else batch.draw(
+            bunny,
+            x + (width - previewSide()) / 2f,
+            y + (height - previewSide()) / 2f,
+            previewSide(),
+            previewSide(),
+        )
 
         batch.flush() //Make sure nothing is clipped before we want it to.
 
@@ -138,7 +144,11 @@ class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
 
         actors.clear()
 
-        if (map == null) return
+        if (map == null) {
+            mapWidth = 0f
+            mapHeight = 0f
+            return
+        }
 
         if (map.mapSave.isOutdatedVersion) return
 
@@ -181,12 +191,28 @@ class MapPreview(var map: MapConverted? = null) : WidgetGroup() {
         }
         mapHeight = tilesHeight + 1f
 
-        //tile size for rendering
-        val bestSize = if (mapHeight > mapWidth) mapHeight else mapWidth
-        val thisLeastSize = if (this.width < this.height) this.width else this.height
-        tileSize = thisLeastSize / bestSize * 0.95f
+        //fit the whole map inside the widget, centred
+        updateScale()
+    }
 
-        //offset for rendering
+    /**
+     * The preview is scaled to fit its own box, and the surrounding table only decides that box at
+     * layout time. Recomputing on a size change means a preview can be resized without the map
+     * keeping the scale it was given when the map was set.
+     */
+    override fun sizeChanged() {
+        super.sizeChanged()
+        updateScale()
+    }
+
+    private fun previewSide() = if (width < height) width else height
+
+    private fun updateScale() {
+        if (mapWidth <= 0f || mapHeight <= 0f) return
+
+        val bestSize = if (mapHeight > mapWidth) mapHeight else mapWidth
+        tileSize = previewSide() / bestSize * 0.95f
+
         mapOffX = width / 2 - mapWidth / 2 * tileSize
         mapOffY = height / 2 - mapHeight / 2 * tileSize
     }

@@ -16,7 +16,7 @@ class ButtonsScrollPane(val buttonsGroup: VisTable = VisTable()) : VisScrollPane
 
     fun uncheckButtons() {
         for (button in buttonsGroup.children)
-            (button as VisTextButton).isChecked = false
+            if (button is VisTextButton) button.isChecked = false
     }
 
     fun addButton(name: String, userObject: Any? = null) {
@@ -28,8 +28,9 @@ class ButtonsScrollPane(val buttonsGroup: VisTable = VisTable()) : VisScrollPane
             button.addClickListener {
                 onButtonClick!!(button)
 
+                // Only the buttons, since a list may hold a plain label between them.
                 for (otherButton in buttonsGroup.children)
-                    (otherButton as VisTextButton).isChecked = false
+                    if (otherButton is VisTextButton) otherButton.isChecked = false
 
                 button.isChecked = true
             }

@@ -109,7 +109,11 @@ class ServerClient {
 
     fun createLobby(request: CreateLobby) = send(Msg.CREATE_LOBBY, "", request)
 
-    fun joinLobby(lobbyId: String) = send(Msg.JOIN_LOBBY, "", JoinLobby().also { it.lobbyId = lobbyId })
+    fun joinLobby(lobbyId: String, species: String = "") =
+        send(Msg.JOIN_LOBBY, "", JoinLobby().also {
+            it.lobbyId = lobbyId
+            it.species = species
+        })
 
     fun leaveLobby() = send(Msg.LEAVE_LOBBY, "", "")
 

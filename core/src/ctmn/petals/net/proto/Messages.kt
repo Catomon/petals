@@ -92,10 +92,16 @@ class LobbyInfo {
     var id: String = ""
     var name: String = ""
     var mapId: String = ""
+
+    /** The map's display name, which is what a player recognises. */
+    var mapName: String = ""
     var hostName: String = ""
     var players: Int = 0
     var maxPlayers: Int = 2
     var state: String = "WAITING"
+
+    /** True when the host has published this lobby, so it belongs in the browser. */
+    var listed: Boolean = false
 }
 
 class LobbyList {
@@ -127,9 +133,24 @@ class LobbySeat {
 class CreateLobby {
     var name: String = ""
     var mapId: String = ""
+
+    /**
+     * The map's display name. A map id can be a file name or a UUID, so the id is not something
+     * to show in the lobby browser, and the name has to travel with it.
+     */
+    var mapName: String = ""
     var maxPlayers: Int = 2
     var fogOfWar: Boolean = true
     var gameMode: String = "CRYSTALS"
+    var season: String = "SUMMER"
+    var daytime: String = "DAY"
+
+    /**
+     * Whether the lobby shows up in the browser. The host's lobby exists as soon as they open the
+     * setup screen, so the arrangement can be built before anyone else sees it; publishing it is a
+     * separate, deliberate press.
+     */
+    var listed: Boolean = false
 
     /**
      * The host's arrangement: which player id sits in which slot. The host includes their own
@@ -147,6 +168,12 @@ class CreateLobby {
 
 class JoinLobby {
     var lobbyId: String = ""
+
+    /**
+     * The joining player's own species. The server has no other way to know it, and without it the
+     * lobby shows that player with a freshly rolled species on every state update.
+     */
+    var species: String = ""
 }
 
 class Ready {
@@ -158,6 +185,9 @@ class LobbyStateMsg {
     var name: String = ""
     var hostClientId: String = ""
     var mapId: String = ""
+
+    /** The map's display name, for anything that names the map to a player. */
+    var mapName: String = ""
     var gameMode: String = "CRYSTALS"
     var season: String = "SUMMER"
     var daytime: String = "DAY"
@@ -165,6 +195,12 @@ class LobbyStateMsg {
     var maxPlayers: Int = 2
     var state: String = "WAITING"
     var members: MutableList<LobbyMember> = mutableListOf()
+
+    /**
+     * The map itself, when the host picked one that only exists on their machine. Everyone in the
+     * lobby needs it to show the right preview, not just the players who end up in the match.
+     */
+    var mapJson: String = ""
 }
 
 class QueueStatus {
