@@ -31,6 +31,9 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
     private var serverPort: Int = 0
     private var connected = false
 
+    /** Maps the server itself can host, offered when a lobby picks its map. */
+    private var serverMaps: List<String> = emptyList()
+
     /**
      * Kept so it can be re-attached after [ServerLobbySetupStage] borrows the client. Without
      * this the browser goes deaf the first time you come back from a lobby.
@@ -76,6 +79,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         this.serverHost = host
         this.serverPort = port
         this.serverName = welcome.serverName
+        this.serverMaps = welcome.mapIds.toList()
         this.connected = true
 
         statusLabel.setText("Connected to ${welcome.serverName}")
@@ -257,6 +261,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
             client = activeClient,
             serverHost = serverHost,
             serverPort = serverPort,
+            serverMaps = serverMaps,
             lobbyId = null,
         )
     }
@@ -268,6 +273,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
             client = activeClient,
             serverHost = serverHost,
             serverPort = serverPort,
+            serverMaps = serverMaps,
             lobbyId = lobby.id,
         )
     }
@@ -309,19 +315,42 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         lobbyList.removeItems()
 
         if (lobbies.isEmpty()) {
-            lobbyList.buttonsGroup.add(newLabel("No open lobbies", "default")).pad(10f)
+            lobbyList.buttonsGroup.add(newLabel("No lobbies yet", "default")).pad(10f)
             return
         }
 
-        for (lobby in lobbies) {
-            // Two lines in one button, so the map is named and the whole entry stays clickable.
-            lobbyList.addButton(
+        // Open lobbies with room first, then by how full they are, so the ones worth joining are
+        // at the top of the list.
+        val sorted = lobbies.sortedWith(
+            compareByDescending<LobbyInfo> { if (isJoinable(it)) 1 else 0 }
+                .thenByDescending { it.players }
+                .thenBy { it.name }
+        )
+
+        for (lobby in sorted) {
+            // Two lines: who it is and how full, then where it has got to. A single line of all
+            // four runs wider than the panel.
+            val button = lobbyList.addButton(
                 "${lobby.name}   ${lobby.players}/${lobby.maxPlayers}\n" +
-                        lobby.mapName.ifBlank { lobby.mapId },
+                        "${statusOf(lobby)}   " + lobby.mapName.ifBlank { lobby.mapId },
                 lobby,
             )
+
+            // A closed or playing lobby is there to be seen, not joined.
+            button.isDisabled = !isJoinable(lobby)
         }
     }
+
+    /** Where a lobby has got to, in one word. */
+    private fun statusOf(lobby: LobbyInfo) = when {
+        lobby.state == "PLAYING" -> "IN GAME"
+        !lobby.listed -> "CLOSED"
+        lobby.players >= lobby.maxPlayers -> "FULL"
+        else -> "OPEN"
+    }
+
+    private fun isJoinable(lobby: LobbyInfo) =
+        lobby.listed && lobby.state != "PLAYING" && lobby.players < lobby.maxPlayers
 
     /** Network callbacks arrive on netty threads, so hop back to the render thread. */
     private fun onUi(block: () -> Unit) {

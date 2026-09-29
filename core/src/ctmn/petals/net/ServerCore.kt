@@ -190,7 +190,16 @@ class ServerCore(val config: ServerConfig) {
 
                 if (match.isFinished || match.finished) finished.add(match.id)
             }
-            finished.forEach { matches.remove(it) }
+            finished.forEach { id ->
+                matches.remove(id)
+
+                // A lobby that showed as in game is over with its match.
+                val lobby = lobbies.values.firstOrNull { it.matchId == id }
+                if (lobby != null) {
+                    lobbies.remove(lobby.id)
+                    broadcastLobbyList()
+                }
+            }
 
             // Nothing broke the loop above, but the loop as a whole is what the server is: a
             // failure in the housekeeping must not leave a server that listens and never answers.
@@ -334,26 +343,14 @@ class ServerCore(val config: ServerConfig) {
 
         queue.remove(connection)
 
-        connection.lobbyId?.let { id ->
-            connection.lobbyId = null
-            val lobby = lobbies[id]
-            if (lobby != null) {
-                lobby.members.removeIf { it.clientId == connection.clientId }
-                if (lobby.members.isEmpty()) lobbies.remove(id)
-                else {
-                    if (lobby.host === connection) lobby.host = lobby.members.first()
-                    broadcastLobby(lobby)
-                }
-            }
-            broadcastLobbyList()
-        }
+        removeFromLobby(connection)
 
-        if (connection.matchId != null) {
+        if (connection.matchId.isNullOrBlank()) {
+            clientsById.remove(connection.clientId)
+        } else {
             // Keep the seat for a while so a dropped connection can pick it back up.
             connection.disconnectAt = System.currentTimeMillis() + config.reconnectGraceSeconds * 1000L
             matches[connection.matchId]?.onPlayerDisconnected(connection)
-        } else {
-            clientsById.remove(connection.clientId)
         }
     }
 
@@ -392,9 +389,10 @@ class ServerCore(val config: ServerConfig) {
             Lobby(
                 id = UUID.randomUUID().toString().take(8),
                 name = request.name.ifBlank { "${connection.name}'s game" }.take(32),
-                // The host's own map id, taken as it is. The map itself travels in `mapJson`
-                // when it only exists on their machine, and the server never needs to open it.
-                mapId = request.mapId.ifBlank { config.mapPool.random() },
+                // The host's map id, taken as it is, blank included: a lobby exists before its
+                // map is chosen and only a match needs one. The map itself travels in `mapJson`
+                // when it only exists on the host's machine.
+                mapId = request.mapId,
                 mapName = request.mapName,
                 host = connection,
                 maxPlayers = request.maxPlayers.coerceIn(2, 8),
@@ -444,6 +442,10 @@ class ServerCore(val config: ServerConfig) {
             sendError(connection, "", "Lobby is full")
             return
         }
+        if (lobby.inGame) {
+            sendError(connection, "", "That lobby is already playing")
+            return
+        }
 
         leaveCurrentMatch(connection, "'${connection.name}' went back to a lobby")
 
@@ -461,12 +463,33 @@ class ServerCore(val config: ServerConfig) {
     }
 
     private fun onLeaveLobby(connection: ClientConnection) {
+        removeFromLobby(connection)
+    }
+
+    /**
+     * Takes a connection out of its lobby.
+     *
+     * A lobby that is already playing keeps existing, so the browser can still show it, and it is
+     * dropped together with its match. A lobby nobody is left in is dropped here. The connection's
+     * lobby id is cleared either way, or the next thing they do says they are still in a lobby.
+     */
+    private fun removeFromLobby(connection: ClientConnection) {
         val id = connection.lobbyId ?: return
         connection.lobbyId = null
         connection.ready = false
+
         val lobby = lobbies[id] ?: return
         lobby.members.removeIf { it.clientId == connection.clientId }
-        if (lobby.members.isEmpty()) lobbies.remove(id) else {
+
+        if (lobby.inGame) {
+            // The players are in the match now, so this lobby is only a name and a player count.
+            broadcastLobbyList()
+            return
+        }
+
+        if (lobby.members.isEmpty()) {
+            lobbies.remove(id)
+        } else {
             if (lobby.host === connection) lobby.host = lobby.members.first()
             broadcastLobby(lobby)
         }
@@ -495,8 +518,23 @@ class ServerCore(val config: ServerConfig) {
             hostSlot = lobby.hostSeat.slot,
             hostPlayerId = lobby.hostSeat.playerId,
             hostMapJson = lobby.hostMapJson,
+            // A lobby game has to fill every place the map offers. A queue match cannot: its map
+            // comes from the server's pool and its size is not the host's to arrange.
+            requireAllPlaces = true,
         )
-        lobbies.remove(lobby.id)
+
+        // Kept while the match runs, so the browser can show it as in game. Dropped with the
+        // match. The players' lobby ids are cleared, or queueing later says they are still in one.
+        val matchId = connection.matchId
+        if (matchId.isNullOrBlank()) {
+            // The match did not start after all (an empty place, or a map that could not be read),
+            // so the lobby stays as it was and everybody stays in it.
+            return
+        }
+
+        lobby.inGame = true
+        lobby.matchId = matchId
+        lobby.members.forEach { it.lobbyId = null }
         broadcastLobbyList()
     }
 
@@ -510,14 +548,15 @@ class ServerCore(val config: ServerConfig) {
 
     private fun sendLobbyList(connection: ClientConnection) {
         val list = LobbyList()
-        // Only published lobbies are browsable. A host still building one is not in here yet.
-        lobbies.values.filter { it.listed }.forEach { list.lobbies.add(it.toInfo()) }
+        // Every lobby the server holds, including the closed and in game ones, because the
+        // browser shows what is going on and only offers to join the open ones.
+        lobbies.values.forEach { list.lobbies.add(it.toInfo()) }
         sendTo(connection, Msg.LOBBY_LIST, "", list)
     }
 
     private fun broadcastLobbyList() {
         val list = LobbyList()
-        lobbies.values.filter { it.listed }.forEach { list.lobbies.add(it.toInfo()) }
+        lobbies.values.forEach { list.lobbies.add(it.toInfo()) }
         clientsById.values.forEach { sendTo(it, Msg.LOBBY_LIST, "", list) }
     }
 
@@ -525,7 +564,7 @@ class ServerCore(val config: ServerConfig) {
 
     private fun onQueueJoin(connection: ClientConnection) {
         if (queue.contains(connection)) return
-        if (connection.matchId != null || connection.lobbyId != null) {
+        if (!connection.matchId.isNullOrBlank() || !connection.lobbyId.isNullOrBlank()) {
             sendError(connection, "", "Leave your current lobby or match first")
             return
         }
@@ -588,6 +627,11 @@ class ServerCore(val config: ServerConfig) {
         hostPlayerId: Int = 1,
         /** The host's own map, when it is not on the server. */
         hostMapJson: String? = null,
+        /**
+         * Whether the match must fill every place the map offers. True for a lobby, whose host
+         * arranged the seats, and false for a queue match, whose map comes from the server's pool.
+         */
+        requireAllPlaces: Boolean = false,
     ) {
         val map: MapConverted = if (hostMapJson != null) {
             // A map the host owns, sent to us and passed on to every client in match_found, so
@@ -679,6 +723,21 @@ class ServerCore(val config: ServerConfig) {
         // Map places follow the slots, not the ids.
         val playerIdBySlot = playersBySlot.entries.associate { (slot, player) -> slot to player.id }
         val botDifficultyById = bots.associate { (bot, difficulty) -> bot.id to difficulty.name.lowercase() }
+
+        // A lobby game fills every place the map offers. Starting with an empty place would leave
+        // a base nobody owns, free for anyone to walk into. The host's screen blocks it too, and
+        // the server insists so the rule is real.
+        if (requireAllPlaces) {
+            val unfilled = map.labels
+                .filter { it.labelName == "player" }
+                .mapNotNull { it.data["id"]?.toIntOrNull() }
+                .filter { playersBySlot[it] == null }
+
+            if (unfilled.isNotEmpty()) {
+                members.forEach { sendError(it, "", "Every player place on the map needs somebody") }
+                return
+            }
+        }
         val matchId = UUID.randomUUID().toString().take(8)
 
         for (slot in playersBySlot.keys.sorted()) playersBySlot[slot]?.let { players.add(it) }
@@ -854,13 +913,13 @@ class ServerCore(val config: ServerConfig) {
      */
     private fun leaveCurrentMatch(connection: ClientConnection, reason: String) {
         val match = matches[connection.matchId] ?: run {
-            connection.matchId = ""
+            connection.matchId = null
             return
         }
 
         GameLog.info("ServerCore", "Match ${match.id}: $reason")
         match.removeMember(connection)
-        connection.matchId = ""
+        connection.matchId = null
     }
 
     private inner class Match(val id: String, val battle: ServerBattle, val fogOfWar: Boolean) {
@@ -1230,6 +1289,10 @@ class ServerCore(val config: ServerConfig) {
         var listed: Boolean = false,
         /** Set when the host picked a map that only exists on their machine. */
         var hostMapJson: String? = null,
+        /** True once the match from this lobby started. The lobby is then only a browser entry. */
+        var inGame: Boolean = false,
+        /** The match this lobby started, so the browser entry goes when the match does. */
+        var matchId: String? = null,
     ) {
         val members = ArrayList<ClientConnection>()
 
@@ -1253,7 +1316,7 @@ class ServerCore(val config: ServerConfig) {
             it.hostName = host.name
             it.players = members.size + botCount
             it.maxPlayers = maxPlayers
-            it.state = "WAITING"
+            it.state = if (inGame) "PLAYING" else "WAITING"
             it.listed = listed
         }
 

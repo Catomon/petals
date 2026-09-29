@@ -225,9 +225,17 @@ screen, LAN and online, each with its own screen behind it.
   and footer behave the same everywhere. The host's lobby exists from the moment this screen
   opens; Open publishes it to the browser and Close takes it back out. Every edit is sent on,
   and the players sitting in the lobby see it immediately.
-- The host picks the map from their own machine. The server never chooses a lobby map: it
-  carries the map (`mapJson`) to everyone in the lobby and to every client in `match_found`,
-  so a joiner does not need the file.
+- The host picks the map, from their own machine or from the maps the server already has. The
+  server never chooses a lobby map: it carries the map (`mapJson`) to everyone in the lobby and
+  to every client in `match_found`, so a joiner does not need the file.
+- A lobby is a room, not a map: it exists from the moment the host opens the setup screen, can
+  be published before a map is chosen, and only starting needs one. Every place the map offers
+  must be filled before a match can start, on the host's screen and on the server, because an
+  empty place is a base nobody owns. A seat past the map's places is a seat out, and its player
+  only watches.
+- The browser lists open, closed and in game lobbies, sorted with the joinable ones first and
+  the fullest of those first. A lobby that started a match stays listed as IN GAME until its
+  match ends, and only an open lobby with room can be joined.
 - Seats are slots; a player keeps the id the lobby gave them, and the id is the colour. A
   slot past the map's player places means no map place at all, which is how sitting out to
   watch works.

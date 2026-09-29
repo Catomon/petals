@@ -325,7 +325,12 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         // The map preview, the eight slots and the settings row live in GameSetupPane, so the
         // same UI can drive a dedicated server lobby later.
         pane.allowLocalPlayer = lobbyType == LobbyType.LOCAL
-        pane.onLobbyChanged = { serverManager.sendLobbyState() }
+        pane.onLobbyChanged = {
+            // Seating and settings changed, so the start gate may have moved with them. Without
+            // this a lobby whose places were just filled still looked unstartable.
+            refreshConfirmButton()
+            serverManager.sendLobbyState()
+        }
         pane.onUnplayableMap = { message -> addNotifyWindow(message, "Custom Game") }
 
         // The footer goes in the pane's own 300px column, as a row after the vertical filler.
@@ -388,6 +393,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         if (isHost) {
             setPlayerSlot(localPlayer, 0)
+            pane.hostPlayer = localPlayer
         }
 
         // as Client
@@ -476,6 +482,7 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 localPlayer.setFrom(it)
             }
 
+        var hostSeat: Player? = null
         for (i in 0 until 8) {
             val lobbyStatePlayer = state.players[i]?.player
 
@@ -486,10 +493,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
             val isSlotEmpty = lobbyStatePlayer == null
 
-            playerSlots[i].isHostSlot = !isSlotEmpty && state.players[i]!!.isHost
+            if (!isSlotEmpty && state.players[i]!!.isHost) hostSeat = playerSlots[i].player
 
             playerSlots[i].isAI = !isSlotEmpty && state.players[i]!!.isAI
         }
+
+        // The crown follows the host, so remember who they are rather than which slot they are in.
+        pane.hostPlayer = hostSeat
 
         gameMode = state.gameMode
 
@@ -553,6 +563,11 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
         val players = Array<Player>()
         pane.players.forEach { players.add(it) }
+
+        // A seat with no place on the map only watches. Same screen play has no spectators, since
+        // one machine drives every player whose turn it is.
+        if (lobbyType != LobbyType.LOCAL)
+            players.forEach { if (pane.isSeatWithoutPlace(it)) it.isSpectator = true }
 
         val playScreen =
             when (lobbyType) {

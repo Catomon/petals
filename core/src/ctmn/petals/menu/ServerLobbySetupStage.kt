@@ -3,6 +3,8 @@ package ctmn.petals.menu
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.GamePref
@@ -45,25 +47,26 @@ class ServerLobbySetupStage(
     private val client: ServerClient,
     private val serverHost: String,
     private val serverPort: Int,
+    /** Maps the server can host, offered below the host's own maps. */
+    private val serverMaps: List<String>,
     /** Null when this screen creates a new lobby rather than opening an existing one. */
     private val lobbyId: String?,
 ) : Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val pane = GameSetupPane(this)
 
+    private val roomStatusImage = VisImage(VisUI.getSkin().getDrawable("room_status_problem"))
+
     private val returnButton = newTextButton(strings.general.return_)
 
     /**
-     * Publishes the lobby so it appears in the browser, or unpublishes it again. The lobby itself
-     * already exists by the time this screen opens.
+     * Publishes the lobby so it appears in the browser, or unpublishes it again. The lobby exists
+     * from the moment this screen opens, so this is only about who can see it.
      */
-    private val openLobbyButton = newTextButton("Open").apply { isDisabled = true }
+    private val openLobbyButton = newTextButton("Open lobby").apply { isDisabled = true }
 
     /** Runs the match the lobby is waiting for. Host only, and only with somebody to play. */
-    private val startButton = newTextButton("Start").apply { isDisabled = true }
-
-    /** Wraps: the status sentences are longer than the pane's 300px column. */
-    private val statusLabel = newLabel("", "default").apply { setWrap(true) }
+    private val startButton = newTextButton(strings.general.confirm).apply { isDisabled = true }
 
     private val table = VisTable()
     private val windowTable = VisTable()
@@ -168,9 +171,9 @@ class ServerLobbySetupStage(
 
     init {
         pane.allowLocalPlayer = false
-        // Once the lobby exists every change goes straight back to the server, so the players
-        // already sitting in it see the same arrangement the host is looking at. A lobby with no
-        // map yet has nothing to send, and createLobby says so through the status line.
+        // Every change goes straight back to the server, so the players already sitting in the
+        // lobby see the same arrangement the host is looking at. A lobby with no map yet sends
+        // one with no map: it exists from the start, map or not.
         pane.onLobbyChanged = {
             if (!applyingRemoteState) createLobby()
         }
@@ -180,8 +183,11 @@ class ServerLobbySetupStage(
 
         returnButton.addChangeListener { back() }
 
-        // Publishing and starting are separate, and neither is "create": the lobby already exists
-        // by the time this screen is open.
+        // Publishing is the host's own switch, and lives above the settings rather than in the
+        // footer, so the footer is the same back, status, confirm row as the LAN room's.
+        with(pane.aboveSettings) {
+            add(openLobbyButton).width(300f)
+        }
         openLobbyButton.addChangeListener {
             listed = !listed
             createLobby()
@@ -199,15 +205,9 @@ class ServerLobbySetupStage(
             add(VisTable().apply {
                 width = 300f
                 add(returnButton).left()
-                add().expandX()
-
-                // The host's two actions sit next to each other, in the order they are used:
-                // publish the lobby, then run the match that fills it.
-                add(openLobbyButton).width(100f)
-                add(startButton).width(100f).padLeft(4f)
+                add(roomStatusImage).size(42f).expandX().center()
+                add(startButton).right()
             }).width(300f)
-            row()
-            add(statusLabel).width(300f).padTop(4f)
         }
 
         table.setFillParent(true)
@@ -225,10 +225,11 @@ class ServerLobbySetupStage(
             // show for us and every update rerolls it.
             client.joinLobby(lobbyId, myPlayer.species)
         } else {
-            // Creating: sit in the first slot straight away, as the local flow does, and open the
+            // Creating: sit in the first slot straight away, as the local flow does, and make the
             // lobby straight away too. It stays private until the host publishes it, so the
             // arrangement can be built in peace and appears in the browser when it is ready.
             pane.localPlayer = myPlayer
+            pane.hostPlayer = myPlayer
             pane.setPlayerSlot(myPlayer, 0)
             createLobby()
         }
@@ -240,7 +241,9 @@ class ServerLobbySetupStage(
         isHost = state.hostClientId == GamePref.clientId
         pane.isHost = isHost
 
-        if (state.mapId != null && state.mapId != chosenMapId) {
+        roomStatusImage.drawable = VisUI.getSkin().getDrawable("room_status_ok")
+
+        if (state.mapId.isNotBlank() && state.mapId != chosenMapId) {
             showChosenMap(state.mapId, state.mapJson.ifBlank { null })
         }
         pane.fogOfWar = state.fogOfWar
@@ -253,12 +256,13 @@ class ServerLobbySetupStage(
         // Humans and bots both take a slot. Bots are marked so the pane draws the bot portrait and
         // leaves them alone. The snapshot replaces the whole arrangement, so joining players appear
         // without the host touching anything.
+        var hostSeat: Player? = null
         for (i in 0 until GameSetupPane.SLOT_COUNT) {
             val member = state.members.getOrNull(i)
             pane.setPlayerSlot(member?.toPlayer(), i)
             pane.slots.get(i).isAI = member?.isAi == true
             pane.slots.get(i).botDifficulty = member?.botDifficulty ?: "normal"
-            pane.slots.get(i).isHostSlot = member?.host == true
+            if (member?.host == true) hostSeat = pane.slots.get(i).player
         }
 
         // The host's own seat came back as a server copy, but the local mark has to stay on the
@@ -268,6 +272,9 @@ class ServerLobbySetupStage(
             val own = pane.slots.indexOfFirst { it.player?.clientId == myPlayer.clientId }
             if (own >= 0) pane.setPlayerSlot(myPlayer, own)
         }
+
+        // The crown follows the host, not the slot, so remember who they are.
+        pane.hostPlayer = hostSeat
 
         GameLog.info(
             "ServerLobbySetupStage",
@@ -331,10 +338,21 @@ class ServerLobbySetupStage(
         if (!applyingRemoteState) createLobby() else refresh()
     }
 
+    /** Pick a map the server itself has, by id. */
+    private fun pickServerMap(mapId: String) {
+        chosenMapId = mapId
+        chosenMapJson = null
+
+        runCatching { loadMap(mapId) }
+            .onSuccess { pane.setMap(it) }
+            .onFailure { addNotifyWindow("Map '$mapId' not found", "Lobby") }
+
+        if (!applyingRemoteState) createLobby() else refresh()
+    }
+
     /**
-     * The host picks the map from their own machine, and the server only carries it. The server's
-     * own pool is deliberately not offered: a server is not the author of a match, it is the place
-     * the host's match is held while players join it.
+     * The host's own maps come first, since hosting your own is the common case. The server's maps
+     * are listed under them for a host who would rather use one that every client already has.
      */
     private fun showMapPicker() {
         val picker = VisWindow("Choose a map")
@@ -344,13 +362,25 @@ class ServerLobbySetupStage(
             add().width(280f)
             row()
 
-            add(newLabel("Pick one of your own maps.", "default")).padBottom(8f).row()
             add(newTextButton("Your maps ...").addChangeListener {
                 picker.remove()
                 openOwnMapBrowser()
             }).fillX().row()
-            add(newTextButton(strings.general.cancel).addChangeListener { picker.remove() })
-                .fillX().padTop(6f)
+
+            if (serverMaps.isEmpty()) {
+                add(newTextButton(strings.general.cancel).addChangeListener { picker.remove() })
+                    .fillX().padTop(6f)
+            } else {
+                add(newLabel("Server maps", "default")).padTop(8f).padBottom(4f).row()
+                serverMaps.forEach { mapId ->
+                    add(newTextButton(mapId).addChangeListener {
+                        pickServerMap(mapId)
+                        picker.remove()
+                    }).fillX().row()
+                }
+                add(newTextButton(strings.general.cancel).addChangeListener { picker.remove() })
+                    .fillX().padTop(6f)
+            }
 
             pack()
         }
@@ -371,19 +401,17 @@ class ServerLobbySetupStage(
     }
 
     /**
-     * Sends the whole arrangement to the server. Called when the lobby is first opened and again
-     * after every change, so the server is never behind what the host is looking at.
+     * Sends the whole arrangement to the server. Called when this screen opens and again after
+     * every change, so the server is never behind what the host is looking at.
      *
-     * Returns false only when there is nothing to send yet, which is a lobby with no map. The map
-     * itself always travels with the request, since it may exist only on the host's machine.
+     * A map is not required. The lobby exists from the moment the screen opens so the host can
+     * publish it, fill it and pick a map in any order; only starting a match needs a map. The map
+     * itself travels with the request when it came from the host's machine.
      */
     private fun createLobby(): Boolean {
-        // Nothing to send until a map is chosen, which is what the status line reports.
-        val mapId = chosenMapId ?: run { refresh(); return false }
-
         val request = CreateLobby()
         request.name = "${GamePref.displayName}'s game"
-        request.mapId = mapId
+        request.mapId = chosenMapId ?: ""
         request.mapName = pane.map?.mapSave?.name ?: ""
         request.fogOfWar = pane.fogOfWar
         request.gameMode = pane.gameMode.name
@@ -419,11 +447,12 @@ class ServerLobbySetupStage(
                 request.seats.map {
                     SeatingLog.row(it.slot, it.playerId, it.name, it.isAi, it.botDifficulty)
                 },
-            ) + " map=$mapId hostMap=${chosenMapJson != null}" +
+            ) + " map=${request.mapId} hostMap=${chosenMapJson != null}" +
                     " fog=${request.fogOfWar} listed=${request.listed}"
         )
 
         client.createLobby(request)
+        refresh()
         return true
     }
 
@@ -432,57 +461,50 @@ class ServerLobbySetupStage(
             addNotifyWindow("Waiting for the host to start ...", "Lobby")
             return
         }
+        if (pane.map == null) {
+            addNotifyWindow("Choose a map first.", "Lobby")
+            return
+        }
+        if (pane.seatedCount < 2) {
+            addNotifyWindow("Somebody has to play against you.", "Lobby")
+            return
+        }
+        if (!pane.allPlacesFilled) {
+            addNotifyWindow("Every place on the map needs somebody.", "Lobby")
+            return
+        }
         client.startMatch()
     }
 
     /**
-     * The lobby already exists; this only reflects where it has got to.
-     *
-     * Starting needs a second player or bot, so a lobby nobody has joined cannot be launched into
-     * a one player match. Publishing is the host's own choice and can be undone.
+     * The lobby already exists; this only reflects where it has got to. Starting needs a map with
+     * every place filled and somebody to play against, so a half arranged lobby cannot launch.
      */
     private fun refresh() {
-        if (!inLobby) {
-            openLobbyButton.isDisabled = true
-            startButton.isDisabled = true
-            statusLabel.setText(
-                if (chosenMapId == null) "Choose a map to begin."
-                else "Setting up the lobby ..."
-            )
-            return
-        }
+        openLobbyButton.setText(if (listed) "Close lobby" else "Open lobby")
 
-        val waiting = pane.seatedCount < 2
-
-        openLobbyButton.setText(if (listed) "Close" else "Open")
-        startButton.setText("Start")
-
-        // A joiner has nothing to press here. Publishing and starting are the host's, and a long
-        // disabled button in a footer this narrow only crowds out the one that matters.
+        // A joiner has nothing to press here: publishing and starting are the host's.
         openLobbyButton.isVisible = isHost
         startButton.isVisible = isHost
 
-        openLobbyButton.isDisabled = chosenMapId == null
-        startButton.isDisabled = waiting
+        // Publishing does not wait for a map. The lobby is a room; the map is what fills it.
+        openLobbyButton.isDisabled = !isHost
+        startButton.isDisabled = !pane.canStart
 
-        statusLabel.setText(
-            when {
-                !isHost -> "The host starts the match."
-                !listed -> "Private lobby. Open it to be listed."
-                waiting -> "Waiting for a player. ${pane.seatedCount} seated."
-                else -> "${pane.seatedCount} seated. Ready to start."
-            }
-        )
+        if (inLobby) {
+            GameLog.verbose(
+                "ServerLobbySetupStage",
+                "lobby refresh: seated=${pane.seatedCount} places=${pane.placeIndices} " +
+                        "filled=${pane.allPlacesFilled} listed=$listed"
+            )
+        }
     }
 
     private fun back() {
-        if (inLobby) {
-            client.leaveLobby()
-            onLeftLobby()
-        } else {
-            leaving = true
-            menuScreen.stage = menuScreen.lobbiesStage
-        }
+        // Always sent, not only once a state has arrived: the lobby exists from the moment this
+        // screen opened, and a leave with no lobby on the server is simply ignored there.
+        client.leaveLobby()
+        onLeftLobby()
     }
 
     /**

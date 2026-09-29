@@ -19,7 +19,7 @@ class ButtonsScrollPane(val buttonsGroup: VisTable = VisTable()) : VisScrollPane
             if (button is VisTextButton) button.isChecked = false
     }
 
-    fun addButton(name: String, userObject: Any? = null) {
+    fun addButton(name: String, userObject: Any? = null): VisTextButton {
         val button = newTextButton(name, "list_item")
         buttonsGroup.add(button).width(300f)
         buttonsGroup.row()
@@ -36,6 +36,7 @@ class ButtonsScrollPane(val buttonsGroup: VisTable = VisTable()) : VisScrollPane
             }
 
         button.userObject = userObject
+        return button
     }
 
     fun removeItems() = buttonsGroup.clear()

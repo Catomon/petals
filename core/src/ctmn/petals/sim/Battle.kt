@@ -114,14 +114,14 @@ open class Battle {
     val hasLocalPlayer: Boolean get() = ::localPlayer.isInitialized
 
     /**
-     * True when the local player is only watching. The flag is set at seating time; owning no
-     * capturable tile is the same thing derived from the field, kept as a fallback for flows that
-     * never set the flag. The GUI uses this to show a watching state instead of an enemy turn
-     * banner for the whole match.
+     * True when the local player is only watching. The flag is set where the seats are decided:
+     * by the server when it seats a match, and by the lobby setup for a peer hosted one.
+     *
+     * It is deliberately not derived from owning nothing. A story or quickplay level can start
+     * with no base at all, and deriving it made those show a watching label in single player.
      */
     val isSpectating: Boolean
-        get() = hasLocalPlayer && (localPlayer.isSpectator ||
-                (this::field.isInitialized && FogOfWar.isSpectator(this.field, localPlayer)))
+        get() = hasLocalPlayer && localPlayer.isSpectator
 
     private val listeners = ArrayList<EventListener>()
 

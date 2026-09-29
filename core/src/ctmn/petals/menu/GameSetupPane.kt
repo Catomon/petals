@@ -82,6 +82,18 @@ class GameSetupPane(val dialogStage: Stage) {
             slots.forEach { it.refreshLocalState() }
         }
 
+    /**
+     * The lobby's host. The crown follows this player from slot to slot, instead of sitting on
+     * whichever slot they first sat in and staying there when they move.
+     */
+    var hostPlayer: Player? = null
+
+    /**
+     * A row between the slots and the settings, for a screen that needs one action there. Empty
+     * by default, and an empty table takes no room.
+     */
+    val aboveSettings = VisTable()
+
     /** Only the host may edit the lobby. */
     var isHost: Boolean = true
         set(value) {
@@ -129,9 +141,37 @@ class GameSetupPane(val dialogStage: Stage) {
     /** The chosen map, or null. */
     val map: MapConverted? get() = mapPreview.map
 
-    /** True when a map is chosen, at least two unlocked slots are filled, and this side hosts. */
+    /**
+     * The map places, as slot indices: one per "player" label the map carries. A seat outside
+     * this list has no place on the map and only watches.
+     */
+    val placeIndices: List<Int>
+        get() = map?.labels
+            ?.filter { it.labelName == "player" }
+            ?.mapNotNull { it.data["id"]?.toIntOrNull() }
+            ?.filter { it in 0 until slots.size }
+            ?: emptyList()
+
+    /**
+     * Every place the map offers has somebody in it. A match must not start with a place empty,
+     * because an unowned base is free for anyone to walk into; a lobby whose places are not
+     * filled waits instead of starting.
+     */
+    val allPlacesFilled: Boolean
+        get() {
+            val places = placeIndices
+            return places.isNotEmpty() && places.all { slots.get(it).player != null }
+        }
+
+    /** True when this seat has no place on the map, so its player can only watch. */
+    fun isSeatWithoutPlace(player: Player): Boolean = getPlayerSlot(player)?.isLocked == true
+
+    /**
+     * The chosen map has somebody in every place, there is an opponent, and this side hosts. A
+     * seat past the map's places does not count as an opponent: that player is watching.
+     */
     val canStart: Boolean
-        get() = occupiedSlotCount >= 2 && map != null && isHost
+        get() = map != null && isHost && occupiedSlotCount >= 2 && allPlacesFilled
 
     /**
      * Every occupied slot, including the locked ones the map has no place for. Somebody sitting
@@ -185,6 +225,8 @@ class GameSetupPane(val dialogStage: Stage) {
             // pane around them only added a way for the bottom of the screen to get squeezed: the
             // pane is taller than the viewport and the scroll pane swallowed the difference.
             add(playersTable).width(300f)
+            row()
+            add(aboveSettings).width(300f)
             row()
             add(VisTable().apply {
                 add(daytimeButton).colspan(2).width(300f)
@@ -293,6 +335,7 @@ class GameSetupPane(val dialogStage: Stage) {
     fun setPlayerSlot(player: Player?, slotIndex: Int) {
         if (slotIndex !in 0 until slots.size) throw IllegalArgumentException("slotIndex out of bounds")
         slots.get(slotIndex).player = player
+        onLobbyChanged?.invoke()
     }
 
     fun getPlayerSlot(player: Player): GameSetupSlot? = slots.firstOrNull { it.player === player }
@@ -308,13 +351,25 @@ class GameSetupPane(val dialogStage: Stage) {
         val previous = getPlayerSlot(localPlayer)
         val displaced = target.player
         val displacedIsBot = target.isAI
+        val displacedDifficulty = target.botDifficulty
+
+        // With no seat of their own there is nowhere for the displaced player to go, and the move
+        // would silently drop them.
+        if (previous == null && displaced != null) return
 
         previous?.player = null
 
         target.player = localPlayer
+
+        // The seat holds a person now. The bot marks and the difficulty belong to whoever was in
+        // it, and they travel with them to the seat the local player left.
+        target.isAI = false
+        target.botDifficulty = "normal"
+
         if (displaced != null && previous != null) {
             previous.player = displaced
             previous.isAI = displacedIsBot
+            previous.botDifficulty = displacedDifficulty
         }
 
         onLobbyChanged?.invoke()
@@ -358,7 +413,6 @@ class GameSetupPane(val dialogStage: Stage) {
 
         val isLocalHostSlot get() = localPlayer === player && isHost
 
-        var isHostSlot = false
         var isLocalPlayer = false
         var isAI = false
 
@@ -445,7 +499,9 @@ class GameSetupPane(val dialogStage: Stage) {
                 localPlayerMarkImage.draw(batch, x, y, localPlayerMarkImage.minWidth, localPlayerMarkImage.minHeight)
             }
 
-            if (isHostSlot || isLocalHostSlot) {
+            // The crown belongs to the host, so it moves with them rather than staying on the slot
+            // they happened to start in.
+            if (isLocalHostSlot || (player != null && player === hostPlayer)) {
                 hostCrownImage.draw(
                     batch,
                     x + width / 2 - hostCrownImage.minWidth / 2,
