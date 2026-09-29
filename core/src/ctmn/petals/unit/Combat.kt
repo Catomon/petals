@@ -20,18 +20,18 @@ fun Battle.randomInt(min: Int, max: Int): Int {
     val low = minOf(min, max)
     val high = maxOf(max, min)
 
-    return roll(low, high + 1)
+    return random.nextInt(low, high + 1)
 }
 
 /** A roll in the upper part of `0..value`. Nothing to roll for a value that is already gone. */
 fun Battle.randomInt75(value: Int): Int =
-    if (value <= 0) 0 else roll((value * 0.75f).toInt(), value + 1)
+    if (value <= 0) 0 else random.nextInt((value * 0.75f).toInt(), value + 1)
 
 fun Battle.randomInt50(value: Int): Int =
-    if (value <= 0) 0 else roll((value * 0.75f).toInt(), value + 1)
+    if (value <= 0) 0 else random.nextInt((value * 0.75f).toInt(), value + 1)
 
 fun Battle.randomInt25(value: Int): Int =
-    if (value <= 0) 0 else roll((value * 0.75f).toInt(), value + 1)
+    if (value <= 0) 0 else random.nextInt((value * 0.75f).toInt(), value + 1)
 
 /** up to 50% damage and 25% defense reducing depending on health */
 val UnitActor.combatDamageHpMod: Float

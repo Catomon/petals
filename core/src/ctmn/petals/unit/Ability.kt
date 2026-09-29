@@ -39,6 +39,27 @@ abstract class Ability(
      * @return true on success */
     abstract fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean
 
+    /**
+     * Rolls what the ability will do, without applying any of it.
+     *
+     * Only abilities whose outcome is random override this. The server decides it and the command
+     * carries the decision, so a client applies the same result instead of rolling its own, which
+     * is the same rule attacks follow. Returns null when there is nothing random to decide.
+     */
+    open fun decide(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): AbilityDecision? = null
+
+    /**
+     * Applies a decision that was already made. An ability that decides nothing has nothing to
+     * apply either, so it simply runs itself.
+     */
+    open fun applyDecision(
+        battle: Battle,
+        unitCaster: UnitActor,
+        tileX: Int,
+        tileY: Int,
+        decision: AbilityDecision,
+    ): Boolean = activate(battle, unitCaster, tileX, tileY)
+
     enum class Target {
         ALL,
         UNIT,
@@ -113,4 +134,22 @@ abstract class Ability(
 
         return name == other.name
     }
+}
+
+/** One unit an ability throws, where it lands, and how hard. */
+class AbilityThrow(
+    var unitId: String = "",
+    var dx: Int = 0,
+    var dy: Int = 0,
+    var damage: Int = 0,
+)
+
+/**
+ * What an ability came to, for the abilities whose outcome is random.
+ *
+ * The server decides it once and the command carries it, so every client applies the same result.
+ * See [Ability.decide].
+ */
+class AbilityDecision {
+    var throws: MutableList<AbilityThrow> = mutableListOf()
 }

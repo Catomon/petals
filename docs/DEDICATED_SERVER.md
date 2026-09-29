@@ -84,6 +84,38 @@ know, so the local mirror stays a correct partial view and the command stream st
 If the command turns out to be about something the client *can* see, or the client is more
 than one command behind, it falls back to a real snapshot so genuine desync is never masked.
 
+### Randomness is decided once, by the server
+
+An attack rolls damage, misses, crits and splash, and a command that rolls must not run on a
+client before the server has. A client that rolls its own numbers applies its own damage and
+deaths, and then the two sides drift: a unit dies on one screen and lives on the other, the
+next command is refused as out of date, a snapshot brings the unit back, and the player makes
+the same attack again.
+
+So the outcome travels with the command:
+
+- `AttackCommand` carries an `AttackDecision`: the damage the target takes, the damage the
+  attacker takes back, miss, crit, the splash list by unit id, and the terrain damage.
+- `UseAbilityCommand` carries an `AbilityDecision` for the abilities that roll, which today
+  is the hammer's throws.
+- `decideAttack` rolls and touches nothing; `applyAttack` applies a decision that was already
+  made. Shields, health and death handling stay in that one apply, so they are never worked
+  out twice.
+- The server fills the decision in when it runs the command, and the command is serialised
+  after that, so it reaches every client in the broadcast. A client that cannot see one of
+  the splash victims skips that entry.
+
+The client still sends its own dice-rolling commands rather than running them, so they animate
+a round trip after the click, and it spends their action point cost locally so a unit cannot
+be ordered twice while the answer is on its way. Deterministic commands are applied locally as
+before.
+
+Sharing the random seed was considered and rejected. The client's mirror is fog filtered, so
+it cannot replay the same code path (a splash that hits a unit it cannot see draws a different
+number of rolls), it deliberately does not execute commands about units it cannot see, and the
+server's bots roll without it. A shared stream would desync silently and stay desynced, which
+is exactly what happened before this change.
+
 ### Logging
 
 `ServerCore` logs match starts, accepted commands, rejections, connects and disconnects

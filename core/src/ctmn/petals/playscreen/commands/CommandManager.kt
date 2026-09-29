@@ -13,6 +13,13 @@ class CommandManager(val battle: Battle) {
 
     var onCommand: ((Command) -> Unit)? = null
 
+    /**
+     * Fired when a command that came from the server could not be run here. The two copies of the
+     * state have parted, and the listener should ask for a fresh state rather than let every later
+     * command fail in turn.
+     */
+    var onServerCommandFailed: ((Command) -> Unit)? = null
+
     private val commandHistory = Queue<Command>()
 
     val isQueueEmpty get() = commandQueue.isEmpty
@@ -37,9 +44,7 @@ class CommandManager(val battle: Battle) {
      * Runs a command and reports whether it ran.
      *
      * This is the one place a command executes, whether it came from the queue, from a client, or
-     * from a bot. Randomness is decided here: the first side to run a command records the numbers
-     * it drew on the command, and every other side replays them, so an attack cannot resolve one
-     * way on the server and another way on a client. See [Battle.roll].
+     * from a bot.
      */
     fun execute(command: Command): Boolean {
         if (!command.canExecute(battle)) {
@@ -48,29 +53,26 @@ class CommandManager(val battle: Battle) {
             // its checks failed, so ask it rather than logging a bare class name.
             val because = runCatching { command.explainFailure(battle) }.getOrNull()
             logErr("Command ${command::class.simpleName} cannot be executed${because?.let { ": $it" } ?: ""}")
+
+            // A command the server accepted and we cannot run is a real difference between the two
+            // copies, not fog. Whoever is listening asks for the state, so the difference is
+            // repaired here rather than surfacing as a rejection several commands later.
+            if (command.fromServer) onServerCommandFailed?.invoke(command)
+
             return false
         }
 
-        val recorded = command.rolls
-        if (recorded.isEmpty()) battle.beginRecordingRolls() else battle.beginReplayingRolls(recorded)
-
-        val done = try {
-            command.execute(battle)
-        } finally {
-            if (recorded.isEmpty()) {
-                command.rolls = battle.endRecordingRolls()
-            } else {
-                battle.endReplayingRolls()
-            }
-        }
+        val done = command.execute(battle)
 
         if (done) {
             commandHistory.addLast(command)
             onCommand?.invoke(command)
 
             battle.fireEvent(ctmn.petals.playscreen.events.CommandExecutedEvent(command))
-        } else
+        } else {
             Gdx.app.log(javaClass.simpleName, "Command execute failure: ${command.javaClass.simpleName}")
+            if (command.fromServer) onServerCommandFailed?.invoke(command)
+        }
 
         return done
     }

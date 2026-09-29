@@ -19,9 +19,9 @@ import ctmn.petals.utils.getTile
 import kotlin.random.Random
 
 /**
- * View-only attack animation. The attack itself was already resolved by `resolveAttack` in
- * the command, so this class never changes game state. It only plays the animation, effects,
- * sound and floating labels for a result that already exists.
+ * View-only attack animation. The attack itself was already resolved by `decideAttack` and
+ * `applyAttack` in the command, so this class never changes game state. It only plays the
+ * animation, effects, sound and floating labels for a result that already exists.
  */
 class AttackAction(
     val attackerUnit: UnitActor,

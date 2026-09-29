@@ -89,6 +89,12 @@ class OnlinePlayScreen(
 
     private var pendingSnapshot: MatchSnapshot? = null
 
+    /**
+     * True between asking the server for a fresh state and that state arriving, so a run of failed
+     * commands asks once instead of once per command.
+     */
+    private var askedForSnapshot = false
+
     private val pendingCommands = ArrayList<MatchCommandBroadcast>()
 
     private companion object {
@@ -276,6 +282,7 @@ class OnlinePlayScreen(
             // Applying happens later on the render thread, and a command arriving in between would
             // otherwise find nothing to compare against and ask for a snapshot it does not need.
             streamStateId = snapshot.stateId
+            askedForSnapshot = false
 
             pendingSnapshot = snapshot
             snapshotApplied = false
@@ -514,7 +521,7 @@ class OnlinePlayScreen(
      * same outcome everybody else sees. Deterministic commands still run locally as before.
      */
     override fun queueCommand(command: Command, playerId: Int?): Boolean {
-        if (!command.rollsDice) return super.queueCommand(command, playerId)
+        if (!command.serverDecides) return super.queueCommand(command, playerId)
 
         if (!command.canExecute(this)) return false
 
@@ -522,7 +529,7 @@ class OnlinePlayScreen(
 
         GameLog.verbose(
             "OnlinePlayScreen",
-            "sending ${command.javaClass.simpleName} to the server to be rolled"
+            "sending ${command.javaClass.simpleName} to the server to be decided"
         )
 
         client.sendCommand(
@@ -634,6 +641,23 @@ class OnlinePlayScreen(
             }
 
             false
+        }
+
+        // A command the server accepted that will not run here means our copy of the state is not
+        // the server's any more. Nothing else notices: the command is dropped where it stands, and
+        // every later command that touches the same state fails in turn. Asking for the state is
+        // the repair, and asking once per run of failures keeps a bad patch from costing a
+        // snapshot per command.
+        commandManager.onServerCommandFailed = { command ->
+            if (!askedForSnapshot) {
+                askedForSnapshot = true
+
+                GameLog.info(
+                    "OnlinePlayScreen",
+                    "cannot run ${command.javaClass.simpleName} from the server, asking for the state"
+                )
+                client.requestSnapshot()
+            }
         }
     }
 

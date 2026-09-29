@@ -6,6 +6,7 @@ import ctmn.petals.actors.actions.CameraShakeAction
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.playscreen.seqactions.ActorAction
 import ctmn.petals.playscreen.playStageOrNull
+import ctmn.petals.playscreen.stageName
 import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TerrainNames
 import ctmn.petals.tile.TileActor
@@ -24,14 +25,20 @@ class HammerAbility : Ability("hammer") {
         cost = 5
     }
 
-    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean {
-        unitCaster.setAnimation(unitCaster.attackAnimation)
+    override fun activate(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): Boolean =
+        applyDecision(battle, unitCaster, tileX, tileY, decide(battle, unitCaster, tileX, tileY))
 
-        //resolve the state change immediately, then only queue the visuals
+    /**
+     * Rolls the throws: which units are picked up, which way they fly, and how hard they land.
+     * Touches nothing, so the server can decide it and the command can carry it.
+     */
+    override fun decide(battle: Battle, unitCaster: UnitActor, tileX: Int, tileY: Int): AbilityDecision {
+        val decision = AbilityDecision()
+
         fun addThrow(unit: UnitActor?, dX: Int, dY: Int, throwDamage: Int) {
             if (unit == null) return
 
-            battle.throwUnitAction(unit, dX, dY, throwDamage, unitCaster)
+            decision.throws.add(AbilityThrow(unit.stageName, dX, dY, throwDamage))
         }
 
         getTargets(battle.field, unitCaster, tileX, tileY).firstOrNull()?.let { unit ->
@@ -53,6 +60,26 @@ class HammerAbility : Ability("hammer") {
         battle.field.getUnit(tileX + 1, tileY)?.let { unit ->
             if (!unit.isAlly(unitCaster))
                 addThrow(unit, 1, 0, battle.randomInt75(damage / 2))
+        }
+
+        return decision
+    }
+
+    /** Applies decided throws, then the earthcrack and the camera shake. */
+    override fun applyDecision(
+        battle: Battle,
+        unitCaster: UnitActor,
+        tileX: Int,
+        tileY: Int,
+        decision: AbilityDecision,
+    ): Boolean {
+        unitCaster.setAnimation(unitCaster.attackAnimation)
+
+        //resolve the state change immediately, then only queue the visuals
+        decision.throws.forEach { thrown ->
+            val unit = battle.field.findUnit(thrown.unitId) ?: return@forEach
+
+            battle.throwUnitAction(unit, thrown.dx, thrown.dy, thrown.damage, unitCaster)
         }
 
         createEarthcrack(battle, tileX, tileY)

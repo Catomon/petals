@@ -16,19 +16,14 @@ abstract class Command {
     open fun canExecute(battle: Battle) : Boolean = true
 
     /**
-     * True for a command whose outcome depends on a random roll.
+     * True for a command whose outcome is the server's to decide, because it draws random numbers.
      *
      * Such a command must not run on a client before the server has: the client would draw its own
      * numbers and apply its own damage and deaths. The online screen sends these and applies them
-     * when they come back, with the server's rolls attached. See [Battle.roll].
+     * when they come back, with the server's decision attached. See [AttackDecision] and
+     * [AbilityDecision].
      */
-    open val rollsDice: Boolean get() = false
-
-    /**
-     * The numbers the server drew while running this command, filled in by the side that ran it
-     * first and replayed by everybody else.
-     */
-    var rolls: List<Int> = emptyList()
+    open val serverDecides: Boolean get() = false
 
     /**
      * Why [canExecute] said no, in words and with the numbers behind it.

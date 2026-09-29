@@ -15,8 +15,14 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
     var param: String? = null
 
-    /** Some abilities roll damage, so the server has to run this one. */
-    override val rollsDice: Boolean get() = true
+    /**
+     * What the ability came to, for an ability whose outcome is random. The server fills this in
+     * and it travels with the command, so a client applies the same result.
+     */
+    var decision: AbilityDecision? = null
+
+    /** Some abilities decide their outcome with a roll, so the server has to run this one. */
+    override val serverDecides: Boolean get() = true
 
     constructor(unitCaster: UnitActor, abilityName: String, tileX: Int, tileY: Int) : this(
         unitCaster,
@@ -86,9 +92,21 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
             if (unitCaster.summoner.selectedUnit == null) return false
         }
 
-        //try to activate, return on fail
-        val isSuccess =
+        // An ability that decides its own outcome is decided once, by the server, and the command
+        // carries the decision. Everybody else applies it. Abilities with nothing random to decide
+        // just run themselves.
+        val isSuccess = run {
+            val decided = decision
+            if (decided != null) return@run ability.applyDecision(battle, unitCaster, tileX, tileY, decided)
+
+            val fresh = ability.decide(battle, unitCaster, tileX, tileY)
+            if (fresh != null) {
+                decision = fresh
+                return@run ability.applyDecision(battle, unitCaster, tileX, tileY, fresh)
+            }
+
             ability.activate(battle, unitCaster, tileX, tileY)
+        }
 
         if (!isSuccess) return false
 
