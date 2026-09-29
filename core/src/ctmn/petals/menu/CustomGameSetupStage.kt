@@ -325,6 +325,9 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         // The map preview, the eight slots and the settings row live in GameSetupPane, so the
         // same UI can drive a dedicated server lobby later.
         pane.allowLocalPlayer = lobbyType == LobbyType.LOCAL
+        // Only the host's own screen and the dedicated server can carry a seat move. A peer
+        // hosted client's host owns the arrangement and would only put them back.
+        pane.allowLocalSeatMove = lobbyType == LobbyType.SERVER
         pane.onLobbyChanged = {
             // Seating and settings changed, so the start gate may have moved with them. Without
             // this a lobby whose places were just filled still looked unstartable.

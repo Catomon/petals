@@ -238,7 +238,12 @@ screen, LAN and online, each with its own screen behind it.
   match ends, and only an open lobby with room can be joined.
 - Seats are slots; a player keeps the id the lobby gave them, and the id is the colour. A
   slot past the map's player places means no map place at all, which is how sitting out to
-  watch works.
+  watch works. The server stores the seat of every member, not just the host's and the bots',
+  so the arrangement the host sees is the arrangement everybody gets: a seat the host swapped
+  stays swapped, and a species the host picked for somebody sticks.
+- Anybody may take a different seat, not only the host. A seat request swaps them with whoever
+  is in the way, a bot included, and the ids do not change, so a player keeps their colour
+  wherever they sit. The match starts from the lobby's own seating, ids included.
 - `ctmn.petals.multiplayer.OnlinePlayScreen` plays a server match. It builds the map from the
   `map_json` in `match_found`, mirrors the battle locally for the view, applies accepted
   commands from other players, and sends its own commands to the server. A rejection or a

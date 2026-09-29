@@ -102,6 +102,9 @@ class ServerCore(val config: ServerConfig) {
     private companion object {
         /** Roughly ten times what a normal turn needs, so a flood is cut off fast. */
         const val maxMessagesPerSecond = 120
+
+        /** Lobby seats. The client's setup screen has the same number. */
+        const val SLOT_COUNT = 8
     }
 
     private fun resolveCommandClass(name: String): Class<*>? {
@@ -285,6 +288,7 @@ class ServerCore(val config: ServerConfig) {
             Msg.CREATE_LOBBY -> onCreateLobby(connection, fromGson(envelope.payload, CreateLobby::class.java))
             Msg.JOIN_LOBBY -> onJoinLobby(connection, fromGson(envelope.payload, JoinLobby::class.java))
             Msg.LEAVE_LOBBY -> onLeaveLobby(connection)
+            Msg.MOVE_SEAT -> onMoveSeat(connection, fromGson(envelope.payload, MoveSeat::class.java))
             Msg.READY -> onReady(connection, fromGson(envelope.payload, Ready::class.java))
             Msg.START -> onStart(connection)
             Msg.QUEUE_JOIN -> onQueueJoin(connection)
@@ -416,10 +420,36 @@ class ServerCore(val config: ServerConfig) {
         lobby.listed = request.listed
         request.mapJson.takeIf { it.isNotBlank() }?.let { lobby.hostMapJson = it }
 
-        // The host's arrangement: their own seat plus the bots, each with the id the lobby
-        // already gave it, so colours survive.
-        val hostSeat = request.seats.firstOrNull { !it.isAi }
-        if (hostSeat != null) lobby.hostSeat = hostSeat
+        // The host's arrangement: their own seat, everybody else's seat and the bots, each with
+        // the id the lobby already gave it, so colours survive. The host is found by client id and
+        // never by "the first seat that is not a bot": with a joiner in an earlier slot that
+        // handed the host the joiner's id, which is what changed the host's colour.
+        var hostSeatSeen = false
+        request.seats.forEach { seat ->
+            val clientId = seat.clientId
+
+            when {
+                clientId.isBlank() -> Unit
+                clientId == connection.clientId -> {
+                    lobby.hostSeat = seat
+                    hostSeatSeen = true
+                }
+
+                lobby.members.any { it.clientId == clientId } -> lobby.seatsByClient[clientId] = seat
+            }
+        }
+
+        // A client that does not say which seat is whose still has to work.
+        if (!hostSeatSeen) {
+            request.seats.firstOrNull { !it.isAi }?.let { lobby.hostSeat = it }
+        }
+
+        // A member the host has not placed anywhere loses whatever seat they had, so they are
+        // given the first slot still free instead of keeping one the host emptied.
+        val placed = request.seats.mapNotNull { seat ->
+            seat.clientId.takeIf { it.isNotBlank() }
+        }.toSet()
+        lobby.seatsByClient.keys.removeAll { it !in placed }
 
         lobby.bots.clear()
         request.seats.filter { it.isAi }.take(lobby.maxPlayers - 1).forEach {
@@ -449,7 +479,11 @@ class ServerCore(val config: ServerConfig) {
 
         leaveCurrentMatch(connection, "'${connection.name}' went back to a lobby")
 
+        // Keep the species they arrived with, and give them one if they arrived with none: a
+        // blank species has nothing to send, and every client would roll a new one per update.
         connection.species = request.species
+            .ifBlank { connection.species }
+            .ifBlank { Species.names.random() }
 
         // A joining client has to actually join the member list, or every broadcast of the lobby
         // state skips them and they sit in a room the server cannot see.
@@ -467,6 +501,27 @@ class ServerCore(val config: ServerConfig) {
     }
 
     /**
+     * A player taking a different seat. The host owns the arrangement, but anybody may move: the
+     * seat they want swaps with them, a bot included, so nobody is ever dropped and nothing is
+     * clamped back. Ids do not change, so a player keeps their colour.
+     */
+    private fun onMoveSeat(connection: ClientConnection, request: MoveSeat) {
+        val lobby = lobbies[connection.lobbyId] ?: return
+        if (lobby.inGame) return
+        if (request.slot !in 0 until SLOT_COUNT) return
+
+        lobby.moveTo(connection, request.slot)
+
+        GameLog.info(
+            "ServerCore",
+            "'${connection.name}' took seat ${request.slot + 1} in '${lobby.name}'"
+        )
+
+        broadcastLobby(lobby)
+        broadcastLobbyList()
+    }
+
+    /**
      * Takes a connection out of its lobby.
      *
      * A lobby that is already playing keeps existing, so the browser can still show it, and it is
@@ -480,6 +535,9 @@ class ServerCore(val config: ServerConfig) {
 
         val lobby = lobbies[id] ?: return
         lobby.members.removeIf { it.clientId == connection.clientId }
+
+        // The seat they were arranged into goes with them, or a later joiner would inherit it.
+        lobby.seatsByClient.remove(connection.clientId)
 
         if (lobby.inGame) {
             // The players are in the match now, so this lobby is only a name and a player count.
@@ -521,6 +579,14 @@ class ServerCore(val config: ServerConfig) {
             // A lobby game has to fill every place the map offers. A queue match cannot: its map
             // comes from the server's pool and its size is not the host's to arrange.
             requireAllPlaces = true,
+            // The seating the lobby worked out, so the match starts with the same arrangement
+            // everybody was looking at, ids included.
+            memberSlots = lobby.seatAssignments()
+                .filterIsInstance<Seat.Human>()
+                .associate { it.connection.clientId to it.slot },
+            memberIds = lobby.seatAssignments()
+                .filterIsInstance<Seat.Human>()
+                .associate { it.connection.clientId to it.playerId },
         )
 
         // Kept while the match runs, so the browser can show it as in game. Dropped with the
@@ -632,6 +698,10 @@ class ServerCore(val config: ServerConfig) {
          * arranged the seats, and false for a queue match, whose map comes from the server's pool.
          */
         requireAllPlaces: Boolean = false,
+        /** Where the lobby put each human, by client id. Empty for a queue match. */
+        memberSlots: Map<String, Int> = emptyMap(),
+        /** The lobby id each human keeps, by client id. Empty for a queue match. */
+        memberIds: Map<String, Int> = emptyMap(),
     ) {
         val map: MapConverted = if (hostMapJson != null) {
             // A map the host owns, sent to us and passed on to every client in match_found, so
@@ -686,9 +756,11 @@ class ServerCore(val config: ServerConfig) {
         }
 
         members.filter { it !== host }.forEach { connection ->
-            val slot = freeSlot(null)
+            // The lobby's own arrangement, so a joiner who took a seat keeps it when the match
+            // starts instead of being pushed back into the first free slot.
+            val slot = freeSlot(memberSlots[connection.clientId])
             if (slot < 0) return@forEach
-            val id = seatId(-1)
+            val id = seatId(memberIds[connection.clientId] ?: -1)
             if (id < 0) return@forEach
             val player = Player(name = connection.name, id = id, teamId = id)
             player.clientId = connection.clientId
@@ -1299,6 +1371,13 @@ class ServerCore(val config: ServerConfig) {
         /** Where the host sits and which id they keep, so their colour survives. */
         var hostSeat = LobbySeat().apply { slot = 0; playerId = 1 }
 
+        /**
+         * Where each other human sits, as the host arranged it, keyed by client id. Without this
+         * the host's arrangement of people was thrown away and the server re-derived it, so a
+         * seat the host swapped snapped back and a joiner could not be given a species.
+         */
+        val seatsByClient = HashMap<String, LobbySeat>()
+
         /** Bot seats, each with its difficulty, slot and lobby id. */
         val bots = ArrayList<BotSeat>()
 
@@ -1306,6 +1385,48 @@ class ServerCore(val config: ServerConfig) {
 
         init {
             members.add(host)
+        }
+
+        /** The seat a connection holds, arranged or not. */
+        private fun arrangedSeat(connection: ClientConnection): LobbySeat {
+            if (connection === host) return hostSeat
+
+            return seatsByClient.getOrPut(connection.clientId) {
+                val current = seatAssignments().firstOrNull {
+                    it is Seat.Human && it.connection === connection
+                }
+
+                LobbySeat().apply {
+                    slot = current?.slot ?: 0
+                    playerId = current?.playerId ?: nextFreePlayerId(seatAssignments())
+                    species = connection.species
+                }
+            }
+        }
+
+        /** The slot a connection is in right now. */
+        fun slotOf(connection: ClientConnection): Int =
+            seatAssignments().firstOrNull { it is Seat.Human && it.connection === connection }?.slot
+                ?: -1
+
+        /**
+         * Moves a connection to [slot]. Whoever is in the way swaps with them, so a bot goes to
+         * the seat the player left and nobody is ever dropped. Ids do not change, so everybody
+         * keeps their colour.
+         */
+        fun moveTo(connection: ClientConnection, slot: Int) {
+            val from = slotOf(connection)
+            if (from < 0 || from == slot || slot !in 0 until maxPlayers) return
+
+            val bot = bots.firstOrNull { it.slot == slot }
+            val other = members.firstOrNull { it !== connection && slotOf(it) == slot }
+
+            when {
+                bot != null -> bot.slot = from
+                other != null -> arrangedSeat(other).slot = from
+            }
+
+            arrangedSeat(connection).slot = slot
         }
 
         fun toInfo(): LobbyInfo = LobbyInfo().also {
@@ -1352,6 +1473,10 @@ class ServerCore(val config: ServerConfig) {
                     })
 
                     is Seat.Human -> state.members.add(LobbyMember().also {
+                        val arranged =
+                            if (seat.connection === host) hostSeat
+                            else seatsByClient[seat.connection.clientId]
+
                         it.slot = slot
                         it.clientId = seat.connection.clientId
                         it.name = seat.connection.name
@@ -1359,11 +1484,10 @@ class ServerCore(val config: ServerConfig) {
                         it.ready = seat.connection.ready || seat.connection === host
                         it.host = seat.connection === host
 
-                        // A human's species comes from the seat the host arranged for them, and
-                        // otherwise from what they sent when they joined. Without this the lobby
-                        // had nothing to send and every client rolled a new one on each update.
-                        it.species = if (seat.connection === host) hostSeat.species
-                        else seat.connection.species
+                        // The species the host picked for this seat wins, so the host can change
+                        // anybody's. Otherwise it is what they arrived with.
+                        it.species = arranged?.species?.takeIf { species -> species.isNotBlank() }
+                            ?: seat.connection.species
                     })
                 }
             }
@@ -1375,9 +1499,10 @@ class ServerCore(val config: ServerConfig) {
         }
 
         /**
-         * Who sits where. The host's arrangement wins: their slot and the bots' slots are
-         * honoured, and any member who joined later takes the first slot still free, in join
-         * order. A slot past the map's player places has no base, which is how spectating works.
+         * Who sits where. The host's arrangement wins: their own seat, the bots' seats and every
+         * other human's seat are honoured, and only somebody the host has not placed takes the
+         * first slot still free. A slot past the map's player places has no base, which is how
+         * spectating works.
          */
         fun seatAssignments(): List<Seat> {
             val seats = ArrayList<Seat>(members.size + bots.size)
@@ -1392,11 +1517,19 @@ class ServerCore(val config: ServerConfig) {
                 }
             }
 
-            // A player who joined has no seat of their own yet, so they take the lowest free
-            // slot and the lowest free id.
             members.filter { it !== host }.forEach { connection ->
-                val free = (0 until maxPlayers).firstOrNull { taken.add(it) } ?: return@forEach
-                seats.add(Seat.Human(connection, free, nextFreePlayerId(seats)))
+                val arranged = seatsByClient[connection.clientId]
+
+                val slot = arranged?.slot?.takeIf { it in 0 until maxPlayers && taken.add(it) }
+                    ?: (0 until maxPlayers).firstOrNull { taken.add(it) }
+                    ?: return@forEach
+
+                // The id the host arranged for them, when it is still free, so a swap keeps
+                // everybody's colour.
+                val id = arranged?.playerId?.takeIf { it > 0 && seats.none { seat -> seat.playerId == it } }
+                    ?: nextFreePlayerId(seats)
+
+                seats.add(Seat.Human(connection, slot, id))
             }
 
             return seats.sortedBy { it.slot }
@@ -1411,7 +1544,8 @@ class ServerCore(val config: ServerConfig) {
     /** A bot seat in a lobby, with the slot and lobby id the host gave it. */
     private data class BotSeat(
         val difficulty: String,
-        val slot: Int,
+        /** Mutable: a player taking the bot's seat swaps it to the seat they left. */
+        var slot: Int,
         val playerId: Int,
         val name: String,
         val species: String = "",

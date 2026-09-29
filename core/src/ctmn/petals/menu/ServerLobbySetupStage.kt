@@ -173,9 +173,13 @@ class ServerLobbySetupStage(
         pane.allowLocalPlayer = false
         // Every change goes straight back to the server, so the players already sitting in the
         // lobby see the same arrangement the host is looking at. A lobby with no map yet sends
-        // one with no map: it exists from the start, map or not.
+        // one with no map: it exists from the start, map or not. A joiner's own move travels as
+        // a seat request instead, since the arrangement is not theirs to author.
         pane.onLobbyChanged = {
-            if (!applyingRemoteState) createLobby()
+            if (!applyingRemoteState && isHost) createLobby()
+        }
+        pane.onLocalSeatMoved = { slot ->
+            if (!applyingRemoteState && !isHost) client.moveSeat(slot)
         }
         pane.onUnplayableMap = { message -> addNotifyWindow(message, "Lobby") }
 
@@ -220,6 +224,11 @@ class ServerLobbySetupStage(
 
         refresh()
 
+        // Our own seat object, set for a joiner as much as for the host: the local player mark
+        // follows it, and a seat move has to know which seat is ours. Without it a joiner could
+        // take a free seat but never swap with one that was taken.
+        pane.localPlayer = myPlayer
+
         if (lobbyId != null) {
             // Our own species travels with the join, otherwise the host's lobby has nothing to
             // show for us and every update rerolls it.
@@ -228,7 +237,6 @@ class ServerLobbySetupStage(
             // Creating: sit in the first slot straight away, as the local flow does, and make the
             // lobby straight away too. It stays private until the host publishes it, so the
             // arrangement can be built in peace and appears in the browser when it is ready.
-            pane.localPlayer = myPlayer
             pane.hostPlayer = myPlayer
             pane.setPlayerSlot(myPlayer, 0)
             createLobby()
@@ -274,7 +282,7 @@ class ServerLobbySetupStage(
         }
 
         // The crown follows the host, not the slot, so remember who they are.
-        pane.hostPlayer = hostSeat
+        pane.hostPlayer = hostSeat ?: myPlayer.takeIf { isHost }
 
         GameLog.info(
             "ServerLobbySetupStage",
@@ -292,6 +300,10 @@ class ServerLobbySetupStage(
         if (clientId == GamePref.clientId) {
             myPlayer.id = playerId
             myPlayer.teamId = playerId
+
+            // The host can change anybody's species, ours included, so take theirs.
+            species.takeIf { it.isNotBlank() }?.let { myPlayer.species = it }
+
             return myPlayer
         }
 
@@ -432,6 +444,9 @@ class ServerLobbySetupStage(
                 it.isAi = slot.isAI
                 it.botDifficulty = slot.botDifficulty
                 it.species = player.species
+                // Which connection this seat is, so the server can tell the host's own seat from
+                // a joiner's and keep the host's arrangement of people.
+                it.clientId = player.clientId ?: ""
             })
         }
 

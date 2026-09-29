@@ -189,6 +189,19 @@ class GameSetupPane(val dialogStage: Stage) {
     val bots: List<Pair<String, Player>>
         get() = slots.filter { it.isAI && it.player != null }.map { it.botDifficulty to it.player!! }
 
+    /**
+     * Fired when the local player moved themselves to another seat. A host's screen sends its
+     * whole arrangement through [onLobbyChanged]; everybody else's seat is theirs to ask for.
+     */
+    var onLocalSeatMoved: ((Int) -> Unit)? = null
+
+    /**
+     * Whether the local player may take another seat. True where the transport carries the move,
+     * which is the host's own screen and a dedicated server lobby. A peer hosted client cannot:
+     * its host owns the arrangement and would only put them back.
+     */
+    var allowLocalSeatMove: Boolean = true
+
     /** Fired when the host changed something the transport should broadcast. */
     var onLobbyChanged: (() -> Unit)? = null
 
@@ -342,7 +355,7 @@ class GameSetupPane(val dialogStage: Stage) {
 
     /** Swaps the local player into [slotIndex], keeping whoever was displaced. */
     fun moveLocalPlayerToSlot(slotIndex: Int) {
-        if (!isHost) return
+        if (!isHost && !allowLocalSeatMove) return
 
         val target = slots.get(slotIndex)
 
@@ -373,6 +386,7 @@ class GameSetupPane(val dialogStage: Stage) {
         }
 
         onLobbyChanged?.invoke()
+        onLocalSeatMoved?.invoke(slotIndex)
     }
 
     fun removePlayer(player: Player) {
@@ -413,7 +427,12 @@ class GameSetupPane(val dialogStage: Stage) {
 
         val isLocalHostSlot get() = localPlayer === player && isHost
 
-        var isLocalPlayer = false
+        /**
+         * The local player's own seat mark, worked out when it is drawn. A stored flag went stale
+         * whenever a seat changed hands without going through this slot's own setter.
+         */
+        val isMe get() = player != null && player === localPlayer
+
         var isAI = false
 
         /** Difficulty for this slot's bot, see [ctmn.petals.bot.v2.Difficulty]. */
@@ -443,14 +462,12 @@ class GameSetupPane(val dialogStage: Stage) {
                         ?.forEach { it.data.removeKey("player_id") }
                 }
 
-                isLocalPlayer = value === localPlayer
                 field = value
             }
 
         fun index(): Int = slots.indexOf(this)
 
         fun refreshLocalState() {
-            isLocalPlayer = player === localPlayer
             refreshEnabled()
         }
 
@@ -495,7 +512,7 @@ class GameSetupPane(val dialogStage: Stage) {
         override fun draw(batch: Batch, parentAlpha: Float) {
             super.draw(batch, parentAlpha)
 
-            if (isLocalPlayer) {
+            if (isMe) {
                 localPlayerMarkImage.draw(batch, x, y, localPlayerMarkImage.minWidth, localPlayerMarkImage.minHeight)
             }
 
@@ -539,7 +556,7 @@ class GameSetupPane(val dialogStage: Stage) {
         private fun showSlotDialog() {
             val slot = this
 
-            if (!isHost) return
+            if (!isHost && !allowLocalSeatMove) return
 
             dialogStage.addCover()
 
@@ -622,7 +639,7 @@ class GameSetupPane(val dialogStage: Stage) {
 
             val closeButton = newIconButton("cancel").addChangeListener { close() }
 
-            moveHereButton.isDisabled = !isHost
+            moveHereButton.isDisabled = !isHost && !allowLocalSeatMove
             addPlayerButton.isDisabled = !isHost || (slot.player != null && !slot.isAI) || !allowLocalPlayer
             removeButton.isDisabled = !isHost || slot.player === localPlayer
             addBotButtons.forEach { it.isDisabled = !isHost || slot.player != null }
@@ -634,24 +651,29 @@ class GameSetupPane(val dialogStage: Stage) {
                 row()
                 add(moveHereButton)
                 row()
-                for (botButton in addBotButtons) {
-                    add(botButton)
-                    row()
-                }
-                if (allowLocalPlayer) {
-                    add(addPlayerButton)
-                    row()
-                }
-                if (slot.player != null) {
-                    if (slot.player?.species == goblin) {
-                        add(makeFaerieButton)
-                    } else {
-                        add(makeGoblinButton)
+
+                // Everything below taking a seat is the host's to change. A player moving
+                // themselves sees one button, which is the whole of what they may do here.
+                if (isHost) {
+                    for (botButton in addBotButtons) {
+                        add(botButton)
+                        row()
                     }
+                    if (allowLocalPlayer) {
+                        add(addPlayerButton)
+                        row()
+                    }
+                    if (slot.player != null) {
+                        if (slot.player?.species == goblin) {
+                            add(makeFaerieButton)
+                        } else {
+                            add(makeGoblinButton)
+                        }
+                        row()
+                    }
+                    add(removeButton)
                     row()
                 }
-                add(removeButton)
-                row()
                 add(closeButton).padRight(8f).align(Align.right)
                 pack()
             }

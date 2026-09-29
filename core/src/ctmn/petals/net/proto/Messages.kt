@@ -22,6 +22,7 @@ object Msg {
     const val CREATE_LOBBY = "create_lobby"
     const val JOIN_LOBBY = "join_lobby"
     const val LEAVE_LOBBY = "leave_lobby"
+    const val MOVE_SEAT = "move_seat"
     const val READY = "ready"
     const val START = "start"
     const val LOBBY_STATE = "lobby_state"
@@ -88,6 +89,16 @@ class LobbyMember {
     var isSpectator = false
 }
 
+/**
+ * A player asking for a different seat. The host owns the arrangement, but anybody may take
+ * another seat: whoever is in the way swaps with them, a bot included. Ids never change, so a
+ * player keeps their colour wherever they sit.
+ */
+class MoveSeat {
+    /** The seat the player wants, 0 based. */
+    var slot: Int = -1
+}
+
 class LobbyInfo {
     var id: String = ""
     var name: String = ""
@@ -128,6 +139,12 @@ class LobbySeat {
 
     /** Species id, so the server creates the seat with the species the host picked. */
     var species: String = ""
+
+    /**
+     * Which connection this seat belongs to, for a human seat. It is how the server tells the
+     * host's own seat from a joiner's, so the host's arrangement of people is not thrown away.
+     */
+    var clientId: String = ""
 }
 
 class CreateLobby {

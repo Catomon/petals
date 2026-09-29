@@ -117,6 +117,8 @@ class ServerClient {
 
     fun leaveLobby() = send(Msg.LEAVE_LOBBY, "", "")
 
+    fun moveSeat(slot: Int) = send(Msg.MOVE_SEAT, "", MoveSeat().also { it.slot = slot })
+
     fun ready(ready: Boolean) = send(Msg.READY, "", Ready().also { it.ready = ready })
 
     fun startMatch() = send(Msg.START, "", "")
