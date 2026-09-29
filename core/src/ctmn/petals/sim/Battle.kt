@@ -109,6 +109,71 @@ open class Battle {
             return field
         }
 
+    /**
+     * The random numbers the server drew while executing one command, replayed by a client that
+     * applies that command later.
+     *
+     * Randomness has to be decided once. A client that drew its own numbers would apply its own
+     * damage and deaths, which is how the two sides drifted apart: every attack rolled separately
+     * on each machine. The server draws, the command carries the numbers, and every client replays
+     * them, so an attack has one outcome everywhere.
+     */
+    private var replayedRolls: List<Int>? = null
+    private var replayIndex = 0
+
+    /** Rolls collected while the command in flight executes. Only the recording side fills this. */
+    private val recordedRolls = ArrayList<Int>()
+    private var recordingRolls = false
+
+    /** Starts collecting the rolls a command draws. The server does this around every command. */
+    fun beginRecordingRolls() {
+        recordedRolls.clear()
+        recordingRolls = true
+    }
+
+    /** Stops collecting and hands back what the command drew. */
+    fun endRecordingRolls(): List<Int> {
+        recordingRolls = false
+        return recordedRolls.toList()
+    }
+
+    /** Starts returning the numbers the server drew for the command being applied. */
+    fun beginReplayingRolls(rolls: List<Int>) {
+        replayedRolls = rolls
+        replayIndex = 0
+    }
+
+    fun endReplayingRolls() {
+        replayedRolls = null
+        replayIndex = 0
+    }
+
+    /**
+     * The one way gameplay code draws a random number in `[from, until)`.
+     *
+     * While a client replays a command it returns the server's number. If the client's copy of the
+     * state made it draw more times than the server did, the replay runs out: that means the two
+     * copies disagree, so it says so and falls back to drawing. Everything after that point is
+     * repaired by the next snapshot, and the log line is the breadcrumb that says why.
+     */
+    fun roll(from: Int, until: Int): Int {
+        val replay = replayedRolls
+        if (replay != null) {
+            if (replayIndex < replay.size) return replay[replayIndex++]
+
+            GameLog.info(
+                "Battle",
+                "roll replay ran out after $replayIndex of ${replay.size}: " +
+                        "our copy of the state drew more than the server's"
+            )
+            replayedRolls = null
+        }
+
+        val value = random.nextInt(from, until)
+        if (recordingRolls) recordedRolls.add(value)
+        return value
+    }
+
     lateinit var localPlayer: Player
 
     val hasLocalPlayer: Boolean get() = ::localPlayer.isInitialized
@@ -363,7 +428,11 @@ open class Battle {
         fireEvent(NextTurnEvent(currentPlayer, currentPlayer))
     }
 
-    fun queueCommand(command: Command, playerId: Int? = null): Boolean =
+    /**
+     * Sends a player's intent into the battle. Overridden by the online screen, which has to hand
+     * commands that draw random numbers to the server instead of running them here.
+     */
+    open fun queueCommand(command: Command, playerId: Int? = null): Boolean =
         commandManager.queueCommand(command, playerId)
 
     // View hooks. No-ops on the server, overridden by the scene2d client.

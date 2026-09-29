@@ -15,6 +15,9 @@ class UseAbilityCommand(val unitCasterId: String, val  abilityName: String, val 
 
     var param: String? = null
 
+    /** Some abilities roll damage, so the server has to run this one. */
+    override val rollsDice: Boolean get() = true
+
     constructor(unitCaster: UnitActor, abilityName: String, tileX: Int, tileY: Int) : this(
         unitCaster,
         unitCaster.getAbility(abilityName) ?: throw IllegalArgumentException("No such ability: $abilityName"),

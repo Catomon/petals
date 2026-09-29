@@ -2,6 +2,7 @@ package ctmn.petals.multiplayer
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
+import ctmn.petals.Config
 import ctmn.petals.GamePref
 import ctmn.petals.map.createMapFromJson
 import ctmn.petals.net.ServerClient
@@ -15,16 +16,19 @@ import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.playscreen.Season
 import ctmn.petals.playscreen.addAction
 import ctmn.petals.playscreen.stageName
+import ctmn.petals.playscreen.commands.AttackCommand
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.commands.MoveUnitCommand
 import ctmn.petals.playscreen.commands.TryMoveCommand
+import ctmn.petals.playscreen.commands.UseAbilityCommand
 import ctmn.petals.playstage.findMovePath
 import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.screens.PlayScreenTemplate
 import ctmn.petals.sim.FogOfWar
 import ctmn.petals.unit.UnitActor
+import ctmn.petals.unit.actionPoints
 import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
@@ -498,6 +502,60 @@ class OnlinePlayScreen(
             commandJson = TryMoveCommand(unit.stageName, tileX, tileY).toGson(),
         )
         return true
+    }
+
+    /**
+     * A command that draws random numbers is the server's to run, not ours.
+     *
+     * Running it here would roll our own damage and deaths, which is how the two sides drifted:
+     * the server applied one outcome and every client another, so a unit could die on one screen
+     * and live on the other. Sending it instead keeps a single roll. It comes back in the command
+     * stream with the server's numbers attached and is applied then, so the animation plays the
+     * same outcome everybody else sees. Deterministic commands still run locally as before.
+     */
+    override fun queueCommand(command: Command, playerId: Int?): Boolean {
+        if (!command.rollsDice) return super.queueCommand(command, playerId)
+
+        if (!command.canExecute(this)) return false
+
+        command.playerId = playerId ?: localPlayer.id
+
+        GameLog.verbose(
+            "OnlinePlayScreen",
+            "sending ${command.javaClass.simpleName} to the server to be rolled"
+        )
+
+        client.sendCommand(
+            requestId = "c$gameStateId",
+            expectedStateId = gameStateId,
+            commandName = command.javaClass.name,
+            commandJson = command.toGson(),
+        )
+
+        spendPredictedActionPoints(command)
+        return true
+    }
+
+    /**
+     * Spends the action points a sent command will cost, so the unit cannot be ordered to do
+     * something else while the server's answer is on its way. Without this a player who attacked
+     * and then moved in the same breath had the move refused, because our copy of the unit still
+     * had its points.
+     *
+     * Only the cost is applied here, never the damage: the cost is a constant, the damage is the
+     * server's to roll. A command the server ends up refusing is repaired by the snapshot that
+     * comes with the rejection.
+     */
+    private fun spendPredictedActionPoints(command: Command) {
+        val unitId = when (command) {
+            is AttackCommand -> command.attackerUnitId
+            is UseAbilityCommand -> command.unitCasterId
+            else -> return
+        }
+
+        val unit = field.findUnit(unitId) ?: return
+        unit.actionPoints -= if (command is AttackCommand) Config.ACTION_POINTS_ATTACK
+        else Config.ACTION_POINTS_ABILITY
     }
 
     override fun show() {

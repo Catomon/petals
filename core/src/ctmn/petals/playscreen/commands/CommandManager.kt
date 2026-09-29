@@ -33,17 +33,36 @@ class CommandManager(val battle: Battle) {
         }
     }
 
-    fun execute(command: Command) {
+    /**
+     * Runs a command and reports whether it ran.
+     *
+     * This is the one place a command executes, whether it came from the queue, from a client, or
+     * from a bot. Randomness is decided here: the first side to run a command records the numbers
+     * it drew on the command, and every other side replays them, so an attack cannot resolve one
+     * way on the server and another way on a client. See [Battle.roll].
+     */
+    fun execute(command: Command): Boolean {
         if (!command.canExecute(battle)) {
             // It will happen sometimes because of bot players, and for a command from the server it
             // means our copy of the state disagrees with the server's. The command can say which of
             // its checks failed, so ask it rather than logging a bare class name.
             val because = runCatching { command.explainFailure(battle) }.getOrNull()
             logErr("Command ${command::class.simpleName} cannot be executed${because?.let { ": $it" } ?: ""}")
-            return
+            return false
         }
 
-        val done = command.execute(battle)
+        val recorded = command.rolls
+        if (recorded.isEmpty()) battle.beginRecordingRolls() else battle.beginReplayingRolls(recorded)
+
+        val done = try {
+            command.execute(battle)
+        } finally {
+            if (recorded.isEmpty()) {
+                command.rolls = battle.endRecordingRolls()
+            } else {
+                battle.endReplayingRolls()
+            }
+        }
 
         if (done) {
             commandHistory.addLast(command)
@@ -52,6 +71,8 @@ class CommandManager(val battle: Battle) {
             battle.fireEvent(ctmn.petals.playscreen.events.CommandExecutedEvent(command))
         } else
             Gdx.app.log(javaClass.simpleName, "Command execute failure: ${command.javaClass.simpleName}")
+
+        return done
     }
 
     fun queueCommand(command: Command, playerId: Int? = null) : Boolean {

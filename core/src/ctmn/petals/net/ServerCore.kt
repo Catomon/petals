@@ -1072,11 +1072,11 @@ class ServerCore(val config: ServerConfig) {
             deadlinePlayerId = -1
 
             val endTurn = ctmn.petals.playscreen.commands.EndTurnCommand(current)
-            if (!endTurn.canExecute(battle)) return
+            endTurn.playerId = current
 
-            if (!endTurn.execute(battle)) return
-            // The command listener broadcasts it, so the clients see the forced end of turn.
-            battle.commandManager.onCommand?.invoke(endTurn)
+            // Through the manager, so a forced end of turn is recorded and broadcast like any
+            // other command.
+            if (!battle.commandManager.execute(endTurn)) return
 
             GameLog.info("ServerCore", "Match $id: player $current ran out of time")
         }
@@ -1140,13 +1140,15 @@ class ServerCore(val config: ServerConfig) {
                 return
             }
 
-            val ok = command.execute(battle)
+            // Run it through the command manager, not straight through the command: the manager is
+            // where the rolls a command draws are recorded onto it, so every client can replay the
+            // server's numbers. It also broadcasts the accepted command, from one place, for
+            // clients and bots alike.
+            val ok = battle.commandManager.execute(command)
             if (!ok) {
                 reject(connection, requestId, "Command failed")
                 return
             }
-
-            battle.commandManager.onCommand?.invoke(command)
 
             GameLog.info(
                 "ServerCore",
@@ -1210,13 +1212,12 @@ class ServerCore(val config: ServerConfig) {
             }
 
             move.playerId = expectedPlayerId
-            if (!move.execute(battle)) {
+            // Through the manager, so the command is recorded, broadcast and counted exactly like
+            // every other one.
+            if (!battle.commandManager.execute(move)) {
                 reject(connection, requestId, "Command failed")
                 return
             }
-
-            // The command listener broadcasts it, like any other command.
-            battle.commandManager.onCommand?.invoke(move)
 
             GameLog.info(
                 "ServerCore",

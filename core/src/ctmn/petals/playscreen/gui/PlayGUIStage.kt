@@ -1318,7 +1318,7 @@ class PlayGUIStage(
                     && !selectedUnit!!.isAlly(unit)
                 ) {
                     val command = AttackCommand(selectedUnit!!, unit)
-                    if (command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)) {
+                    if (command.canExecute(playScreen) && playScreen.queueCommand(command)) {
                         selectUnit(selectedUnit)
                         return true
                     }
@@ -1336,7 +1336,7 @@ class PlayGUIStage(
             if (abilitiesPanel.selectedAbility!!.skipConfirmation) {
                 val command = UseAbilityCommand(selectedUnit!!, abilitiesPanel.selectedAbility!!, tiledX, tiledY)
 
-                val isExecuted = command.canExecute(playScreen) && playScreen.commandManager.queueCommand(command)
+                val isExecuted = command.canExecute(playScreen) && playScreen.queueCommand(command)
 
                 if (isExecuted && abilitiesPanel.selectedAbility is SummonAbility && abilitiesPanel.selectedAbility!!.castAmountsLeft > 1) {
                     mapClickListener = useAbilityCL

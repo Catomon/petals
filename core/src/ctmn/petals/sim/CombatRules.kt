@@ -22,7 +22,9 @@ import ctmn.petals.unit.component.ATTACK_TYPE_GROUND
 import ctmn.petals.unit.component.InvisibilityComponent
 import ctmn.petals.unit.component.MoveAfterAttackComponent
 import ctmn.petals.unit.component.ReloadingComponent
+import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.getUnitsInRange
+import ctmn.petals.playscreen.selfName
 import kotlin.math.max
 
 /** Everything the view needs to animate an attack whose state was already resolved. */
@@ -53,8 +55,19 @@ fun resolveAttack(battle: Battle, attackerUnit: UnitActor, targetUnit: UnitActor
     var attackerDamage = defenderPair.first - attackerPair.second
     if (attackerDamage < 1) attackerDamage = 0
 
-    val miss = if (Config.MISSES) battle.random.nextInt(1, 101) <= 5 else false
-    val crit = if (Config.CRITS) battle.random.nextInt(1, 101) <= 5 else false
+    val miss = if (Config.MISSES) battle.roll(1, 101) <= 5 else false
+    val crit = if (Config.CRITS) battle.roll(1, 101) <= 5 else false
+
+    // One line per attack, on both sides, so two logs can be put next to each other and the
+    // numbers compared. That is how a divergence in the rolls shows up before it becomes a
+    // unit that died on one screen and not the other.
+    GameLog.info(
+        "CombatRules",
+        "${attackerUnit.selfName} -> ${targetUnit.selfName}: rolled $targetDamage damage" +
+                (if (miss) " (miss)" else "") +
+                (if (crit) " (crit)" else "") +
+                ", retaliation $attackerDamage"
+    )
 
     var splashHit = false
 
@@ -79,7 +92,7 @@ fun resolveAttack(battle: Battle, attackerUnit: UnitActor, targetUnit: UnitActor
                     splashHit = true
                     other.dealDamage(
                         (max(
-                            battle.random.nextInt(
+                            battle.roll(
                                 attackerAttack.attackSplashDamage - 5,
                                 attackerAttack.attackSplashDamage
                             ), 1

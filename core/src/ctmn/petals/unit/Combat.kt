@@ -9,18 +9,29 @@ import ctmn.petals.unit.component.BonusFieldComponent
 import ctmn.petals.utils.GameLog
 import java.lang.IllegalStateException
 
+/**
+ * A damage roll between the two bounds, inclusive.
+ *
+ * The bounds are ordered first. A debuff such as exhaust can push a unit's damage below zero, and
+ * a span still has a low and a high end; without this the roll asks for an empty range and throws,
+ * which is what killed a client mid match.
+ */
 fun Battle.randomInt(min: Int, max: Int): Int {
-    val modMinDamage: Int = (min.toFloat()).toInt()
-    val modMaxDamage: Int = (max.toFloat()).toInt()
+    val low = minOf(min, max)
+    val high = maxOf(max, min)
 
-    return random.nextInt(modMinDamage, modMaxDamage + 1)
+    return roll(low, high + 1)
 }
 
-fun Battle.randomInt75(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+/** A roll in the upper part of `0..value`. Nothing to roll for a value that is already gone. */
+fun Battle.randomInt75(value: Int): Int =
+    if (value <= 0) 0 else roll((value * 0.75f).toInt(), value + 1)
 
-fun Battle.randomInt50(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+fun Battle.randomInt50(value: Int): Int =
+    if (value <= 0) 0 else roll((value * 0.75f).toInt(), value + 1)
 
-fun Battle.randomInt25(value: Int): Int = random.nextInt((value * 0.75f).toInt(), value + 1)
+fun Battle.randomInt25(value: Int): Int =
+    if (value <= 0) 0 else roll((value * 0.75f).toInt(), value + 1)
 
 /** up to 50% damage and 25% defense reducing depending on health */
 val UnitActor.combatDamageHpMod: Float
@@ -132,7 +143,10 @@ fun Battle.calculateDmgDefStats(unit: UnitActor, vsUnit: UnitActor): DamageDefen
 
     defense = (defense * defenseMod).toInt()
 
-    return DamageDefense(minDMG, maxDMG, defense)
+    // Exhaust and other debuffs can take a unit's damage below zero, and a range that reads
+    // backwards is not a range. Order the pair here, where it is produced, so everything that
+    // reads it (the roll, the AI's estimate) sees a low and a high end.
+    return DamageDefense(minOf(minDMG, maxDMG), maxOf(minDMG, maxDMG), defense)
 }
 
 /** Rolls the damage for one attack. Uses the game RNG on purpose. */

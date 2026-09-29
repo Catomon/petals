@@ -16,6 +16,9 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
     constructor(attacker: UnitActor, target: UnitActor) : this(attacker.stageName, target.stageName)
 
+    /** Damage, misses and crits are rolled, so the server has to run this one. */
+    override val rollsDice: Boolean get() = true
+
     override fun canExecute(battle: Battle): Boolean {
         val attackerUnit: UnitActor = battle.field.findUnit(attackerUnitId) ?: let {
             Gdx.app.error(this::class.simpleName, "attackerUnit with id:$targetUnitId is not found")
