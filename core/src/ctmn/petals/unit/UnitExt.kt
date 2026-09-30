@@ -594,6 +594,16 @@ fun UnitActor.die(battle: Battle, killer: UnitActor? = null) {
 
             battle.onUnitDiedView(this)
         }
+    } else {
+        // Headless, so there is no view and no death animation to wait for: the dead unit leaves
+        // the field now.
+        //
+        // It used to stay, at negative health and still registered on its tile, because the only
+        // removal was inside the view branch above. The server then kept a ghost unit every client
+        // had already removed, and anything that walks the units or looks at a tile disagreed
+        // between the two sides: capture progress, movement reachability, occupancy. This is where
+        // the online drift came from.
+        battle.field.removeGameActor(this)
     }
 
     battle.fireEvent(UnitDiedEvent(this, killer))

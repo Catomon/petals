@@ -36,11 +36,17 @@ import ctmn.petals.tile.setPlayerForCapturableTile
 import ctmn.petals.unit.Damage
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.Units
+import ctmn.petals.unit.actionPoints
 import ctmn.petals.unit.component.TileEffectComponent
 import ctmn.petals.unit.dealDamage
+import ctmn.petals.unit.health
 import ctmn.petals.unit.isAir
+import ctmn.petals.unit.playerId
+import ctmn.petals.tile.cCapturing
+import ctmn.petals.tile.cPlayerId
 import ctmn.petals.utils.tiledX
 import ctmn.petals.utils.tiledY
+import ctmn.petals.playscreen.stageName
 import ctmn.petals.utils.GameLog
 import playScreen.PlayTurnCycleListener
 import kotlin.random.Random
@@ -108,6 +114,69 @@ open class Battle {
             randomCount++
             return field
         }
+
+    /**
+     * The state fingerprint, reported by part so a difference can be read rather than guessed at.
+     *
+     * Players, units and tiles are folded in without caring about the order of the lists, because
+     * a client builds its tiles and units from a snapshot and the server from the map, and those
+     * orders need not match. Counts are included too, so a missing unit cannot hide inside a
+     * matching sum. Logged after every command at verbose level.
+     *
+     * Two copies of the same battle describe the same line; the first command whose lines differ,
+     * and the part of the line that differs, is where the two copies parted.
+     */
+    open fun stateHashReport(): String {
+        var players = 17L
+        val playerText = StringBuilder()
+
+        for (player in turnManager.players.sortedBy { it.id }) {
+            playerText.append("${player.id}:${player.credits}:${if (player.isOutOfGame) "out" else "in"} ")
+            players = players * 31 + player.id
+            players = players * 31 + player.credits
+            players = players * 31 + (if (player.isOutOfGame) 1 else 0)
+        }
+
+        var units = 17L
+        val unitText = StringBuilder()
+        val unitList = field.allUnits.sortedBy { it.stageName }
+
+        for (unit in unitList) {
+            unitText.append("${unit.stageName}@${unit.tiledX},${unit.tiledY}")
+            unitText.append(":${unit.health}:${unit.actionPoints}:${unit.playerId} ")
+            units = units * 31 + unit.tiledX
+            units = units * 31 + unit.tiledY
+            units = units * 31 + unit.health
+            units = units * 31 + unit.actionPoints
+            units = units * 31 + unit.playerId
+        }
+
+        var tiles = 17L
+        val tilesByOwner = HashMap<Int, Int>()
+
+        // Sorted, because the two sides build their tile lists differently and an unsorted fold
+        // would report an ordering difference as a state difference.
+        val tileList = field.allTiles.sortedWith(compareBy({ it.tiledY }, { it.tiledX }, { it.name }))
+
+        for (tile in tileList) {
+            tiles = tiles * 31 + tile.tiledX
+            tiles = tiles * 31 + tile.tiledY
+            tiles = tiles * 31 + tile.terrain.hashCode()
+            tiles = tiles * 31 + (tile.cPlayerId?.playerId ?: -1)
+            tiles = tiles * 31 + (tile.cCapturing?.playerId ?: -1)
+            tiles = tiles * 31 + (tile.cCapturing?.turns ?: -1)
+
+            val owner = tile.cPlayerId?.playerId ?: -1
+            tilesByOwner[owner] = (tilesByOwner[owner] ?: 0) + 1
+        }
+
+        val owners = tilesByOwner.entries.sortedBy { it.key }
+            .joinToString(",") { "${it.key}=${it.value}" }
+
+        return "turn=${turnManager.currentPlayer.id} " +
+                "players[$playerText] t=$tiles/${field.allTiles.size} o=$owners " +
+                "units[$unitText] u=$units/${unitList.size}"
+    }
 
     lateinit var localPlayer: Player
 

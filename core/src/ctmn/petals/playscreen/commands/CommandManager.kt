@@ -3,6 +3,7 @@ package ctmn.petals.playscreen.commands
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Queue
 import ctmn.petals.sim.Battle
+import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.logErr
 
 class CommandManager(val battle: Battle) {
@@ -69,6 +70,14 @@ class CommandManager(val battle: Battle) {
             onCommand?.invoke(command)
 
             battle.fireEvent(ctmn.petals.playscreen.events.CommandExecutedEvent(command))
+
+            // The fingerprint of the state after this command, so two machines' logs can be put
+            // side by side and the first command that applied differently stands out. Verbose, so
+            // a normal run pays nothing for it.
+            GameLog.verbose(
+                "StateHash",
+                "${battle.gameStateId} ${battle.stateHashReport()} <- ${command.javaClass.simpleName}"
+            )
         } else {
             Gdx.app.log(javaClass.simpleName, "Command execute failure: ${command.javaClass.simpleName}")
             if (command.fromServer) onServerCommandFailed?.invoke(command)
