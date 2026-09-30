@@ -2,7 +2,6 @@ package ctmn.petals.multiplayer
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Array
-import ctmn.petals.Config
 import ctmn.petals.GamePref
 import ctmn.petals.map.createMapFromJson
 import ctmn.petals.net.ServerClient
@@ -20,6 +19,7 @@ import ctmn.petals.playscreen.commands.AttackCommand
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandAddedEvent
 import ctmn.petals.playscreen.events.CommandExecutedEvent
+import ctmn.petals.playscreen.events.NextTurnEvent
 import ctmn.petals.playscreen.commands.MoveUnitCommand
 import ctmn.petals.playscreen.commands.TryMoveCommand
 import ctmn.petals.playscreen.commands.UseAbilityCommand
@@ -28,7 +28,6 @@ import ctmn.petals.playstage.getUnitsOfPlayer
 import ctmn.petals.screens.PlayScreenTemplate
 import ctmn.petals.sim.FogOfWar
 import ctmn.petals.unit.UnitActor
-import ctmn.petals.unit.actionPoints
 import ctmn.petals.utils.GameLog
 import ctmn.petals.utils.fromGson
 import ctmn.petals.utils.toGson
@@ -94,6 +93,13 @@ class OnlinePlayScreen(
      * commands asks once instead of once per command.
      */
     private var askedForSnapshot = false
+
+    /**
+     * Units with a command on its way to the server. Held until the answer arrives, so a unit
+     * cannot be ordered twice in the same round trip. Bookkeeping on this side only: the state is
+     * never touched.
+     */
+    private val unitsAwaitingServer = HashSet<String>()
 
     private val pendingCommands = ArrayList<MatchCommandBroadcast>()
 
@@ -283,6 +289,7 @@ class OnlinePlayScreen(
             // otherwise find nothing to compare against and ask for a snapshot it does not need.
             streamStateId = snapshot.stateId
             askedForSnapshot = false
+            releaseAllUnits()
 
             pendingSnapshot = snapshot
             snapshotApplied = false
@@ -299,6 +306,9 @@ class OnlinePlayScreen(
         override fun onCommandRejected(rejected: CommandRejected) {
             if (!current) return
             onUi {
+                // Whatever we were holding is not going to be applied, so let it go. The server
+                // sends a fresh state with a rejection anyway.
+                releaseAllUnits()
                 guiStage.addNotifyWindow(rejected.reason.ifBlank { "Command rejected" }, "Server")
             }
         }
@@ -328,6 +338,7 @@ class OnlinePlayScreen(
             if (!current) return
             onUi {
                 if (isGameOver || leaving) return@onUi
+                releaseAllUnits()
                 guiStage.addNotifyWindow("Connection lost, reconnecting ...", "Multiplayer")
                 scheduleReconnect()
             }
@@ -484,6 +495,9 @@ class OnlinePlayScreen(
      * move, so both sides animate the same result.
      */
     override fun commitMove(unit: UnitActor, tileX: Int, tileY: Int): Boolean {
+        // A unit with a command already on its way cannot act again until the answer arrives.
+        if (unit.stageName in unitsAwaitingServer) return false
+
         if (!match.fogOfWar) return super.commitMove(unit, tileX, tileY)
 
         val command = MoveUnitCommand(unit, tileX, tileY)
@@ -512,16 +526,22 @@ class OnlinePlayScreen(
     }
 
     /**
-     * A command that draws random numbers is the server's to run, not ours.
+     * A command whose outcome is the server's to decide is the server's to run, not ours.
      *
-     * Running it here would roll our own damage and deaths, which is how the two sides drifted:
+     * Running it here would decide our own damage and deaths, which is how the two sides drifted:
      * the server applied one outcome and every client another, so a unit could die on one screen
-     * and live on the other. Sending it instead keeps a single roll. It comes back in the command
-     * stream with the server's numbers attached and is applied then, so the animation plays the
-     * same outcome everybody else sees. Deterministic commands still run locally as before.
+     * and live on the other. It is sent instead, and applied when it comes back in the command
+     * stream with the server's decision attached, so the animation plays the outcome everybody
+     * else sees. Deterministic commands still run locally as before.
      */
     override fun queueCommand(command: Command, playerId: Int?): Boolean {
         if (!command.serverDecides) return super.queueCommand(command, playerId)
+
+        val unitId = unitIdOf(command) ?: return false
+
+        // One command at a time for a unit. Two in the same round trip would spend the same action
+        // points twice, and the second would be refused by the server.
+        if (unitId in unitsAwaitingServer) return false
 
         if (!command.canExecute(this)) return false
 
@@ -539,30 +559,30 @@ class OnlinePlayScreen(
             commandJson = command.toGson(),
         )
 
-        spendPredictedActionPoints(command)
+        unitsAwaitingServer.add(unitId)
         return true
     }
 
     /**
-     * Spends the action points a sent command will cost, so the unit cannot be ordered to do
-     * something else while the server's answer is on its way. Without this a player who attacked
-     * and then moved in the same breath had the move refused, because our copy of the unit still
-     * had its points.
+     * The unit a sent command acts with, so the screen can hold it until the server has answered.
      *
-     * Only the cost is applied here, never the damage: the cost is a constant, the damage is the
-     * server's to roll. A command the server ends up refusing is repaired by the snapshot that
-     * comes with the rejection.
+     * Holding it is bookkeeping on this side only. Spending its action points as a prediction to
+     * achieve the same thing was worse: the client then refused the very command it had sent,
+     * because the points its check wanted were already gone.
      */
-    private fun spendPredictedActionPoints(command: Command) {
-        val unitId = when (command) {
-            is AttackCommand -> command.attackerUnitId
-            is UseAbilityCommand -> command.unitCasterId
-            else -> return
-        }
+    private fun unitIdOf(command: Command): String? = when (command) {
+        is AttackCommand -> command.attackerUnitId
+        is UseAbilityCommand -> command.unitCasterId
+        else -> null
+    }
 
-        val unit = field.findUnit(unitId) ?: return
-        unit.actionPoints -= if (command is AttackCommand) Config.ACTION_POINTS_ATTACK
-        else Config.ACTION_POINTS_ABILITY
+    private fun releaseUnit(command: Command) {
+        unitIdOf(command)?.let { unitsAwaitingServer.remove(it) }
+    }
+
+    /** Lets every held unit go, for a state the server has just described or refused. */
+    private fun releaseAllUnits() {
+        unitsAwaitingServer.clear()
     }
 
     override fun show() {
@@ -614,6 +634,10 @@ class OnlinePlayScreen(
         // Send every command this player executes to the server.
         guiStage.addListener {
             when (it) {
+                // A turn boundary is the natural place to let held units go: whatever the server
+                // did with a command we sent, the turn moving on means it is no longer in flight.
+                is NextTurnEvent -> releaseAllUnits()
+
                 // The state a command is built against has to be remembered before the local
                 // execution bumps the counter, otherwise the server sees it one ahead.
                 is CommandAddedEvent -> if (it.command.playerId == localPlayer.id && !it.command.fromServer) {
@@ -622,6 +646,10 @@ class OnlinePlayScreen(
 
                 is CommandExecutedEvent -> {
                     val command = it.command
+
+                    // The answer to a held command, whichever side it came from.
+                    if (command.fromServer) releaseUnit(command)
+
                     if (command.playerId == localPlayer.id && !command.fromServer) {
                         val expectedStateId = commandStateIds.remove(command) ?: gameStateId - 1
 
