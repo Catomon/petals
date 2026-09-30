@@ -496,12 +496,25 @@ class OnlinePlayScreen(
      */
     override fun commitMove(unit: UnitActor, tileX: Int, tileY: Int): Boolean {
         // A unit with a command already on its way cannot act again until the answer arrives.
-        if (unit.stageName in unitsAwaitingServer) return false
+        if (unit.stageName in unitsAwaitingServer) {
+            GameLog.info(
+                "OnlinePlayScreen",
+                "ignored move for ${unit.stageName}: its command is still with the server"
+            )
+            return false
+        }
 
         if (!match.fogOfWar) return super.commitMove(unit, tileX, tileY)
 
         val command = MoveUnitCommand(unit, tileX, tileY)
-        if (!command.canExecute(this)) return false
+        if (!command.canExecute(this)) {
+            // Said out loud, because a refused move otherwise looks like a click that did nothing.
+            GameLog.info(
+                "OnlinePlayScreen",
+                "refused move for ${unit.stageName} to $tileX,$tileY: ${command.explainFailure(this)}"
+            )
+            return false
+        }
 
         val visibility = FogOfWar.compute(field, turnManager.players, localPlayer)
         val path = field.findMovePath(unit, tileX, tileY)

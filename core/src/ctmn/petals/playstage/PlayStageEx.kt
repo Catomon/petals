@@ -365,12 +365,12 @@ fun BattleField.getMovementGrid(
  * A Dijkstra would count cost where the grid counts steps, and the two disagree as soon as
  * enemies stand near the route, which is precisely the case this exists for.
  */
-private class MoveSearch(
+internal class MoveSearch(
     val reached: Set<Pair<Int, Int>>,
     val parent: Map<Pair<Int, Int>, Pair<Int, Int>>,
 )
 
-private fun BattleField.searchMoves(unit: UnitActor): MoveSearch {
+internal fun BattleField.searchMoves(unit: UnitActor): MoveSearch {
     val budget = unit.movingRange
     val props = unit.cTerrainProps ?: TerrainPropsPack.foot
 
@@ -428,7 +428,15 @@ private fun BattleField.searchMoves(unit: UnitActor): MoveSearch {
                     }
                     if (extendArea[nextX][nextY] < reach) {
                         extendArea[nextX][nextY] = reach
-                        parent[nextX to nextY] = x to y
+
+                        // The parent is set once, on the first round that reaches a tile.
+                        //
+                        // It used to be rewritten whenever a later round found a better reach, and
+                        // reach is not monotonic: the near enemy bonus below can raise it, so two
+                        // neighbouring tiles could end up as each other's parent. Walking that back
+                        // to the unit never finished, which froze the whole game on a move. One
+                        // parent per tile makes the parents a tree, and a tree cannot cycle.
+                        if (parent[nextX to nextY] == null) parent[nextX to nextY] = x to y
                     }
                 }
             }
@@ -470,8 +478,14 @@ fun BattleField.findMovePath(unit: UnitActor, destX: Int, destY: Int): List<Pair
     if (!search.reached.contains(dest)) return null
 
     val route = ArrayList<Pair<Int, Int>>()
+    val seen = HashSet<Pair<Int, Int>>()
     var step = dest
     while (step.first != unit.tiledX || step.second != unit.tiledY) {
+        // A parent chain that revisits a tile would loop forever, and an infinite loop here
+        // freezes the game, so it is not left to the parent map being well formed. Reporting no
+        // route costs only an optimistic move: the move is sent to the server instead.
+        if (!seen.add(step)) return null
+
         route.add(step)
         step = search.parent[step] ?: return null
     }

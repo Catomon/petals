@@ -11,8 +11,11 @@ import ctmn.petals.sim.decideAttack
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.actionPoints
 import ctmn.petals.unit.canAttackNow
+import ctmn.petals.unit.inAttackRange
 import ctmn.petals.unit.isAlly
 import ctmn.petals.unit.playerId
+import ctmn.petals.unit.tiledX
+import ctmn.petals.unit.tiledY
 
 class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Command() {
 
@@ -27,6 +30,23 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
 
     /** Damage, misses and crits are the server's to decide. */
     override val serverDecides: Boolean get() = true
+
+    override fun explainFailure(battle: Battle): String? {
+        val attackerUnit = battle.field.findUnit(attackerUnitId)
+            ?: return "no unit '$attackerUnitId' on the field"
+        val targetUnit = battle.field.findUnit(targetUnitId)
+            ?: return "no unit '$targetUnitId' on the field"
+
+        if (attackerUnit.isAlly(targetUnit)) return "the two units are on the same side"
+        if (attackerUnit.actionPoints < Config.ACTION_POINTS_ATTACK_MIN)
+            return "unit $attackerUnitId has ${attackerUnit.actionPoints} action points left"
+        if (!attackerUnit.inAttackRange(targetUnit.tiledX, targetUnit.tiledY))
+            return "unit $targetUnitId is out of range of $attackerUnitId"
+        if (!attackerUnit.canAttackNow(targetUnit))
+            return "unit $attackerUnitId cannot attack $targetUnitId"
+
+        return null
+    }
 
     override fun canExecute(battle: Battle): Boolean {
         val attackerUnit: UnitActor = battle.field.findUnit(attackerUnitId) ?: let {
