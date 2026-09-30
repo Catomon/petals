@@ -273,6 +273,10 @@ fun BattleField.getMovementGrid(
         val extendArea = kotlin.Array(moveCostGrid.size) { IntArray(moveCostGrid[0].size) }
         // presenceCost: every non ally standing next to the tile being entered adds one to the
         // cost of that tile, so a unit can afford one step but keeps no budget left.
+        //
+        // The value below is the budget LEFT after stepping, not a cost, so the cost is paid by
+        // subtracting from it. Adding instead made moving next to enemies cheaper and widened a
+        // unit's range there, which is the reverse of the mechanic; it was "fixed" that way once.
         for (i in moveCostGrid.indices) {
             for (j in moveCostGrid[0].indices) {
                 if (moveGrid[i][j] > 1) {
@@ -282,7 +286,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i + 1][j]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i + 1, j).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost + unitsAround.size)
+                                extendCost = max(1, extendCost - unitsAround.size)
                             }
                             extendArea[i + 1][j] = extendCost
                         }
@@ -296,7 +300,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i][j + 1]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i, j + 1).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost + unitsAround.size)
+                                extendCost = max(1, extendCost - unitsAround.size)
                             }
                             extendArea[i][j + 1] = extendCost
                         }
@@ -310,7 +314,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i - 1][j]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i - 1, j).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost + unitsAround.size)
+                                extendCost = max(1, extendCost - unitsAround.size)
                             }
                             extendArea[i - 1][j] = extendCost
                         }
@@ -324,7 +328,7 @@ fun BattleField.getMovementGrid(
                             var extendCost = moveGrid[i][j] - 1 - moveCostGrid[i][j - 1]
                             if (extendCost > 1 && presenceCost && forUnit != null) {
                                 val unitsAround = getSurroundingUnits(i, j - 1).filter { !it.isAlly(forUnit) }
-                                extendCost = max(1, extendCost + unitsAround.size)
+                                extendCost = max(1, extendCost - unitsAround.size)
                             }
                             extendArea[i][j - 1] = extendCost
                         }
@@ -422,9 +426,13 @@ internal fun BattleField.searchMoves(unit: UnitActor): MoveSearch {
 
                     var reach = remaining[x][y] - 1 - entryCost[nextX][nextY]
                     if (reach > 1) {
+                        // Same rule as the movement grid, and the same sign: reach is the budget
+                        // left, so company near the tile being entered costs budget rather than
+                        // granting it. The two must agree, or a move would be judged optimistic
+                        // here and refused by the server.
                         val company = getSurroundingUnits(nextX, nextY)
                             .count { it != unit && !it.isAlly(unit) }
-                        reach = max(1, reach + company)
+                        reach = max(1, reach - company)
                     }
                     if (extendArea[nextX][nextY] < reach) {
                         extendArea[nextX][nextY] = reach
