@@ -41,7 +41,6 @@ class ProfileStage(private val menuScreen: MenuScreen) :
         }
     }
 
-    private val returnButton = newTextButton(strings.general.return_)
     private val confirmButton = newTextButton(strings.general.confirm)
 
     private val table = VisTable()
@@ -51,10 +50,7 @@ class ProfileStage(private val menuScreen: MenuScreen) :
         nameField.text = GamePref.displayName
         speciesBox.selected = GamePref.species
 
-        // Both buttons apply. There are only two fields here, so a Return that silently threw
-        // away a typed name is the wrong default; losing the edit is exactly what a profile
-        // screen must not do.
-        returnButton.addChangeListener { applyProfile() }
+        // One button: it saves and returns. Two buttons that both did that was one too many.
         confirmButton.addChangeListener { applyProfile() }
 
         table.setFillParent(true)
@@ -74,10 +70,7 @@ class ProfileStage(private val menuScreen: MenuScreen) :
                 add(speciesBox).width(200f)
             }).padTop(8f).row()
 
-            add(VisTable().apply {
-                add(returnButton).width(140f).padRight(6f)
-                add(confirmButton).width(140f)
-            }).padTop(20f)
+            add(confirmButton).width(160f).padTop(20f)
         }
 
         addActor(table)
