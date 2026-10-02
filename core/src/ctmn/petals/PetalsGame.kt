@@ -118,6 +118,10 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: R
     }
 
     override fun dispose() {
+        // The room a LAN host runs lives in this process, so close it before the window goes,
+        // or its threads would keep the process alive after the window is gone.
+        ctmn.petals.net.LanHost.stop()
+
         if (Config.IS_DESKTOP)
             stopDiscordRich()
 

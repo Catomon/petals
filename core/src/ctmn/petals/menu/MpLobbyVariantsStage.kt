@@ -11,12 +11,16 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.screens.MenuScreen
-import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.TimeAction
-import ctmn.petals.multiplayer.client.GameClient
+import ctmn.petals.Config
+import ctmn.petals.GamePref
+import ctmn.petals.net.LanHost
+import ctmn.petals.net.ServerClient
+import ctmn.petals.net.proto.Welcome
 import ctmn.petals.strings
 import ctmn.petals.utils.closeJmDNS
 import ctmn.petals.utils.startJmDNSAsClient
+import ctmn.petals.utils.startJmDNSAsServer
 import ctmn.petals.widgets.*
 
 class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
@@ -123,29 +127,14 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
             menuScreen.stage = menuScreen.botGameSetupStage
         }
 
+        // Hosting a room starts a real server inside this game. Everything after that is the same
+        // path the online flow takes: ServerLobbySetupStage, then OnlinePlayScreen.
         serverLobbyButton.addChangeListener {
-            val loadingCover = LoadingCover()
-            addActor(loadingCover)
-
-            addAction(TimeAction {
-                if (it < 0.1f) return@TimeAction false
-
-                Gdx.app.postRunnable {
-                    val serverLobby = CustomGameSetupStage(menuScreen, CustomGameSetupStage.LobbyType.SERVER)
-
-                    loadingCover.done()
-                    loadingCover.remove()
-                    serverLobby.addActor(loadingCover)
-
-                    menuScreen.stage = serverLobby
-                }
-
-                true
-            })
+            hostLan()
         }
 
         serverSearchButton.addChangeListener {
-            searchServer()
+            searchLan()
         }
 
         serverConnectButton.addChangeListener {
@@ -173,91 +162,128 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
         }
     }
 
-    private fun searchServer() {
+    /**
+     * Opens a room on this machine. The room is a normal server, so the host joins it the same way
+     * anybody else would; only the address is local.
+     */
+    private fun hostLan() {
+        val started = runCatching { LanHost.start() }
+        if (started.isFailure) {
+            addActor(newNotifyWindow("LAN port ${Config.LAN_PORT} is busy.", "LAN"))
+            return
+        }
+
+        // Advertise the room so a joiner can find it without typing an address.
+        startJmDNSAsServer { ok ->
+            if (!ok) Gdx.app.log(javaClass.simpleName, "The room is up, but discovery failed.")
+        }
+
+        val host = "localhost"
+        val client = ServerClient()
+
+        client.listener = object : ServerClient.Listener {
+            override fun onWelcome(welcome: Welcome) {
+                onUi {
+                    menuScreen.stage = ServerLobbySetupStage(
+                        menuScreen = menuScreen,
+                        client = client,
+                        serverHost = host,
+                        serverPort = Config.LAN_PORT,
+                        serverMaps = welcome.mapIds.toList(),
+                        lobbyId = null,
+                    ).apply {
+                        onLeave = {
+                            LanHost.stop()
+                            closeJmDNS()
+                            menuScreen.stage = this@MpLobbyVariantsStage
+                        }
+                    }
+                }
+            }
+
+            override fun onConnectFailed(cause: Throwable?) {
+                onUi {
+                    client.close()
+                    LanHost.stop()
+                    addActor(newNotifyWindow("Could not start the LAN room.", "LAN"))
+                }
+            }
+        }
+
+        client.connect(host, Config.LAN_PORT, GamePref.clientId, GamePref.displayName)
+    }
+
+    /** Looks for a room on the local network and opens the browser on it. */
+    private fun searchLan() {
         serverSearchButton.isDisabled = true
 
         val loadingCover = LoadingCover(strings.general.connecting)
         addActor(loadingCover)
-
-
-
         loadingCover.setLabelText(strings.general.looking_for_server)
 
-        startJmDNSAsClient { result ->
-            if (result) {
-                this@MpLobbyVariantsStage.addAction(OneAction {
-                    serverSearchButton.actions.clear()
-                    serverSearchButton.isDisabled = false
+        var finished = false
 
-                    closeJmDNS()
+        fun finish(host: String?) {
+            if (finished) return
+            finished = true
 
-                    menuScreen.stage =
-                        CustomGameSetupStage(menuScreen, CustomGameSetupStage.LobbyType.CLIENT)
+            serverSearchButton.clearActions()
+            serverSearchButton.isDisabled = false
+            closeJmDNS()
+            loadingCover.done()
+            loadingCover.remove()
 
-                    loadingCover.done()
-                    loadingCover.remove()
-                    menuScreen.stage.addActor(loadingCover)
-                })
-            } else {
-                Gdx.app.log(javaClass.simpleName, "Unable to start JmDNS.")
-
-                serverSearchButton.clearActions()
-                serverSearchButton.isDisabled = false
-
-                addActor(
-                    newNotifyWindow(
-                        "Unable to start JmDNS.\n${strings.general.check_your_network_connection}",
-                        strings.general.connect
-                    )
-                )
-
-                loadingCover.done()
-            }
+            if (host == null)
+                addActor(newNotifyWindow(strings.general.no_local_servers_found, strings.general.connect))
+            else
+                connectLan(host)
         }
 
-        // close jmdns after 5 secs
+        startJmDNSAsClient { host -> onUi { finish(host) } }
+
+        // Give up after a few seconds, the same as before.
         serverSearchButton.addAction(TimeAction {
-            if (it > 5f) {
-                closeJmDNS()
+            if (it < 5f) return@TimeAction false
 
-                serverSearchButton.isDisabled = false
-
-                addActor(newNotifyWindow(strings.general.no_local_servers_found, strings.general.connect))
-
-                loadingCover.done()
-
-                return@TimeAction true
-            }
-            return@TimeAction false
+            onUi { finish(null) }
+            true
         })
     }
 
+    /** Connects to the address in the field and opens the browser on it. */
     private fun serverConnect() {
-        serverConnectButton.isDisabled = true
+        connectLan(ipTextField.text.ifEmpty { "localhost" })
+    }
 
-        val loadingCover = LoadingCover(strings.general.connecting)
-        addActor(loadingCover)
+    /**
+     * Opens the lobby browser on a room on the network. The browser is the online one, pointed at
+     * this address instead of the dedicated server, so there is nothing LAN specific behind it.
+     */
+    private fun connectLan(host: String) {
+        val client = ServerClient()
 
-        GameClient.ConnectionData.host = ipTextField.text.ifEmpty { "localhost" }
+        client.listener = object : ServerClient.Listener {
+            override fun onWelcome(welcome: Welcome) {
+                onUi {
+                    menuScreen.lobbiesStage.onLeave = { menuScreen.stage = this@MpLobbyVariantsStage }
+                    menuScreen.stage = menuScreen.lobbiesStage.connect(client, host, Config.LAN_PORT, welcome)
+                }
+            }
 
-        try {
-            menuScreen.stage =
-                CustomGameSetupStage(menuScreen, CustomGameSetupStage.LobbyType.CLIENT)
-
-            loadingCover.done()
-            loadingCover.remove()
-            menuScreen.stage.addActor(loadingCover)
-        } catch (e: Exception) {
-            addActor(
-                newNotifyWindow(
-                    e.localizedMessage,
-                    strings.general.connect
-                )
-            )
-        } finally {
-            serverConnectButton.isDisabled = false
-            loadingCover.done()
+            override fun onConnectFailed(cause: Throwable?) {
+                onUi {
+                    client.close()
+                    addActor(newNotifyWindow("No LAN room at $host.", "LAN"))
+                }
+            }
         }
+
+        client.connect(host, Config.LAN_PORT, GamePref.clientId, GamePref.displayName)
+    }
+
+    /** Network and discovery callbacks arrive on other threads, so hop back to the render thread. */
+    private fun onUi(block: () -> Unit) {
+        Gdx.app.postRunnable(block)
     }
 
     override fun addActor(actor: Actor?) {

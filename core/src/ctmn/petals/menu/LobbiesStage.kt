@@ -290,11 +290,20 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         client?.queueJoin()
     }
 
+    /**
+     * Where Return goes. The online browser goes back to the menu; a LAN visit sets this to the
+     * LAN screen, so leaving a room on the network does not drop the player into the online menu.
+     */
+    var onLeave: (() -> Unit)? = null
+
     private fun leave() {
         client?.close()
         client = null
         connected = false
-        menuScreen.stage = menuScreen.menuStage
+
+        val leaveTo = onLeave
+        onLeave = null
+        if (leaveTo != null) leaveTo() else menuScreen.stage = menuScreen.menuStage
     }
 
     private fun onServerGone() {

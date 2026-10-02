@@ -2,7 +2,6 @@ package ctmn.petals.utils
 
 import com.badlogic.gdx.Gdx
 import ctmn.petals.Config
-import ctmn.petals.multiplayer.client.GameClient
 import java.net.SocketException
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceEvent
@@ -50,14 +49,20 @@ fun startJmDNSAsServer(resultListener: (Boolean) -> Unit) {
     }.start()
 }
 
-fun startJmDNSAsClient(resultListener: (Boolean) -> Unit) {
+/**
+ * Looks for a room hosted on the local network. [resultListener] gets the address of the first
+ * room found, or null when discovery could not start at all.
+ *
+ * Rooms listen on [Config.LAN_PORT], so the address is all the browser needs.
+ */
+fun startJmDNSAsClient(resultListener: (String?) -> Unit) {
     Thread {
         try {
         createJmDNS()
         } catch (e: SocketException) {
             e.printStackTrace()
 
-            resultListener(false)
+            resultListener(null)
 
             return@Thread
         }
@@ -72,17 +77,13 @@ fun startJmDNSAsClient(resultListener: (Boolean) -> Unit) {
             override fun serviceRemoved(event: ServiceEvent?) {}
 
             override fun serviceResolved(event: ServiceEvent) {
-                if (event.name == Config.SERVICE_NAME) {
-                    GameClient.ConnectionData.host =
-                        event.info.inetAddresses.firstOrNull()?.hostAddress ?: return
-                    // Follow the advertised port rather than assuming the default one, so a room
-                    // that had to move off the LAN port is still reachable.
-                    GameClient.ConnectionData.port = event.info.port
+                if (event.name != Config.SERVICE_NAME) return
 
-                    Gdx.app.log("JmDNS", "Local server found: ${GameClient.ConnectionData.host}")
+                val host = event.info.inetAddresses.firstOrNull()?.hostAddress ?: return
 
-                    resultListener(true)
-                }
+                Gdx.app.log("JmDNS", "Local server found: $host")
+
+                resultListener(host)
             }
         })
     }.start()

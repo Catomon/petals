@@ -523,13 +523,21 @@ class ServerLobbySetupStage(
     }
 
     /**
+     * Where the screen goes when the lobby is left. Defaults to the online lobby browser; a LAN
+     * host sets it to its own screen so the room it runs can be stopped on the way out.
+     */
+    var onLeave: (() -> Unit)? = null
+
+    /**
      * Dropped into the browser when this screen hands the connection over, so leaving a lobby
      * returns to the list rather than the connect form.
      */
     fun onLeftLobby() {
         inLobby = false
         leaving = true
-        menuScreen.stage = menuScreen.lobbiesStage
+
+        val leaveTo = onLeave
+        if (leaveTo != null) leaveTo() else menuScreen.stage = menuScreen.lobbiesStage
     }
 
     /** Network callbacks arrive on netty threads, so hop back to the render thread. */
