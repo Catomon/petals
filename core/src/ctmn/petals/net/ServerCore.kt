@@ -478,6 +478,14 @@ class ServerCore(val config: ServerConfig) {
             sendError(connection, "", "The host banned you from that lobby")
             return
         }
+
+        // Closed means private. The browser leaves the button out, but the server is the one
+        // that decides, so a closed lobby cannot be walked into from a stale list or a stale
+        // screen either.
+        if (!lobby.listed && lobby.members.none { it.clientId == connection.clientId }) {
+            sendError(connection, "", "That lobby is closed")
+            return
+        }
         if (lobby.members.size + lobby.botCount >= lobby.maxPlayers) {
             sendError(connection, "", "Lobby is full")
             return
