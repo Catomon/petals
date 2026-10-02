@@ -23,6 +23,7 @@ object Msg {
     const val JOIN_LOBBY = "join_lobby"
     const val LEAVE_LOBBY = "leave_lobby"
     const val MOVE_SEAT = "move_seat"
+    const val SET_SPECIES = "set_species"
     const val KICK = "kick"
     const val KICKED = "kicked"
     const val LOBBY_CLOSED = "lobby_closed"
@@ -102,6 +103,11 @@ class LobbyMember {
 class MoveSeat {
     /** The seat the player wants, 0 based. */
     var slot: Int = -1
+}
+
+/** A player changing their own species while in a lobby. */
+class SetSpecies {
+    var species: String = ""
 }
 
 /**

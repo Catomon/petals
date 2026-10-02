@@ -289,6 +289,7 @@ class ServerCore(val config: ServerConfig) {
             Msg.JOIN_LOBBY -> onJoinLobby(connection, fromGson(envelope.payload, JoinLobby::class.java))
             Msg.LEAVE_LOBBY -> onLeaveLobby(connection)
             Msg.MOVE_SEAT -> onMoveSeat(connection, fromGson(envelope.payload, MoveSeat::class.java))
+            Msg.SET_SPECIES -> onSetSpecies(connection, fromGson(envelope.payload, SetSpecies::class.java))
             Msg.KICK -> onKick(connection, fromGson(envelope.payload, Kick::class.java))
             Msg.READY -> onReady(connection, fromGson(envelope.payload, Ready::class.java))
             Msg.START -> onStart(connection)
@@ -537,6 +538,25 @@ class ServerCore(val config: ServerConfig) {
 
         broadcastLobby(lobby)
         broadcastLobbyList()
+    }
+
+    /**
+     * A player changing their own species while in a lobby.
+     *
+     * The arranged seat is updated as well, because the arranged species is what wins when the
+     * state is broadcast; without that the host's next arrangement would undo the change.
+     */
+    private fun onSetSpecies(connection: ClientConnection, request: SetSpecies) {
+        if (request.species !in Species.names) return
+
+        connection.species = request.species
+
+        val lobby = connection.lobbyId?.let { lobbies[it] } ?: return
+        if (lobby.inGame) return
+
+        lobby.seatsByClient.get(connection.clientId)?.species = request.species
+
+        broadcastLobby(lobby)
     }
 
     /**

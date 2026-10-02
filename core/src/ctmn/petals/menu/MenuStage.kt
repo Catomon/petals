@@ -47,7 +47,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
     private val quickPlayButton = newTextButton(strings.general.quickplay)
     private val vsPlayerButton = newTextButton(strings.general.vsPlayer)
     private val vsBotButton = newTextButton(strings.general.vsBot)
-    private val profileButton = newTextButton(strings.general.profile).apply { isDisabled = true }
+    private val profileButton = newTextButton(strings.general.profile)
     private val editorButton = newTextButton(strings.general.editor)
     private val settingsButton = newTextButton(strings.general.settings)
     private val exitButton = newTextButton(strings.general.exit)
@@ -76,6 +76,9 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
         }
         settingsButton.addChangeListener {
             menuScreen.stage = menuScreen.settingsStage
+        }
+        profileButton.addChangeListener {
+            menuScreen.stage = menuScreen.profileStage
         }
         exitButton.addChangeListener {
             Gdx.app.exit()

@@ -121,6 +121,10 @@ class ServerClient {
 
     fun moveSeat(slot: Int) = send(Msg.MOVE_SEAT, "", MoveSeat().also { it.slot = slot })
 
+    /** Changes this player's own species while in a lobby. */
+    fun setSpecies(species: String) =
+        send(Msg.SET_SPECIES, "", SetSpecies().also { it.species = species })
+
     /** Host only. Removes a member from the lobby, and with [ban] keeps them from rejoining it. */
     fun kick(clientId: String, ban: Boolean) =
         send(Msg.KICK, "", Kick().also { it.clientId = clientId; it.ban = ban })

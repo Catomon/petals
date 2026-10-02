@@ -21,6 +21,7 @@ object GamePref {
     private const val DRAW_UNIT_ATK_RANGE = "draw_unit_attack_range"
     private const val SHOW_AI_GUI = "show_ai_gui"
     private const val DISPLAY_NAME = "display_name"
+    private const val SPECIES = "species"
 
     var prefs: Preferences = Gdx.app.getPreferences(PREF_FILE_NAME)
     val savesFolder =
@@ -110,6 +111,19 @@ object GamePref {
         get() = prefs.getString(DISPLAY_NAME, defaultDisplayName())
         set(value) {
             prefs.putString(DISPLAY_NAME, value.trim().take(24).ifBlank { defaultDisplayName() })
+        }
+
+    /**
+     * Preferred species. A lobby seats this player as this species when they join, and a match
+     * that does not otherwise say. It can still be changed inside a lobby.
+     */
+    var species: String
+        get() = prefs.getString(SPECIES, ctmn.petals.player.fairy)
+        set(value) {
+            prefs.putString(
+                SPECIES,
+                if (value in ctmn.petals.player.Species.names) value else ctmn.petals.player.fairy
+            )
         }
 
     private fun defaultDisplayName(): String = "Player" + java.util.Random().nextInt(100, 1000)

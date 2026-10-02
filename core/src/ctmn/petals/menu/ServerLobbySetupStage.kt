@@ -114,7 +114,10 @@ class ServerLobbySetupStage(
         name = GamePref.displayName.ifBlank { "Player" },
         id = 1,
         teamId = 1,
-    ).apply { clientId = GamePref.clientId }
+    ).apply {
+        clientId = GamePref.clientId
+        species = GamePref.species
+    }
 
     private val listener = object : ServerClient.Listener {
 
@@ -204,6 +207,11 @@ class ServerLobbySetupStage(
         }
         pane.onLocalSeatMoved = { slot ->
             if (!applyingRemoteState && !isHost) client.moveSeat(slot)
+        }
+        // A player may change their own species. The host changes anybody's through the whole
+        // arrangement instead, which is the same thing it always was.
+        pane.onLocalSpeciesChanged = { species ->
+            if (!applyingRemoteState && !isHost) client.setSpecies(species)
         }
         // Only the host is offered these in the pane, and the server checks again.
         pane.onPlayerKicked = { player, banned ->

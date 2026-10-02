@@ -37,6 +37,7 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     val lobbiesStage = LobbiesStage(this)
     val serverConnectStage = ServerConnectStage(this)
     val mpLobbyVariantsStage = MpLobbyVariantsStage(this)
+    val profileStage = ProfileStage(this)
     val botGameSetupStage = CustomGameSetupStage(this)
     val mapSelectionStage = MapSelectionStage(this) {}
     val settingsStage = SettingsStage(this)

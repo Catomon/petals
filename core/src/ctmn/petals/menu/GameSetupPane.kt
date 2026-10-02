@@ -19,6 +19,7 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import ctmn.petals.assets
+import ctmn.petals.GamePref
 import ctmn.petals.editor.isOutdatedVersion
 import ctmn.petals.map.MapConverted
 import ctmn.petals.map.labels
@@ -194,6 +195,12 @@ class GameSetupPane(val dialogStage: Stage) {
      * whole arrangement through [onLobbyChanged]; everybody else's seat is theirs to ask for.
      */
     var onLocalSeatMoved: ((Int) -> Unit)? = null
+
+    /**
+     * Fired when the local player changed their own species. A transport that owns the lobby (the
+     * server) is told; the host changes anybody's through [onLobbyChanged] instead.
+     */
+    var onLocalSpeciesChanged: ((String) -> Unit)? = null
 
     /**
      * Fired when the host asks to remove a player from the lobby, [banned] true meaning they may
@@ -629,19 +636,31 @@ class GameSetupPane(val dialogStage: Stage) {
                 }
             }
 
+            val isLocalSeat = slot.player === localPlayer
+
+            // The host can set anybody's species. A player can set their own, where a transport
+            // carries it.
+            val maySetSpecies = slot.player != null &&
+                    (isHost || (isLocalSeat && onLocalSpeciesChanged != null))
+
+            fun pickSpecies(species: String) {
+                val seated = slot.player ?: return
+                slot.setPlayerSpecies(species)
+
+                // Their own seat, so it is their preference from now on, and the server is told.
+                if (isLocalSeat) GamePref.species = species
+
+                if (isLocalSeat && !isHost) onLocalSpeciesChanged?.invoke(species)
+                else onLobbyChanged?.invoke()
+            }
+
             val makeGoblinButton = newTextButton(strings.general.set_goblin).addChangeListener {
-                if (slot.player != null) {
-                    slot.setPlayerSpecies(goblin)
-                    onLobbyChanged?.invoke()
-                }
+                pickSpecies(goblin)
                 close()
             }
 
             val makeFaerieButton = newTextButton(strings.general.set_faerie).addChangeListener {
-                if (slot.player != null) {
-                    slot.setPlayerSpecies(fairy)
-                    onLobbyChanged?.invoke()
-                }
+                pickSpecies(fairy)
                 close()
             }
 
@@ -691,8 +710,8 @@ class GameSetupPane(val dialogStage: Stage) {
                 add(moveHereButton)
                 row()
 
-                // Everything below taking a seat is the host's to change. A player moving
-                // themselves sees one button, which is the whole of what they may do here.
+                // Seats, bots and removals are the host's to change. A player moving themselves
+                // gets only what is theirs: a free seat or a bot's, and their own species.
                 if (isHost) {
                     for (botButton in addBotButtons) {
                         add(botButton)
@@ -702,14 +721,14 @@ class GameSetupPane(val dialogStage: Stage) {
                         add(addPlayerButton)
                         row()
                     }
-                    if (slot.player != null) {
-                        if (slot.player?.species == goblin) {
-                            add(makeFaerieButton)
-                        } else {
-                            add(makeGoblinButton)
-                        }
-                        row()
-                    }
+                }
+
+                if (maySetSpecies) {
+                    add(if (slot.player?.species == goblin) makeFaerieButton else makeGoblinButton)
+                    row()
+                }
+
+                if (isHost) {
                     add(removeButton)
                     row()
                     if (banButton.isVisible) {
