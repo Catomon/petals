@@ -23,6 +23,8 @@ object Msg {
     const val JOIN_LOBBY = "join_lobby"
     const val LEAVE_LOBBY = "leave_lobby"
     const val MOVE_SEAT = "move_seat"
+    const val KICK = "kick"
+    const val KICKED = "kicked"
     const val READY = "ready"
     const val START = "start"
     const val LOBBY_STATE = "lobby_state"
@@ -90,13 +92,34 @@ class LobbyMember {
 }
 
 /**
- * A player asking for a different seat. The host owns the arrangement, but anybody may take
- * another seat: whoever is in the way swaps with them, a bot included. Ids never change, so a
- * player keeps their colour wherever they sit.
+ * A player asking for a different seat.
+ *
+ * The host arranges anybody anywhere. Anybody else may take a seat that is free or holds a bot,
+ * so a bot swaps to where they were. A seat another player is sitting in is not theirs to take,
+ * and the server refuses it.
  */
 class MoveSeat {
     /** The seat the player wants, 0 based. */
     var slot: Int = -1
+}
+
+/**
+ * The host removing somebody from their lobby. A ban also keeps them from rejoining.
+ *
+ * The host's own seat cannot be named: the client never offers it and the server refuses it.
+ */
+class Kick {
+    /** The member to remove, by client id. */
+    var clientId: String = ""
+
+    /** True to also keep them out of this lobby, not just out of their seat. */
+    var ban: Boolean = false
+}
+
+/** Told to the player the host just removed, so their screen does not sit on a lobby they left. */
+class KickedMsg {
+    var reason: String = ""
+    var banned: Boolean = false
 }
 
 class LobbyInfo {

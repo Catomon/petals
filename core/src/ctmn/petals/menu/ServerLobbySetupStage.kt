@@ -20,6 +20,7 @@ import ctmn.petals.net.SeatingLog
 import ctmn.petals.net.proto.CreateLobby
 import ctmn.petals.net.proto.MatchSnapshot
 import ctmn.petals.net.proto.ErrorMsg
+import ctmn.petals.net.proto.KickedMsg
 import ctmn.petals.net.proto.LobbyMember
 import ctmn.petals.net.proto.LobbySeat
 import ctmn.petals.net.proto.LobbyStateMsg
@@ -160,6 +161,13 @@ class ServerLobbySetupStage(
             onUi { addNotifyWindow(error.message, "Server") }
         }
 
+        override fun onKicked(kicked: KickedMsg) {
+            onUi {
+                addNotifyWindow(kicked.reason.ifBlank { "You were removed from the lobby" }, "Lobby")
+                onLeftLobby()
+            }
+        }
+
         override fun onDisconnected() {
             onUi {
                 if (leaving || menuScreen.game.screen is OnlinePlayScreen) return@onUi
@@ -180,6 +188,10 @@ class ServerLobbySetupStage(
         }
         pane.onLocalSeatMoved = { slot ->
             if (!applyingRemoteState && !isHost) client.moveSeat(slot)
+        }
+        // Only the host is offered these in the pane, and the server checks again.
+        pane.onPlayerKicked = { player, banned ->
+            player.clientId?.let { client.kick(it, banned) }
         }
         pane.onUnplayableMap = { message -> addNotifyWindow(message, "Lobby") }
 

@@ -289,6 +289,7 @@ class ServerCore(val config: ServerConfig) {
             Msg.JOIN_LOBBY -> onJoinLobby(connection, fromGson(envelope.payload, JoinLobby::class.java))
             Msg.LEAVE_LOBBY -> onLeaveLobby(connection)
             Msg.MOVE_SEAT -> onMoveSeat(connection, fromGson(envelope.payload, MoveSeat::class.java))
+            Msg.KICK -> onKick(connection, fromGson(envelope.payload, Kick::class.java))
             Msg.READY -> onReady(connection, fromGson(envelope.payload, Ready::class.java))
             Msg.START -> onStart(connection)
             Msg.QUEUE_JOIN -> onQueueJoin(connection)
@@ -468,6 +469,10 @@ class ServerCore(val config: ServerConfig) {
             sendError(connection, "", "Lobby not found")
             return
         }
+        if (lobby.bannedClientIds.contains(connection.clientId)) {
+            sendError(connection, "", "The host banned you from that lobby")
+            return
+        }
         if (lobby.members.size + lobby.botCount >= lobby.maxPlayers) {
             sendError(connection, "", "Lobby is full")
             return
@@ -501,14 +506,27 @@ class ServerCore(val config: ServerConfig) {
     }
 
     /**
-     * A player taking a different seat. The host owns the arrangement, but anybody may move: the
-     * seat they want swaps with them, a bot included, so nobody is ever dropped and nothing is
-     * clamped back. Ids do not change, so a player keeps their colour.
+     * A player taking a different seat.
+     *
+     * The host arranges anybody anywhere. Anybody else may take a seat that is free or holds a bot,
+     * so the bot swaps to where they were: nobody is dropped and nothing is clamped back. A seat
+     * another player is sitting in is refused, which is the whole of the difference between the
+     * host and everybody else here. Ids do not change, so a player keeps their colour.
      */
     private fun onMoveSeat(connection: ClientConnection, request: MoveSeat) {
         val lobby = lobbies[connection.lobbyId] ?: return
         if (lobby.inGame) return
         if (request.slot !in 0 until SLOT_COUNT) return
+
+        if (connection !== lobby.host) {
+            val heldByAnother = lobby.members.any {
+                it !== connection && lobby.slotOf(it) == request.slot
+            }
+            if (heldByAnother) {
+                sendError(connection, "", "That seat belongs to another player")
+                return
+            }
+        }
 
         lobby.moveTo(connection, request.slot)
 
@@ -519,6 +537,43 @@ class ServerCore(val config: ServerConfig) {
 
         broadcastLobby(lobby)
         broadcastLobbyList()
+    }
+
+    /**
+     * The host removing somebody from their lobby. A ban also keeps them from rejoining it.
+     *
+     * Only the host may, only before the match starts, and never for their own seat. The removed
+     * player is told before their lobby id is cleared, so their screen can leave the room instead
+     * of sitting on a state it will never be sent again. Clearing the host's seat in the pane was
+     * not enough on its own: the member stayed, so the server seated them again on the next
+     * broadcast, which is why removing a player looked like it did nothing.
+     */
+    private fun onKick(connection: ClientConnection, request: Kick) {
+        val lobby = lobbies[connection.lobbyId] ?: return
+        if (lobby.host !== connection) {
+            sendError(connection, "", "Only the host can remove players")
+            return
+        }
+        if (lobby.inGame) return
+        if (request.clientId.isBlank() || request.clientId == connection.clientId) return
+
+        val target = lobby.members.firstOrNull { it.clientId == request.clientId } ?: return
+
+        if (request.ban) lobby.bannedClientIds.add(target.clientId)
+
+        sendTo(target, Msg.KICKED, "", KickedMsg().also {
+            it.banned = request.ban
+            it.reason = if (request.ban) "The host banned you from the lobby"
+            else "The host removed you from the lobby"
+        })
+
+        GameLog.info(
+            "ServerCore",
+            "'${connection.name}' ${if (request.ban) "banned" else "removed"} '${target.name}'" +
+                    " from '${lobby.name}'"
+        )
+
+        removeFromLobby(target)
     }
 
     /**
@@ -1378,6 +1433,12 @@ class ServerCore(val config: ServerConfig) {
          * seat the host swapped snapped back and a joiner could not be given a species.
          */
         val seatsByClient = HashMap<String, LobbySeat>()
+
+        /**
+         * Members the host has banned from this lobby, by client id. A ban lasts as long as the
+         * lobby does, and only blocks this room: they can still join any other.
+         */
+        val bannedClientIds = HashSet<String>()
 
         /** Bot seats, each with its difficulty, slot and lobby id. */
         val bots = ArrayList<BotSeat>()

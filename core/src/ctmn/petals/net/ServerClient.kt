@@ -26,6 +26,7 @@ class ServerClient {
         fun onWelcome(welcome: Welcome) {}
         fun onLobbyList(list: LobbyList) {}
         fun onLobbyState(state: LobbyStateMsg) {}
+        fun onKicked(kicked: KickedMsg) {}
         fun onQueueStatus(status: QueueStatus) {}
         fun onMatchFound(found: MatchFound) {}
         fun onMatchCommand(broadcast: MatchCommandBroadcast) {}
@@ -119,6 +120,10 @@ class ServerClient {
 
     fun moveSeat(slot: Int) = send(Msg.MOVE_SEAT, "", MoveSeat().also { it.slot = slot })
 
+    /** Host only. Removes a member from the lobby, and with [ban] keeps them from rejoining it. */
+    fun kick(clientId: String, ban: Boolean) =
+        send(Msg.KICK, "", Kick().also { it.clientId = clientId; it.ban = ban })
+
     fun ready(ready: Boolean) = send(Msg.READY, "", Ready().also { it.ready = ready })
 
     fun startMatch() = send(Msg.START, "", "")
@@ -186,6 +191,7 @@ class ServerClient {
                 Msg.WELCOME -> listener.onWelcome(fromGson(envelope.payload, Welcome::class.java))
                 Msg.LOBBY_LIST -> listener.onLobbyList(fromGson(envelope.payload, LobbyList::class.java))
                 Msg.LOBBY_STATE -> listener.onLobbyState(fromGson(envelope.payload, LobbyStateMsg::class.java))
+                Msg.KICKED -> listener.onKicked(fromGson(envelope.payload, KickedMsg::class.java))
                 Msg.QUEUE_STATUS -> listener.onQueueStatus(fromGson(envelope.payload, QueueStatus::class.java))
                 Msg.MATCH_FOUND -> listener.onMatchFound(fromGson(envelope.payload, MatchFound::class.java))
                 Msg.MATCH_COMMAND_BROADCAST -> listener.onMatchCommand(fromGson(envelope.payload, MatchCommandBroadcast::class.java))

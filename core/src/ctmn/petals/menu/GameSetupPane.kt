@@ -196,6 +196,13 @@ class GameSetupPane(val dialogStage: Stage) {
     var onLocalSeatMoved: ((Int) -> Unit)? = null
 
     /**
+     * Fired when the host asks to remove a player from the lobby, [banned] true meaning they may
+     * not come back. A transport that owns the lobby (the server) removes the member; when this is
+     * null the seat is only cleared on this screen, which is all same screen play needs.
+     */
+    var onPlayerKicked: ((Player, Boolean) -> Unit)? = null
+
+    /**
      * Whether the local player may take another seat. True where the transport carries the move,
      * which is the host's own screen and a dedicated server lobby. A peer hosted client cannot:
      * its host owns the arrangement and would only put them back.
@@ -358,6 +365,10 @@ class GameSetupPane(val dialogStage: Stage) {
         if (!isHost && !allowLocalSeatMove) return
 
         val target = slots.get(slotIndex)
+
+        // The host arranges anybody anywhere. Anybody else may take a free seat or a bot's, but a
+        // seat another player is sitting in is not theirs to take. The server refuses it too.
+        if (!isHost && target.player != null && !target.isAI) return
 
         // The local player may have no seat yet, for example on a fresh server lobby screen,
         // so this must not insist on one.
@@ -631,17 +642,41 @@ class GameSetupPane(val dialogStage: Stage) {
             }
 
             val removeButton = newTextButton(strings.general.remove).addChangeListener {
-                if (slot.player !== localPlayer && slot.player != null) {
-                    removePlayer(slot.player!!)
+                val target = slot.player
+                if (target !== localPlayer && target != null) {
+                    // A member is removed for real when a transport carries it; a bot is not a
+                    // member, it goes when the next arrangement leaves it out.
+                    if (slot.isAI || onPlayerKicked == null) removePlayer(target)
+                    else onPlayerKicked!!.invoke(target, false)
                 }
+                close()
+            }
+
+            // A ban is a removal that also keeps them from rejoining, so it only means something
+            // where a server holds the lobby, and only against another person.
+            val isOtherHuman = slot.player != null && !slot.isAI && slot.player !== localPlayer
+            val canBan = isHost && onPlayerKicked != null && isOtherHuman
+            val banButton = newTextButton("Ban").addChangeListener {
+                val target = slot.player
+                if (canBan && target != null) onPlayerKicked!!.invoke(target, true)
                 close()
             }
 
             val closeButton = newIconButton("cancel").addChangeListener { close() }
 
-            moveHereButton.isDisabled = !isHost && !allowLocalSeatMove
+            // The host arranges anybody anywhere. Anybody else may take a free seat or a bot's,
+            // never a seat another player is sitting in.
+            moveHereButton.isDisabled = when {
+                isHost -> false
+                !allowLocalSeatMove -> true
+                slot.player === localPlayer -> true
+                isOtherHuman -> true
+                else -> false
+            }
             addPlayerButton.isDisabled = !isHost || (slot.player != null && !slot.isAI) || !allowLocalPlayer
             removeButton.isDisabled = !isHost || slot.player === localPlayer
+            banButton.isVisible = canBan
+            banButton.isDisabled = !canBan
             addBotButtons.forEach { it.isDisabled = !isHost || slot.player != null }
 
             with(win) {
@@ -673,6 +708,10 @@ class GameSetupPane(val dialogStage: Stage) {
                     }
                     add(removeButton)
                     row()
+                    if (banButton.isVisible) {
+                        add(banButton)
+                        row()
+                    }
                 }
                 add(closeButton).padRight(8f).align(Align.right)
                 pack()
