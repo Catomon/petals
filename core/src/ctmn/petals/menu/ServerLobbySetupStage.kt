@@ -21,6 +21,7 @@ import ctmn.petals.net.proto.CreateLobby
 import ctmn.petals.net.proto.MatchSnapshot
 import ctmn.petals.net.proto.ErrorMsg
 import ctmn.petals.net.proto.KickedMsg
+import ctmn.petals.net.proto.LobbyClosedMsg
 import ctmn.petals.net.proto.LobbyMember
 import ctmn.petals.net.proto.LobbySeat
 import ctmn.petals.net.proto.LobbyStateMsg
@@ -52,6 +53,11 @@ class ServerLobbySetupStage(
     private val serverMaps: List<String>,
     /** Null when this screen creates a new lobby rather than opening an existing one. */
     private val lobbyId: String?,
+    /**
+     * Whether the room starts published. A dedicated server's lobby is private until the host
+     * opens it; a LAN room starts open, since everybody who can reach it is already local.
+     */
+    private val startOpen: Boolean = false,
 ) : Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val pane = GameSetupPane(this)
@@ -76,7 +82,7 @@ class ServerLobbySetupStage(
     private var inLobby = false
 
     /** Whether the lobby is currently in the browser. Mirrors what the server last told us. */
-    private var listed = false
+    private var listed = startOpen
 
     /**
      * Creating a lobby means we are the host by definition. The server confirms it later, but
@@ -158,21 +164,31 @@ class ServerLobbySetupStage(
         }
 
         override fun onError(error: ErrorMsg) {
-            onUi { addNotifyWindow(error.message, "Server") }
+            onUi {
+                // A refused join (banned, full, already playing) leaves this screen with nothing
+                // on it, so go back to the browser and say why there. An error after we are in
+                // belongs to this screen, which is still showing the lobby.
+                if (inLobby) addNotifyWindow(error.message, "Lobby")
+                else leaveToBrowser(error.message)
+            }
         }
 
         override fun onKicked(kicked: KickedMsg) {
             onUi {
-                addNotifyWindow(kicked.reason.ifBlank { "You were removed from the lobby" }, "Lobby")
-                onLeftLobby()
+                leaveToBrowser(kicked.reason.ifBlank { "You were removed from the lobby" })
+            }
+        }
+
+        override fun onLobbyClosed(closed: LobbyClosedMsg) {
+            onUi {
+                leaveToBrowser(closed.reason.ifBlank { "The host closed the lobby" })
             }
         }
 
         override fun onDisconnected() {
             onUi {
                 if (leaving || menuScreen.game.screen is OnlinePlayScreen) return@onUi
-                addNotifyWindow("Lost connection to the server", "Lobby")
-                back()
+                leaveToBrowser("Lost connection to the server")
             }
         }
     }
@@ -550,6 +566,17 @@ class ServerLobbySetupStage(
 
         val leaveTo = onLeave
         if (leaveTo != null) leaveTo() else menuScreen.stage = menuScreen.lobbiesStage
+    }
+
+    /**
+     * Returns to the browser, saying why on the screen we land on.
+     *
+     * The message has to be added after the switch: a notify added here would go with the stage we
+     * are leaving, so the player would land on an empty lobby with nothing to explain it.
+     */
+    private fun leaveToBrowser(message: String) {
+        onLeftLobby()
+        menuScreen.stage.addNotifyWindow(message, "Lobby")
     }
 
     /** Network callbacks arrive on netty threads, so hop back to the render thread. */

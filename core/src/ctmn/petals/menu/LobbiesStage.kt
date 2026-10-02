@@ -242,9 +242,17 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
             return
         }
 
+        val activeClient = client
+
+        // The connection can have dropped while a lobby screen held the listener. Without this
+        // the browser would think it was connected and sit there doing nothing.
+        if (activeClient != null && !activeClient.isConnected) {
+            onServerGone()
+            return
+        }
+
         // The setup screen borrows the client while it is open, so take the listener back and
         // catch up on anything that happened while we were away.
-        val activeClient = client
         if (activeClient != null && browserListener != null) {
             activeClient.listener = browserListener
             activeClient.listLobbies()
@@ -309,7 +317,13 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
     private fun onServerGone() {
         if (!connected) return
         connected = false
+
+        // Close it: the socket is already down, but its event loop threads are not, and they
+        // would keep the process alive after the window closes.
+        val gone = client
         client = null
+        gone?.close()
+
         statusLabel.setText("Disconnected")
         connectButton.isVisible = true
         refreshButton.isDisabled = true

@@ -191,6 +191,8 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
                         serverPort = Config.LAN_PORT,
                         serverMaps = welcome.mapIds.toList(),
                         lobbyId = null,
+                        // A LAN room is reachable only from the same network, so it starts open.
+                        startOpen = true,
                     ).apply {
                         onLeave = {
                             LanHost.stop()

@@ -25,6 +25,7 @@ object Msg {
     const val MOVE_SEAT = "move_seat"
     const val KICK = "kick"
     const val KICKED = "kicked"
+    const val LOBBY_CLOSED = "lobby_closed"
     const val READY = "ready"
     const val START = "start"
     const val LOBBY_STATE = "lobby_state"
@@ -120,6 +121,14 @@ class Kick {
 class KickedMsg {
     var reason: String = ""
     var banned: Boolean = false
+}
+
+/**
+ * Told to everybody still in a lobby when its host is gone. The room belongs to the host, so it
+ * closes with them; without this the others sat in a room nobody could arrange or start.
+ */
+class LobbyClosedMsg {
+    var reason: String = ""
 }
 
 class LobbyInfo {

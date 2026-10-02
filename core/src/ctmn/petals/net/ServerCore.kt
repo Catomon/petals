@@ -563,8 +563,8 @@ class ServerCore(val config: ServerConfig) {
 
         sendTo(target, Msg.KICKED, "", KickedMsg().also {
             it.banned = request.ban
-            it.reason = if (request.ban) "The host banned you from the lobby"
-            else "The host removed you from the lobby"
+            it.reason = if (request.ban) "You have been banned from the lobby"
+            else "You have been kicked from the lobby"
         })
 
         GameLog.info(
@@ -600,12 +600,34 @@ class ServerCore(val config: ServerConfig) {
             return
         }
 
+        // A lobby belongs to its host: without them nobody can arrange or start it, so it closes
+        // and everybody still in it is told, rather than being handed a room with no host.
+        if (lobby.host === connection) {
+            closeLobby(lobby, "The host closed the lobby")
+            return
+        }
+
         if (lobby.members.isEmpty()) {
             lobbies.remove(id)
         } else {
-            if (lobby.host === connection) lobby.host = lobby.members.first()
             broadcastLobby(lobby)
         }
+        broadcastLobbyList()
+    }
+
+    /** Closes a lobby whose host is gone, and sends everybody still in it back to the browser. */
+    private fun closeLobby(lobby: Lobby, reason: String) {
+        lobbies.remove(lobby.id)
+
+        val members = lobby.members.toList()
+        lobby.members.clear()
+
+        members.forEach { member ->
+            member.lobbyId = null
+            member.ready = false
+            sendTo(member, Msg.LOBBY_CLOSED, "", LobbyClosedMsg().also { it.reason = reason })
+        }
+
         broadcastLobbyList()
     }
 

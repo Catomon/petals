@@ -27,6 +27,7 @@ class ServerClient {
         fun onLobbyList(list: LobbyList) {}
         fun onLobbyState(state: LobbyStateMsg) {}
         fun onKicked(kicked: KickedMsg) {}
+        fun onLobbyClosed(closed: LobbyClosedMsg) {}
         fun onQueueStatus(status: QueueStatus) {}
         fun onMatchFound(found: MatchFound) {}
         fun onMatchCommand(broadcast: MatchCommandBroadcast) {}
@@ -192,6 +193,7 @@ class ServerClient {
                 Msg.LOBBY_LIST -> listener.onLobbyList(fromGson(envelope.payload, LobbyList::class.java))
                 Msg.LOBBY_STATE -> listener.onLobbyState(fromGson(envelope.payload, LobbyStateMsg::class.java))
                 Msg.KICKED -> listener.onKicked(fromGson(envelope.payload, KickedMsg::class.java))
+                Msg.LOBBY_CLOSED -> listener.onLobbyClosed(fromGson(envelope.payload, LobbyClosedMsg::class.java))
                 Msg.QUEUE_STATUS -> listener.onQueueStatus(fromGson(envelope.payload, QueueStatus::class.java))
                 Msg.MATCH_FOUND -> listener.onMatchFound(fromGson(envelope.payload, MatchFound::class.java))
                 Msg.MATCH_COMMAND_BROADCAST -> listener.onMatchCommand(fromGson(envelope.payload, MatchCommandBroadcast::class.java))

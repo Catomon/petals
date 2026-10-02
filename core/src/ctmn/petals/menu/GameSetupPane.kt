@@ -496,9 +496,13 @@ class GameSetupPane(val dialogStage: Stage) {
             addActor(button)
 
             removePlayerButton.addChangeListener {
-                val seated = player
-                if (seated == null || !isHost) return@addChangeListener
-                removePlayer(seated)
+                val seated = player ?: return@addChangeListener
+                if (!isHost) return@addChangeListener
+
+                // A member is removed for real through the transport; a bot is not a member, it
+                // goes when the next arrangement leaves it out.
+                if (isAI || onPlayerKicked == null) removePlayer(seated)
+                else onPlayerKicked!!.invoke(seated, false)
             }
 
             removePlayerButton.setPosByCenter(width - 12f, height - 9f)
