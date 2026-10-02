@@ -46,6 +46,14 @@ object Config {
     const val SERVER_PORT = 7396
 
     /**
+     * The port a peer hosted LAN room listens on. It is deliberately not [SERVER_PORT]: a
+     * dedicated server and a LAN room can be open at the same time on one machine, and when they
+     * shared a port the LAN host quietly moved to the next one while its joiner was still knocking
+     * on the dedicated server, so the room looked empty and the joiner saw itself as host.
+     */
+    const val LAN_PORT = 7397
+
+    /**
      * The dedicated server used when none is chosen: a server run on this machine. It is the
      * common case while developing, so the online flow connects here without asking for an
      * address first. A different address is still possible, it just has to be typed.

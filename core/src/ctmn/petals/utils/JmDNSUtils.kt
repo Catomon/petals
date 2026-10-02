@@ -36,10 +36,12 @@ fun startJmDNSAsServer(resultListener: (Boolean) -> Unit) {
             return@Thread
         }
 
+        // A LAN room listens on the LAN port, so that is the port to advertise. Advertising the
+        // dedicated server's port sent joiners to whichever server happened to hold it.
         val serviceInfo = ServiceInfo.create(
             Config.SERVICE_TYPE,
             Config.SERVICE_NAME,
-            Config.SERVER_PORT,
+            Config.LAN_PORT,
             Config.SERVICE_DESCRIPTION
         )
         jmdns!!.registerService(serviceInfo)
@@ -73,6 +75,9 @@ fun startJmDNSAsClient(resultListener: (Boolean) -> Unit) {
                 if (event.name == Config.SERVICE_NAME) {
                     GameClient.ConnectionData.host =
                         event.info.inetAddresses.firstOrNull()?.hostAddress ?: return
+                    // Follow the advertised port rather than assuming the default one, so a room
+                    // that had to move off the LAN port is still reachable.
+                    GameClient.ConnectionData.port = event.info.port
 
                     Gdx.app.log("JmDNS", "Local server found: ${GameClient.ConnectionData.host}")
 

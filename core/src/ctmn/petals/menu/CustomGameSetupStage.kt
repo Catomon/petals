@@ -85,8 +85,13 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private var isPrivate = false
 
     val lobbyType: LobbyType = pLobbyType
-    private val server: GameServer? = if (lobbyType == LobbyType.SERVER) GameServer().apply { run() } else null
-    private val client: GameClient? = if (lobbyType == LobbyType.CLIENT) GameClient().apply { run() } else null
+
+    // The peer hosted room lives on the LAN port, not the dedicated server's port, so both can be
+    // open on one machine. The client falls back to the next two ports, matching GameServer.
+    private val server: GameServer? =
+        if (lobbyType == LobbyType.SERVER) GameServer(Config.LAN_PORT).apply { run() } else null
+    private val client: GameClient? =
+        if (lobbyType == LobbyType.CLIENT) GameClient(port = Config.LAN_PORT).apply { run() } else null
 
     private val serverManager = LobbyServerManager()
 
@@ -328,6 +333,10 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         // Only the host's own screen and the dedicated server can carry a seat move. A peer
         // hosted client's host owns the arrangement and would only put them back.
         pane.allowLocalSeatMove = lobbyType == LobbyType.SERVER
+        // A joiner is not the host: the peer that opened the room owns the map, the settings and
+        // the arrangement, and only a host may start. This was lost when the setup UI moved into
+        // GameSetupPane, and a LAN client came back believing it was the host, with an empty room.
+        isHost = lobbyType != LobbyType.CLIENT
         pane.onLobbyChanged = {
             // Seating and settings changed, so the start gate may have moved with them. Without
             // this a lobby whose places were just filled still looked unstartable.
