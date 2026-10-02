@@ -267,8 +267,9 @@ class ServerLobbySetupStage(
 
         if (lobbyId != null) {
             // Our own species travels with the join, otherwise the host's lobby has nothing to
-            // show for us and every update rerolls it.
-            client.joinLobby(lobbyId, myPlayer.species)
+            // show for us and every update rerolls it. So does our name, in case the profile was
+            // changed after this client connected.
+            client.joinLobby(lobbyId, myPlayer.species, GamePref.displayName)
         } else {
             // Creating: sit in the first slot straight away, as the local flow does, and make the
             // lobby straight away too. It stays private until the host publishes it, so the
@@ -459,6 +460,7 @@ class ServerLobbySetupStage(
     private fun createLobby(): Boolean {
         val request = CreateLobby()
         request.name = "${GamePref.displayName}'s game"
+        request.hostName = GamePref.displayName
         request.mapId = chosenMapId ?: ""
         request.mapName = pane.map?.mapSave?.name ?: ""
         request.fogOfWar = pane.fogOfWar

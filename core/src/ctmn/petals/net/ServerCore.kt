@@ -385,6 +385,10 @@ class ServerCore(val config: ServerConfig) {
         // Hosting again means the previous match, if any, is over for this player.
         leaveCurrentMatch(connection, "'${connection.name}' went back to hosting")
 
+        // Take the name they have now, so a profile change made after connecting shows up on the
+        // seats instead of the name the hello carried at connect.
+        request.hostName.trim().take(24).takeIf { it.isNotBlank() }?.let { connection.name = it }
+
         val existing = connection.lobbyId?.let { lobbies[it] }?.takeIf { it.host === connection }
         val lobby = existing ?: run {
             if (lobbies.size >= config.maxSessions) {
@@ -484,6 +488,9 @@ class ServerCore(val config: ServerConfig) {
         }
 
         leaveCurrentMatch(connection, "'${connection.name}' went back to a lobby")
+
+        // Same as creating: the name they have now, not the one the hello carried.
+        request.name.trim().take(24).takeIf { it.isNotBlank() }?.let { connection.name = it }
 
         // Keep the species they arrived with, and give them one if they arrived with none: a
         // blank species has nothing to send, and every client would roll a new one per update.

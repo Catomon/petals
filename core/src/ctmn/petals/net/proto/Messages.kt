@@ -187,6 +187,13 @@ class LobbySeat {
 
 class CreateLobby {
     var name: String = ""
+
+    /**
+     * The host's current display name. The connection's name comes from the hello at connect, so
+     * a profile change made after connecting would otherwise not reach the seats.
+     */
+    var hostName: String = ""
+
     var mapId: String = ""
 
     /**
@@ -223,6 +230,9 @@ class CreateLobby {
 
 class JoinLobby {
     var lobbyId: String = ""
+
+    /** The joining player's current display name, for the same reason as [CreateLobby.hostName]. */
+    var name: String = ""
 
     /**
      * The joining player's own species. The server has no other way to know it, and without it the

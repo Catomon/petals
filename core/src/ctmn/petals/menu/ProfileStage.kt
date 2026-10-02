@@ -12,6 +12,7 @@ import ctmn.petals.player.fairy
 import ctmn.petals.player.goblin
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.strings
+import ctmn.petals.utils.GameLog
 import ctmn.petals.widgets.addChangeListener
 import ctmn.petals.widgets.newLabel
 import ctmn.petals.widgets.newTextButton
@@ -50,14 +51,11 @@ class ProfileStage(private val menuScreen: MenuScreen) :
         nameField.text = GamePref.displayName
         speciesBox.selected = GamePref.species
 
-        returnButton.addChangeListener { menuScreen.stage = menuScreen.menuStage }
-        confirmButton.addChangeListener {
-            GamePref.displayName = nameField.text
-            GamePref.species = speciesBox.selected
-            GamePref.save()
-
-            menuScreen.stage = menuScreen.menuStage
-        }
+        // Both buttons apply. There are only two fields here, so a Return that silently threw
+        // away a typed name is the wrong default; losing the edit is exactly what a profile
+        // screen must not do.
+        returnButton.addChangeListener { applyProfile() }
+        confirmButton.addChangeListener { applyProfile() }
 
         table.setFillParent(true)
         table.center()
@@ -86,6 +84,19 @@ class ProfileStage(private val menuScreen: MenuScreen) :
 
         windowTable.setFillParent(true)
         addActor(windowTable)
+    }
+
+    private fun applyProfile() {
+        GamePref.displayName = nameField.text
+        GamePref.species = speciesBox.selected
+        GamePref.save()
+
+        GameLog.info(
+            "ProfileStage",
+            "profile saved: name='${GamePref.displayName}' species='${GamePref.species}'"
+        )
+
+        menuScreen.stage = menuScreen.menuStage
     }
 
     override fun addActor(actor: Actor?) {
