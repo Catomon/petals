@@ -3,6 +3,7 @@ package ctmn.petals.unit.abilities
 import com.badlogic.gdx.graphics.Color
 import ctmn.petals.Config
 import ctmn.petals.effects.CreateEffect
+import ctmn.petals.hasAssets
 import ctmn.petals.playscreen.seqactions.OneSeqAction
 import ctmn.petals.sim.Battle
 import ctmn.petals.unit.*
@@ -46,10 +47,12 @@ class FireboltAbility : Ability(
         //resolve damage immediately so the state does not depend on the animation
         damageTargets()
 
-        //effect
-        val effect = ctmn.petals.effects.FireballEffect(unitCaster.centerX, unitCaster.centerY, tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2, tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
-        battle.queueSeqAction(effect)
-        battle.queueSeqAction(OneSeqAction { effect.remove() })
+        // Visual only, and it reads the atlas, so a headless battle skips it.
+        if (hasAssets) {
+            val effect = ctmn.petals.effects.FireballEffect(unitCaster.centerX, unitCaster.centerY, tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2, tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
+            battle.queueSeqAction(effect)
+            battle.queueSeqAction(OneSeqAction { effect.remove() })
+        }
 
         castTime = 0.20f
 

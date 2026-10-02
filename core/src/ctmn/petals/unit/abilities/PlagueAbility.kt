@@ -1,6 +1,7 @@
 package ctmn.petals.unit.abilities
 
 import ctmn.petals.Config
+import ctmn.petals.hasAssets
 import ctmn.petals.sim.Battle
 import ctmn.petals.unit.*
 import ctmn.petals.unit.component.BurningComponent
@@ -38,14 +39,17 @@ class PlagueAbility : Ability(
 //            }
 //        }
 
-        val effect =
-            ctmn.petals.effects.FlameAbilityEffect(activationRange, tileX, tileY, ctmn.petals.assets)
-        effect.setPosByCenter(
-            tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
-            tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
-        battle.queueSeqAction(effect)
+        // Visual only, and it reads the atlas, so a headless battle skips it.
+        if (hasAssets) {
+            val effect =
+                ctmn.petals.effects.FlameAbilityEffect(activationRange, tileX, tileY, ctmn.petals.assets)
+            effect.setPosByCenter(
+                tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
+                tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
+            battle.queueSeqAction(effect)
 
-        castTime = effect.lifeTime
+            castTime = effect.lifeTime
+        }
 
         return true
     }

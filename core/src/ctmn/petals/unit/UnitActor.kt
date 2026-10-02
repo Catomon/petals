@@ -117,8 +117,11 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
     fun setAnimation(
         animation: RegionAnimation?,
-        duration: Float = animation?.animationDuration ?: defaultAnimation.animationDuration,
+        duration: Float? = null,
     ) {
+        // Nothing here may run before the view guard: both the old default and the fallback read
+        // defaultAnimation, which a headless battle never sets. A bot that used the hammer threw
+        // on the lateinit and left the command half applied.
         if (!isViewInitialized || viewComponent !is AnimationViewComponent)
             return
         val viewComponent = viewComponent as AnimationViewComponent
@@ -126,7 +129,8 @@ open class UnitActor(pUnitComponent: UnitComponent? = null) : GameActor(), Jsona
 
         animation?.stateTime = 0f
 
-        currentAnimationDuration = duration
+        currentAnimationDuration =
+            duration ?: animation?.animationDuration ?: defaultAnimation.animationDuration
     }
 
     private var isFrozen = false

@@ -3,6 +3,7 @@ package ctmn.petals.unit.abilities
 import com.badlogic.gdx.graphics.Color
 import ctmn.petals.Config
 import ctmn.petals.effects.HealingEffect
+import ctmn.petals.hasAssets
 import ctmn.petals.playstage.getPositionsArray
 import ctmn.petals.sim.Battle
 import ctmn.petals.utils.centerX
@@ -35,13 +36,16 @@ class PersonalBarrierAbility : Ability(
             battle.showFloatingLabel("+$amount", Color.YELLOW, unit.centerX, unit.centerY)
         }
 
-        val effect = HealingEffect(getPositionsArray(actors), ctmn.petals.assets) //todo barrier effect
-        effect.setPosByCenter(
-            tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
-            tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
-        battle.queueSeqAction(effect)
+        // Visual only, and it reads the atlas, so a headless battle skips it.
+        if (hasAssets) {
+            val effect = HealingEffect(getPositionsArray(actors), ctmn.petals.assets) //todo barrier effect
+            effect.setPosByCenter(
+                tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
+                tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
+            battle.queueSeqAction(effect)
 
-        castTime = effect.lifeTime
+            castTime = effect.lifeTime
+        }
 
         return true
     }

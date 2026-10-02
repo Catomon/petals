@@ -2,6 +2,7 @@ package ctmn.petals.unit.abilities
 
 import ctmn.petals.Config
 import ctmn.petals.effects.HealingEffect
+import ctmn.petals.hasAssets
 import ctmn.petals.playstage.getPositionsArray
 import ctmn.petals.sim.Battle
 import ctmn.petals.utils.setPosByCenter
@@ -33,13 +34,16 @@ class HealingAbility : Ability(
             unit.heal(healing)
         }
 
-        val effect = HealingEffect(getPositionsArray(actors), ctmn.petals.assets)
-        effect.setPosByCenter(
-            tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
-            tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
-        battle.queueSeqAction(effect)
+        // Visual only, and it reads the atlas, so a headless battle skips it.
+        if (hasAssets) {
+            val effect = HealingEffect(getPositionsArray(actors), ctmn.petals.assets)
+            effect.setPosByCenter(
+                tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
+                tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2)
+            battle.queueSeqAction(effect)
 
-        castTime = effect.lifeTime
+            castTime = effect.lifeTime
+        }
 
         return true
     }

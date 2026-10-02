@@ -3,6 +3,7 @@ package ctmn.petals.effects
 import com.badlogic.gdx.graphics.Color
 import ctmn.petals.Config
 import ctmn.petals.assets
+import ctmn.petals.hasAssets
 import ctmn.petals.unit.UnitActor
 import com.badlogic.gdx.scenes.scene2d.Actor
 import ctmn.petals.playscreen.playStageOrNull
@@ -25,47 +26,30 @@ object Animations {
 
 object CreateEffect {
 
-    val summon get() = AnimationEffect(
-        assets.atlases.findRegions("effects/doll_summon"),
-        0.10f
-    )
-    val lightning get() = AnimationEffect(
-        assets.atlases.findRegions("effects/ability_lightning"),
-        0.2f
-    )
-    val lightningDot get() = AnimationEffect(
-        assets.atlases.findRegions("effects/ability_lightning_dot"),
-        0.2f
-    )
-    val freeze get() = AnimationEffect(
-        assets.atlases.findRegions("effects/ability_freeze"),
-        0.1f
-    )
-    val teleport get() = AnimationEffect(
-        assets.atlases.findRegions("effects/tp_puff"),
-        0.1f
-    )
-    val earthcrack get() = AnimationEffect(
-        assets.atlases.findRegions("effects/tp_puff"),
-        0.1f
-    )
-    val meteorite get() = MeteoriteEffect()
-    val fog get() = AnimationEffect(
-        assets.atlases.findRegions("effects/tp_puff"),
-        0.1f
-    )
-    val inspiration get() = AnimationEffect(
-        assets.atlases.findRegions("effects/tp_puff"),
-        0.1f
-    )
-    val exhaust get() = AnimationEffect(
-        assets.atlases.findRegions("effects/tp_puff"),
-        0.1f
-    )
-    val invisibility get() = AnimationEffect(
-        assets.atlases.findRegions("effects/tp_puff"),
-        0.1f
-    )
+    /**
+     * An effect from an atlas region.
+     *
+     * Headless there is no atlas, so this comes back as a plain effect that only carries its
+     * duration: it can sit in a battle's queue and nothing else. Abilities build their effect in
+     * `activate`, so without this a server side bot threw on the missing atlas and left the
+     * ability half applied. Timing is unchanged, since the duration is the same either way.
+     */
+    private fun effect(region: String, duration: Float): EffectActor =
+        if (hasAssets) AnimationEffect(assets.atlases.findRegions(region), duration)
+        else EffectActor().apply { lifeTime = duration }
+
+    val summon get() = effect("effects/doll_summon", 0.10f)
+    val lightning get() = effect("effects/ability_lightning", 0.2f)
+    val lightningDot get() = effect("effects/ability_lightning_dot", 0.2f)
+    val freeze get() = effect("effects/ability_freeze", 0.1f)
+    val teleport get() = effect("effects/tp_puff", 0.1f)
+    val earthcrack get() = effect("effects/tp_puff", 0.1f)
+    val meteorite get(): EffectActor =
+        if (hasAssets) MeteoriteEffect() else EffectActor().apply { lifeTime = 0.25f }
+    val fog get() = effect("effects/tp_puff", 0.1f)
+    val inspiration get() = effect("effects/tp_puff", 0.1f)
+    val exhaust get() = effect("effects/tp_puff", 0.1f)
+    val invisibility get() = effect("effects/tp_puff", 0.1f)
 
 
     fun <T: Actor> shakeActor(actor: T, power: Float, duration: Float) : T {

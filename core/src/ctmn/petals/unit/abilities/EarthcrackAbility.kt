@@ -1,6 +1,7 @@
 package ctmn.petals.unit.abilities
 
 import ctmn.petals.Config
+import ctmn.petals.hasAssets
 import ctmn.petals.sim.Battle
 import ctmn.petals.tile.TileActor
 import ctmn.petals.unit.Ability
@@ -42,15 +43,17 @@ class EarthcrackAbility : Ability(
             battle.field.addGameActor(it)
         }
 
-        //create effect
-        val effect = ctmn.petals.effects.CreateEffect.earthcrack
-        effect.setPosByCenter(
-            tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
-            tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2
-        )
-        battle.showEffect(effect)
+        // Visual only, and it reads the atlas, so a headless battle skips it.
+        if (hasAssets) {
+            val effect = ctmn.petals.effects.CreateEffect.earthcrack
+            effect.setPosByCenter(
+                tileX * Config.TILE_SIZE + Config.TILE_SIZE / 2,
+                tileY * Config.TILE_SIZE + Config.TILE_SIZE / 2
+            )
+            battle.showEffect(effect)
 
-        castTime = effect.lifeTime
+            castTime = effect.lifeTime
+        }
 
         return true
     }
