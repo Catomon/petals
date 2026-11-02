@@ -23,13 +23,12 @@ import kotlin.Array as KArray
 object FogOfWar {
 
     /**
-     * A player who owns no capturable tile: they have no vision sources at all, so fog would
-     * hide the entire map from them. That is the seat someone takes when they sit past the map's
-     * player places, and it is what spectating means here. A spectator sees everything, which
-     * applies both to what the renderer draws and to what the server is willing to send.
+     * A player with neither units nor capturable tiles: they have no vision sources at all, and
+     * are only watching. A campaign player who owns no base yet but still has units is not a
+     * spectator and must keep their fog.
      */
     fun isSpectator(field: BattleField, viewer: Player): Boolean =
-        field.getCapturablesOf(viewer).isEmpty()
+        field.getCapturablesOf(viewer).isEmpty() && field.getUnitsForTeam(viewer.teamId).isEmpty()
 
     /**
      * @return a map sized grid where a positive value means the cell is visible to [viewer].
