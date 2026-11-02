@@ -126,7 +126,7 @@ object GamePref {
             )
         }
 
-    private fun defaultDisplayName(): String = "Player" + java.util.Random().nextInt(100, 1000)
+    private fun defaultDisplayName(): String = "Player" + kotlin.random.Random.nextInt(100, 1000)
 
     var showTerrainBonus: Boolean
         get() = prefs.getBoolean("show_terrain_bonus", true)
