@@ -19,6 +19,7 @@ import ctmn.petals.tile.isOccupied
 import ctmn.petals.tile.isWaterBase
 import ctmn.petals.tile.components.BaseBuildingComponent
 import ctmn.petals.tile.components.BuildingComponent
+import ctmn.petals.tile.components.CapturingComponent
 import ctmn.petals.unit.UnitActor
 import ctmn.petals.unit.followerID
 import ctmn.petals.unit.isFollower
@@ -61,6 +62,13 @@ class BotContext(val bot: AiBot) {
     var capturables: List<TileActor> = emptyList()
         private set
 
+    /**
+     * Crystal each free worker should head to, so workers spread over different crystals
+     * instead of all dogpiling the nearest one.
+     */
+    var workerCaptureTargets: Map<String, TileActor> = emptyMap()
+        private set
+
     val workers: List<UnitActor> get() = units.filter { it.isWorker }
     val leaders: List<UnitActor> get() = units.filter { it.isLeader }
     val combatUnits: List<UnitActor> get() = units.filter { !it.isWorker }
@@ -89,6 +97,73 @@ class BotContext(val bot: AiBot) {
             it.isCrystal && it.cPlayerId?.playerId != playerId
         }
         income = player.income(battle)
+        workerCaptureTargets = assignWorkerCaptureTargets()
+    }
+
+    /**
+     * One crystal per worker. Workers already capturing or constructing are busy and keep
+     * out of the pool. Workers already standing on a crystal claim it first, then the rest
+     * are matched greedily by distance so no two workers target the same crystal.
+     */
+    private fun assignWorkerCaptureTargets(): Map<String, TileActor> {
+        val freeWorkers = workers.filterNot { isWorkerBusy(it) }
+        if (freeWorkers.isEmpty() || capturables.isEmpty()) return emptyMap()
+
+        // Crystals our own workers are already capturing stay reserved to them.
+        val reserved = workers
+            .filter { isCapturing(it) }
+            .mapNotNull { field.getTile(it.tiledX, it.tiledY) }
+            .toSet()
+
+        val available = capturables.filter { it !in reserved }
+        if (available.isEmpty()) return emptyMap()
+
+        val result = mutableMapOf<String, TileActor>()
+        val used = mutableSetOf<TileActor>()
+
+        // Workers already standing on a crystal take it first.
+        for (worker in freeWorkers) {
+            val tile = field.getTile(worker.tiledX, worker.tiledY) ?: continue
+            if (tile in available && tile !in used) {
+                result[worker.name] = tile
+                used.add(tile)
+            }
+        }
+
+        // Greedy nearest-pair matching for the rest.
+        val pairs = mutableListOf<Pair<UnitActor, TileActor>>()
+        for (worker in freeWorkers) {
+            if (worker.name in result) continue
+            for (crystal in available) {
+                if (crystal in used) continue
+                pairs.add(worker to crystal)
+            }
+        }
+        pairs.sortBy { (worker, crystal) ->
+            tiledDst(worker.tiledX, worker.tiledY, crystal.tiledX, crystal.tiledY)
+        }
+
+        val assignedWorkers = result.keys.toMutableSet()
+        for ((worker, crystal) in pairs) {
+            if (worker.name in assignedWorkers || crystal in used) continue
+            result[worker.name] = crystal
+            assignedWorkers.add(worker.name)
+            used.add(crystal)
+        }
+
+        return result
+    }
+
+    private fun isCapturing(unit: UnitActor): Boolean =
+        field.getTile(unit.tiledX, unit.tiledY)
+            ?.get(CapturingComponent::class.java)?.playerId == playerId
+
+    private fun isWorkerBusy(unit: UnitActor): Boolean {
+        val tile = field.getTile(unit.tiledX, unit.tiledY) ?: return false
+        if (tile.get(CapturingComponent::class.java)?.playerId == playerId) return true
+        if (tile.get(BaseBuildingComponent::class.java)?.playerId == playerId) return true
+        if (tile.get(BuildingComponent::class.java)?.playerId == playerId) return true
+        return false
     }
 
     fun nearestEnemy(from: UnitActor): UnitActor? =

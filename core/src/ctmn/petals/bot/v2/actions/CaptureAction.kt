@@ -34,7 +34,7 @@ class CaptureAction(bot: AiBot, private val unit: UnitActor) : BotAction(bot) {
 
         if (!unit.canMove()) return IMPOSSIBLE
 
-        val target = bot.context.nearestCapturable(unit) ?: return IMPOSSIBLE
+        val target = bot.context.workerCaptureTargets[unit.name] ?: return IMPOSSIBLE
         val step = Pathing.stepTowards(bot.field, unit, target.tiledX, target.tiledY) ?: return IMPOSSIBLE
         val cmd = MoveUnitCommand(unit, step.tiledX, step.tiledY)
         if (!cmd.canExecute(bot.battle)) return IMPOSSIBLE
