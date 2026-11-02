@@ -74,9 +74,6 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         // rolls damage of its own.
         val decided = decision ?: decideAttack(battle, attackerUnit, targetUnit).also { decision = it }
 
-        // Queue the attack animation BEFORE applying the attack. Applying it resolves deaths and
-        // queues their KillUnitAction, so doing it first made the death effect play before the
-        // attacker's swing.
         val outcome = AttackOutcome(
             miss = decided.miss,
             crit = decided.crit,

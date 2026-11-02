@@ -62,10 +62,7 @@ class BotContext(val bot: AiBot) {
     var capturables: List<TileActor> = emptyList()
         private set
 
-    /**
-     * Crystal each free worker should head to, so workers spread over different crystals
-     * instead of all dogpiling the nearest one.
-     */
+    /** Crystal assigned to each free worker this tick. */
     var workerCaptureTargets: Map<String, TileActor> = emptyMap()
         private set
 
@@ -100,11 +97,7 @@ class BotContext(val bot: AiBot) {
         workerCaptureTargets = assignWorkerCaptureTargets()
     }
 
-    /**
-     * One crystal per worker. Workers already capturing or constructing are busy and keep
-     * out of the pool. Workers already standing on a crystal claim it first, then the rest
-     * are matched greedily by distance so no two workers target the same crystal.
-     */
+    /** Assigns at most one worker per crystal. */
     private fun assignWorkerCaptureTargets(): Map<String, TileActor> {
         val freeWorkers = workers.filterNot { isWorkerBusy(it) }
         if (freeWorkers.isEmpty() || capturables.isEmpty()) return emptyMap()
