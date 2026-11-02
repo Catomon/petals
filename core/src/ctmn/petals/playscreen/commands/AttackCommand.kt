@@ -6,6 +6,7 @@ import ctmn.petals.playscreen.seqactions.AttackAction
 import ctmn.petals.playscreen.stageName
 import ctmn.petals.sim.Battle
 import ctmn.petals.sim.AttackDecision
+import ctmn.petals.sim.AttackOutcome
 import ctmn.petals.sim.applyAttack
 import ctmn.petals.sim.decideAttack
 import ctmn.petals.unit.UnitActor
@@ -73,9 +74,18 @@ class AttackCommand(val attackerUnitId: String, val targetUnitId: String) : Comm
         // rolls damage of its own.
         val decided = decision ?: decideAttack(battle, attackerUnit, targetUnit).also { decision = it }
 
-        battle.queueSeqAction(
-            AttackAction(attackerUnit, targetUnit, applyAttack(battle, attackerUnit, targetUnit, decided))
+        // Queue the attack animation BEFORE applying the attack. Applying it resolves deaths and
+        // queues their KillUnitAction, so doing it first made the death effect play before the
+        // attacker's swing.
+        val outcome = AttackOutcome(
+            miss = decided.miss,
+            crit = decided.crit,
+            splashHit = decided.splash.isNotEmpty(),
+            retaliated = decided.retaliated,
         )
+        battle.queueSeqAction(AttackAction(attackerUnit, targetUnit, outcome))
+
+        applyAttack(battle, attackerUnit, targetUnit, decided)
 
         return true
     }
