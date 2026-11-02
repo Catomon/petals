@@ -341,6 +341,7 @@ class PlayStage(
         get() {
             val tiles = ArrayList<TileActor>()
             for (layer in tileLayers.values()) {
+                if (layer == null) continue
                 for (actor in layer.children)
                     if (actor is TileActor) tiles.add(actor)
             }
@@ -374,10 +375,11 @@ class PlayStage(
 
     override fun shiftLayerAt(tileX: Int, tileY: Int, shiftAmount: Int) {
         val tilesToShift = Array<TileActor>()
-        tileLayers.values.forEach {
-            if (tileX in 0 until it.tilesGrid.size && tileY in 0 until (it.tilesGrid[0]?.size ?: 0)) {
+        tileLayers.values.forEach { layer ->
+            if (layer == null) return@forEach
+            if (tileX in 0 until layer.tilesGrid.size && tileY in 0 until (layer.tilesGrid[0]?.size ?: 0)) {
                 try {
-                    it.tilesGrid[tileX][tileY]?.let { tile -> tilesToShift.add(tile) }
+                    layer.tilesGrid[tileX][tileY]?.let { tile -> tilesToShift.add(tile) }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
