@@ -12,6 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check packed assets
+        run: |
+          missing=0
+          for f in units.atlas units.png tiles.atlas tiles.png tiles_winter.atlas tiles_winter.png \
+                   effects.atlas effects.png misc.atlas misc.png skin/wafer-ui.atlas skin/wafer-ui.png; do
+            if [ ! -f "android/assets/$f" ]; then
+              echo "::error::android/assets/$f is missing, run packTextures and commit it"
+              missing=1
+            fi
+          done
+          exit $missing
+
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:

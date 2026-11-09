@@ -1,0 +1,153 @@
+
+misc.png
+size: 1024, 640
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+blue_light
+  rotate: false
+  xy: 1, 45
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+cloud_shadow
+  rotate: false
+  xy: 1, 193
+  size: 500, 96
+  orig: 500, 96
+  offset: 0, 0
+  index: 0
+cloud_shadow
+  rotate: false
+  xy: 1, 95
+  size: 500, 96
+  orig: 500, 96
+  offset: 0, 0
+  index: 1
+fow
+  rotate: false
+  xy: 611, 251
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+map_frame
+  rotate: false
+  xy: 503, 183
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_auto
+  rotate: false
+  xy: 503, 205
+  size: 84, 84
+  orig: 84, 84
+  offset: 0, 0
+  index: -1
+map_frame_b
+  rotate: false
+  xy: 589, 269
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_l
+  rotate: false
+  xy: 1, 23
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_lb
+  rotate: false
+  xy: 51, 73
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_lr
+  rotate: false
+  xy: 503, 161
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_lrb
+  rotate: false
+  xy: 525, 183
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_lrt
+  rotate: false
+  xy: 589, 247
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_lrtb
+  rotate: false
+  xy: 611, 269
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_lt
+  rotate: false
+  xy: 1, 1
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_ltb
+  rotate: false
+  xy: 23, 23
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_r
+  rotate: false
+  xy: 51, 51
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_rb
+  rotate: false
+  xy: 73, 73
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_rt
+  rotate: false
+  xy: 503, 139
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_rtb
+  rotate: false
+  xy: 525, 161
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_t
+  rotate: false
+  xy: 547, 183
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+map_frame_tb
+  rotate: false
+  xy: 589, 225
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1

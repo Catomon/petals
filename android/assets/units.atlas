@@ -1,0 +1,1700 @@
+
+units.png
+size: 1024, 1024
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+alice
+  rotate: false
+  xy: 1, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice
+  rotate: false
+  xy: 1, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+alice
+  rotate: false
+  xy: 1, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+alice_airborne
+  rotate: false
+  xy: 35, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice_attack
+  rotate: false
+  xy: 1, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice_attack
+  rotate: false
+  xy: 35, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+alice_casting
+  rotate: false
+  xy: 69, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice_casting
+  rotate: false
+  xy: 1, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+alice_picking
+  rotate: false
+  xy: 35, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice_picking
+  rotate: false
+  xy: 35, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+alice_post_airborne
+  rotate: false
+  xy: 69, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice_post_airborne
+  rotate: false
+  xy: 103, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+alice_stick_attack
+  rotate: false
+  xy: 1, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice_stick_attack
+  rotate: false
+  xy: 35, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+alice_talking
+  rotate: false
+  xy: 69, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+alice_talking
+  rotate: false
+  xy: 103, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+angry_owl
+  rotate: false
+  xy: 137, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+angry_owl
+  rotate: false
+  xy: 1, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+big_evil_tree
+  rotate: false
+  xy: 35, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+big_evil_tree
+  rotate: false
+  xy: 69, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+big_toad
+  rotate: false
+  xy: 103, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+big_toad
+  rotate: false
+  xy: 103, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+big_toad
+  rotate: false
+  xy: 103, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+big_toad
+  rotate: false
+  xy: 137, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 3
+big_toad_attack
+  rotate: false
+  xy: 171, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+blob
+  rotate: false
+  xy: 1, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bulgy
+  rotate: false
+  xy: 35, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bulgy
+  rotate: false
+  xy: 69, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bulgy_attack
+  rotate: false
+  xy: 103, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bulgy_attack
+  rotate: false
+  xy: 137, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bulgy_attack
+  rotate: false
+  xy: 171, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+bulgy_attack
+  rotate: false
+  xy: 205, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 3
+bulgy_attack
+  rotate: false
+  xy: 1, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 4
+centaur_spear
+  rotate: false
+  xy: 35, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+centaur_spear
+  rotate: false
+  xy: 69, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+centaur_sword
+  rotate: false
+  xy: 103, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+centaur_sword
+  rotate: false
+  xy: 137, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+cherie
+  rotate: false
+  xy: 171, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+cherie
+  rotate: false
+  xy: 171, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+cherie
+  rotate: false
+  xy: 205, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+cherie_spearman
+  rotate: false
+  xy: 239, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+spearman
+  rotate: false
+  xy: 239, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+cherie_spearman
+  rotate: false
+  xy: 1, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+spearman
+  rotate: false
+  xy: 1, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+cinder
+  rotate: false
+  xy: 35, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+coloss
+  rotate: false
+  xy: 69, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+coloss
+  rotate: false
+  xy: 103, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+dummy
+  rotate: false
+  xy: 137, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dummy_attack
+  rotate: false
+  xy: 137, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+dummy
+  rotate: false
+  xy: 171, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+dummy_attack
+  rotate: false
+  xy: 205, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+evil_tree
+  rotate: false
+  xy: 239, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+evil_tree
+  rotate: false
+  xy: 273, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+face_evil_tree
+  rotate: false
+  xy: 1, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+face_evil_tree
+  rotate: false
+  xy: 35, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_armor_sword
+  rotate: false
+  xy: 69, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_armor_sword
+  rotate: false
+  xy: 103, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_armor_sword_attack
+  rotate: false
+  xy: 137, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_axe
+  rotate: false
+  xy: 171, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_axe
+  rotate: false
+  xy: 205, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_axe_attack
+  rotate: false
+  xy: 239, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_axe_attack
+  rotate: false
+  xy: 273, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_bomber
+  rotate: false
+  xy: 307, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_bomber
+  rotate: false
+  xy: 307, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_bomber_attack
+  rotate: false
+  xy: 1, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_bomber_attack
+  rotate: false
+  xy: 35, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_bow
+  rotate: false
+  xy: 69, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+fairy_bow
+  rotate: false
+  xy: 103, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_bow_attack
+  rotate: false
+  xy: 137, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_bow_attack
+  rotate: false
+  xy: 171, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_glaive
+  rotate: false
+  xy: 205, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_glaive
+  rotate: false
+  xy: 239, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_glaive_attack
+  rotate: false
+  xy: 273, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_hammer
+  rotate: false
+  xy: 307, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_hammer
+  rotate: false
+  xy: 341, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_hammer_attack
+  rotate: false
+  xy: 1, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_hammer_attack
+  rotate: false
+  xy: 35, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_healer
+  rotate: false
+  xy: 69, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_healer
+  rotate: false
+  xy: 103, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_healer_attack
+  rotate: false
+  xy: 137, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_mage
+  rotate: false
+  xy: 171, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_mage
+  rotate: false
+  xy: 171, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_mage_attack
+  rotate: false
+  xy: 171, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_pike
+  rotate: false
+  xy: 205, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_pike
+  rotate: false
+  xy: 239, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_pike_attack
+  rotate: false
+  xy: 273, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_scout
+  rotate: false
+  xy: 307, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_scout
+  rotate: false
+  xy: 341, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_scout_attack
+  rotate: false
+  xy: 375, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_shield
+  rotate: false
+  xy: 1, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_shield
+  rotate: false
+  xy: 35, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_shield_attack
+  rotate: false
+  xy: 69, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_slinger
+  rotate: false
+  xy: 103, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_slinger
+  rotate: false
+  xy: 137, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_slinger_attack
+  rotate: false
+  xy: 171, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_slinger_attack
+  rotate: false
+  xy: 205, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_sower
+  rotate: false
+  xy: 239, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_sower
+  rotate: false
+  xy: 273, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_sower_building
+  rotate: false
+  xy: 307, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_sower_building
+  rotate: false
+  xy: 341, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_sword
+  rotate: false
+  xy: 375, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fairy_sword
+  rotate: false
+  xy: 409, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fairy_sword_attack
+  rotate: false
+  xy: 1, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fish_guy
+  rotate: false
+  xy: 35, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fish_guy
+  rotate: false
+  xy: 35, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fish_guy
+  rotate: false
+  xy: 69, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+fish_guy_attack
+  rotate: false
+  xy: 103, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fish_guy_talking
+  rotate: false
+  xy: 137, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fish_guy_talking
+  rotate: false
+  xy: 171, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin
+  rotate: false
+  xy: 443, 451
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 0
+goblin
+  rotate: false
+  xy: 477, 485
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+goblin_boar
+  rotate: false
+  xy: 205, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_boar
+  rotate: false
+  xy: 239, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_boar_attack
+  rotate: false
+  xy: 273, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_boar_pike
+  rotate: false
+  xy: 307, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_boar_pike
+  rotate: false
+  xy: 341, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_boar_pike_attack
+  rotate: false
+  xy: 375, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_bomber
+  rotate: false
+  xy: 409, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_bomber
+  rotate: false
+  xy: 443, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_bomber_attack
+  rotate: false
+  xy: 1, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_bow
+  rotate: false
+  xy: 35, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_bow
+  rotate: false
+  xy: 69, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_bow_attack
+  rotate: false
+  xy: 103, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_bow_attack
+  rotate: false
+  xy: 137, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_bow_attack
+  rotate: false
+  xy: 171, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+goblin_catapult
+  rotate: false
+  xy: 205, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_catapult
+  rotate: false
+  xy: 239, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_catapult_attack
+  rotate: false
+  xy: 273, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_catapult_attack
+  rotate: false
+  xy: 307, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_crossbow
+  rotate: false
+  xy: 341, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_crossbow
+  rotate: false
+  xy: 375, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_crossbow_attack
+  rotate: false
+  xy: 409, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_crossbow_attack
+  rotate: false
+  xy: 443, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_galley
+  rotate: false
+  xy: 477, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_galley
+  rotate: false
+  xy: 1, 171
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_giant
+  rotate: false
+  xy: 35, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_giant
+  rotate: false
+  xy: 35, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_giant_attack
+  rotate: false
+  xy: 69, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_healer
+  rotate: false
+  xy: 103, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_healer
+  rotate: false
+  xy: 103, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_healer_attack
+  rotate: false
+  xy: 137, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_leader
+  rotate: false
+  xy: 171, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_leader
+  rotate: false
+  xy: 205, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_leader_attack
+  rotate: false
+  xy: 239, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_leader_attack
+  rotate: false
+  xy: 273, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_mace
+  rotate: false
+  xy: 307, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_mace
+  rotate: false
+  xy: 341, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_mace_attack
+  rotate: false
+  xy: 375, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_mace_attack
+  rotate: false
+  xy: 409, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_machete
+  rotate: false
+  xy: 443, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_machete
+  rotate: false
+  xy: 477, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_machete_attack
+  rotate: false
+  xy: 511, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_machete_attack
+  rotate: false
+  xy: 1, 137
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_pickaxe
+  rotate: false
+  xy: 35, 171
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_pickaxe
+  rotate: false
+  xy: 69, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_pickaxe_attack
+  rotate: false
+  xy: 103, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_pickaxe_building
+  rotate: false
+  xy: 103, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_pickaxe_attack
+  rotate: false
+  xy: 137, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_pickaxe_building
+  rotate: false
+  xy: 171, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_rat_king
+  rotate: false
+  xy: 205, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_rat_king
+  rotate: false
+  xy: 239, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_rat_king_attack
+  rotate: false
+  xy: 273, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_rat_king_attack
+  rotate: false
+  xy: 307, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_scout
+  rotate: false
+  xy: 341, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_scout
+  rotate: false
+  xy: 341, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_scout_attack
+  rotate: false
+  xy: 375, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_ship
+  rotate: false
+  xy: 409, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_ship
+  rotate: false
+  xy: 443, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_ship_attack
+  rotate: false
+  xy: 477, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_ship_attack
+  rotate: false
+  xy: 511, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_ship_attack
+  rotate: false
+  xy: 545, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+goblin_some
+  rotate: false
+  xy: 511, 519
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 0
+goblin_spear
+  rotate: false
+  xy: 1, 103
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_spear
+  rotate: false
+  xy: 35, 137
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_spear_attack
+  rotate: false
+  xy: 69, 171
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_spear_attack
+  rotate: false
+  xy: 103, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_sword
+  rotate: false
+  xy: 137, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_sword
+  rotate: false
+  xy: 171, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_sword_attack
+  rotate: false
+  xy: 205, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_sword_attack
+  rotate: false
+  xy: 239, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_wolf
+  rotate: false
+  xy: 273, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_wolf
+  rotate: false
+  xy: 307, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_wolf_attack
+  rotate: false
+  xy: 341, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_wyvern
+  rotate: false
+  xy: 375, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+goblin_wyvern
+  rotate: false
+  xy: 409, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+goblin_wyvern_attack
+  rotate: false
+  xy: 443, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+green_girl
+  rotate: false
+  xy: 477, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+green_girl
+  rotate: false
+  xy: 511, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+hunter
+  rotate: false
+  xy: 545, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+hunter
+  rotate: false
+  xy: 579, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+hunter_attack
+  rotate: false
+  xy: 1, 69
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+hunter_attack
+  rotate: false
+  xy: 35, 103
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+island
+  rotate: false
+  xy: 69, 137
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+old_tree
+  rotate: false
+  xy: 103, 171
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+pink_slime_ling
+  rotate: false
+  xy: 137, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+pink_slime_ling
+  rotate: false
+  xy: 171, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+pink_slime_ling_attack
+  rotate: false
+  xy: 205, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+pixie
+  rotate: false
+  xy: 239, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+pixie
+  rotate: false
+  xy: 273, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+pixie_attack
+  rotate: false
+  xy: 307, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+pixie_attack
+  rotate: false
+  xy: 341, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+rock
+  rotate: false
+  xy: 375, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+root
+  rotate: false
+  xy: 409, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+root_tree
+  rotate: false
+  xy: 443, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+root_tree
+  rotate: false
+  xy: 477, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime
+  rotate: false
+  xy: 511, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime
+  rotate: false
+  xy: 545, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_big
+  rotate: false
+  xy: 579, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_big
+  rotate: false
+  xy: 613, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_burning
+  rotate: false
+  xy: 1, 35
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_burning
+  rotate: false
+  xy: 35, 69
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_huge
+  rotate: false
+  xy: 69, 103
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_huge
+  rotate: false
+  xy: 103, 137
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_huge_airborne
+  rotate: false
+  xy: 137, 171
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+slime_huge_attack
+  rotate: false
+  xy: 171, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_huge_attack
+  rotate: false
+  xy: 205, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_ling
+  rotate: false
+  xy: 239, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_ling
+  rotate: false
+  xy: 273, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_ling_attack
+  rotate: false
+  xy: 307, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_ling_attack
+  rotate: false
+  xy: 341, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_pet
+  rotate: false
+  xy: 375, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_pet
+  rotate: false
+  xy: 409, 443
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_tiny
+  rotate: false
+  xy: 443, 477
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_tiny
+  rotate: false
+  xy: 477, 511
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_tiny_attack
+  rotate: false
+  xy: 511, 545
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+slime_tiny_attack
+  rotate: false
+  xy: 545, 579
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+slime_tiny_attack
+  rotate: false
+  xy: 579, 613
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+slime_tiny_book
+  rotate: false
+  xy: 613, 647
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+sluggish_ling
+  rotate: false
+  xy: 647, 681
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+sluggish_ling
+  rotate: false
+  xy: 1, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+unit
+  rotate: false
+  xy: 35, 35
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+village_spearman
+  rotate: false
+  xy: 69, 69
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+village_spearman
+  rotate: false
+  xy: 103, 103
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+village_swordsman
+  rotate: false
+  xy: 137, 137
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+village_swordsman
+  rotate: false
+  xy: 171, 171
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+water_bud
+  rotate: false
+  xy: 205, 205
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+water_bud
+  rotate: false
+  xy: 239, 239
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+water_bud_attack
+  rotate: false
+  xy: 273, 273
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+waterplant
+  rotate: false
+  xy: 307, 307
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+waterplant
+  rotate: false
+  xy: 341, 341
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+waterplant_attack
+  rotate: false
+  xy: 375, 375
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+waterplant_attack
+  rotate: false
+  xy: 409, 409
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
