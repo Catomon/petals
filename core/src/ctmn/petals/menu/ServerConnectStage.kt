@@ -22,7 +22,7 @@ import ctmn.petals.widgets.newTextButton
  * and left the lobby list buried under connection settings. This screen collects the details,
  * hands the connected client to [LobbiesStage] and gets out of the way.
  */
-class ServerConnectStage(private val menuScreen: MenuScreen) :
+class ServerConnectStage(private val menuScreen: MenuScreen, private val menu: MultiplayerMenu) :
     Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val nameField = VisTextField().apply { messageText = "Your name" }
@@ -42,7 +42,7 @@ class ServerConnectStage(private val menuScreen: MenuScreen) :
 
         connectButton.addChangeListener { connect() }
         // Only reachable from the browser, so back goes there rather than all the way to the menu.
-        returnButton.addChangeListener { menuScreen.stage = menuScreen.lobbiesStage }
+        returnButton.addChangeListener { menuScreen.stage = menu.lobbiesStage }
 
         table.setFillParent(true)
         table.center()
@@ -95,7 +95,7 @@ class ServerConnectStage(private val menuScreen: MenuScreen) :
                     pending.mapIds = welcome.mapIds
 
                     // Hand the live connection to the browser, which keeps it for the session.
-                    menuScreen.stage = menuScreen.lobbiesStage.connect(client, host, port, pending)
+                    menuScreen.stage = menu.lobbiesStage.connect(client, host, port, pending)
                 }
             }
 

@@ -13,6 +13,9 @@ object GameLocale {
 }
 
 fun getLangStringsByPrefs(): Strings {
+    // The browser build keeps the English defaults instead of going through reflection.
+    if (Config.IS_WEB) return Strings()
+
     val file = Gdx.files.internal("lang/${GamePref.locale}.json")
     if (!file.exists()) {
         check(GamePref.locale != GameLocale.ENGLISH)

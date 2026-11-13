@@ -90,9 +90,7 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
             menuScreen.stage = menuScreen.botGameSetupStage
         }
         vsPlayerButton.addChangeListener {
-            // Playing another person: same screen, LAN, or a dedicated server. This is the
-            // chooser, so it has to be the stage that offers all three.
-            menuScreen.stage = menuScreen.mpLobbyVariantsStage
+            menuScreen.openMultiplayerMenu()
         }
 
         table.setFillParent(true)
@@ -117,8 +115,12 @@ class MenuStage(val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScr
                     row()
                 }
 
-                add(vsPlayerButton).width(150f)
-                add(vsBotButton).width(150f)
+                if (Config.IS_WEB) {
+                    add(vsBotButton).width(300f).colspan(2)
+                } else {
+                    add(vsPlayerButton).width(150f)
+                    add(vsBotButton).width(150f)
+                }
                 row()
                 add(profileButton).width(150f)
                 add(editorButton).width(150f)

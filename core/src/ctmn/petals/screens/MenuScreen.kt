@@ -15,6 +15,13 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ctmn.petals.*
 import ctmn.petals.menu.*
 import ctmn.petals.widgets.ParallaxBackground
+import ctmn.petals.widgets.newNotifyWindow
+
+/**
+ * Builds the stage that opens the vs player flow. Launchers with networking install one through
+ * [ctmn.petals.menu.enableMultiplayerMenu]; without it the menu keeps the flow out.
+ */
+var multiplayerMenuFactory: ((MenuScreen) -> Stage?)? = null
 
 class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
 
@@ -34,13 +41,26 @@ class MenuScreen(val game: PetalsGame = ctmn.petals.game) : Screen {
     val storySelectStage = StorySelectStage(this)
     val levelsStage = LevelsStage(this)
     val menuStage = MenuStage(this)
-    val lobbiesStage = LobbiesStage(this)
-    val serverConnectStage = ServerConnectStage(this)
-    val mpLobbyVariantsStage = MpLobbyVariantsStage(this)
     val profileStage = ProfileStage(this)
     val botGameSetupStage = CustomGameSetupStage(this)
     val mapSelectionStage = MapSelectionStage(this) {}
     val settingsStage = SettingsStage(this)
+
+    private var multiplayerMenuStage: Stage? = null
+
+    /** Opens the vs player flow, when this platform has networking. */
+    fun openMultiplayerMenu() {
+        val stage = multiplayerMenuStage ?: multiplayerMenuFactory?.invoke(this)?.also {
+            multiplayerMenuStage = it
+        }
+
+        if (stage == null) {
+            menuStage.addActor(newNotifyWindow("Multiplayer is not available here.", "Multiplayer"))
+            return
+        }
+
+        this.stage = stage
+    }
 
     private val blackThingy =
         Sprite(assets.findAtlasRegion("gui/white")).also { it.color = Color.BLACK; it.setAlpha(0.5f) }

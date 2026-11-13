@@ -22,7 +22,7 @@ import ctmn.petals.widgets.*
  * [ServerConnectStage], so this screen is only ever about lobbies. Matches found through the
  * queue, and matches the host starts, are handed to [OnlinePlayScreen].
  */
-class LobbiesStage(private val menuScreen: MenuScreen) :
+class LobbiesStage(private val menuScreen: MenuScreen, private val menu: MultiplayerMenu) :
     Stage(menuScreen.viewport, menuScreen.batch), MenuStageAware {
 
     private var client: ServerClient? = null
@@ -134,7 +134,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
     }
 
     init {
-        connectButton.addChangeListener { menuScreen.stage = menuScreen.serverConnectStage }
+        connectButton.addChangeListener { menuScreen.stage = menu.serverConnectStage }
         refreshButton.addChangeListener { client?.listLobbies() }
         createButton.addChangeListener { createLobby() }
         quickButton.addChangeListener { queueJoin() }
@@ -266,6 +266,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         val activeClient = client ?: return
         menuScreen.stage = ServerLobbySetupStage(
             menuScreen = menuScreen,
+            menu = menu,
             client = activeClient,
             serverHost = serverHost,
             serverPort = serverPort,
@@ -278,6 +279,7 @@ class LobbiesStage(private val menuScreen: MenuScreen) :
         val activeClient = client ?: return
         menuScreen.stage = ServerLobbySetupStage(
             menuScreen = menuScreen,
+            menu = menu,
             client = activeClient,
             serverHost = serverHost,
             serverPort = serverPort,

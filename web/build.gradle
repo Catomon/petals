@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.22'
+}
+
+// The TeaVM tooling and its class library are built for Java 11 bytecode.
+java.sourceCompatibility = "11"
+java.targetCompatibility = "11"
+
+sourceSets.main.kotlin.srcDirs = ["src"]
+sourceSets.main.java.srcDirs = []
+sourceSets.main.resources.srcDirs += [rootProject.file('android/assets').path]
+
+// TeaVM's class library leaves out some java.* types that desktop libraries reference.
+// They are bundled here under TeaVM's classlib naming convention so they only link,
+// and only their unused paths are expected to do nothing useful.
+sourceSets {
+    classlibExt {
+        java.srcDirs = ['classlib-ext']
+    }
+    emulateExt {
+        java.srcDirs = ['emulate-src']
+    }
+}
+
+project.ext.mainClassName = 'ctmn.petals.web.WebBuilder'
+
+dependencies {
+    classlibExtImplementation "com.github.xpenatan.gdx-teavm:backend-teavm:$gdxTeaVMVersion"
+    emulateExtImplementation "com.github.xpenatan.gdx-teavm:backend-teavm:$gdxTeaVMVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+    implementation "com.github.xpenatan.gdx-teavm:backend-teavm:$gdxTeaVMVersion"
+    implementation "com.github.xpenatan.gdx-teavm:gdx-freetype-teavm:$gdxTeaVMVersion"
+    implementation "org.teavm:teavm-classlib:$teaVMVersion"
+    implementation "org.teavm:teavm-core:$teaVMVersion"
+    implementation "org.teavm:teavm-jso-apis:$teaVMVersion"
+    implementation "org.teavm:teavm-jso-impl:$teaVMVersion"
+    implementation "org.teavm:teavm-jso:$teaVMVersion"
+    implementation "org.teavm:teavm-tooling:$teaVMVersion"
+    implementation project(':core')
+}
+
+compileKotlin {
+    kotlinOptions { jvmTarget = "11" }
+}
+
+tasks.register('copyWebAssets', Copy) {
+    from rootProject.file('android/assets')
+    into layout.buildDirectory.dir('webassets')
+    exclude 'textures/**'
+    exclude '**/*.sai2'
+    doFirst {
+        delete layout.buildDirectory.dir('webassets')
+    }
+}
+
+tasks.register('buildJavaScript', JavaExec) {
+    dependsOn classes, classlibExtClasses, emulateExtClasses, copyWebAssets
+    group = 'build'
+    description = 'Transpile the game to JavaScript/HTML with TeaVM'
+    mainClass.set(project.mainClassName)
+    classpath = sourceSets.main.runtimeClasspath + sourceSets.emulateExt.output
+    workingDir = project.projectDir
+    maxHeapSize = '4g'
+    doFirst {
+        delete layout.buildDirectory.dir('dist')
+    }
+}
+
+build.dependsOn buildJavaScript
+
+// The generated webapp is static, so any plain file server works.
+tasks.register('runWeb', Exec) {
+    dependsOn buildJavaScript
+    group = 'application'
+    description = 'Serve the generated web build at http://localhost:8080'
+    workingDir = project.projectDir
+    commandLine 'node', 'serve.js', 'build/dist/webapp', '8080'
+}
+
+eclipse.project.name = appName + '-web'

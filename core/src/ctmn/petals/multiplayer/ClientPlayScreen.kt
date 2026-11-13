@@ -18,6 +18,7 @@ import ctmn.petals.multiplayer.json.serverres.RandomGeneratorResponse
 import ctmn.petals.multiplayer.json.serverres.StatusRequest
 import ctmn.petals.multiplayer.json.serverres.StatusResponse
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.NetworkedPlayScreen
 import ctmn.petals.playscreen.addAction
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandExecutedEvent
@@ -29,7 +30,17 @@ import ctmn.petals.widgets.newNotifyWindow
 
 class ClientPlayScreen(
     private val gameClient: GameClient,
-) : PlayScreen() {
+) : PlayScreen(), NetworkedPlayScreen {
+
+    override val isNetworkClient get() = true
+
+    override fun requestRemoteState() {
+        requestGameState()
+    }
+
+    override fun leaveNetwork() {
+        disconnectFromServer()
+    }
 
     private var serverStatus = ServerStatus.NOT_READY
 

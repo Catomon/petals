@@ -79,6 +79,7 @@ object Config {
     // GUI:
     val IS_MOBILE get() = Gdx.app.type == Application.ApplicationType.Android
     val IS_DESKTOP get() = Gdx.app.type == Application.ApplicationType.Desktop
+    val IS_WEB get() = Gdx.app.type == Application.ApplicationType.WebGL
     val IS_PORTRAIT get() = Gdx.graphics.width < Gdx.graphics.height
 
     private const val GUI_SCALE_MOBILE_LANDSCAPE = 1.25f

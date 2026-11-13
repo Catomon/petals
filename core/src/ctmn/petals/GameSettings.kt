@@ -26,7 +26,7 @@ object GamePref {
     var prefs: Preferences = Gdx.app.getPreferences(PREF_FILE_NAME)
     val savesFolder =
         when {
-            IS_MOBILE -> {
+            IS_MOBILE || Config.IS_WEB -> {
                 Gdx.files.local("saves/")
             }
 
@@ -147,13 +147,13 @@ object GamePref {
     var player: UserSave
         get() {
             return try {
-                fromGson(decryptData(prefs.getString("player"), generateSecretKey("cringe")), UserSave::class.java)
-            } catch (e: Exception) {
+                fromGson(SaveCrypto.decrypt(prefs.getString("player"), "cringe"), UserSave::class.java)
+            } catch (e: Throwable) {
                 UserSave()
             }
         }
         set(value) {
-            prefs.putString("player", encryptData(value.toGson(), generateSecretKey("cringe")))
+            prefs.putString("player", SaveCrypto.encrypt(value.toGson(), "cringe"))
         }
 
     init {

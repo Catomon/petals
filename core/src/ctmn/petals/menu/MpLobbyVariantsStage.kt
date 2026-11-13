@@ -23,7 +23,7 @@ import ctmn.petals.utils.startJmDNSAsClient
 import ctmn.petals.utils.startJmDNSAsServer
 import ctmn.petals.widgets.*
 
-class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScreen.viewport, menuScreen.batch) {
+class MpLobbyVariantsStage(private val menuScreen: MenuScreen, private val menu: MultiplayerMenu) : Stage(menuScreen.viewport, menuScreen.batch) {
 
     /**
      * Three ways to meet another player, and nothing else. Each one has its own screen behind it:
@@ -144,7 +144,7 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
         // Online goes straight to the browser, which connects to the configured server on its own.
         // The address form is only reached from there, and only for a server somewhere else.
         onlineButton.addChangeListener {
-            menuScreen.stage = menuScreen.lobbiesStage
+            menuScreen.stage = menu.lobbiesStage
         }
 
         lanButton.addChangeListener {
@@ -186,6 +186,7 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
                 onUi {
                     menuScreen.stage = ServerLobbySetupStage(
                         menuScreen = menuScreen,
+                        menu = menu,
                         client = client,
                         serverHost = host,
                         serverPort = Config.LAN_PORT,
@@ -267,8 +268,8 @@ class MpLobbyVariantsStage(private val menuScreen: MenuScreen) : Stage(menuScree
         client.listener = object : ServerClient.Listener {
             override fun onWelcome(welcome: Welcome) {
                 onUi {
-                    menuScreen.lobbiesStage.onLeave = { menuScreen.stage = this@MpLobbyVariantsStage }
-                    menuScreen.stage = menuScreen.lobbiesStage.connect(client, host, Config.LAN_PORT, welcome)
+                    menu.lobbiesStage.onLeave = { menuScreen.stage = this@MpLobbyVariantsStage }
+                    menuScreen.stage = menu.lobbiesStage.connect(client, host, Config.LAN_PORT, welcome)
                 }
             }
 

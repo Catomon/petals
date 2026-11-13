@@ -1,57 +1,35 @@
 ﻿package ctmn.petals.menu
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
-import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
-import com.kotcrab.vis.ui.VisUI
-import com.kotcrab.vis.ui.widget.*
-import ctmn.petals.*
-import ctmn.petals.actors.actions.OneAction
-import ctmn.petals.actors.actions.RepeatAction
+import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisWindow
+import ctmn.petals.GamePref
 import ctmn.petals.actors.actions.TimeAction
+import ctmn.petals.assets
 import ctmn.petals.bot.v2.BotFactory
-import ctmn.petals.editor.isOutdatedVersion
-import ctmn.petals.map.label.LabelActor
-import ctmn.petals.map.*
-import ctmn.petals.multiplayer.ClientPlayScreen
-import ctmn.petals.multiplayer.HostPlayScreen
-import ctmn.petals.multiplayer.JsonMessage
-import ctmn.petals.multiplayer.client.GameClient
-import ctmn.petals.multiplayer.client.ResponseListener
-import ctmn.petals.multiplayer.client.ServerHandler
-import ctmn.petals.multiplayer.json.LobbyState
-import ctmn.petals.multiplayer.json.PlayerSlotState
-import ctmn.petals.multiplayer.json.clientreq.MapRequest
-import ctmn.petals.multiplayer.json.serverres.Disconnected
-import ctmn.petals.multiplayer.json.serverres.LobbyStateResponse
-import ctmn.petals.multiplayer.json.serverres.MapResponse
-import ctmn.petals.multiplayer.server.ClientHandler
-import ctmn.petals.multiplayer.server.ClientRequestsQueue
-import ctmn.petals.multiplayer.server.ClientsController
-import ctmn.petals.multiplayer.server.GameServer
-import ctmn.petals.multiplayer.toJsonMessage
-import ctmn.petals.player.*
-import ctmn.petals.playscreen.*
-import ctmn.petals.playstage.PlayStage
+import ctmn.petals.game
+import ctmn.petals.map.MapConverted
+import ctmn.petals.menu.GameSetupPane
+import ctmn.petals.player.Player
+import ctmn.petals.playscreen.CaptureBases
+import ctmn.petals.playscreen.GameMode
+import ctmn.petals.playscreen.GameType
+import ctmn.petals.playscreen.PlayScreen
 import ctmn.petals.screens.MenuScreen
 import ctmn.petals.screens.PlayScreenTemplate
-import ctmn.petals.tile.TileActor
-import ctmn.petals.utils.*
-import ctmn.petals.widgets.*
-import io.netty.channel.ChannelFuture
-import io.netty.util.concurrent.GenericFutureListener
-import java.net.UnknownHostException
-import kotlin.concurrent.thread
+import ctmn.petals.strings
+import ctmn.petals.widgets.LoadingCover
+import ctmn.petals.widgets.addChangeListener
+import ctmn.petals.widgets.addNotifyWindow
+import ctmn.petals.widgets.newTextButton
 
-class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: LobbyType = LobbyType.LOCAL) :
+/**
+ * The same screen setup for a local match: pick a map, seat players and bots, then start.
+ * Networked rooms use their own stages, so nothing here talks to a server.
+ */
+class CustomGameSetupStage(private val menuScreen: MenuScreen) :
     Stage(menuScreen.viewport, menuScreen.batch) {
 
     private val pane = GameSetupPane(this)
@@ -64,296 +42,31 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     private val daytimeButton get() = pane.daytimeButton
     private val seasonButton get() = pane.seasonButton
 
-    private val roomProblemDrawable = VisUI.getSkin().getDrawable("room_status_problem")
-    private val roomOkDrawable = VisUI.getSkin().getDrawable("room_status_ok")
-    private val roomFailDrawable = VisUI.getSkin().getDrawable("room_status_fail")
-    private val roomStatusImage = VisImage(roomProblemDrawable)
-
     private val returnButton = newTextButton(strings.general.return_)
     private val confirmButton = newTextButton(strings.general.confirm).apply { isDisabled = true }
+
+    private val windowTable = VisTable()
 
     private var gameMode: GameMode
         get() = pane.gameMode
         set(value) { pane.gameMode = value }
 
-    private var isHost: Boolean
-        get() = pane.isHost
-        set(value) {
-            pane.isHost = value
-            hostChanged()
-        }
-    private var isPrivate = false
-
-    val lobbyType: LobbyType = pLobbyType
-
-    // The peer hosted room lives on the LAN port, not the dedicated server's port, so both can be
-    // open on one machine. The client falls back to the next two ports, matching GameServer.
-    private val server: GameServer? =
-        if (lobbyType == LobbyType.SERVER) GameServer(Config.LAN_PORT).apply { run() } else null
-    private val client: GameClient? =
-        if (lobbyType == LobbyType.CLIENT) GameClient(port = Config.LAN_PORT).apply { run() } else null
-
-    private val serverManager = LobbyServerManager()
-
-    private val hasFreeSlot get() = playerSlots.firstOrNull { it.player == null } != null
-    private val freePlayerId
-        get() = "12345678".toMutableList().apply {
-            removeAll { char ->
-                playerSlots.any {
-                    it.player?.id == char.toString().toInt()
-                }
-            }
-        }.first().toString().toInt()
-
-    enum class LobbyType {
-        LOCAL, SERVER, CLIENT
-    }
-
-    // if Sever
-    private var state: LobbyState.State = LobbyState.State.WAITING
-
-    // if Client
-    @get:Synchronized
-    private var remoteLobbyState: LobbyState? = null
-    private var remoteLobbyStateChanged = false
-
-    // server stuff v
-    private val clientsMessagesListener by lazy {
-        object : ClientRequestsQueue.ClientsMessagesListener {
-            override fun onClientMessage(clientId: String, jsonMessage: JsonMessage) {
-                when (jsonMessage.id) {
-                    "disconnected" -> {
-                        // remove client's player from the slot
-                        playerSlots.firstOrNull { it.player?.clientId == clientId }?.player = null
-                    }
-
-                    "map_request" -> {
-                        val map = mapPreview.map
-                        if (map != null) server?.clientsController?.sendMessage(
-                            clientId,
-                            MapResponse(map.mapId, map.mapSave).toJsonMessage()
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private val clientsListener by lazy {
-        object : ClientsController.ClientsListener {
-            override fun onClientIdentified(client: ClientHandler) {
-                if (client.clientId == "null") throw RuntimeException("Client id is \"null\"")
-
-                if (hasFreeSlot) {
-                    // if player is reconnecting
-                    val slot = playerSlots.firstOrNull { it.player?.clientId == client.clientId }?.also { slot ->
-                        val playerId = slot.player?.id ?: (freePlayerId - 1)
-                        slot.player = Player("Player${"ABCDEFGH"[playerId - 1]}", playerId, playerId)
-                        slot.player!!.clientId = client.clientId
-
-                        slot.button.color.a = 1f    // lost connection
-                    }
-
-                    // get free slot and set player for client
-                    if (slot == null)
-                        playerSlots.firstOrNull { it.player == null }?.also { slot ->
-                            slot.player = Player("Player${"ABCDEFGH"[freePlayerId - 1]}", freePlayerId, freePlayerId)
-                            slot.player!!.clientId = client.clientId
-                        }
-                }
-
-                refreshConfirmButton()
-
-                serverManager.sendLobbyState()
-            }
-
-            override fun onClientConnected(client: ClientHandler) {
-
-            }
-
-            override fun onClientLostConnection(client: ClientHandler) {
-                // if we didn't get "disconnected" message we assume player is lost connection
-                playerSlots.forEach {
-                    if (client.clientId != "null" && it.player?.clientId == client.clientId) {
-
-                        if (it.player != null)
-                            it.button.color.a = 0.5f    // lost connection
-
-                        refreshConfirmButton()
-
-                        println("[Server Lobby] Player ${client.clientId} lost connection")
-                    }
-                }
-            }
-        }
-    }
-    // server stuff ^
-
-    // client stuff v
-    private val clientConnectionListener by lazy {
-        GenericFutureListener<ChannelFuture> { future ->
-            if (!future.isSuccess) {
-                menuScreen.stage = menuScreen.mpLobbyVariantsStage
-
-                val e = Exception() //future.exceptionNow()
-                when (e) {
-                    is UnknownHostException -> menuScreen.stage.addActor(
-                        newNotifyWindow(
-                            "Unknown host.",
-                            "Multiplayer"
-                        )
-                    )
-
-                    else -> menuScreen.stage.addActor(
-                        newNotifyWindow(
-                            "Unable to connect to the server.",
-                            "Multiplayer"
-                        )
-                    )
-                }
-            }
-        }
-    }
-
-    private val serverResponseListener by lazy {
-        object : ResponseListener("everything", false) {
-
-            val client = this@CustomGameSetupStage.client!!
-
-            override fun responseReceived(jsonMessage: JsonMessage) {
-                super.responseReceived(jsonMessage)
-
-                println("[ClientLobby] Message received: ${jsonMessage.id}")
-
-                when (jsonMessage.id) {
-                    "lobby_state" -> {
-                        remoteLobbyState = fromGson(jsonMessage.message, LobbyStateResponse::class.java).lobbyState
-                        remoteLobbyStateChanged = true
-                    }
-                    //                    "client_id" -> {
-                    //                        localPlayer.clientId = fromGson(jsonMessage.message, ClientIdMessage::class.java).clientId
-                    //                    }
-                    "disconnected" -> {
-                        client.channelFuture.channel()?.close()
-
-                        val reason = fromGson(jsonMessage.message, Disconnected::class.java).reason
-                        menuScreen.menuStage.addActor(
-                            newNotifyWindow(
-                                "Disconnected from the server. Reason: $reason",
-                                "Multiplayer"
-                            )
-                        )
-                        menuScreen.stage = menuScreen.menuStage
-                    }
-
-                    "lobby_state_request" -> {
-                        serverManager.sendLobbyState()
-                    }
-
-                    "map" -> {
-                        val mapResponse = fromGson(jsonMessage.message, MapResponse::class.java)
-                        setLevel(MapConverted(mapResponse.mapSave).apply {
-                            thread {
-                                if (loadMapById(mapSave.id) == null)
-                                    saveSharedMap(mapSave)
-                            }
-                        })
-                    }
-                }
-            }
-        }
-    }
-
-    private val serverListener by lazy {
-        object : ServerHandler.ServerListener {
-
-            val client = this@CustomGameSetupStage.client!!
-
-            var reconnectCounter = 0
-
-            override fun onIdentified(clientId: String) {
-
-            }
-
-            override fun onConnected() {
-
-            }
-
-            override fun onDisconnected() {
-                // return if at this point we are not at this stage assuming that we got "disconnected" message
-                if (menuScreen.stage != this@CustomGameSetupStage) return
-
-                // Adding action to try to reconnect, if we are not connected after 3 tries show a notification window
-                addAction(
-                    Actions.sequence(
-                        RepeatAction(1.5f, 3) {
-                            reconnectCounter++
-
-                            Gdx.app.log("CustomGameSetupStage", "Reconnecting... $reconnectCounter")
-
-                            roomStatusImage.drawable = roomFailDrawable
-
-                            if (!client.running())
-                                client.run()
-
-                            if (client.running() && client.channelFuture.isSuccess) {
-                                Gdx.app.log("CustomGameSetupStage", "Reconnected!")
-                                reconnectCounter = 0
-
-                                roomStatusImage.drawable = roomOkDrawable
-
-                                //client.clientManager.sendRequest(LobbyStateRequest())
-
-                                return@RepeatAction true
-                            }
-                            return@RepeatAction false
-                        },
-                        DelayAction(1.5f),
-                        OneAction {
-                            if (!client.running() && !client.channelFuture.isSuccess) {
-                                menuScreen.menuStage.addActor(
-                                    newNotifyWindow(
-                                        "Lost connection to the server.",
-                                        "Multiplayer"
-                                    )
-                                )
-                                menuScreen.stage = menuScreen.menuStage
-                            }
-                        })
-                )
-            }
-        }
-    }
-    // client stuff ^
-
     init {
-        // The map preview, the eight slots and the settings row live in GameSetupPane, so the
-        // same UI can drive a dedicated server lobby later.
-        pane.allowLocalPlayer = lobbyType == LobbyType.LOCAL
-        // Only the host's own screen and the dedicated server can carry a seat move. A peer
-        // hosted client's host owns the arrangement and would only put them back.
-        pane.allowLocalSeatMove = lobbyType == LobbyType.SERVER
-        // A joiner is not the host: the peer that opened the room owns the map, the settings and
-        // the arrangement, and only a host may start. This was lost when the setup UI moved into
-        // GameSetupPane, and a LAN client came back believing it was the host, with an empty room.
-        isHost = lobbyType != LobbyType.CLIENT
-        pane.onLobbyChanged = {
-            // Seating and settings changed, so the start gate may have moved with them. Without
-            // this a lobby whose places were just filled still looked unstartable.
-            refreshConfirmButton()
-            serverManager.sendLobbyState()
-        }
+        pane.allowLocalPlayer = true
+        pane.allowLocalSeatMove = false
+        pane.onLobbyChanged = { refreshConfirmButton() }
         pane.onUnplayableMap = { message -> addNotifyWindow(message, "Custom Game") }
 
+        windowTable.setFillParent(true)
+        addActor(windowTable)
+
         // The footer goes in the pane's own 300px column, as a row after the vertical filler.
-        // Back is pinned left, the status image is centred in the space between, and confirm is
-        // pinned right, so the three do not bunch up together.
         with(pane.content) {
             row()
             add(VisTable().apply {
                 width = 300f
                 add(returnButton).left()
-                add(roomStatusImage).size(42f).expandX().center()
+                add().expandX()
                 add(confirmButton).right()
             }).width(300f)
         }
@@ -363,35 +76,24 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
                 it.onResult = { result ->
                     if (result != null) {
                         val map = result.map
-                        val gameMode = result.gameMode
+                        val mode = result.gameMode
 
                         if (map != null) {
                             setLevel(map)
 
-                            if (gameMode != null) {
-                                this.gameMode = gameMode
+                            if (mode != null) {
+                                this.gameMode = mode
                             }
                         }
                     }
 
                     menuScreen.stage = this
-
-                    serverManager.sendLobbyState()
                 }
             }
         }
 
         returnButton.addChangeListener {
-            state = LobbyState.State.CLOSED
-
-            serverManager.sendLobbyState()
-
-            client?.disconnect()
-
-            server?.shutdown()
-
             assets.tilesAtlas = assets.tilesSummerAtlas
-
             menuScreen.stage = menuScreen.menuStage
         }
 
@@ -399,152 +101,11 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
             addLoadingCoverAndStartGame()
         }
 
-        val clientId = GamePref.clientId
+        localPlayer.clientId = GamePref.clientId
+        setPlayerSlot(localPlayer, 0)
+        pane.hostPlayer = localPlayer
 
-        localPlayer.clientId = clientId
-
-        if (isHost) {
-            setPlayerSlot(localPlayer, 0)
-            pane.hostPlayer = localPlayer
-        }
-
-        // as Client
-        client?.let {
-            client.clientManager.clientId = clientId
-            setupClient()
-        }
-
-        // as Server
-        server?.let {
-            setupServer()
-        }
-
-        //..
         hostChanged()
-    }
-
-    private fun setupServer() {
-        val server = this.server!!
-
-        startJmDNSAsServer { result ->
-            if (!result) {
-                Gdx.app.log("CustomGameSetupStage", "Unable to start JmDNS.")
-//                menuScreen.mpLobbyVariantsStage.addActor(
-//                    newNotifyWindow(
-//                        "Unable to start JmDNS.\nCheck your network connection.",
-//                        "Host"
-//                    )
-//                )
-//                menuScreen.stage = menuScreen.mpLobbyVariantsStage
-
-                roomStatusImage.drawable = roomFailDrawable
-            } else {
-                roomStatusImage.drawable = roomOkDrawable
-            }
-        }
-
-        server.clientRequestsQueue.clientsMessagesListener = clientsMessagesListener
-
-        server.clientsController.clientsListener = clientsListener
-    }
-
-    private fun setupClient() {
-        val client = this.client!!
-        client.channelFuture.addListener(clientConnectionListener)
-        client.clientManager.addResponseListener(serverResponseListener)
-        client.handler.serverListener = serverListener
-
-        roomStatusImage.drawable = roomOkDrawable
-    }
-
-    private var doTime = 0f
-
-    override fun act(delta: Float) {
-        super.act(delta)
-
-        // client stuff
-        if (remoteLobbyStateChanged && remoteLobbyState != null) {
-            setLobbyState(remoteLobbyState!!)
-            remoteLobbyStateChanged = false
-        }
-
-        //do something once per 2 seconds
-        doTime += delta
-        if (doTime > 2f) {
-            doTime = 0f
-
-            //..
-        }
-    }
-
-    private fun setLobbyState(state: LobbyState) {
-        if (state.mapId != null) {
-            if (state.mapId != mapPreview.map?.mapId)
-                setLevel(loadMapById(state.mapId!!) ?: let {
-                    client?.clientManager?.sendMessage(MapRequest().toJsonMessage())
-
-                    null
-                })
-        } else
-            setLevel(null)
-
-        // set local player from remote lobby
-        if (localPlayer.clientId != "null" && localPlayer.clientId != null)
-            state.players.firstOrNull { it?.player?.clientId == localPlayer.clientId }?.player?.let {
-                localPlayer.setFrom(it)
-            }
-
-        var hostSeat: Player? = null
-        for (i in 0 until 8) {
-            val lobbyStatePlayer = state.players[i]?.player
-
-            if (localPlayer.clientId != "null" && localPlayer.clientId != null && lobbyStatePlayer?.clientId == localPlayer.clientId)
-                setPlayerSlot(localPlayer, i)
-            else
-                setPlayerSlot(lobbyStatePlayer, i)
-
-            val isSlotEmpty = lobbyStatePlayer == null
-
-            if (!isSlotEmpty && state.players[i]!!.isHost) hostSeat = playerSlots[i].player
-
-            playerSlots[i].isAI = !isSlotEmpty && state.players[i]!!.isAI
-        }
-
-        // The crown follows the host, so remember who they are rather than which slot they are in.
-        pane.hostPlayer = hostSeat
-
-        gameMode = state.gameMode
-
-        pane.fogOfWar = state.fogOfWar
-
-        //todo fun updateWidgets
-
-        pane.daytime = state.daytime
-
-        // The pane swaps the atlas and rebuilds tile views when the season changes.
-        pane.season = state.season
-
-        //..
-        if (state.state == LobbyState.State.PLAYING)
-            addLoadingCoverAndStartGame()
-    }
-
-    private fun getLobbyStateInstance(): LobbyState {
-        return LobbyState().apply {
-            pane.map?.let { mapId = it.mapId }
-
-            for (i in 0 until GameSetupPane.SLOT_COUNT)
-                if (pane.slots.get(i).player != null) {
-                    players[i] = pane.slotState(i)
-                }
-
-            fogOfWar = pane.fogOfWar
-            daytime = pane.daytime
-            season = pane.season
-            gameMode = pane.gameMode
-
-            state = this@CustomGameSetupStage.state
-        }
     }
 
     private fun addLoadingCoverAndStartGame() {
@@ -568,36 +129,19 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
     }
 
     private fun startGame() {
-        state = LobbyState.State.PLAYING
-        serverManager.sendLobbyState()
-
         if (pane.map == null) return
 
         val players = Array<Player>()
         pane.players.forEach { players.add(it) }
 
-        // A seat with no place on the map only watches. Same screen play has no spectators, since
-        // one machine drives every player whose turn it is.
-        if (lobbyType != LobbyType.LOCAL)
-            players.forEach { if (pane.isSeatWithoutPlace(it)) it.isSpectator = true }
-
-        val playScreen =
-            when (lobbyType) {
-                LobbyType.SERVER -> HostPlayScreen(server!!, getLobbyStateInstance())
-                LobbyType.CLIENT -> ClientPlayScreen(client!!)
-                LobbyType.LOCAL -> PlayScreen()
-            }
-
+        val playScreen = PlayScreen()
         playScreen.season = pane.season
 
         val ps = PlayScreenTemplate.pvp(
             menuScreen.game,
             pane.map!!,
             players,
-            if (lobbyType == LobbyType.LOCAL)
-                GameType.PVP_SAME_SCREEN
-            else
-                GameType.MULTIPLAYER,
+            GameType.PVP_SAME_SCREEN,
             CaptureBases(),
             pane.gameMode,
             localPlayer,
@@ -624,8 +168,6 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
 
     private fun setPlayerSlot(player: Player?, slotIndex: Int) = pane.setPlayerSlot(player, slotIndex)
 
-    private fun getPlayerSlot(player: Player) = pane.getPlayerSlot(player)
-
     private fun refreshConfirmButton() {
         confirmButton.isDisabled = !pane.canStart
     }
@@ -635,19 +177,14 @@ class CustomGameSetupStage(private val menuScreen: MenuScreen, pLobbyType: Lobby
         refreshConfirmButton()
     }
 
-    private fun removePlayer(player: Player) {
-        if (player.clientId != null) {
-            server?.clientsController?.disconnectClient(player.clientId!!, ClientsController.REASON_KICKED)
+    override fun addActor(actor: Actor?) {
+        if (actor is VisWindow) {
+            actor.isMovable = false
+            windowTable.clear()
+            windowTable.add(actor).expand().center().maxWidth(viewport.worldWidth - 10f)
+            return
         }
 
-        pane.removePlayer(player)
-
-        refreshConfirmButton()
-    }
-
-    private inner class LobbyServerManager {
-        fun sendLobbyState() {
-            server?.clientsController?.broadcastMessage(JsonMessage(LobbyStateResponse(getLobbyStateInstance()).toGson()))
-        }
+        super.addActor(actor)
     }
 }

@@ -46,6 +46,7 @@ import ctmn.petals.widgets.newTextButton
  */
 class ServerLobbySetupStage(
     private val menuScreen: MenuScreen,
+    private val menu: MultiplayerMenu,
     private val client: ServerClient,
     private val serverHost: String,
     private val serverPort: Int,
@@ -575,7 +576,7 @@ class ServerLobbySetupStage(
         leaving = true
 
         val leaveTo = onLeave
-        if (leaveTo != null) leaveTo() else menuScreen.stage = menuScreen.lobbiesStage
+        if (leaveTo != null) leaveTo() else menuScreen.stage = menu.lobbiesStage
     }
 
     /**

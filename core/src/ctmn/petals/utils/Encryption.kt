@@ -1,38 +1,23 @@
 package ctmn.petals.utils
 
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
-import javax.crypto.spec.SecretKeySpec
-import java.security.spec.KeySpec
-import java.util.Base64
-import javax.crypto.Cipher
-
-fun encryptData(text: String, secretKey: SecretKeySpec): String {
-    val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-    cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-
-    val encryptedBytes = cipher.doFinal(text.toByteArray())
-    return Base64.getEncoder().encodeToString(encryptedBytes)
+/**
+ * Turns saved data into text and back. Desktop installs an AES cipher so save files are not
+ * readable; targets without one keep the text as it is.
+ */
+interface SaveCipher {
+    fun encrypt(text: String, key: String): String
+    fun decrypt(text: String, key: String): String
 }
 
-
-fun decryptData(encryptedString: String, secretKey: SecretKeySpec): String {
-    val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-    cipher.init(Cipher.DECRYPT_MODE, secretKey)
-
-    val encryptedBytes = Base64.getDecoder().decode(encryptedString)
-    val decryptedBytes = cipher.doFinal(encryptedBytes)
-    return String(decryptedBytes)
+object PlainTextCipher : SaveCipher {
+    override fun encrypt(text: String, key: String): String = text
+    override fun decrypt(text: String, key: String): String = text
 }
 
-fun generateSecretKey(password: String, salt: ByteArray? = ByteArray(1) { 1 }): SecretKeySpec {
-    val iterations = 10000
-    val keyLength = 256
+object SaveCrypto : SaveCipher {
+    var cipher: SaveCipher = PlainTextCipher
 
-    val keySpec: KeySpec = PBEKeySpec(password.toCharArray(), salt, iterations, keyLength)
+    override fun encrypt(text: String, key: String): String = cipher.encrypt(text, key)
 
-    val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-    val secretKey = secretKeyFactory.generateSecret(keySpec)
-
-    return SecretKeySpec(secretKey.encoded, "AES")
+    override fun decrypt(text: String, key: String): String = cipher.decrypt(text, key)
 }

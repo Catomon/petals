@@ -33,6 +33,10 @@ Gradle wrapper is checked in. Kotlin 1.9, libGDX 1.13, Ashley ECS, VisUI.
 - Compile desktop: `.\gradlew.bat :desktop:classes`
 - Run the game: `.\gradlew.bat :desktop:run`
 - Run unit tests: `.\gradlew.bat :core:test` (tests live in `core/test`)
+- Build the web bundle: `.\gradlew.bat :web:buildJavaScript` (static output in
+  `web/build/dist/webapp`, serve locally with `:web:runWeb`). The web build reaches the menu;
+  playing a match still needs the reflection and Gson limitations described in
+  `docs/builds-and-release.md` sorted out.
 
 On macOS/Linux use `./gradlew` instead.
 

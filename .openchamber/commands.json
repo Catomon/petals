@@ -1,0 +1,40 @@
+{
+  "commands": [
+    {
+      "id": "run",
+      "name": "run",
+      "description": "Launch the desktop game",
+      "command": ".\\gradlew.bat :desktop:run --console=plain",
+      "env": {
+        "JAVA_HOME": "C:/Users/Mabel/.gradle/jdks/eclipse_adoptium-17-amd64-windows/jdk-17.0.17+10"
+      }
+    },
+    {
+      "id": "build-apk",
+      "name": "build apk",
+      "description": "Build the debug APK and copy it into dist/<version>",
+      "command": ".\\gradlew.bat :android:assembleDebug --console=plain; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $version = ((Select-String -Path build.gradle -Pattern \"version = '([^']+)'\").Matches[0].Groups[1].Value); $apk = Get-ChildItem 'android\\build\\outputs\\apk\\debug' -Filter *.apk | Select-Object -First 1; $dir = \"dist\\$version\"; New-Item -ItemType Directory -Force -Path $dir | Out-Null; $out = Join-Path $dir \"petals-$version-debug.apk\"; Copy-Item $apk.FullName $out -Force; Write-Host \"APK: $out\"",
+      "env": {
+        "JAVA_HOME": "C:/Users/Mabel/.gradle/jdks/eclipse_adoptium-17-amd64-windows/jdk-17.0.17+10"
+      }
+    },
+    {
+      "id": "build-distributable",
+      "name": "build distributable",
+      "description": "Build the desktop fat jar and copy it into dist/<version>",
+      "command": ".\\gradlew.bat :desktop:dist --console=plain; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $version = ((Select-String -Path build.gradle -Pattern \"version = '([^']+)'\").Matches[0].Groups[1].Value); $jar = \"desktop\\build\\libs\\desktop-$version.jar\"; $dir = \"dist\\$version\"; New-Item -ItemType Directory -Force -Path $dir | Out-Null; Copy-Item $jar (Join-Path $dir 'FaesFeisty.jar') -Force; Copy-Item $jar (Join-Path $dir \"petals-$version-desktop.jar\") -Force; Write-Host \"JAR: $(Join-Path $dir 'FaesFeisty.jar')\"",
+      "env": {
+        "JAVA_HOME": "C:/Users/Mabel/.gradle/jdks/eclipse_adoptium-17-amd64-windows/jdk-17.0.17+10"
+      }
+    },
+    {
+      "id": "build-web",
+      "name": "build web",
+      "description": "Transpile the HTML/TeaVM build and zip it into dist/<version>",
+      "command": ".\\gradlew.bat :web:buildJavaScript --console=plain; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $version = ((Select-String -Path build.gradle -Pattern \"version = '([^']+)'\").Matches[0].Groups[1].Value); $web = 'web\\build\\dist\\webapp'; $dir = \"dist\\$version\"; New-Item -ItemType Directory -Force -Path $dir | Out-Null; $zip = Join-Path $dir \"FaesFeisty-web-$version.zip\"; if (Test-Path $zip) { Remove-Item $zip -Force }; Compress-Archive -Path \"$web\\*\" -DestinationPath $zip; Write-Host \"WEB: $zip\"; Write-Host \"Serve with: .\\gradlew.bat :web:runWeb\"",
+      "env": {
+        "JAVA_HOME": "C:/Users/Mabel/.gradle/jdks/eclipse_adoptium-17-amd64-windows/jdk-17.0.17+10"
+      }
+    }
+  ]
+}

@@ -26,7 +26,6 @@ import ctmn.petals.Config.TILE_SIZE
 import ctmn.petals.GamePref
 import ctmn.petals.strings
 import ctmn.petals.editor.ui.addTooltip
-import ctmn.petals.multiplayer.ClientPlayScreen
 import ctmn.petals.player.Player
 import ctmn.petals.player.Species
 import ctmn.petals.player.fairy
@@ -350,11 +349,9 @@ class PlayGUIStage(
             }
         })
 
-        if (playScreen.gameType == GameType.MULTIPLAYER) {
-            if (playScreen is ClientPlayScreen) {
-                refreshButton.addChangeListener {
-                    playScreen.requestGameState()
-                }
+        if (playScreen is NetworkedPlayScreen && playScreen.isNetworkClient) {
+            refreshButton.addChangeListener {
+                (playScreen as NetworkedPlayScreen).requestRemoteState()
             }
         }
 
@@ -918,11 +915,9 @@ class PlayGUIStage(
             row()
             add(cancelButton).right().top()
             row()
-            if (playScreen.gameType == GameType.MULTIPLAYER) {
-                if (playScreen is ClientPlayScreen) {
-                    add(refreshButton).right().top()
-                    row()
-                }
+            if (playScreen is NetworkedPlayScreen && playScreen.isNetworkClient) {
+                add(refreshButton).right().top()
+                row()
             }
         }
 

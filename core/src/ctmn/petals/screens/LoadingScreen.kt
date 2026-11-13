@@ -14,6 +14,7 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import ctmn.petals.Config
 import ctmn.petals.PetalsGame
+import ctmn.petals.PlatformHooks
 import ctmn.petals.actors.actions.OneAction
 import ctmn.petals.actors.actions.TimeAction
 import ctmn.petals.actors.actions.UpdateAction
@@ -101,7 +102,7 @@ class LoadingScreen(private val game: PetalsGame) : Stage(ExtendViewport(32f, 72
 
                 if (!Config.botTest && Config.onlineTest && !autoJoinStarted) {
                     autoJoinStarted = true
-                    ctmn.petals.multiplayer.OnlineAutoJoin.start(
+                    PlatformHooks.startOnlineAutoJoin?.invoke(
                         game, Config.onlineTestHost, Config.onlineTestPort
                     )
                 }

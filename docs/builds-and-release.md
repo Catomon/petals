@@ -40,6 +40,21 @@ Three places move together:
   crash, run the image's own bundled java directly on its jar with output redirected.
 - The game runs fine on an old Java runtime, the desktop jar targets Java 8.
 
+## Web
+
+- The `web` module transpiles the game to JavaScript with TeaVM (gdx-teavm) and writes a
+  static webapp to `web/build/dist/webapp`. It needs no server code: any static file host
+  works, and `.\gradlew.bat :web:runWeb` serves it locally with `web/serve.js`.
+- Source art under `android/assets/textures` is filtered out of the web copy. The runtime
+  only uses the packed atlases, and a browser will refuse to fetch 1500 files at once.
+- TeaVM's class library leaves out parts of `java.*` that Gson and the desktop libraries
+  reference. `web/classlib-ext` supplies those classes under TeaVM's `T` naming convention,
+  and `web/emulate-src` adds missing methods to class library classes through gdx-teavm's
+  `@Emulate` hook.
+- The web build currently boots to the menu. A match still needs work: unit and ability
+  creation goes through `java.lang.reflect` constructors, and Gson cannot see generic
+  collection types under TeaVM, so map loading needs a different serializer path.
+
 ## Build output folder
 
 Convention used on this machine: copy the versioned desktop jar, the debug APK and the
@@ -51,6 +66,10 @@ there.
 Build both desktop and Android:
 
     .\gradlew.bat :desktop:dist :android:assembleDebug
+
+Build the web bundle:
+
+    .\gradlew.bat :web:buildJavaScript
 
 If the build complains about class file versions, point `JAVA_HOME` at a compatible JDK for
 that command. If the Android SDK is not found, check `local.properties`.

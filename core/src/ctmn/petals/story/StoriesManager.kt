@@ -11,27 +11,30 @@ object StoriesManager : HashMap<Int, KClass<out Story>>() {
         put(TREASURED_PETALS_STORY_ID, AlissaStory::class)
     }
 
-    fun getStories() : Array<Story> {
+    private fun create(id: Int): Story =
+        when (id) {
+            TREASURED_PETALS_STORY_ID -> AlissaStory()
+            else -> throw IllegalArgumentException("story '$id' not found")
+        }
+
+    fun getStories(): Array<Story> {
         val stories = Array<Story>()
-        for (scenarioClass in this.values) {
-            val scenario = scenarioClass.java.constructors[0].newInstance() as Story
-            stories.add(scenario)
+        for (id in keys) {
+            stories.add(create(id))
         }
 
         return stories
     }
 
-    fun byName(name: String) : Story {
-        for (scenarioClass in this.values) {
-            val scenario = scenarioClass.java.constructors[0].newInstance() as Story
-            if (name == scenario.name)
-                return scenario
+    fun byName(name: String): Story {
+        for (id in keys) {
+            val story = create(id)
+            if (name == story.name)
+                return story
         }
 
         throw IllegalArgumentException("story '$name' not found")
     }
 
-    fun byId(id: Int) : Story {
-        return this[id]!!.java.constructors[0].newInstance() as Story
-    }
+    fun byId(id: Int): Story = create(id)
 }

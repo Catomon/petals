@@ -27,8 +27,6 @@ import ctmn.petals.map.MapConverted
 import ctmn.petals.map.labels
 import ctmn.petals.map.tiles
 import ctmn.petals.map.units
-import ctmn.petals.multiplayer.ClientPlayScreen
-import ctmn.petals.multiplayer.HostPlayScreen
 import ctmn.petals.multiplayer.applyGameStateToPlayScreen
 import ctmn.petals.multiplayer.createSnapshot
 import ctmn.petals.multiplayer.json.GameStateSnapshot
@@ -523,16 +521,8 @@ open class PlayScreen(
     fun returnToMenuScreen() {
         onLeavingMatch()
 
-        if (gameType == GameType.MULTIPLAYER) {
-            when (this) {
-                is HostPlayScreen -> {
-                    shutdownServer()
-                }
-
-                is ClientPlayScreen -> {
-                    disconnectFromServer()
-                }
-            }
+        if (this is NetworkedPlayScreen) {
+            leaveNetwork()
         }
 
         GamePref.bookSave = Book.bookSave

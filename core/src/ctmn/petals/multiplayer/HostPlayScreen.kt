@@ -13,6 +13,7 @@ import ctmn.petals.multiplayer.server.ClientRequestsQueue
 import ctmn.petals.multiplayer.server.ClientsController
 import ctmn.petals.multiplayer.server.GameServer
 import ctmn.petals.playscreen.PlayScreen
+import ctmn.petals.playscreen.NetworkedPlayScreen
 import ctmn.petals.playscreen.commands.Command
 import ctmn.petals.playscreen.events.CommandExecutedEvent
 import ctmn.petals.playscreen.gui.floatingLabel
@@ -24,7 +25,16 @@ import ctmn.petals.widgets.newNotifyWindow
 class HostPlayScreen(
     private val gameServer: GameServer,
     private val lobbyState: LobbyState,
-) : PlayScreen() {
+) : PlayScreen(), NetworkedPlayScreen {
+
+    override val isNetworkClient get() = false
+
+    override fun requestRemoteState() {
+    }
+
+    override fun leaveNetwork() {
+        shutdownServer()
+    }
 
     private val playerStatuses = mutableMapOf<String, PlayerStatus>()
 

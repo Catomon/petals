@@ -1,93 +1,31 @@
 package ctmn.petals
 
-import net.arikia.dev.drpc.DiscordEventHandlers
-import net.arikia.dev.drpc.DiscordRPC
-import net.arikia.dev.drpc.DiscordRichPresence
-import java.util.Scanner
-import kotlin.concurrent.thread
-
-var discordRichDisabled = !Config.IS_DESKTOP || Config.DISABLE_RICH
-
-fun startDiscordRich() {
-    if (discordRichDisabled) return
-
-    DiscordRPC.discordInitialize("1209175690793066516", DiscordEventHandlers(), true)
-}
-
-fun stopDiscordRich() {
-    if (discordRichDisabled) return
-
-    DiscordRPC.discordShutdown()
-}
-
+/**
+ * What the game is doing, for platforms that can show it outside the window.
+ * Desktop installs a Discord implementation, other targets keep the hook empty.
+ */
 enum class Rich {
     DEFAULT,
     EDITOR,
     PLAYING,
 }
 
-fun discordRich(rich: Rich) {
-    if (discordRichDisabled) return
-
-    val presence = DiscordRichPresence().apply {
-        largeImageKey = "big_icon"
-        largeImageText = Config.APP_NAME
-
-        when (rich) {
-            Rich.DEFAULT -> {
-
-            }
-            Rich.EDITOR -> {
-                smallImageKey = "small_icon"
-                smallImageText = "Petals"
-                details = "In Map Editor"
-            }
-            Rich.PLAYING -> {
-                smallImageKey = "small_icon"
-                smallImageText = "Petals"
-                details = "In Game"
-            }
-        }
-    }
-
-    DiscordRPC.discordUpdatePresence(presence)
+interface DiscordPresence {
+    fun start()
+    fun stop()
+    fun update(rich: Rich)
 }
 
-fun main() {
-    DiscordRPC.discordInitialize("1209175690793066516", DiscordEventHandlers(), true)
+var discordPresence: DiscordPresence? = null
 
-    val presence =
-        DiscordRichPresence.Builder("current state")
-            .setBigImage("big_icon", "big")
-            .setSmallImage("small_icon", "small")
-            .setDetails("details")
-            .build()
+fun startDiscordRich() {
+    discordPresence?.start()
+}
 
-    DiscordRPC.discordUpdatePresence(presence)
+fun stopDiscordRich() {
+    discordPresence?.stop()
+}
 
-    Thread.sleep(3000)
-
-    presence.details = "updated details"
-    presence.endTimestamp = System.currentTimeMillis() / 1000L + 300L
-    presence.startTimestamp = System.currentTimeMillis() / 1000L
-
-    DiscordRPC.discordUpdatePresence(presence)
-
-    val t = thread {
-        presence.details = Scanner(System.`in`).nextLine()
-        DiscordRPC.discordUpdatePresence(presence)
-    }
-
-    var currentSec = 0
-    val maxSec = 300
-    while (currentSec < maxSec) {
-        currentSec++
-        Thread.sleep(1000)
-        //DiscordRPC.discordUpdatePresence(presence)
-    }
-
-    Thread.sleep(5000)
-
-    t.interrupt()
-    DiscordRPC.discordShutdown()
+fun discordRich(rich: Rich) {
+    discordPresence?.update(rich)
 }

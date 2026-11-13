@@ -104,7 +104,7 @@ object SavesManager {
         for (save in folder) {
             try {
                 if (Gson().fromJson(decryptStoryToJson(save.readString()), StorySaveGson::class.java).save_name == storySaveGson.save_name) {
-                    save.writeString(encryptData(storySaveGson.toGson(), generateSecretKey(asdfaksf)), false, Charsets.UTF_8.name())
+                    save.writeString(SaveCrypto.encrypt(storySaveGson.toGson(), "story"), false, Charsets.UTF_8.name())
                     return
                 }
             } catch (e: Exception) {
@@ -122,7 +122,7 @@ object SavesManager {
     
     fun decryptStoryToJson(encryptedString: String) : String {
         return try {
-            decryptData(encryptedString, generateSecretKey(asdfaksf))
+            SaveCrypto.decrypt(encryptedString, asdfaksf)
         } catch (e: Exception) {
             logErr("Failed to decrypt a story save")
             e.printStackTrace()
@@ -138,7 +138,7 @@ object SavesManager {
         val fileName = "$saveName$SAVE_EXT"
         val jsonSave = Gson().toJson(storySaveGson, storySaveGson::class.java)
         
-        val storyEncrypted = encryptData(jsonSave, generateSecretKey(asdfaksf))
+        val storyEncrypted = SaveCrypto.encrypt(jsonSave, asdfaksf)
 
         savesFolder.child(fileName).writeString(storyEncrypted, false, Charsets.UTF_8.name())
     }

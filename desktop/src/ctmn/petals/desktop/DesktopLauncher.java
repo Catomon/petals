@@ -4,6 +4,7 @@ import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import ctmn.petals.Config;
+import ctmn.petals.DiscordRichKt;
 import ctmn.petals.GamePref;
 import ctmn.petals.PetalsGame;
 
@@ -96,6 +97,10 @@ public class DesktopLauncher {
         config.addIcon("libgdx64.png", Files.FileType.Internal);
         config.addIcon("libgdx32.png", Files.FileType.Internal);
         //config.addIcon("libgdx16.png", Files.FileType.Internal);
+
+        DiscordRichKt.setDiscordPresence(new DesktopDiscordPresence());
+        ctmn.petals.utils.SaveCrypto.INSTANCE.setCipher(new AesSaveCipher());
+        ctmn.petals.menu.MultiplayerMenuKt.enableNetworking();
 
         new LwjglApplication(new PetalsGame(RunTexturePacker::pack, () -> {
             if (windowed) {

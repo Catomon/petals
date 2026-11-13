@@ -19,6 +19,10 @@ fun updateAppConfigToPrefs() {
     AudioManager.soundVolume = soundVolume
     AudioManager.musicVolume = musicVolume
     strings = getLangStringsByPrefs()
+
+    // The browser owns the window, frame pacing and vsync.
+    if (Config.IS_WEB) return
+
     Gdx.graphics.setForegroundFPS(targetFps)
     Gdx.graphics.setVSync(vSync)
     if (fullscreen)
@@ -120,7 +124,7 @@ class PetalsGame(val runTexturePacker: Runnable = Runnable {  }, val onCreate: R
     override fun dispose() {
         // The room a LAN host runs lives in this process, so close it before the window goes,
         // or its threads would keep the process alive after the window is gone.
-        ctmn.petals.net.LanHost.stop()
+        PlatformHooks.onDispose?.invoke()
 
         if (Config.IS_DESKTOP)
             stopDiscordRich()
